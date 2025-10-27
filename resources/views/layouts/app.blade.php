@@ -37,7 +37,7 @@
         </div>
     </header>
 
-    <main class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<main class="w-full max-w-screen mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-8 md:py-10">
         @yield('content')
     </main>
 
