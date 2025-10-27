@@ -180,7 +180,7 @@ class YerSotuvController extends Controller
             'Шайхонтоҳур т.',
             'Юнусобод т.',
             'Яккасарой т.',
-            'Янги хаёт т.',
+            'Янги ҳаёт т.',
             'Яшнобод т.'
         ];
         
@@ -403,31 +403,58 @@ class YerSotuvController extends Controller
         }
     }
     
-    public function show($lotRaqami)
+   public function show($lot_raqami)
     {
-        $yer = YerSotuv::where('lot_raqami', $lotRaqami)
-            ->with(['grafikTolovlar', 'faktTolovlar'])
+        // Eager loading bilan barcha ma'lumotlarni olish
+        $yer = YerSotuv::where('lot_raqami', $lot_raqami)
+            ->with([
+                'grafikTolovlar' => function($query) {
+                    $query->orderBy('yil')->orderBy('oy');
+                },
+                'faktTolovlar' => function($query) {
+                    $query->orderByDesc('tolov_sana');
+                }
+            ])
             ->firstOrFail();
-        
-        $grafikByMonth = $yer->grafikTolovlar()
-            ->selectRaw('yil, oy, oy_nomi, SUM(grafik_summa) as summa')
-            ->groupBy('yil', 'oy', 'oy_nomi')
-            ->orderBy('yil')
-            ->orderBy('oy')
-            ->get();
-        
-        $faktByMonth = $yer->faktTolovlar()
-            ->selectRaw('YEAR(tolov_sana) as yil, MONTH(tolov_sana) as oy, SUM(tolov_summa) as summa')
-            ->groupBy(DB::raw('YEAR(tolov_sana)'), DB::raw('MONTH(tolov_sana)'))
-            ->orderBy(DB::raw('YEAR(tolov_sana)'))
-            ->orderBy(DB::raw('MONTH(tolov_sana)'))
-            ->get();
-        
-        $tolovTaqqoslash = $this->comparePayments($grafikByMonth, $faktByMonth);
-        
+
+        // To'lovlarni taqqoslash
+        $tolovTaqqoslash = $this->taqqoslashHisoblash($yer);
+
         return view('yer-sotuvlar.show', compact('yer', 'tolovTaqqoslash'));
     }
-    
+      private function taqqoslashHisoblash($yer)
+    {
+        // Grafik to'lovlarni guruhlash
+        $grafikByMonth = $yer->grafikTolovlar->groupBy(function($item) {
+            return $item->yil . '-' . str_pad($item->oy, 2, '0', STR_PAD_LEFT);
+        });
+
+        // Fakt to'lovlarni oy bo'yicha guruhlash
+        $faktByMonth = $yer->faktTolovlar->groupBy(function($item) {
+            return $item->tolov_sana->format('Y-m');
+        });
+
+        $taqqoslash = [];
+
+        foreach ($grafikByMonth as $key => $grafikItems) {
+            $grafikSumma = $grafikItems->sum('grafik_summa');
+            $faktSumma = $faktByMonth->get($key)?->sum('tolov_summa') ?? 0;
+            $farq = $grafikSumma - $faktSumma;
+            $foiz = $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0;
+
+            $taqqoslash[] = [
+                'yil' => $grafikItems->first()->yil,
+                'oy' => $grafikItems->first()->oy,
+                'oy_nomi' => $grafikItems->first()->oy_nomi,
+                'grafik' => $grafikSumma,
+                'fakt' => $faktSumma,
+                'farq' => $farq,
+                'foiz' => $foiz
+            ];
+        }
+
+        return collect($taqqoslash)->sortBy('yil')->values()->all();
+    }
     private function comparePayments($grafik, $fakt)
     {
         $result = [];

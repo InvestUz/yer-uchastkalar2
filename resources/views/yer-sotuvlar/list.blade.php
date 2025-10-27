@@ -3,96 +3,104 @@
 @section('title', 'Филтрланган маълумотлар')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
     
-    <!-- Header Card -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="bi bi-funnel-fill me-2"></i>
-                    Филтрланган маълумотлар
-                </h5>
-                <a href="{{ route('yer-sotuvlar.index') }}" class="btn btn-light btn-sm">
-                    <i class="bi bi-arrow-left"></i> Статистикага қайтиш
-                </a>
-            </div>
-        </div>
-        
-        <div class="card-body bg-light">
-            <div class="row g-3">
-                @if(!empty($filters['tuman']))
-                <div class="col-auto">
-                    <div class="badge bg-primary fs-6 px-3 py-2">
-                        <i class="bi bi-geo-alt-fill me-1"></i>
-                        Туман: <strong>{{ $filters['tuman'] }}</strong>
-                    </div>
+    <!-- Header Section -->
+    <div class="mx-auto mb-6">
+        <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-xl font-semibold text-white flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                        </svg>
+                        Филтрланган маълумотлар
+                    </h1>
+                    <a href="{{ route('yer-sotuvlar.index') }}" 
+                       class="bg-white text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Статистикага қайтиш
+                    </a>
                 </div>
-                @endif
-                
-                @if(!empty($filters['tolov_turi']))
-                <div class="col-auto">
-                    <div class="badge bg-success fs-6 px-3 py-2">
-                        <i class="bi bi-cash-coin me-1"></i>
-                        Тўлов: <strong>{{ $filters['tolov_turi'] }}</strong>
-                    </div>
-                </div>
-                @endif
-                
-                @if(!empty($filters['holat']))
-                <div class="col-auto">
-                    <div class="badge bg-warning text-dark fs-6 px-3 py-2">
-                        <i class="bi bi-info-circle-fill me-1"></i>
-                        Ҳолат: <strong>{{ Str::limit($filters['holat'], 50) }}</strong>
-                    </div>
-                </div>
-                @endif
-                
-                @if(!empty($filters['asos']))
-                <div class="col-auto">
-                    <div class="badge bg-info fs-6 px-3 py-2">
-                        <i class="bi bi-file-text-fill me-1"></i>
-                        Асос: <strong>{{ $filters['asos'] }}</strong>
-                    </div>
-                </div>
-                @endif
-                
-                @if(!empty($filters['yil']))
-                <div class="col-auto">
-                    <div class="badge bg-secondary fs-6 px-3 py-2">
-                        <i class="bi bi-calendar-fill me-1"></i>
-                        Йил: <strong>{{ $filters['yil'] }}</strong>
-                    </div>
-                </div>
-                @endif
             </div>
             
-            <!-- Summary -->
-            <div class="mt-3 pt-3 border-top">
-                <div class="row text-center">
-                    <div class="col-md-3">
-                        <div class="p-2">
-                            <h4 class="text-primary mb-0">{{ $yerlar->total() }}</h4>
-                            <small class="text-muted">Жами лотлар</small>
-                        </div>
+            <!-- Filters Display -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div class="flex flex-wrap gap-3">
+                    @if(!empty($filters['tuman']))
+                    <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span class="text-gray-600">Туман:</span>
+                        <span class="ml-1 font-semibold text-gray-900">{{ $filters['tuman'] }}</span>
                     </div>
-                    <div class="col-md-3">
-                        <div class="p-2">
-                            <h4 class="text-success mb-0">{{ number_format($yerlar->sum('maydoni'), 2) }}</h4>
-                            <small class="text-muted">Жами майдон (га)</small>
-                        </div>
+                    @endif
+                    
+                    @if(!empty($filters['tolov_turi']))
+                    <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                        <span class="text-gray-600">Тўлов:</span>
+                        <span class="ml-1 font-semibold text-gray-900">{{ $filters['tolov_turi'] }}</span>
                     </div>
-                    <div class="col-md-3">
-                        <div class="p-2">
-                            <h4 class="text-warning mb-0">{{ number_format($yerlar->sum('sotilgan_narx') / 1000000000, 1) }}</h4>
-                            <small class="text-muted">Жами сумма (млрд)</small>
-                        </div>
+                    @endif
+                    
+                    @if(!empty($filters['holat']))
+                    <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-gray-600">Ҳолат:</span>
+                        <span class="ml-1 font-semibold text-gray-900">{{ Str::limit($filters['holat'], 40) }}</span>
                     </div>
-                    <div class="col-md-3">
-                        <div class="p-2">
-                            <h4 class="text-info mb-0">{{ $yerlar->currentPage() }}/{{ $yerlar->lastPage() }}</h4>
-                            <small class="text-muted">Саҳифа</small>
-                        </div>
+                    @endif
+                    
+                    @if(!empty($filters['asos']))
+                    <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <span class="text-gray-600">Асос:</span>
+                        <span class="ml-1 font-semibold text-gray-900">{{ $filters['asos'] }}</span>
+                    </div>
+                    @endif
+                    
+                    @if(!empty($filters['yil']))
+                    <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="text-gray-600">Йил:</span>
+                        <span class="ml-1 font-semibold text-gray-900">{{ $filters['yil'] }}</span>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            
+            <!-- Statistics Summary -->
+            <div class="bg-white px-6 py-5">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="text-3xl font-bold text-gray-800">{{ $yerlar->total() }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Жами лотлар</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="text-3xl font-bold text-gray-800">{{ number_format($yerlar->sum('maydoni'), 2) }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Жами майдон (га)</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="text-3xl font-bold text-gray-800">{{ number_format($yerlar->sum('sotilgan_narx') / 1000000000, 1) }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Жами сумма (млрд)</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="text-3xl font-bold text-gray-800">{{ $yerlar->currentPage() }}/{{ $yerlar->lastPage() }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Саҳифа</div>
                     </div>
                 </div>
             </div>
@@ -100,102 +108,105 @@
     </div>
     
     <!-- Data Table -->
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0" style="font-size: 13px;">
-                    <thead class="table-dark" style="position: sticky; top: 0; z-index: 10;">
+    <div class="mx-auto">
+        <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-700">
                         <tr>
-                            <th class="text-center" style="width: 50px;">№</th>
-                            <th style="width: 120px;">Лот рақами</th>
-                            <th style="width: 180px;">Туман</th>
-                            <th style="width: 150px;">МФЙ</th>
-                            <th class="text-end" style="width: 100px;">Майдон (га)</th>
-                            <th class="text-end" style="width: 120px;">Бошл. нарх</th>
-                            <th class="text-end" style="width: 120px;">Сотилган нарх</th>
-                            <th class="text-center" style="width: 120px;">Тўлов тури</th>
-                            <th class="text-end" style="width: 130px;">Аукционда турган<br>(млрд сўм)</th>
-                            <th style="width: 250px;">Ҳолат</th>
-                            <th class="text-center" style="width: 100px;">Аукцион сана</th>
-                            <th class="text-center" style="width: 100px;">Амаллар</th>
+                            <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider w-16">№</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">Лот рақами</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">Туман</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">МФЙ</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Майдон (га)</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Бошл. нарх</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Сотилган нарх</th>
+                            <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Тўлов</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Аукционда<br>турган</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">Ҳолат</th>
+                            <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Сана</th>
+                            <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Амаллар</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($yerlar as $index => $yer)
-                        <tr>
-                            <td class="text-center align-middle">
-                                <strong>{{ $yerlar->firstItem() + $index }}</strong>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 text-center text-sm font-medium text-gray-900">
+                                {{ $yerlar->firstItem() + $index }}
                             </td>
-                            <td class="align-middle">
-                                <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}" class="text-decoration-none fw-bold">
+                            <td class="px-4 py-3 text-sm">
+                                <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}" 
+                                   class="font-semibold text-gray-900 hover:text-gray-700 hover:underline">
                                     {{ $yer->lot_raqami }}
                                 </a>
                             </td>
-                            <td class="align-middle">
-                                <i class="bi bi-geo-alt text-primary me-1"></i>
+                            <td class="px-4 py-3 text-sm text-gray-700">
                                 {{ $yer->tuman }}
                             </td>
-                            <td class="align-middle">
-                                <small>{{ $yer->mfy }}</small>
+                            <td class="px-4 py-3 text-sm text-gray-600">
+                                {{ $yer->mfy }}
                             </td>
-                            <td class="text-end align-middle">
-                                <span class="badge bg-light text-dark">{{ number_format($yer->maydoni, 2) }}</span>
+                            <td class="px-4 py-3 text-sm text-right">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                    {{ number_format($yer->maydoni, 2) }}
+                                </span>
                             </td>
-                            <td class="text-end align-middle">
-                                <small class="text-muted">{{ number_format($yer->boshlangich_narx / 1000000, 1) }} млн</small>
+                            <td class="px-4 py-3 text-sm text-right text-gray-600">
+                                {{ number_format($yer->boshlangich_narx / 1000000, 1) }} млн
                             </td>
-                            <td class="text-end align-middle">
-                                <strong class="text-success">{{ number_format($yer->sotilgan_narx / 1000000, 1) }} млн</strong>
+                            <td class="px-4 py-3 text-sm text-right font-semibold text-gray-900">
+                                {{ number_format($yer->sotilgan_narx / 1000000, 1) }} млн
                             </td>
-                            <td class="text-center align-middle">
+                            <td class="px-4 py-3 text-sm text-center">
                                 @if($yer->tolov_turi == 'муддатли эмас')
-                                    <span class="badge bg-success">
-                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-600 text-white">
                                         Бир йўла
                                     </span>
                                 @else
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="bi bi-clock-fill me-1"></i>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-400 text-white">
                                         Бўлиб
                                     </span>
                                 @endif
                             </td>
-                            <td class="text-end align-middle">
+                            <td class="px-4 py-3 text-sm text-right">
                                 @if($yer->davaktivda_turgan && $yer->davaktivda_turgan > 0)
-                                    <span class="badge bg-info text-dark">
-                                        {{ number_format($yer->davaktivda_turgan / 1000000000, 3) }}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-800">
+                                        {{ number_format($yer->davaktivda_turgan / 1000000000, 3) }} млрд
                                     </span>
                                 @else
-                                    <small class="text-muted">-</small>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-600 text-white">
+                                        {{ number_format($yer->sotilgan_narx / 1000000000, 3) }} млрд
+                                    </span>
                                 @endif
                             </td>
-                            <td class="align-middle">
-                                <small class="text-muted">{{ Str::limit($yer->holat, 50) }}</small>
+                            <td class="px-4 py-3 text-sm text-gray-600">
+                                {{ Str::limit($yer->holat, 50) }}
                             </td>
-                            <td class="text-center align-middle">
+                            <td class="px-4 py-3 text-sm text-center text-gray-600">
                                 @if($yer->auksion_sana)
-                                    <small>{{ $yer->auksion_sana->format('d.m.Y') }}</small>
+                                    {{ $yer->auksion_sana->format('d.m.Y') }}
                                 @else
-                                    <small class="text-muted">-</small>
+                                    <span class="text-gray-400">-</span>
                                 @endif
                             </td>
-                            <td class="text-center align-middle">
+                            <td class="px-4 py-3 text-sm text-center">
                                 <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}" 
-                                   class="btn btn-sm btn-primary" 
-                                   data-bs-toggle="tooltip" 
-                                   title="Батафсил кўриш">
-                                    <i class="bi bi-eye-fill"></i>
+                                   class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
                                 </a>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="12" class="text-center py-5">
-                                <div class="text-muted">
-                                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-                                    <h5>Маълумот топилмади</h5>
-                                    <p class="mb-0">Филтр шартларига мос келадиган маълумотлар йўқ</p>
-                                </div>
+                            <td colspan="12" class="px-4 py-12 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">Маълумот топилмади</h3>
+                                <p class="mt-1 text-sm text-gray-500">Филтр шартларига мос келадиган маълумотлар йўқ</p>
                             </td>
                         </tr>
                         @endforelse
@@ -205,13 +216,12 @@
             
             <!-- Pagination -->
             @if($yerlar->hasPages())
-            <div class="p-3 border-top bg-light">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-muted">
-                            Кўрсатилмоқда: <strong>{{ $yerlar->firstItem() }}</strong> - <strong>{{ $yerlar->lastItem() }}</strong> 
-                            / <strong>{{ $yerlar->total() }}</strong>
-                        </small>
+            <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Кўрсатилмоқда: <span class="font-semibold">{{ $yerlar->firstItem() }}</span> - 
+                        <span class="font-semibold">{{ $yerlar->lastItem() }}</span> / 
+                        <span class="font-semibold">{{ $yerlar->total() }}</span>
                     </div>
                     <div>
                         {{ $yerlar->links() }}
@@ -224,59 +234,23 @@
 </div>
 
 <style>
-    .table thead th {
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 11px;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #dee2e6;
+    /* Custom scrollbar for table */
+    .overflow-x-auto::-webkit-scrollbar {
+        height: 8px;
     }
     
-    .table tbody tr {
-        transition: all 0.3s ease;
+    .overflow-x-auto::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
     }
     
-    .table tbody tr:hover {
-        background-color: #f8f9fa;
-        transform: scale(1.01);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
     }
     
-    .badge {
-        font-weight: 500;
-        letter-spacing: 0.3px;
-    }
-    
-    .card {
-        border: none;
-        border-radius: 10px;
-    }
-    
-    .card-header {
-        border-radius: 10px 10px 0 0 !important;
-    }
-    
-    a {
-        transition: all 0.2s ease;
-    }
-    
-    a:hover {
-        opacity: 0.8;
-    }
-    
-    .btn-sm {
-        padding: 0.4rem 0.8rem;
-        font-size: 12px;
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 </style>
-
-<script>
-    // Bootstrap tooltips
-    document.addEventListener('DOMContentLoaded', function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    });
-</script>
 @endsection
