@@ -171,7 +171,7 @@ class YerSotuvController extends Controller
     {
         $tumanlar = [
             'Бектемир т.',
-            'М.Улугбек т.',
+            'Мирзо Улуғбек т.',
             'Миробод т.',
             'Олмазор т.',
             'Сирғали т.',
