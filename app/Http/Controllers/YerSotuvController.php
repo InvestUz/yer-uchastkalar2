@@ -7,6 +7,7 @@ use App\Models\GrafikTolov;
 use App\Models\FaktTolov;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class YerSotuvController extends Controller
 {
@@ -403,9 +404,8 @@ class YerSotuvController extends Controller
         }
     }
     
-   public function show($lot_raqami)
+    public function show($lot_raqami)
     {
-        // Eager loading bilan barcha ma'lumotlarni olish
         $yer = YerSotuv::where('lot_raqami', $lot_raqami)
             ->with([
                 'grafikTolovlar' => function($query) {
@@ -417,13 +417,28 @@ class YerSotuvController extends Controller
             ])
             ->firstOrFail();
 
-        // To'lovlarni taqqoslash
+        // DEBUG: Ma'lumotlarni tekshirish
+        Log::info('Lot raqami: ' . $lot_raqami);
+        Log::info('Grafik to\'lovlar soni: ' . $yer->grafikTolovlar->count());
+        Log::info('Fakt to\'lovlar soni: ' . $yer->faktTolovlar->count());
+        
+        // Agar grafik to'lovlar bo'lmasa
+        if ($yer->grafikTolovlar->isEmpty()) {
+            Log::warning('Bu lot uchun grafik to\'lovlar mavjud emas!');
+        }
+
         $tolovTaqqoslash = $this->taqqoslashHisoblash($yer);
 
         return view('yer-sotuvlar.show', compact('yer', 'tolovTaqqoslash'));
     }
-      private function taqqoslashHisoblash($yer)
+
+    private function taqqoslashHisoblash($yer)
     {
+        // Agar grafik to'lovlar bo'sh bo'lsa
+        if ($yer->grafikTolovlar->isEmpty()) {
+            return [];
+        }
+
         // Grafik to'lovlarni guruhlash
         $grafikByMonth = $yer->grafikTolovlar->groupBy(function($item) {
             return $item->yil . '-' . str_pad($item->oy, 2, '0', STR_PAD_LEFT);

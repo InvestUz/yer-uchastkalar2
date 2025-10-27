@@ -116,12 +116,15 @@
         </div>
 
         {{-- Payment Summary --}}
-        @php
-            $grafikJami = $yer->grafikTolovlar->sum('grafik_summa');
-            $faktJami = $yer->faktTolovlar->sum('tolov_summa');
-            $qarzdorlik = $grafikJami - $faktJami;
-            $foiz = $grafikJami > 0 ? round(($faktJami / $grafikJami) * 100, 1) : 0;
-        @endphp
+     @php
+    $grafikJami = $yer->grafikTolovlar->sum('grafik_summa');
+    $faktJami = $yer->faktTolovlar->sum('tolov_summa');
+    $qarzdorlik = $grafikJami - $faktJami;
+    $foiz = $grafikJami > 0 ? round(($faktJami / $grafikJami) * 100, 1) : 0;
+    
+    // Ma'lumotlar bormi tekshirish
+    $hasPaymentData = $yer->grafikTolovlar->count() > 0 || $yer->faktTolovlar->count() > 0;
+@endphp
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
