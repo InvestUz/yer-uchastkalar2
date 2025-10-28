@@ -872,67 +872,70 @@ private function showFilteredData(Request $request, array $filters)
         return array_unique($patterns);
     }
 
-    private function getTumanData($tumanPatterns = null, $tolovTuri = null)
-    {
-        $query = YerSotuv::query();
+   private function getTumanData($tumanPatterns = null, $tolovTuri = null)
+{
+    $query = YerSotuv::query();
 
-        // Tuman filter (agar mavjud bo'lsa)
-        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-            $query->where(function ($q) use ($tumanPatterns) {
-                foreach ($tumanPatterns as $pattern) {
-                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-                }
-            });
-        }
-
-        // Tolov turi filter
-        if ($tolovTuri) {
-            $query->where('tolov_turi', $tolovTuri);
-        }
-
-        // Main data (including 'низоли')
-        $data = $query->selectRaw('
-            COUNT(*) as soni,
-            SUM(maydoni) as maydoni,
-            SUM(boshlangich_narx) as boshlangich_narx,
-            SUM(sotilgan_narx) as sotilgan_narx,
-            SUM(chegirma) as chegirma
-        ')->first();
-
-        // Separate query for tushadigan_mablagh (excluding 'низоли')
-        $queryTushadigan = YerSotuv::query();
-
-        // Apply same tuman filter
-        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-            $queryTushadigan->where(function ($q) use ($tumanPatterns) {
-                foreach ($tumanPatterns as $pattern) {
-                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-                }
-            });
-        }
-
-        // Apply same tolov_turi filter
-        if ($tolovTuri) {
-            $queryTushadigan->where('tolov_turi', $tolovTuri);
-        }
-
-        // Exclude 'низоли' for tushadigan_mablagh only
-        $queryTushadigan->where('tolov_turi', '!=', 'низоли');
-
-        $tushadiganData = $queryTushadigan->selectRaw('
-            SUM(tushadigan_mablagh) as tushadigan_mablagh
-        ')->first();
-
-        return [
-            'soni' => $data->soni ?? 0,
-            'maydoni' => $data->maydoni ?? 0,
-            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'chegirma' => $data->chegirma ?? 0,
-            'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh ?? 0
-
-        ];
+    // Tuman filter (agar mavjud bo'lsa)
+    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+        $query->where(function ($q) use ($tumanPatterns) {
+            foreach ($tumanPatterns as $pattern) {
+                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+            }
+        });
     }
+
+    // Tolov turi filter
+    if ($tolovTuri) {
+        $query->where('tolov_turi', $tolovTuri);
+    }
+
+    // Main data (including 'низоли')
+    $data = $query->selectRaw('
+        COUNT(*) as soni,
+        SUM(maydoni) as maydoni,
+        SUM(boshlangich_narx) as boshlangich_narx,
+        SUM(sotilgan_narx) as sotilgan_narx,
+        SUM(chegirma) as chegirma
+    ')->first();
+
+    // Separate query for tushadigan_mablagh (excluding 'низоли')
+    // ✅ CHANGED: Use golib_tolagan instead of tushadigan_mablagh
+    $queryTushadigan = YerSotuv::query();
+
+    // Apply same tuman filter
+    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+        $queryTushadigan->where(function ($q) use ($tumanPatterns) {
+            foreach ($tumanPatterns as $pattern) {
+                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+            }
+        });
+    }
+
+    // Apply same tolov_turi filter
+    if ($tolovTuri) {
+        $queryTushadigan->where('tolov_turi', $tolovTuri);
+    }
+
+    // Exclude 'низоли' for tushadigan_mablagh only
+    $queryTushadigan->where('tolov_turi', '!=', 'низоли');
+
+    // ✅ CHANGED: Sum golib_tolagan instead of tushadigan_mablagh
+    // SUM(golib_tolagan) as tushadigan_mablagh
+    $tushadiganData = $queryTushadigan->selectRaw('
+            SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
+
+    ')->first();
+
+    return [
+        'soni' => $data->soni ?? 0,
+        'maydoni' => $data->maydoni ?? 0,
+        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+        'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+        'chegirma' => $data->chegirma ?? 0,
+        'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh ?? 0
+    ];
+}
     private function getAuksondaTurgan($tumanPatterns = null)
     {
         $query = YerSotuv::query();
