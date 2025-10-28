@@ -345,6 +345,13 @@ class YerSotuvController extends Controller
             });
         }
 
+        // Holat filter
+        $query->where(function ($q) {
+            $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                ->orWhere('holat', 'like', '%расмийлаштиришда%');
+        });
+
+        // Tolov turi filter - faqat "муддатли" va "муддатли эмас" bo'lmaganlarni olish
        $query->where(function ($q) {
     $q->where('tolov_turi', '!=', 'муддатли')
         ->where('tolov_turi', '!=', 'муддатли эмас')
