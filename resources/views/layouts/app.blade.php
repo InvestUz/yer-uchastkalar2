@@ -16,12 +16,10 @@
             transition: all 0.2s ease;
         }
         
-        /* Smooth scrolling */
         html {
             scroll-behavior: smooth;
         }
         
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -40,18 +38,15 @@
             background: #64748b;
         }
         
-        /* Subtle shadow for cards */
         .card-shadow {
             box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
         }
         
-        /* Header backdrop blur effect */
         .header-blur {
             backdrop-filter: blur(10px);
             background-color: rgba(255, 255, 255, 0.95);
         }
         
-        /* Improved focus states */
         a:focus, button:focus {
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
@@ -79,6 +74,28 @@
                         <p class="text-sm text-gray-500 font-medium">Тошкент шаҳри ҳокимлиги</p>
                     </div>
                 </div>
+                
+                <!-- Center Navigation -->
+                <nav class="hidden lg:flex items-center space-x-2">
+                    <a href="{{ route('yer-sotuvlar.index') }}" 
+                       class="px-4 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('yer-sotuvlar.index') ? 'bg-gray-700 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span>Статистика</span>
+                        </div>
+                    </a>
+                    <a href="{{ route('yer-sotuvlar.list') }}" 
+                       class="px-4 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('yer-sotuvlar.list') ? 'bg-gray-700 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                            </svg>
+                            <span>Рўйхат</span>
+                        </div>
+                    </a>
+                </nav>
                 
                 <!-- Right Info -->
                 <div class="hidden md:block text-right">
@@ -108,7 +125,6 @@
     <footer class="bg-white border-t border-gray-200 mt-16">
         <div class="max-w-[2000px] mx-auto px-6 lg:px-12 xl:px-16 py-8">
             <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                <!-- Left Side -->
                 <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 bg-gray-700 rounded flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,7 +137,6 @@
                     </div>
                 </div>
                 
-                <!-- Right Side - Contact Info -->
                 <div class="flex items-center space-x-6 text-sm text-gray-600">
                     <a href="tel:+998712100261" class="flex items-center space-x-2 hover:text-gray-900 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +153,6 @@
                 </div>
             </div>
             
-            <!-- Divider -->
             <div class="mt-6 pt-6 border-t border-gray-200">
                 <p class="text-xs text-center text-gray-500">
                     Маълумотлар тизими - Ер участкаларини бошқариш ва мониторинг қилиш учун
@@ -147,7 +161,6 @@
         </div>
     </footer>
 
-    <!-- Back to Top Button -->
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
             class="fixed bottom-8 right-8 w-12 h-12 bg-gray-700 hover:bg-gray-800 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 hover:opacity-100 focus:opacity-100 no-print"
             id="backToTop">
@@ -157,7 +170,6 @@
     </button>
 
     <script>
-        // Back to top button visibility
         window.addEventListener('scroll', function() {
             const backToTop = document.getElementById('backToTop');
             if (window.scrollY > 300) {

@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/', [YerSotuvController::class, 'index'])->name('yer-sotuvlar.index');
+Route::get('/ruyxat', [YerSotuvController::class, 'list'])->name('yer-sotuvlar.list');
+
 Route::get('/yer/{lot_raqami}', [YerSotuvController::class, 'show'])->name('yer-sotuvlar.show');
 
 Route::get('/debug-davaktiv', function() {
