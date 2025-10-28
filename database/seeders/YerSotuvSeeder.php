@@ -125,7 +125,7 @@ class YerSotuvSeeder extends Seeder
 
             // Auksion ma'lumotlari
             'boshlangich_narx' => $this->parseNumber($row[14] ?? null),
-            'auksion_sana' => Carbon::parse($auksionSana) ?? $auksionSana,
+            'auksion_sana' => $auksionSana ? Carbon::parse($auksionSana) : null,
             'sotilgan_narx' => $this->parseNumber($row[16] ?? null),
             'auksion_golibi' => $this->cleanValue($row[17] ?? null),
             'golib_turi' => $this->cleanValue($row[18] ?? null),
@@ -181,18 +181,63 @@ class YerSotuvSeeder extends Seeder
 
     private function createGrafikTolovlar($row, $yerSotuv): void
     {
+        // FIXED: Correct column mapping based on Excel structure
+        // Column 51 = 2024 фев, Column 52 = 2024 март, etc.
         $grafikData = [
-            2024 => [8 => 52, 9 => 53, 10 => 54, 11 => 55, 12 => 56],
-            2025 => [1 => 57, 2 => 58, 3 => 59, 4 => 60, 5 => 61, 6 => 62, 7 => 63, 8 => 64, 9 => 65, 10 => 66, 11 => 67, 12 => 68],
-            2026 => [1 => 69, 2 => 70, 3 => 71, 4 => 72, 5 => 73, 6 => 74, 7 => 75, 8 => 76, 9 => 77, 10 => 78, 11 => 79, 12 => 80],
-            2027 => [1 => 81, 2 => 82, 3 => 83, 4 => 84, 5 => 85, 6 => 86, 7 => 87, 8 => 88, 9 => 89, 10 => 90, 11 => 91, 12 => 92],
-            2028 => [1 => 93, 2 => 94, 3 => 95, 4 => 96, 5 => 97, 6 => 98, 7 => 99, 8 => 100, 9 => 101, 10 => 102, 11 => 103, 12 => 104],
-            2029 => [1 => 105, 2 => 106, 3 => 107, 4 => 108, 5 => 109, 6 => 110, 7 => 111, 8 => 112, 9 => 113, 10 => 114, 11 => 115, 12 => 116]
+            2024 => [
+                2 => 51,   // fevral
+                3 => 52,   // mart
+                4 => 53,   // aprel
+                5 => 54,   // may
+                6 => 55,   // iyun
+                7 => 56,   // iyul
+                8 => 57,   // avgust
+                9 => 58,   // sentabr
+                10 => 59,  // oktabr
+                11 => 60,  // noyabr
+                12 => 61   // dekabr
+            ],
+            2025 => [
+                1 => 62,   // yanvar
+                2 => 63,   // fevral
+                3 => 64,   // mart
+                4 => 65,   // aprel
+                5 => 66,   // may
+                6 => 67,   // iyun
+                7 => 68,   // iyul
+                8 => 69,   // avgust
+                9 => 70,   // sentabr
+                10 => 71,  // oktabr
+                11 => 72,  // noyabr
+                12 => 73   // dekabr
+            ],
+            2026 => [
+                1 => 74, 2 => 75, 3 => 76, 4 => 77, 5 => 78, 6 => 79,
+                7 => 80, 8 => 81, 9 => 82, 10 => 83, 11 => 84, 12 => 85
+            ],
+            2027 => [
+                1 => 86, 2 => 87, 3 => 88, 4 => 89, 5 => 90, 6 => 91,
+                7 => 92, 8 => 93, 9 => 94, 10 => 95, 11 => 96, 12 => 97
+            ],
+            2028 => [
+                1 => 98, 2 => 99, 3 => 100, 4 => 101, 5 => 102, 6 => 103,
+                7 => 104, 8 => 105, 9 => 106, 10 => 107, 11 => 108, 12 => 109
+            ],
+            2029 => [
+                1 => 110, 2 => 111, 3 => 112, 4 => 113, 5 => 114, 6 => 115,
+                7 => 116, 8 => 117, 9 => 118, 10 => 119, 11 => 120, 12 => 121
+            ]
         ];
 
+        $grafikCount = 0;
         foreach ($grafikData as $yil => $oylar) {
             foreach ($oylar as $oy => $ustunIndex) {
-                $summa = $this->parseNumber($row[$ustunIndex] ?? null);
+                // Check if column exists in row
+                if (!isset($row[$ustunIndex])) {
+                    continue;
+                }
+
+                $summa = $this->parseNumber($row[$ustunIndex]);
 
                 if ($summa > 0) {
                     GrafikTolov::create([
@@ -203,8 +248,13 @@ class YerSotuvSeeder extends Seeder
                         'oy_nomi' => $this->oyNomlari[$oy],
                         'grafik_summa' => $summa
                     ]);
+                    $grafikCount++;
                 }
             }
+        }
+
+        if ($grafikCount > 0) {
+            $this->command->info("  LOT {$yerSotuv->lot_raqami}: {$grafikCount} ta grafik to'lov");
         }
     }
 
@@ -222,6 +272,7 @@ class YerSotuvSeeder extends Seeder
             $worksheet = $spreadsheet->getActiveSheet();
             $rows = $worksheet->toArray();
 
+            // Skip header
             array_shift($rows);
 
             $this->command->info("Fakt to'lovlar yuklanmoqda...");
@@ -229,9 +280,10 @@ class YerSotuvSeeder extends Seeder
             $count = 0;
             $skipped = 0;
 
-            foreach ($rows as $row) {
+            foreach ($rows as $rowIndex => $row) {
                 if (empty(array_filter($row))) continue;
 
+                // Extract LOT number from column 7 (index 7)
                 $lotRaqami = $this->extractLotRaqami($row[7] ?? '');
 
                 if (!$lotRaqami) {
@@ -239,6 +291,7 @@ class YerSotuvSeeder extends Seeder
                     continue;
                 }
 
+                // Check if LOT exists in yer_sotuv
                 if (!YerSotuv::where('lot_raqami', $lotRaqami)->exists()) {
                     if (!in_array($lotRaqami, $this->notFoundLots)) {
                         $this->notFoundLots[] = $lotRaqami;
@@ -247,13 +300,18 @@ class YerSotuvSeeder extends Seeder
                     continue;
                 }
 
+                $tolovSana = $this->parseDate($row[0] ?? null);
+                if (!$tolovSana) {
+                    $tolovSana = Carbon::now()->format('Y-m-d');
+                }
+
                 FaktTolov::create([
                     'lot_raqami' => $lotRaqami,
-                    'tolov_sana' => $this->parseDate($row[0] ?? null) ?? Carbon::now()->format('Y-m-d'),
+                    'tolov_sana' => $tolovSana,
                     'hujjat_raqam' => $this->cleanValue($row[1] ?? null),
                     'tolash_nom' => $this->cleanValue($row[2] ?? null),
                     'tolash_hisob' => $this->cleanValue($row[3] ?? null),
-                    'tolash_inn' => null,
+                    'tolash_inn' => $this->cleanValue($row[4] ?? null),
                     'tolov_summa' => $this->parseNumber($row[5] ?? null),
                     'detali' => $this->cleanValue($row[6] ?? null)
                 ]);
@@ -272,6 +330,7 @@ class YerSotuvSeeder extends Seeder
 
         } catch (\Exception $e) {
             $this->command->error("Xatolik: " . $e->getMessage());
+            $this->command->error("Stack trace: " . $e->getTraceAsString());
         }
     }
 
@@ -279,7 +338,7 @@ class YerSotuvSeeder extends Seeder
     {
         if ($value === null || $value === '') return null;
 
-        // String bo'lsa, vergul va bo'shliqlarni olib tashlash
+        // Remove commas, spaces, dots
         if (is_string($value)) {
             $cleaned = str_replace([',', ' ', '.'], '', trim($value));
             if (is_numeric($cleaned)) {
@@ -287,9 +346,9 @@ class YerSotuvSeeder extends Seeder
             }
         }
 
-        // Raqam bo'lsa
+        // If it's already numeric
         if (is_numeric($value)) {
-            return (string)$value;
+            return (string)round($value);
         }
 
         return null;
@@ -297,13 +356,22 @@ class YerSotuvSeeder extends Seeder
 
     private function extractLotRaqami($text): ?string
     {
+        if (empty($text)) return null;
+
+        // Pattern: L[number]L
         if (preg_match('/L(\d+)L/', $text, $matches)) {
             return $matches[1];
         }
 
+        // Try to find any number in the text
+        if (preg_match('/\d{7,}/', $text, $matches)) {
+            return $matches[0];
+        }
+
+        // If it's just a number
         $text = trim($text);
         if (is_numeric($text)) {
-            return $text;
+            return (string)round($text);
         }
 
         return null;
@@ -320,6 +388,7 @@ class YerSotuvSeeder extends Seeder
         if ($value === null || $value === '') return null;
 
         if (is_string($value)) {
+            // Remove formatting characters
             $value = str_replace([',', ' ', "'"], '', trim($value));
         }
 
@@ -331,19 +400,33 @@ class YerSotuvSeeder extends Seeder
         if (!$value) return null;
 
         try {
+            // Excel numeric date
             if (is_numeric($value) && $value > 0) {
-                return Carbon::createFromTimestamp(Date::excelToTimestamp($value))->format('Y-m-d');
+                $timestamp = Date::excelToTimestamp($value);
+                return Carbon::createFromTimestamp($timestamp)->format('Y-m-d');
             }
 
+            // String date formats
             if (is_string($value)) {
+                $value = trim($value);
+
+                // m/d/Y format
                 if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $value)) {
                     return Carbon::createFromFormat('m/d/Y', $value)->format('Y-m-d');
                 }
+
+                // d.m.Y format
+                if (preg_match('/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/', $value)) {
+                    return Carbon::createFromFormat('d.m.Y', $value)->format('Y-m-d');
+                }
+
+                // Try general parsing
                 return Carbon::parse($value)->format('Y-m-d');
             }
 
             return null;
         } catch (\Exception $e) {
+            $this->command->warn("Sanani parse qilishda xatolik: {$value}");
             return null;
         }
     }
