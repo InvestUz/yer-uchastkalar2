@@ -83,27 +83,27 @@
                 </div>
             </div>
             
-            <!-- Statistics Summary -->
-            <div class="bg-white px-6 py-5">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="text-3xl font-bold text-gray-800">{{ $yerlar->total() }}</div>
-                        <div class="text-sm text-gray-600 mt-1">Жами лотлар</div>
-                    </div>
-                    <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="text-3xl font-bold text-gray-800">{{ number_format($yerlar->sum('maydoni'), 2) }}</div>
-                        <div class="text-sm text-gray-600 mt-1">Жами майдон (га)</div>
-                    </div>
-                    <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="text-3xl font-bold text-gray-800">{{ number_format($yerlar->sum('sotilgan_narx') / 1000000000, 1) }}</div>
-                        <div class="text-sm text-gray-600 mt-1">Жами сумма (млрд)</div>
-                    </div>
-                    <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="text-3xl font-bold text-gray-800">{{ $yerlar->currentPage() }}/{{ $yerlar->lastPage() }}</div>
-                        <div class="text-sm text-gray-600 mt-1">Саҳифа</div>
-                    </div>
-                </div>
-            </div>
+          <!-- Statistics Summary -->
+<div class="bg-white px-6 py-5">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="text-3xl font-bold text-gray-800">{{ number_format($statistics['total_lots']) }}</div>
+            <div class="text-sm text-gray-600 mt-1">Жами лотлар</div>
+        </div>
+        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="text-3xl font-bold text-gray-800">{{ number_format($statistics['total_area'], 2) }}</div>
+            <div class="text-sm text-gray-600 mt-1">Жами майдон (га)</div>
+        </div>
+        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="text-3xl font-bold text-gray-800">{{ number_format($statistics['total_price'] / 1000000000, 1) }}</div>
+            <div class="text-sm text-gray-600 mt-1">Жами сумма (млрд)</div>
+        </div>
+        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="text-3xl font-bold text-gray-800">{{ $yerlar->currentPage() }}/{{ $yerlar->lastPage() }}</div>
+            <div class="text-sm text-gray-600 mt-1">Саҳифа</div>
+        </div>
+    </div>
+</div>
         </div>
     </div>
     

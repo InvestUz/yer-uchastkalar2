@@ -113,60 +113,69 @@ class YerSotuvController extends Controller
         die();
     }
     
-    private function showFilteredData(Request $request, array $filters)
-    {
-        $query = YerSotuv::with(['grafikTolovlar', 'faktTolovlar']);
-        
-        // Tuman filter
-        if (!empty($filters['tuman'])) {
-            $tumanPatterns = $this->getTumanPatterns($filters['tuman']);
-            $query->where(function($q) use ($tumanPatterns) {
-                foreach ($tumanPatterns as $pattern) {
-                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-                }
-            });
-        }
-        
-        // Other filters
-        if (!empty($filters['yil'])) {
-            $query->where('yil', $filters['yil']);
-        }
-        
-        if (!empty($filters['tolov_turi'])) {
-            $query->where('tolov_turi', $filters['tolov_turi']);
-        }
-        
-        if (!empty($filters['holat'])) {
-            $query->where('holat', 'like', '%' . $filters['holat'] . '%');
-        }
-        
-        if (!empty($filters['asos'])) {
-            $query->where('asos', 'like', '%' . $filters['asos'] . '%');
-        }
-        
-        $sortField = $request->get('sort', 'auksion_sana');
-        $sortDirection = $request->get('direction', 'desc');
-        
-        if (in_array($sortField, ['auksion_sana', 'sotilgan_narx', 'tuman'])) {
-            $query->orderBy($sortField, $sortDirection);
-        }
-        
-        $yerlar = $query->paginate(30)->withQueryString();
-        
-        $tumanlar = YerSotuv::select('tuman')
-            ->distinct()
-            ->whereNotNull('tuman')
-            ->orderBy('tuman')
-            ->pluck('tuman');
-            
-        $yillar = YerSotuv::select('yil')
-            ->distinct()
-            ->whereNotNull('yil')
-            ->orderBy('yil', 'desc')
-            ->pluck('yil');
-        
-        return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters'));
+  private function showFilteredData(Request $request, array $filters)
+{
+    $query = YerSotuv::query();
+    
+    // Tuman filter
+    if (!empty($filters['tuman'])) {
+        $tumanPatterns = $this->getTumanPatterns($filters['tuman']);
+        $query->where(function($q) use ($tumanPatterns) {
+            foreach ($tumanPatterns as $pattern) {
+                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+            }
+        });
     }
+    
+    // Other filters
+    if (!empty($filters['yil'])) {
+        $query->where('yil', $filters['yil']);
+    }
+    
+    if (!empty($filters['tolov_turi'])) {
+        $query->where('tolov_turi', $filters['tolov_turi']);
+    }
+    
+    if (!empty($filters['holat'])) {
+        $query->where('holat', 'like', '%' . $filters['holat'] . '%');
+    }
+    
+    if (!empty($filters['asos'])) {
+        $query->where('asos', 'like', '%' . $filters['asos'] . '%');
+    }
+    
+    // MUHIM: Statistikani paginatsiyadan OLDIN hisoblash
+    $statistics = [
+        'total_lots' => $query->count(),
+        'total_area' => $query->sum('maydoni'),
+        'total_price' => $query->sum('sotilgan_narx'),
+    ];
+    
+    // Sorting
+    $sortField = $request->get('sort', 'auksion_sana');
+    $sortDirection = $request->get('direction', 'desc');
+    
+    if (in_array($sortField, ['auksion_sana', 'sotilgan_narx', 'tuman'])) {
+        $query->orderBy($sortField, $sortDirection);
+    }
+    
+    // Paginatsiya (eager loading faqat kerak bo'lganda)
+    $yerlar = $query->paginate(30)->withQueryString();
+    
+    $tumanlar = YerSotuv::select('tuman')
+        ->distinct()
+        ->whereNotNull('tuman')
+        ->orderBy('tuman')
+        ->pluck('tuman');
+        
+    $yillar = YerSotuv::select('yil')
+        ->distinct()
+        ->whereNotNull('yil')
+        ->orderBy('yil', 'desc')
+        ->pluck('yil');
+    
+    return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
+}
     
     private function getDetailedStatistics()
     {
