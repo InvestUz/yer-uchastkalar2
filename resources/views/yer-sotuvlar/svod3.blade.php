@@ -88,14 +88,22 @@
                             <td class="text-end">{{ number_format($statistics['jami']['narhini_bolib']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
 
                             <!-- Toliq tolanganlar -->
-                            <td class="text-end">{{ $statistics['jami']['toliq_tolanganlar']['soni'] }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true']) }}" class="text-decoration-none text-dark">
+                                    {{ $statistics['jami']['toliq_tolanganlar']['soni'] }}
+                                </a>
+                            </td>
                             <td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['boshlangich_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['sotilgan_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
 
                             <!-- Nazoratdagilar -->
-                            <td class="text-end">{{ $statistics['jami']['nazoratdagilar']['soni'] }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'nazoratda' => 'true']) }}" class="text-decoration-none text-dark">
+                                    {{ $statistics['jami']['nazoratdagilar']['soni'] }}
+                                </a>
+                            </td>
                             <td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['boshlangich_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['sotilgan_narx'] / 1000000000, 1) }}</td>
@@ -105,7 +113,11 @@
                             <td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
 
                             <!-- Grafik ortda -->
-                            <td class="text-end">{{ $statistics['jami']['grafik_ortda']['soni'] }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true']) }}" class="text-decoration-none text-dark">
+                                    {{ $statistics['jami']['grafik_ortda']['soni'] }}
+                                </a>
+                            </td>
                             <td class="text-end">{{ number_format($statistics['jami']['grafik_ortda']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format(($statistics['jami']['grafik_ortda']['grafik_summa'] - $statistics['jami']['grafik_ortda']['fakt_summa']) / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($statistics['jami']['grafik_ortda']['grafik_summa'] / 1000000000, 1) }}</td>
@@ -135,14 +147,30 @@
                             <td class="text-end">{{ number_format($tuman['narhini_bolib']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
 
                             <!-- Toliq tolanganlar -->
-                            <td class="text-end">{{ $tuman['toliq_tolanganlar']['soni'] }}</td>
+                            <td class="text-end">
+                                @if($tuman['toliq_tolanganlar']['soni'] > 0)
+                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true']) }}" class="text-decoration-none">
+                                        {{ $tuman['toliq_tolanganlar']['soni'] }}
+                                    </a>
+                                @else
+                                    0
+                                @endif
+                            </td>
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['boshlangich_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['sotilgan_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
 
                             <!-- Nazoratdagilar -->
-                            <td class="text-end">{{ $tuman['nazoratdagilar']['soni'] }}</td>
+                            <td class="text-end">
+                                @if($tuman['nazoratdagilar']['soni'] > 0)
+                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'nazoratda' => 'true']) }}" class="text-decoration-none">
+                                        {{ $tuman['nazoratdagilar']['soni'] }}
+                                    </a>
+                                @else
+                                    0
+                                @endif
+                            </td>
                             <td class="text-end">{{ number_format($tuman['nazoratdagilar']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format($tuman['nazoratdagilar']['boshlangich_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($tuman['nazoratdagilar']['sotilgan_narx'] / 1000000000, 1) }}</td>
@@ -152,7 +180,15 @@
                             <td class="text-end">{{ number_format($tuman['nazoratdagilar']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
 
                             <!-- Grafik ortda -->
-                            <td class="text-end">{{ $tuman['grafik_ortda']['soni'] }}</td>
+                            <td class="text-end">
+                                @if($tuman['grafik_ortda']['soni'] > 0)
+                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'grafik_ortda' => 'true']) }}" class="text-decoration-none">
+                                        {{ $tuman['grafik_ortda']['soni'] }}
+                                    </a>
+                                @else
+                                    0
+                                @endif
+                            </td>
                             <td class="text-end">{{ number_format($tuman['grafik_ortda']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format(($tuman['grafik_ortda']['grafik_summa'] - $tuman['grafik_ortda']['fakt_summa']) / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($tuman['grafik_ortda']['grafik_summa'] / 1000000000, 1) }}</td>
