@@ -34,21 +34,21 @@
         {{-- Quick Stats Grid --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 border-b border-gray-200">
             <div class="text-center p-3 bg-white rounded border border-gray-200">
+                <div class="text-xs text-gray-600">ер майдони</div>
 
-                <div class="text-lg font-bold text-gray-900">{{ number_format($yer->maydoni, 2) }}</div>
-                <div class="text-xs text-gray-600">га</div>
+                <div class="text-lg font-bold text-gray-900">{{ number_format($yer->maydoni, 2) }} га</div>
             </div>
             <div class="text-center p-3 bg-white rounded border border-gray-200">
-                <div class="text-lg font-bold text-gray-900">{{ number_format($yer->boshlangich_narx / 1000000000, 2) }}</div>
-                <div class="text-xs text-gray-600">млрд (бошл.)</div>
+                <div class="text-xs text-gray-600">Бошланғич нархи</div>
+                <div class="text-lg font-bold text-gray-900">{{ number_format($yer->boshlangich_narx / 1000000000, 2) }} млрд сўм</div>
             </div>
             <div class="text-center p-3 bg-white rounded border border-gray-200">
-                <div class="text-lg font-bold text-gray-900">{{ number_format($yer->sotilgan_narx / 1000000000, 2) }}</div>
-                <div class="text-xs text-gray-600">млрд (сотилган)</div>
+                <div class="text-xs text-gray-600">Сотилган нархи</div>
+                <div class="text-lg font-bold text-gray-900">{{ number_format($yer->sotilgan_narx / 1000000000, 2) }} млрд сўм</div>
             </div>
             <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
-                <div class="text-lg font-bold">{{ number_format($yer->shartnoma_summasi / 1000000000, 2) }}</div>
-                <div class="text-xs">млрд (шартнома)</div>
+                <div class="text-xs">Шартнома бўйича тўлов</div>
+                <div class="text-lg font-bold">{{ number_format($yer->shartnoma_summasi / 1000000000, 2) }} млрд сўм</div>
             </div>
         </div>
     </div>
@@ -404,7 +404,7 @@
                 </div>
             @else
                 {{-- Payment Summary --}}
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                {{-- <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     <div class="bg-gray-50 rounded p-3 border border-gray-200 text-center">
                         <div class="text-xs text-gray-600 mb-1">Графикда</div>
                         <div class="text-lg font-bold text-gray-900">{{ number_format($grafikJami / 1000000, 1) }}</div>
@@ -425,10 +425,10 @@
                         <div class="text-lg font-bold">{{ $foiz }}%</div>
                         <div class="text-xs">бажарилди</div>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- Progress Bar --}}
-                <div class="mb-4 bg-gray-100 rounded p-3">
+                {{-- <div class="mb-4 bg-gray-100 rounded p-3">
                     <div class="flex justify-between text-xs text-gray-600 mb-2">
                         <span>График бажарилиши</span>
                         <span>{{ $foiz }}%</span>
@@ -436,7 +436,7 @@
                     <div class="w-full bg-gray-300 rounded-full h-2">
                         <div class="h-2 rounded-full {{ $foiz >= 80 ? 'bg-gray-700' : 'bg-gray-500' }}" style="width: {{ min($foiz, 100) }}%"></div>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- Collapsible Sections --}}
                      <div class="space-y-2">
