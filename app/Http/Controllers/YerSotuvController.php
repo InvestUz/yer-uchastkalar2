@@ -529,9 +529,29 @@ private function getNazoratdagilar($tumanPatterns = null)
         die();
     }
 
-  private function showFilteredData(Request $request, array $filters)
+private function showFilteredData(Request $request, array $filters)
 {
     $query = YerSotuv::query();
+
+    // **GLOBAL SEARCH** - Search across multiple columns
+    if (!empty($filters['search'])) {
+        $searchTerm = $filters['search'];
+        $query->where(function ($q) use ($searchTerm) {
+            $q->where('lot_raqami', 'like', '%' . $searchTerm . '%')
+              ->orWhere('tuman', 'like', '%' . $searchTerm . '%')
+              ->orWhere('mfy', 'like', '%' . $searchTerm . '%')
+              ->orWhere('manzil', 'like', '%' . $searchTerm . '%')
+              ->orWhere('unikal_raqam', 'like', '%' . $searchTerm . '%')
+              ->orWhere('zona', 'like', '%' . $searchTerm . '%')
+              ->orWhere('golib_nomi', 'like', '%' . $searchTerm . '%')
+              ->orWhere('auksion_golibi', 'like', '%' . $searchTerm . '%')
+              ->orWhere('telefon', 'like', '%' . $searchTerm . '%')
+              ->orWhere('holat', 'like', '%' . $searchTerm . '%')
+              ->orWhere('asos', 'like', '%' . $searchTerm . '%')
+              ->orWhere('shartnoma_raqam', 'like', '%' . $searchTerm . '%')
+              ->orWhere('tolov_turi', 'like', '%' . $searchTerm . '%');
+        });
+    }
 
     // Tuman filter
     if (!empty($filters['tuman'])) {
@@ -548,7 +568,7 @@ private function getNazoratdagilar($tumanPatterns = null)
         $query->where('yil', $filters['yil']);
     }
 
-    // **NEW: Date Range Filter for Auksion Sana**
+    // **Date Range Filter for Auksion Sana**
     if (!empty($filters['auksion_sana_from'])) {
         $query->whereDate('auksion_sana', '>=', $filters['auksion_sana_from']);
     }
@@ -557,7 +577,7 @@ private function getNazoratdagilar($tumanPatterns = null)
         $query->whereDate('auksion_sana', '<=', $filters['auksion_sana_to']);
     }
 
-    // **NEW: Date Range Filter for Shartnoma Sana**
+    // **Date Range Filter for Shartnoma Sana**
     if (!empty($filters['shartnoma_sana_from'])) {
         $query->whereDate('shartnoma_sana', '>=', $filters['shartnoma_sana_from']);
     }
@@ -566,7 +586,7 @@ private function getNazoratdagilar($tumanPatterns = null)
         $query->whereDate('shartnoma_sana', '<=', $filters['shartnoma_sana_to']);
     }
 
-    // **NEW: Price Range Filter**
+    // **Price Range Filter**
     if (!empty($filters['narx_from'])) {
         $query->where('sotilgan_narx', '>=', $filters['narx_from']);
     }
@@ -575,7 +595,7 @@ private function getNazoratdagilar($tumanPatterns = null)
         $query->where('sotilgan_narx', '<=', $filters['narx_to']);
     }
 
-    // **NEW: Area Range Filter**
+    // **Area Range Filter**
     if (!empty($filters['maydoni_from'])) {
         $query->where('maydoni', '>=', $filters['maydoni_from']);
     }
@@ -688,7 +708,7 @@ private function getNazoratdagilar($tumanPatterns = null)
         'boshlangich_narx' => $query->sum('boshlangich_narx'),
     ];
 
-    // **UPDATED: Enhanced Sorting with more options**
+    // **ENHANCED SORTING** with more options and proper NULL handling
     $sortField = $request->get('sort', 'auksion_sana');
     $sortDirection = $request->get('direction', 'desc');
 
@@ -700,7 +720,13 @@ private function getNazoratdagilar($tumanPatterns = null)
         'maydoni',
         'tuman',
         'lot_raqami',
-        'yil'
+        'yil',
+        'manzil',
+        'golib_nomi',
+        'telefon',
+        'tolov_turi',
+        'holat',
+        'asos'
     ];
 
     if (in_array($sortField, $allowedSortFields)) {
