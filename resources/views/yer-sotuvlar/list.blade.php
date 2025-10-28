@@ -291,6 +291,109 @@
         @endif
     </div>
 
+<form method="GET" action="{{ route('yer-sotuvlar.list') }}" class="bg-white p-6 rounded-lg shadow-md">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- Tuman Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tuman</label>
+            <select name="tuman" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Barchasi</option>
+                @foreach($tumanlar as $tuman)
+                    <option value="{{ $tuman }}" {{ request('tuman') == $tuman ? 'selected' : '' }}>
+                        {{ $tuman }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Auksion Date From -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Auksion sanasi (dan)</label>
+            <input type="date" name="auksion_sana_from"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   value="{{ request('auksion_sana_from') }}">
+        </div>
+
+        <!-- Auksion Date To -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Auksion sanasi (gacha)</label>
+            <input type="date" name="auksion_sana_to"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   value="{{ request('auksion_sana_to') }}">
+        </div>
+
+        <!-- Area From -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Maydon (dan)</label>
+            <input type="number" name="maydoni_from"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   value="{{ request('maydoni_from') }}"
+                   step="0.01"
+                   placeholder="Min maydon">
+        </div>
+
+        <!-- Area To -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Maydon (gacha)</label>
+            <input type="number" name="maydoni_to"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   value="{{ request('maydoni_to') }}"
+                   step="0.01"
+                   placeholder="Max maydon">
+        </div>
+
+        <!-- Sort Field -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Saralash</label>
+            <select name="sort" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="auksion_sana" {{ request('sort') == 'auksion_sana' ? 'selected' : '' }}>
+                    Auksion sanasi
+                </option>
+                <option value="sotilgan_narx" {{ request('sort') == 'sotilgan_narx' ? 'selected' : '' }}>
+                    Sotilgan narx
+                </option>
+                <option value="boshlangich_narx" {{ request('sort') == 'boshlangich_narx' ? 'selected' : '' }}>
+                    Boshlang'ich narx
+                </option>
+                <option value="maydoni" {{ request('sort') == 'maydoni' ? 'selected' : '' }}>
+                    Maydon
+                </option>
+                <option value="tuman" {{ request('sort') == 'tuman' ? 'selected' : '' }}>
+                    Tuman
+                </option>
+            </select>
+        </div>
+
+        <!-- Sort Direction -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tartib</label>
+            <select name="direction" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="desc" {{ request('direction') == 'desc' ? 'selected' : '' }}>
+                    Kamayish ↓
+                </option>
+                <option value="asc" {{ request('direction') == 'asc' ? 'selected' : '' }}>
+                    O'sish ↑
+                </option>
+            </select>
+        </div>
+
+        <!-- Search Button -->
+        <div class="flex items-end">
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Qidirish
+            </button>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="flex items-end">
+            <a href="{{ route('yer-sotuvlar.list') }}" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                Tozalash
+            </a>
+        </div>
+    </div>
+</form>
+
     <style>
         /* Custom scrollbar for table */
         .overflow-x-auto::-webkit-scrollbar {

@@ -529,39 +529,75 @@ private function getNazoratdagilar($tumanPatterns = null)
         die();
     }
 
-    private function showFilteredData(Request $request, array $filters)
-    {
-        $query = YerSotuv::query();
+  private function showFilteredData(Request $request, array $filters)
+{
+    $query = YerSotuv::query();
 
-        // Tuman filter
-        if (!empty($filters['tuman'])) {
-            $tumanPatterns = $this->getTumanPatterns($filters['tuman']);
-            $query->where(function ($q) use ($tumanPatterns) {
-                foreach ($tumanPatterns as $pattern) {
-                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-                }
-            });
-        }
+    // Tuman filter
+    if (!empty($filters['tuman'])) {
+        $tumanPatterns = $this->getTumanPatterns($filters['tuman']);
+        $query->where(function ($q) use ($tumanPatterns) {
+            foreach ($tumanPatterns as $pattern) {
+                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+            }
+        });
+    }
 
-        // Yil filter
-        if (!empty($filters['yil'])) {
-            $query->where('yil', $filters['yil']);
-        }
+    // Yil filter
+    if (!empty($filters['yil'])) {
+        $query->where('yil', $filters['yil']);
+    }
 
-        // SPECIAL FILTERS - Priority order matters!
+    // **NEW: Date Range Filter for Auksion Sana**
+    if (!empty($filters['auksion_sana_from'])) {
+        $query->whereDate('auksion_sana', '>=', $filters['auksion_sana_from']);
+    }
 
-        // 1. Auksonda turgan
-        if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
-            $query->where(function ($q) {
-                $q->where('tolov_turi', '!=', 'муддатли')
-                    ->where('tolov_turi', '!=', 'муддатли эмас')
-                    ->orWhereNull('tolov_turi');
-            });
-        }
-        // 2. Toliq tolangan (Bo'lib to'lashdan - to'liq tugatilgan)
-        elseif (!empty($request->toliq_tolangan) && $request->toliq_tolangan === 'true') {
-            $query->where('tolov_turi', 'муддатли');
-            $query->whereRaw('lot_raqami IN (
+    if (!empty($filters['auksion_sana_to'])) {
+        $query->whereDate('auksion_sana', '<=', $filters['auksion_sana_to']);
+    }
+
+    // **NEW: Date Range Filter for Shartnoma Sana**
+    if (!empty($filters['shartnoma_sana_from'])) {
+        $query->whereDate('shartnoma_sana', '>=', $filters['shartnoma_sana_from']);
+    }
+
+    if (!empty($filters['shartnoma_sana_to'])) {
+        $query->whereDate('shartnoma_sana', '<=', $filters['shartnoma_sana_to']);
+    }
+
+    // **NEW: Price Range Filter**
+    if (!empty($filters['narx_from'])) {
+        $query->where('sotilgan_narx', '>=', $filters['narx_from']);
+    }
+
+    if (!empty($filters['narx_to'])) {
+        $query->where('sotilgan_narx', '<=', $filters['narx_to']);
+    }
+
+    // **NEW: Area Range Filter**
+    if (!empty($filters['maydoni_from'])) {
+        $query->where('maydoni', '>=', $filters['maydoni_from']);
+    }
+
+    if (!empty($filters['maydoni_to'])) {
+        $query->where('maydoni', '<=', $filters['maydoni_to']);
+    }
+
+    // SPECIAL FILTERS - Priority order matters!
+
+    // 1. Auksonda turgan
+    if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
+        $query->where(function ($q) {
+            $q->where('tolov_turi', '!=', 'муддатли')
+                ->where('tolov_turi', '!=', 'муддатли эмас')
+                ->orWhereNull('tolov_turi');
+        });
+    }
+    // 2. Toliq tolangan (Bo'lib to'lashdan - to'liq tugatilgan)
+    elseif (!empty($request->toliq_tolangan) && $request->toliq_tolangan === 'true') {
+        $query->where('tolov_turi', 'муддатли');
+        $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
             FROM yer_sotuvlar ys
             LEFT JOIN (
@@ -578,11 +614,11 @@ private function getNazoratdagilar($tumanPatterns = null)
             AND COALESCE(f.jami_fakt, 0) >= COALESCE(g.jami_grafik, 0)
             AND COALESCE(g.jami_grafik, 0) > 0
         )');
-        }
-        // 3. Nazoratda (Bo'lib to'lashdan - hali to'lanayotgan)
-        elseif (!empty($request->nazoratda) && $request->nazoratda === 'true') {
-            $query->where('tolov_turi', 'муддатли');
-            $query->whereRaw('lot_raqami IN (
+    }
+    // 3. Nazoratda (Bo'lib to'lashdan - hali to'lanayotgan)
+    elseif (!empty($request->nazoratda) && $request->nazoratda === 'true') {
+        $query->where('tolov_turi', 'муддатли');
+        $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
             FROM yer_sotuvlar ys
             LEFT JOIN (
@@ -598,12 +634,12 @@ private function getNazoratdagilar($tumanPatterns = null)
             WHERE ys.tolov_turi = "муддатли"
             AND COALESCE(f.jami_fakt, 0) < COALESCE(g.jami_grafik, 0)
         )');
-        }
-        // 4. Grafik ortda (Nazoratdagilardan - muddati o'tganlar)
-        elseif (!empty($request->grafik_ortda) && $request->grafik_ortda === 'true') {
-            $bugun = now()->format('Y-m-d');
-            $query->where('tolov_turi', 'муддатли');
-            $query->whereRaw('lot_raqami IN (
+    }
+    // 4. Grafik ortda (Nazoratdagilardan - muddati o'tganlar)
+    elseif (!empty($request->grafik_ortda) && $request->grafik_ortda === 'true') {
+        $bugun = now()->format('Y-m-d');
+        $query->where('tolov_turi', 'муддатли');
+        $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
             FROM yer_sotuvlar ys
             LEFT JOIN (
@@ -623,61 +659,84 @@ private function getNazoratdagilar($tumanPatterns = null)
             AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
             AND COALESCE(g.jami_grafik, 0) > 0
         )', [$bugun, $bugun]);
-        }
-        // 5. Oddiy tolov turi filter
-        elseif (!empty($filters['tolov_turi'])) {
-            $query->where('tolov_turi', $filters['tolov_turi']);
-        }
+    }
+    // 5. Oddiy tolov turi filter
+    elseif (!empty($filters['tolov_turi'])) {
+        $query->where('tolov_turi', $filters['tolov_turi']);
+    }
 
-        // Holat filter
-        if (!empty($filters['holat'])) {
-            $query->where('holat', 'like', '%' . $filters['holat'] . '%');
+    // Holat filter
+    if (!empty($filters['holat'])) {
+        $query->where('holat', 'like', '%' . $filters['holat'] . '%');
 
-            // Agar holat (34) bo'lsa, avtomatik ravishda asos=ПФ-135 qo'shish
-            if (strpos($filters['holat'], '(34)') !== false) {
-                $query->where('asos', 'ПФ-135');
+        // Agar holat (34) bo'lsa, avtomatik ravishda asos=ПФ-135 qo'shish
+        if (strpos($filters['holat'], '(34)') !== false) {
+            $query->where('asos', 'ПФ-135');
+        }
+    }
+
+    // Asos filter
+    if (!empty($filters['asos'])) {
+        $query->where('asos', 'like', '%' . $filters['asos'] . '%');
+    }
+
+    // MUHIM: Statistikani paginatsiyadan OLDIN hisoblash
+    $statistics = [
+        'total_lots' => $query->count(),
+        'total_area' => $query->sum('maydoni'),
+        'total_price' => $query->sum('sotilgan_narx'),
+        'boshlangich_narx' => $query->sum('boshlangich_narx'),
+    ];
+
+    // **UPDATED: Enhanced Sorting with more options**
+    $sortField = $request->get('sort', 'auksion_sana');
+    $sortDirection = $request->get('direction', 'desc');
+
+    $allowedSortFields = [
+        'auksion_sana',
+        'shartnoma_sana',
+        'sotilgan_narx',
+        'boshlangich_narx',
+        'maydoni',
+        'tuman',
+        'lot_raqami',
+        'yil'
+    ];
+
+    if (in_array($sortField, $allowedSortFields)) {
+        // Handle NULL values for date and numeric fields
+        if (in_array($sortField, ['auksion_sana', 'shartnoma_sana', 'sotilgan_narx', 'boshlangich_narx', 'maydoni'])) {
+            // NULLs last for DESC, NULLs first for ASC
+            if ($sortDirection === 'desc') {
+                $query->orderByRaw("CASE WHEN {$sortField} IS NULL THEN 1 ELSE 0 END");
+                $query->orderBy($sortField, 'desc');
+            } else {
+                $query->orderByRaw("CASE WHEN {$sortField} IS NULL THEN 1 ELSE 0 END");
+                $query->orderBy($sortField, 'asc');
             }
-        }
-
-        // Asos filter
-        if (!empty($filters['asos'])) {
-            $query->where('asos', 'like', '%' . $filters['asos'] . '%');
-        }
-
-        // MUHIM: Statistikani paginatsiyadan OLDIN hisoblash
-        $statistics = [
-            'total_lots' => $query->count(),
-            'total_area' => $query->sum('maydoni'),
-            'total_price' => $query->sum('sotilgan_narx'),
-            'boshlangich_narx' => $query->sum('boshlangich_narx'),
-        ];
-
-        // Sorting
-        $sortField = $request->get('sort', 'auksion_sana');
-        $sortDirection = $request->get('direction', 'desc');
-
-        if (in_array($sortField, ['auksion_sana', 'sotilgan_narx', 'tuman'])) {
+        } else {
             $query->orderBy($sortField, $sortDirection);
         }
-
-        // Paginatsiya
-        $yerlar = $query->paginate(50)->withQueryString();
-
-        // Dropdown uchun ro'yxatlar
-        $tumanlar = YerSotuv::select('tuman')
-            ->distinct()
-            ->whereNotNull('tuman')
-            ->orderBy('tuman')
-            ->pluck('tuman');
-
-        $yillar = YerSotuv::select('yil')
-            ->distinct()
-            ->whereNotNull('yil')
-            ->orderBy('yil', 'desc')
-            ->pluck('yil');
-
-        return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
     }
+
+    // Paginatsiya
+    $yerlar = $query->paginate(50)->withQueryString();
+
+    // Dropdown uchun ro'yxatlar
+    $tumanlar = YerSotuv::select('tuman')
+        ->distinct()
+        ->whereNotNull('tuman')
+        ->orderBy('tuman')
+        ->pluck('tuman');
+
+    $yillar = YerSotuv::select('yil')
+        ->distinct()
+        ->whereNotNull('yil')
+        ->orderBy('yil', 'desc')
+        ->pluck('yil');
+
+    return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
+}
 
     private function getDetailedStatistics()
     {
