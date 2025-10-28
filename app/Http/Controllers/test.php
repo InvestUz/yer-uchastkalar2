@@ -13,7 +13,7 @@ class YerSotuvController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = $request->only(['tuman', 'yil', 'tolov_turi', 'holat', 'asos']);
+        $filters = $request->only(['tuman', 'yil', 'tolov_turi', 'holat', 'asos', 'auksonda_turgan']);
 
         // Debug mode
         if ($request->has('debug')) {
@@ -144,7 +144,14 @@ class YerSotuvController extends Controller
             $query->where('yil', $filters['yil']);
         }
 
-        if (!empty($filters['tolov_turi'])) {
+        // Special filter for "Auksonda turgan" - matches getAuksondaTurgan() logic
+        if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
+            $query->where(function ($q) {
+                $q->where('tolov_turi', '!=', 'муддатли')
+                    ->where('tolov_turi', '!=', 'муддатли эмас')
+                    ->orWhereNull('tolov_turi');
+            });
+        } elseif (!empty($filters['tolov_turi'])) {
             $query->where('tolov_turi', $filters['tolov_turi']);
         }
 
@@ -313,12 +320,36 @@ class YerSotuvController extends Controller
             $query->where('tolov_turi', $tolovTuri);
         }
 
+        // Main data (including 'низоли')
         $data = $query->selectRaw('
             COUNT(*) as soni,
             SUM(maydoni) as maydoni,
             SUM(boshlangich_narx) as boshlangich_narx,
             SUM(sotilgan_narx) as sotilgan_narx,
-            SUM(chegirma) as chegirma,
+            SUM(chegirma) as chegirma
+        ')->first();
+
+        // Separate query for tushadigan_mablagh (excluding 'низоли')
+        $queryTushadigan = YerSotuv::query();
+
+        // Apply same tuman filter
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $queryTushadigan->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        // Apply same tolov_turi filter
+        if ($tolovTuri) {
+            $queryTushadigan->where('tolov_turi', $tolovTuri);
+        }
+
+        // Exclude 'низоли' for tushadigan_mablagh only
+        $queryTushadigan->where('tolov_turi', '!=', 'низоли');
+
+        $tushadiganData = $queryTushadigan->selectRaw('
             SUM(tushadigan_mablagh) as tushadigan_mablagh
         ')->first();
 
@@ -328,10 +359,9 @@ class YerSotuvController extends Controller
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
             'chegirma' => $data->chegirma ?? 0,
-            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0
+            'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh ?? 0
         ];
     }
-
     private function getAuksondaTurgan($tumanPatterns = null)
     {
         $query = YerSotuv::query();
@@ -345,18 +375,11 @@ class YerSotuvController extends Controller
             });
         }
 
-        // Holat filter
         $query->where(function ($q) {
-            $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                ->orWhere('holat', 'like', '%расмийлаштиришда%');
+            $q->where('tolov_turi', '!=', 'муддатли')
+                ->where('tolov_turi', '!=', 'муддатли эмас')
+                ->orWhereNull('tolov_turi');
         });
-
-        // Tolov turi filter - faqat "муддатли" va "муддатли эмас" bo'lmaganlarni olish
-       $query->where(function ($q) {
-    $q->where('tolov_turi', '!=', 'муддатли')
-        ->where('tolov_turi', '!=', 'муддатли эмас')
-        ->orWhereNull('tolov_turi');
-});
 
         $data = $query->selectRaw('
             COUNT(*) as soni,
@@ -528,3 +551,4 @@ class YerSotuvController extends Controller
         return $result;
     }
 }
+

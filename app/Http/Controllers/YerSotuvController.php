@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class YerSotuvController extends Controller
 {
-    public function index(Request $request)
+     public function index(Request $request)
     {
         $filters = $request->only(['tuman', 'yil', 'tolov_turi', 'holat', 'asos', 'auksonda_turgan']);
 
@@ -30,6 +30,349 @@ class YerSotuvController extends Controller
 
         return view('yer-sotuvlar.statistics', compact('statistics'));
     }
+
+
+
+    // SVOD 3 - Bo'lib to'lash jadvali
+    public function svod3(Request $request)
+    {
+        $statistics = $this->getSvod3Statistics();
+
+        return view('yer-sotuvlar.svod3', compact('statistics'));
+    }
+
+    private function getSvod3Statistics()
+    {
+        $tumanlar = [
+            'Бектемир т.',
+            'Мирзо Улуғбек т.',
+            'Миробод т.',
+            'Олмазор т.',
+            'Сирғали т.',
+            'Учтепа т.',
+            'Чилонзор т.',
+            'Шайхонтоҳур т.',
+            'Юнусобод т.',
+            'Яккасарой т.',
+            'Янги ҳаёт т.',
+            'Яшнобод т.'
+        ];
+
+        $result = [
+            'jami' => $this->initializeSvod3Total(),
+            'tumanlar' => []
+        ];
+
+        foreach ($tumanlar as $tuman) {
+            $tumanPatterns = $this->getTumanPatterns($tuman);
+
+            $stat = [
+                'tuman' => $tuman,
+                'narhini_bolib' => $this->getNarhiniBolib($tumanPatterns),
+                'toliq_tolanganlar' => $this->getToliqTolanganlar($tumanPatterns),
+                'nazoratdagilar' => $this->getNazoratdagilar($tumanPatterns),
+                'grafik_ortda' => $this->getGrafikOrtda($tumanPatterns)
+            ];
+
+            $result['tumanlar'][] = $stat;
+            $this->addToSvod3Total($result['jami'], $stat);
+        }
+
+        return $result;
+    }
+
+    private function getNarhiniBolib($tumanPatterns = null)
+    {
+        $query = YerSotuv::query();
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        // Bo'lib to'lash (muddatli)
+        $query->where('tolov_turi', 'муддатли');
+
+        $data = $query->selectRaw('
+            COUNT(*) as soni,
+            SUM(maydoni) as maydoni,
+            SUM(boshlangich_narx) as boshlangich_narx,
+            SUM(sotilgan_narx) as sotilgan_narx,
+            SUM(tushadigan_mablagh) as tushadigan_mablagh
+        ')->first();
+
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0
+        ];
+    }
+
+    private function getToliqTolanganlar($tumanPatterns = null)
+    {
+        $query = YerSotuv::query();
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $query->where('tolov_turi', 'муддатли');
+
+        // To'liq to'langan yerlar - grafik va fakt to'lovlarni taqqoslash kerak
+        $query->whereRaw('lot_raqami IN (
+            SELECT ys.lot_raqami
+            FROM yer_sotuvlar ys
+            LEFT JOIN (
+                SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
+                FROM grafik_tolovlar
+                GROUP BY lot_raqami
+            ) g ON g.lot_raqami = ys.lot_raqami
+            LEFT JOIN (
+                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
+                FROM fakt_tolovlar
+                GROUP BY lot_raqami
+            ) f ON f.lot_raqami = ys.lot_raqami
+            WHERE ys.tolov_turi = "муддатли"
+            AND COALESCE(f.jami_fakt, 0) >= COALESCE(g.jami_grafik, 0)
+            AND COALESCE(g.jami_grafik, 0) > 0
+        )');
+
+        $data = $query->selectRaw('
+            COUNT(*) as soni,
+            SUM(maydoni) as maydoni,
+            SUM(boshlangich_narx) as boshlangich_narx,
+            SUM(sotilgan_narx) as sotilgan_narx,
+            SUM(tushadigan_mablagh) as tushadigan_mablagh
+        ')->first();
+
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0
+        ];
+    }
+
+    private function getNazoratdagilar($tumanPatterns = null)
+    {
+        $query = YerSotuv::query();
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $query->where('tolov_turi', 'муддатли');
+
+        // Nazoratdagi yerlar - to'liq to'lanmagan
+        $query->whereRaw('lot_raqami IN (
+            SELECT ys.lot_raqami
+            FROM yer_sotuvlar ys
+            LEFT JOIN (
+                SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
+                FROM grafik_tolovlar
+                GROUP BY lot_raqami
+            ) g ON g.lot_raqami = ys.lot_raqami
+            LEFT JOIN (
+                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
+                FROM fakt_tolovlar
+                GROUP BY lot_raqami
+            ) f ON f.lot_raqami = ys.lot_raqami
+            WHERE ys.tolov_turi = "муддатли"
+            AND COALESCE(f.jami_fakt, 0) < COALESCE(g.jami_grafik, 0)
+        )');
+
+        $data = $query->selectRaw('
+            COUNT(*) as soni,
+            SUM(maydoni) as maydoni,
+            SUM(boshlangich_narx) as boshlangich_narx,
+            SUM(sotilgan_narx) as sotilgan_narx,
+            SUM(tushadigan_mablagh) as tushadigan_mablagh
+        ')->first();
+
+        // Grafik va fakt to'lovlarni hisoblash
+        $tolovData = DB::table('yer_sotuvlar as ys')
+            ->leftJoin('grafik_tolovlar as g', 'g.lot_raqami', '=', 'ys.lot_raqami')
+            ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
+            ->where('ys.tolov_turi', 'муддатли');
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $tolovData->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $tolovData = $tolovData->selectRaw('
+            SUM(g.grafik_summa) as jami_grafik,
+            SUM(f.tolov_summa) as jami_fakt
+        ')->first();
+
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0,
+            'tushgan_summa' => $tolovData->jami_fakt ?? 0,
+            'grafik_summa' => $tolovData->jami_grafik ?? 0,
+            'fakt_summa' => $tolovData->jami_fakt ?? 0
+        ];
+    }
+
+    private function getGrafikOrtda($tumanPatterns = null)
+    {
+        $bugun = now()->format('Y-m-d');
+
+        $query = YerSotuv::query();
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $query->where('tolov_turi', 'муддатли');
+
+        // Grafik bo'yicha ortda qolganlar
+        $query->whereRaw('lot_raqami IN (
+            SELECT ys.lot_raqami
+            FROM yer_sotuvlar ys
+            LEFT JOIN (
+                SELECT lot_raqami,
+                       SUM(grafik_summa) as jami_grafik
+                FROM grafik_tolovlar
+                WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
+                GROUP BY lot_raqami
+            ) g ON g.lot_raqami = ys.lot_raqami
+            LEFT JOIN (
+                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
+                FROM fakt_tolovlar
+                WHERE tolov_sana <= ?
+                GROUP BY lot_raqami
+            ) f ON f.lot_raqami = ys.lot_raqami
+            WHERE ys.tolov_turi = "муддатли"
+            AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
+            AND COALESCE(g.jami_grafik, 0) > 0
+        )', [$bugun, $bugun]);
+
+        $data = $query->selectRaw('
+            COUNT(*) as soni,
+            SUM(maydoni) as maydoni
+        ')->first();
+
+        // Grafik va fakt to'lovlar farqini hisoblash
+        $tolovData = DB::table('yer_sotuvlar as ys')
+            ->leftJoin('grafik_tolovlar as g', function($join) use ($bugun) {
+                $join->on('g.lot_raqami', '=', 'ys.lot_raqami')
+                     ->whereRaw('CONCAT(g.yil, "-", LPAD(g.oy, 2, "0"), "-01") <= ?', [$bugun]);
+            })
+            ->leftJoin('fakt_tolovlar as f', function($join) use ($bugun) {
+                $join->on('f.lot_raqami', '=', 'ys.lot_raqami')
+                     ->where('f.tolov_sana', '<=', $bugun);
+            })
+            ->where('ys.tolov_turi', 'муддатли');
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $tolovData->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $tolovData = $tolovData->selectRaw('
+            SUM(g.grafik_summa) as jami_grafik,
+            SUM(f.tolov_summa) as jami_fakt
+        ')->first();
+
+        $grafikSumma = $tolovData->jami_grafik ?? 0;
+        $faktSumma = $tolovData->jami_fakt ?? 0;
+
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'grafik_summa' => $grafikSumma,
+            'fakt_summa' => $faktSumma,
+            'farq_summa' => $grafikSumma - $faktSumma,
+            'foiz' => $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0
+        ];
+    }
+
+    private function initializeSvod3Total()
+    {
+        return [
+            'narhini_bolib' => [
+                'soni' => 0, 'maydoni' => 0, 'boshlangich_narx' => 0,
+                'sotilgan_narx' => 0, 'tushadigan_mablagh' => 0
+            ],
+            'toliq_tolanganlar' => [
+                'soni' => 0, 'maydoni' => 0, 'boshlangich_narx' => 0,
+                'sotilgan_narx' => 0, 'tushadigan_mablagh' => 0
+            ],
+            'nazoratdagilar' => [
+                'soni' => 0, 'maydoni' => 0, 'boshlangich_narx' => 0,
+                'sotilgan_narx' => 0, 'tushadigan_mablagh' => 0,
+                'tushgan_summa' => 0, 'grafik_summa' => 0, 'fakt_summa' => 0
+            ],
+            'grafik_ortda' => [
+                'soni' => 0, 'maydoni' => 0, 'grafik_summa' => 0,
+                'fakt_summa' => 0, 'farq_summa' => 0, 'foiz' => 0
+            ]
+        ];
+    }
+
+    private function addToSvod3Total(&$jami, $stat)
+    {
+        // Narhini bolib
+        foreach ($stat['narhini_bolib'] as $field => $value) {
+            $jami['narhini_bolib'][$field] += $value;
+        }
+
+        // Toliq tolanganlar
+        foreach ($stat['toliq_tolanganlar'] as $field => $value) {
+            $jami['toliq_tolanganlar'][$field] += $value;
+        }
+
+        // Nazoratdagilar
+        foreach ($stat['nazoratdagilar'] as $field => $value) {
+            $jami['nazoratdagilar'][$field] += $value;
+        }
+
+        // Grafik ortda
+        foreach ($stat['grafik_ortda'] as $field => $value) {
+            if ($field !== 'foiz') {
+                $jami['grafik_ortda'][$field] += $value;
+            }
+        }
+
+        // Foizni qayta hisoblash
+        if ($jami['grafik_ortda']['grafik_summa'] > 0) {
+            $jami['grafik_ortda']['foiz'] = round(
+                ($jami['grafik_ortda']['fakt_summa'] / $jami['grafik_ortda']['grafik_summa']) * 100,
+                1
+            );
+        }
+    }
+
+    // Qolgan metodlar (showFilteredData, getDetailedStatistics, va h.k.)
+
     public function list(Request $request)
     {
         $filters = [
@@ -551,3 +894,4 @@ class YerSotuvController extends Controller
         return $result;
     }
 }
+
