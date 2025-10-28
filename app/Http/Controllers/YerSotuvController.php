@@ -110,7 +110,9 @@ class YerSotuvController extends Controller
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0
+            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0,
+ 'chegirma' => $data->chegirma ?? 0,
+            'golib_tolagan' => $data->golib_tolagan ?? 0,
         ];
     }
 
@@ -201,7 +203,9 @@ private function getToliqTolanganlar($tumanPatterns = null)
         'boshlangich_narx' => $data->boshlangich_narx ?? 0,
         'sotilgan_narx' => $data->sotilgan_narx ?? 0,
         'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0,
-        'tushgan_summa' => $tushganSumma  // fakt_tolovlar (2024-2025) + golib_tolagan
+        'tushgan_summa' => $tushganSumma,  // fakt_tolovlar (2024-2025) + golib_tolagan
+ 'chegirma' => $data->chegirma ?? 0,
+            'golib_tolagan' => $data->golib_tolagan ?? 0,
     ];
 }
 
@@ -706,6 +710,9 @@ private function showFilteredData(Request $request, array $filters)
         'total_area' => $query->sum('maydoni'),
         'total_price' => $query->sum('sotilgan_narx'),
         'boshlangich_narx' => $query->sum('boshlangich_narx'),
+        'chegirma' => $query->sum('chegirma'),
+        'golib_tolagan' => $query->sum('golib_tolagan'),
+
     ];
 
     // **ENHANCED SORTING** with more options and proper NULL handling
@@ -923,6 +930,7 @@ private function showFilteredData(Request $request, array $filters)
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
             'chegirma' => $data->chegirma ?? 0,
             'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh ?? 0
+
         ];
     }
     private function getAuksondaTurgan($tumanPatterns = null)
@@ -955,7 +963,9 @@ private function showFilteredData(Request $request, array $filters)
             'soni' => $data->soni ?? 0,
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-            'sotilgan_narx' => $data->sotilgan_narx ?? 0
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'chegirma' => $data->chegirma ?? 0,
+            'golib_tolagan' => $data->golib_tolagan ?? 0,
         ];
     }
 
