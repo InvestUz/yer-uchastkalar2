@@ -423,7 +423,7 @@
                                         'auksion_sana' => 'Аукцион',
                                         'sotilgan_narx' => 'Сотил. нарх',
                                         'chegirma' => 'Чегирма қиммати',
-                                        'golib_tolagan' => 'Ғолиб тўлаган',
+                                        'golib_tolagan' => 'Ғолиб аукционга тўлаган сумма',
                                         'golib' => 'Ғолиб',
                                     ];
                                 @endphp
@@ -445,7 +445,7 @@
 
                                 <th scope="col"
                                     class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                    Тўлов</th>
+                                    Тўлов тури</th>
                                 <th scope="col"
                                     class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                     Ҳолат</th>
