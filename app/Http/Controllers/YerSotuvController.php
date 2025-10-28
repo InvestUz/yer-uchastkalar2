@@ -306,6 +306,10 @@ class YerSotuvController extends Controller
     {
         $query = YerSotuv::query();
 
+        // $query->where(function ($q) {
+        //         $q->where('tolov_turi', '!=', 'низоли');
+        //     });
+
         // Tuman filter (agar mavjud bo'lsa)
         if ($tumanPatterns !== null && !empty($tumanPatterns)) {
             $query->where(function ($q) use ($tumanPatterns) {
