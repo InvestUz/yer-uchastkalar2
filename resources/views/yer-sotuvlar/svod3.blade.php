@@ -39,7 +39,7 @@
                             <th rowspan="2">майдони<br>(га)</th>
                             <th rowspan="2">бошланғич нархи<br>(млрд сўм)</th>
                             <th rowspan="2">сотилган нархи<br>(млрд сўм)</th>
-                            <th rowspan="2">тушадиган қиймат<br>(млрд сўм)</th>
+                            <th rowspan="2">тушган қиймат<br>(млрд сўм)</th>
 
                             <!-- Nazoratdagilar -->
                             <th rowspan="2">сони</th>
