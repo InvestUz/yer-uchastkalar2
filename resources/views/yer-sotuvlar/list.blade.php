@@ -435,6 +435,7 @@
                                         'sotilgan_narx' => 'Сотил. нарх',
                                         'chegirma' => 'Чегирма қиммати',
                                         'golib_tolagan' => 'Ғолиб аукционга тўлаган сумма',
+                                        'bahtyoraka_fakt' => 'Bahtyoraka fakt',
                                         'golib' => 'Ғолиб',
                                     ];
                                 @endphp
@@ -495,6 +496,16 @@
                                     </td>
 <td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
                                         {{ number_format($yer->golib_tolagan, 0, '.', ' ') }}
+                                    </td>
+
+<td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+
+
+{{$yer->total_tolov = $yer->faktTolovlar->sum('tolov_summa');}}
+    {{-- {{ $yer->faktTolovlar->pluck('tolov_summa')->map(fn($val) => number_format($val, 0, '.', ' '))->join(', ') }} --}}
+
+
+
                                     </td>
                                     <td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate"
                                         title="{{ $yer->golib_nomi }}">
