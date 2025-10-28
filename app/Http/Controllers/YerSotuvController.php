@@ -13,7 +13,7 @@ class YerSotuvController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = $request->only(['tuman', 'yil', 'tolov_turi', 'holat', 'asos']);
+        $filters = $request->only(['tuman', 'yil', 'tolov_turi', 'holat', 'asos', 'auksonda_turgan']);
 
         // Debug mode
         if ($request->has('debug')) {
@@ -144,7 +144,14 @@ class YerSotuvController extends Controller
             $query->where('yil', $filters['yil']);
         }
 
-        if (!empty($filters['tolov_turi'])) {
+        // Special filter for "Auksonda turgan" - matches getAuksondaTurgan() logic
+        if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
+            $query->where(function ($q) {
+                $q->where('tolov_turi', '!=', 'муддатли')
+                    ->where('tolov_turi', '!=', 'муддатли эмас')
+                    ->orWhereNull('tolov_turi');
+            });
+        } elseif (!empty($filters['tolov_turi'])) {
             $query->where('tolov_turi', $filters['tolov_turi']);
         }
 
@@ -345,11 +352,11 @@ class YerSotuvController extends Controller
             });
         }
 
-       $query->where(function ($q) {
-    $q->where('tolov_turi', '!=', 'муддатли')
-        ->where('tolov_turi', '!=', 'муддатли эмас')
-        ->orWhereNull('tolov_turi');
-});
+        $query->where(function ($q) {
+            $q->where('tolov_turi', '!=', 'муддатли')
+                ->where('tolov_turi', '!=', 'муддатли эмас')
+                ->orWhereNull('tolov_turi');
+        });
 
         $data = $query->selectRaw('
             COUNT(*) as soni,
