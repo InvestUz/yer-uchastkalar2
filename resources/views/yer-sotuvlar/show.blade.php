@@ -439,7 +439,7 @@
                 </div>
 
                 {{-- Collapsible Sections --}}
-                <div class="space-y-2">
+                     <div class="space-y-2">
                     @if(isset($tolovTaqqoslash) && count($tolovTaqqoslash) > 0)
                     <details class="group border border-gray-200 rounded">
                         <summary class="cursor-pointer px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center">
@@ -460,7 +460,16 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
+                                        @php
+                                            $jamiGrafik = 0;
+                                            $jamiFakt = 0;
+                                        @endphp
+
                                         @foreach($tolovTaqqoslash as $tolov)
+                                        @php
+                                            $jamiGrafik += $tolov['grafik'];
+                                            $jamiFakt += $tolov['fakt'];
+                                        @endphp
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-3 py-2 text-gray-900">{{ $tolov['oy_nomi'] }} {{ $tolov['yil'] }}</td>
                                             <td class="px-3 py-2 text-right text-gray-900">{{ number_format($tolov['grafik'] / 1000000, 1) }}</td>
@@ -475,6 +484,35 @@
                                         </tr>
                                         @endforeach
                                     </tbody>
+
+                                    {{-- Jami (Total) Footer --}}
+                                    <tfoot class="border-t-2 border-gray-300">
+                                        <tr class="bg-gradient-to-r from-blue-50 to-indigo-50">
+                                            <td class="px-3 py-3 text-sm font-bold text-gray-900">
+                                                <div class="flex items-center">
+                                                    <svg class="w-4 h-4 mr-1 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Жами
+                                                </div>
+                                            </td>
+                                            <td class="px-3 py-3 text-right text-sm font-bold text-gray-900">
+                                                {{ number_format($jamiGrafik / 1000000, 1) }} млн
+                                            </td>
+                                            <td class="px-3 py-3 text-right text-sm font-bold text-gray-900">
+                                                {{ number_format($jamiFakt / 1000000, 1) }} млн
+                                            </td>
+                                            <td class="px-3 py-3 text-center">
+                                                @php
+                                                    $jamiFoiz = $jamiGrafik > 0 ? round(($jamiFakt / $jamiGrafik) * 100) : 0;
+                                                @endphp
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $jamiFoiz >= 100 ? 'bg-green-600 text-white' : ($jamiFoiz >= 50 ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white') }}">
+                                                    {{ $jamiFoiz }}%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
