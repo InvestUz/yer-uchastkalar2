@@ -599,7 +599,7 @@ class YerSotuvController extends Controller
     }
 
     // Paginatsiya
-    $yerlar = $query->paginate(30)->withQueryString();
+    $yerlar = $query->paginate(3000)->withQueryString();
 
     // Dropdown uchun ro'yxatlar
     $tumanlar = YerSotuv::select('tuman')
