@@ -364,13 +364,13 @@
                                 {{ number_format($statistics['boshlangich_narx'] / 1000000000, 1) }}</div>
                             <div class="text-sm text-gray-600 mt-1">Бошланғич нарх (млрд сўм)</div>
                         </div>
-<div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="text-3xl font-bold text-gray-800">
                                 {{ number_format($statistics['chegirma'] / 1000000000, 1) }}</div>
                             <div class="text-sm text-gray-600 mt-1">Чегирма суммаси (млрд сўм)</div>
                         </div>
 
-<div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="text-3xl font-bold text-gray-800">
                                 {{ number_format($statistics['golib_tolagan'] / 1000000000, 1) }}</div>
                             <div class="text-sm text-gray-600 mt-1">Ғолиб аукционга тўлаган сумма (млрд сўм)</div>
@@ -424,7 +424,7 @@
                                 @endphp
 
                                 <!-- Sortable Headers -->
-                                  @php
+                                @php
                                     $columns = [
                                         'lot_raqami' => '№ Лот',
                                         'tuman' => 'Туман',
@@ -490,10 +490,10 @@
                                     <td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
                                         {{ number_format($yer->sotilgan_narx, 0, '.', ' ') }}
                                     </td>
-<td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
                                         {{ number_format($yer->chegirma, 0, '.', ' ') }}
                                     </td>
-<td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
                                         {{ number_format($yer->golib_tolagan, 0, '.', ' ') }}
                                     </td>
                                     <td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate"
