@@ -124,6 +124,7 @@
                             <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Тўлов</th>
                             <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Аукционда<br>турган</th>
                             <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">Ҳолат</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">Асос</th>
                             <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Сана</th>
                             <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Амаллар</th>
                         </tr>
@@ -181,6 +182,9 @@
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600">
                                 {{ Str::limit($yer->holat, 50) }}
+                            </td>
+ <td class="px-4 py-3 text-sm text-gray-600">
+                                {{ Str::limit($yer->asos, 50) }}
                             </td>
                             <td class="px-4 py-3 text-sm text-center text-gray-600">
                                 @if($yer->auksion_sana)

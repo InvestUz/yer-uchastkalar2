@@ -150,6 +150,11 @@ class YerSotuvController extends Controller
 
         if (!empty($filters['holat'])) {
             $query->where('holat', 'like', '%' . $filters['holat'] . '%');
+
+            // Agar holat (34) bo'lsa, avtomatik ravishda asos=ПФ-135 qo'shish
+            if (strpos($filters['holat'], '(34)') !== false) {
+                $query->where('asos', 'ПФ-135');
+            }
         }
 
         if (!empty($filters['asos'])) {
@@ -381,22 +386,24 @@ class YerSotuvController extends Controller
         // Holat filter
         $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%');
 
+        // Asos filter - ПФ-135
+        $query->where('asos', 'ПФ-135');
+
         // Agar davaktivda_turgan mavjud bo'lsa uni ishlatish, aks holda sotilgan_narx
         $data = $query->selectRaw('
-            COUNT(*) as soni,
-            SUM(CASE 
-                WHEN davaktivda_turgan IS NOT NULL AND davaktivda_turgan > 0 
-                THEN davaktivda_turgan 
-                ELSE sotilgan_narx 
-            END) as auksion_mablagh
-        ')->first();
+        COUNT(*) as soni,
+        SUM(CASE
+            WHEN davaktivda_turgan IS NOT NULL AND davaktivda_turgan > 0
+            THEN davaktivda_turgan
+            ELSE sotilgan_narx
+        END) as auksion_mablagh
+    ')->first();
 
         return [
             'soni' => $data->soni ?? 0,
             'auksion_mablagh' => $data->auksion_mablagh ?? 0
         ];
     }
-
     private function initializeTotal()
     {
         return [
