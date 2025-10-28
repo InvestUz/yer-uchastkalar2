@@ -413,7 +413,7 @@
                                 @endphp
 
                                 <!-- Sortable Headers -->
-                                @php
+                                  @php
                                     $columns = [
                                         'lot_raqami' => '№ Лот',
                                         'tuman' => 'Туман',
@@ -422,7 +422,9 @@
                                         'boshlangich_narx' => 'Бошл. нарх',
                                         'auksion_sana' => 'Аукцион',
                                         'sotilgan_narx' => 'Сотил. нарх',
-                                        'golib_nomi' => 'Ғолиб',
+                                        'chegirma' => 'Чегирма қиммати',
+                                        'golib_tolagan' => 'Ғолиб тўлаган',
+                                        'golib' => 'Ғолиб',
                                     ];
                                 @endphp
 
@@ -440,9 +442,7 @@
                                     </th>
                                 @endforeach
 
-                                <th scope="col"
-                                    class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                    Телефон</th>
+
                                 <th scope="col"
                                     class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                     Тўлов</th>
@@ -479,13 +479,17 @@
                                     <td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
                                         {{ number_format($yer->sotilgan_narx, 0, '.', ' ') }}
                                     </td>
+<td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                                        {{ number_format($yer->chegirma, 0, '.', ' ') }}
+                                    </td>
+<td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                                        {{ number_format($yer->golib_tolagan, 0, '.', ' ') }}
+                                    </td>
                                     <td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate"
                                         title="{{ $yer->golib_nomi }}">
                                         {{ Str::limit($yer->golib_nomi, 40) }}
                                     </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $yer->telefon }}
-                                    </td>
+
                                     <td class="px-4 py-4 whitespace-nowrap text-sm">
                                         @if ($yer->tolov_turi === 'муддатли')
                                             <span
