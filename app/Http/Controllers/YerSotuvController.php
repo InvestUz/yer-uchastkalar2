@@ -649,6 +649,7 @@ private function getNazoratdagilar($tumanPatterns = null)
             'total_lots' => $query->count(),
             'total_area' => $query->sum('maydoni'),
             'total_price' => $query->sum('sotilgan_narx'),
+            'boshlangich_narx' => $query->sum('boshlangich_narx'),
         ];
 
         // Sorting
@@ -660,7 +661,7 @@ private function getNazoratdagilar($tumanPatterns = null)
         }
 
         // Paginatsiya
-        $yerlar = $query->paginate(30)->withQueryString();
+        $yerlar = $query->paginate(50)->withQueryString();
 
         // Dropdown uchun ro'yxatlar
         $tumanlar = YerSotuv::select('tuman')

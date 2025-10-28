@@ -117,14 +117,19 @@
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['total_price'] / 1000000000, 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Жами сумма (млрд)</div>
+                                {{ number_format($statistics['boshlangich_narx'] / 1000000000, 1) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Бошланғич нарх (млрд сўм)</div>
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="text-3xl font-bold text-gray-800">
+                                {{ number_format($statistics['total_price'] / 1000000000, 1) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Сотилган нарх (млрд сўм)</div>
+                        </div>
+                        {{-- <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="text-3xl font-bold text-gray-800">
                                 {{ $yerlar->currentPage() }}/{{ $yerlar->lastPage() }}</div>
                             <div class="text-sm text-gray-600 mt-1">Саҳифа</div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -268,22 +273,22 @@
                 </div>
 
                 <!-- Pagination -->
-                @if ($yerlar->hasPages())
-                    <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
-                        <div class="flex items-center justify-between">
-                            <div class="text-sm text-gray-700">
-                                Кўрсатилмоқда: <span class="font-semibold">{{ $yerlar->firstItem() }}</span> -
-                                <span class="font-semibold">{{ $yerlar->lastItem() }}</span> /
-                                <span class="font-semibold">{{ $yerlar->total() }}</span>
-                            </div>
-                            <div>
-                                {{ $yerlar->links() }}
-                            </div>
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
+        @if ($yerlar->hasPages())
+            <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Кўрсатилмоқда: <span class="font-semibold">{{ $yerlar->firstItem() }}</span> -
+                        <span class="font-semibold">{{ $yerlar->lastItem() }}</span> /
+                        <span class="font-semibold">{{ $yerlar->total() }}</span>
+                    </div>
+                    <div>
+                        {{ $yerlar->links() }}
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
     <style>
