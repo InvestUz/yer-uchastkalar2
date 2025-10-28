@@ -101,7 +101,7 @@ class YerSotuvSeeder extends Seeder
 
     private function createYerSotuv($row, $lotRaqami): ?YerSotuv
     {
-        $auksionSana = $this->parseDate($row[16] ?? null);
+        $auksionSana = $this->parseDate($row[15] ?? null);
         $shartnomaSana = $this->parseDate($row[26] ?? null);
 
         $data = [
