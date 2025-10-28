@@ -6,8 +6,8 @@
 <div class="container-fluid py-4">
     <div class="card">
         <div class="card-header bg-primary text-white text-center">
-            <h5 class="mb-0">Тошкент шаҳрида аукцион савдоларида бўлиб тўлаш шарти билан сотилган ер участкалари тўғрисида</h5>
-            <h6 class="mb-0 mt-1">ЙИҒМА МАЪЛУМОТ</h6>
+            <h5 class="mb-0 text-dark" style="color: #000; font-weight: bold;">Тошкент шаҳрида аукцион савдоларида бўлиб тўлаш шарти билан сотилган ер участкалари тўғрисида</h5>
+            <h6 class="mb-0 mt-1" style="color: #000; font-weight: bold; margin-bottom: 20px;">ЙИҒМА МАЪЛУМОТ</h6>
         </div>
 
         <div class="card-body p-0">
@@ -80,7 +80,7 @@
 
                     <tbody>
                         <!-- Jami row -->
-                        <tr class="table-warning fw-bold">
+                        <tr class="table-warning fw-bold" style="font-weight: bold">
                             <td class="text-center" colspan="2">жами:</td>
 
                             <!-- Narhini bolib tolash - 5 columns -->
@@ -208,12 +208,11 @@
     .table-bordered th,
     .table-bordered td {
         border: 1px solid #000 !important;
-        padding: 3px 5px !important;
+        padding: 4px 6px !important;
     }
 
     .table thead th {
         background-color: #e9ecef;
-        vertical-align: middle;
     }
 
     a {
@@ -223,10 +222,6 @@
     a:hover {
         text-decoration: underline !important;
         color: #0a58ca;
-    }
-
-    .align-middle {
-        vertical-align: middle !important;
     }
 </style>
 @endsection

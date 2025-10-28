@@ -6,8 +6,8 @@
 <div class="container-fluid py-4">
     <div class="card">
         <div class="card-header bg-primary text-white text-center">
-            <h4 class="mb-0">Тошкент шаҳрида аукцион савдоларида сотилган ер участкалари тўғрисида</h4>
-            <h5 class="mb-0 mt-1">ЙИҒМА МАЪЛУМОТ</h5>
+            <h4 class="mb-0" style="color: #000; font-weight: bold;">Тошкент шаҳрида аукцион савдоларида сотилган ер участкалари тўғрисида</h4>
+            <h5 class="mb-0 mt-1" style="color: #000; font-weight: bold; margin-bottom: 20px;">ЙИҒМА МАЪЛУМОТ</h5>
         </div>
 
         <div class="card-body p-0">
@@ -76,9 +76,9 @@
 
                     <tbody>
                         <!-- Jami row -->
-                        <tr class="table-warning fw-bold">
-                            <td class="text-center">жами:</td>
-                            <td></td>
+                        <tr class="table-warning fw-bold"  style="font-weight: bold">
+                                                   <td class="text-center" colspan="2">жами:</td>
+
 
                             <!-- Jami sotilgan -->
                             <td class="text-end">
