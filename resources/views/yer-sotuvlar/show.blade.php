@@ -529,7 +529,7 @@
                         </summary>
                         <div class="p-4 border-t border-gray-200">
                             <div class="space-y-2">
-                                @foreach($yer->faktTolovlar->sortByDesc('tolov_sana')->take(10) as $tolov)
+                                @foreach($yer->faktTolovlar->sortByDesc('tolov_sana')->all() as $tolov)
                                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900">{{ $tolov->tolov_sana->format('d.m.Y') }}</div>
