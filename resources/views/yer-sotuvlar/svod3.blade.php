@@ -163,7 +163,7 @@
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['boshlangich_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['sotilgan_narx'] / 1000000000, 1) }}</td>
-                            <td class="text-end">{{ number_format(($tuman['toliq_tolanganlar']['tushgan_summa'] ?? 0) / 1000000000, 1) }} xxx</td>
+                            <td class="text-end">{{ number_format(($tuman['toliq_tolanganlar']['tushadigan_mablagh'] ?? 0) / 1000000000, 1) }} xxx</td>
 
                             <!-- Nazoratdagilar - 6 columns -->
                             <td class="text-end">

@@ -94,6 +94,7 @@ class YerSotuvController extends Controller
             });
         }
 
+
         // Bo'lib to'lash (muddatli)
         $query->where('tolov_turi', 'муддатли');
 
@@ -105,16 +106,34 @@ class YerSotuvController extends Controller
             SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
         ')->first();
 
+$P=$data->tushadigan_mablagh - $data->faktTolovlar->sum('tolov_summa') - $data->auksion_harajati / 50;
+dump($data->faktTolovlar->sum('tolov_summa'));
+if($P=0){
+
+
         return [
             'soni' => $data->soni ?? 0,
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0,
+            'tushadigan_mablagh' => $P ?? 0,
  'chegirma' => $data->chegirma ?? 0,
             'golib_tolagan' => $data->golib_tolagan ?? 0,
         ];
     }
+else{
+ return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $P ?? 0,
+ 'chegirma' => $data->chegirma ?? 0,
+            'golib_tolagan' => $data->golib_tolagan ?? 0,
+        ];
+    }
+}
+
 
 
 private function getToliqTolanganlar($tumanPatterns = null)
