@@ -63,11 +63,21 @@ class YerSotuv extends Model
         'yangi_oz_direksiya_tushadigan',
         'shayxontohur_tushadigan',
 
+        'yangi_hayot_industrial_park_tushadigan',
+        'ksz_direksiyalari_tushadigan',
+        'toshkent_city_direksiya_tushadigan',
+        'tuman_byudjeti_tushadigan',
+
         // Taqsimot - taqsimlangan
         'mahalliy_byudjet_taqsimlangan',
         'jamgarma_taqsimlangan',
         'yangi_oz_direksiya_taqsimlangan',
         'shayxontohur_taqsimlangan',
+
+        'yangi_hayot_industrial_park_taqsimlangan',
+        'ksz_direksiyalari_taqsimlangan',
+        'toshkent_city_direksiya_taqsimlangan',
+        'tuman_byudjeti_taqsimlangan',
 
         // Qoldiq
         'qoldiq_mahalliy_byudjet',

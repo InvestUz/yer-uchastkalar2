@@ -64,11 +64,22 @@ return new class extends Migration
             $table->decimal('yangi_oz_direksiya_tushadigan', 20, 2)->nullable();
             $table->decimal('shayxontohur_tushadigan', 20, 2)->nullable();
 
+            $table->decimal('yangi_hayot_industrial_park_tushadigan', 20, 2)->nullable();
+            $table->decimal('ksz_direksiyalari_tushadigan', 20, 2)->nullable();
+            $table->decimal('toshkent_city_direksiya_tushadigan', 20, 2)->nullable();
+            $table->decimal('tuman_byudjeti_tushadigan', 20, 2)->nullable();
+
+
             // Taqsimot - taqsimlangan
             $table->decimal('mahalliy_byudjet_taqsimlangan', 20, 2)->nullable();
             $table->decimal('jamgarma_taqsimlangan', 20, 2)->nullable();
             $table->decimal('yangi_oz_direksiya_taqsimlangan', 20, 2)->nullable();
             $table->decimal('shayxontohur_taqsimlangan', 20, 2)->nullable();
+
+          $table->decimal('yangi_hayot_industrial_park_taqsimlangan', 20, 2)->nullable();
+            $table->decimal('ksz_direksiyalari_taqsimlangan', 20, 2)->nullable();
+            $table->decimal('toshkent_city_direksiya_taqsimlangan', 20, 2)->nullable();
+            $table->decimal('tuman_byudjeti_taqsimlangan', 20, 2)->nullable();
 
             // Qoldiq
             $table->decimal('qoldiq_mahalliy_byudjet', 20, 2)->nullable();

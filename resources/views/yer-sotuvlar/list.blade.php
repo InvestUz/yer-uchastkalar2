@@ -121,9 +121,8 @@
                             <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Майдон (га)</th>
                             <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Бошл. нарх</th>
                             <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Сотилган нарх</th>
-                            <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Тўлов</th>
-                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-100 uppercase tracking-wider">Аукционда<br>турган</th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">Ҳолат</th>
+                            <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Тўлов тури</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">Лот холати</th>
                             <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-100 uppercase tracking-wider">Асос</th>
                             <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Сана</th>
                             <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-100 uppercase tracking-wider">Амаллар</th>
@@ -169,17 +168,7 @@
                                 </span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-sm text-right">
-                                @if($yer->davaktivda_turgan && $yer->davaktivda_turgan > 0)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-800">
-                                    {{ number_format($yer->davaktivda_turgan / 1000000000, 3) }} млрд
-                                </span>
-                                @else
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-600 text-white">
-                                    {{ number_format($yer->sotilgan_narx / 1000000000, 3) }} млрд
-                                </span>
-                                @endif
-                            </td>
+
                             <td class="px-4 py-3 text-sm text-gray-600">
                                 {{ Str::limit($yer->holat, 50) }}
                             </td>

@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="space-y-4">
-    
+
     {{-- Back Button --}}
     <div>
-        <a href="{{ url()->previous() }}" 
+        <a href="{{ url()->previous() }}"
            class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -34,6 +34,7 @@
         {{-- Quick Stats Grid --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 border-b border-gray-200">
             <div class="text-center p-3 bg-white rounded border border-gray-200">
+
                 <div class="text-lg font-bold text-gray-900">{{ number_format($yer->maydoni, 2) }}</div>
                 <div class="text-xs text-gray-600">га</div>
             </div>
@@ -60,7 +61,7 @@
                     Асосий
                 </button>
                 <button onclick="openTab(event, 'financial')" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-600 hover:text-gray-900">
-                    Молиявий
+                    Молиявий кўрсаткичлар
                 </button>
                 <button onclick="openTab(event, 'budget')" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-600 hover:text-gray-900">
                     Тақсимот
@@ -105,7 +106,7 @@
                             <tr>
                                 <td class="py-2 text-gray-600">Локация</td>
                                 <td class="py-2">
-                                    <a href="https://www.google.com/maps?q={{ $yer->lokatsiya }}" target="_blank" 
+                                    <a href="https://www.google.com/maps?q={{ $yer->lokatsiya }}" target="_blank"
                                        class="inline-flex items-center text-blue-600 hover:text-blue-800">
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -128,12 +129,7 @@
                                 <td class="py-2 text-gray-900">{{ $yer->qurilish_turi_1 }}</td>
                             </tr>
                             @endif
-                            @if($yer->qurilish_turi_2)
-                            <tr>
-                                <td class="py-2 text-gray-600">Тури 2</td>
-                                <td class="py-2 text-gray-900">{{ $yer->qurilish_turi_2 }}</td>
-                            </tr>
-                            @endif
+
                             @if($yer->qurilish_maydoni)
                             <tr>
                                 <td class="py-2 text-gray-600">Майдони</td>
@@ -305,7 +301,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">Маҳаллий бюджет</td>
+                            <td class="px-4 py-3 font-medium text-gray-900">Тошкент шаҳар бюджети</td>
                             <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->mahalliy_byudjet_tushadigan / 1000000, 1) }} млн</td>
                             <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->mahalliy_byudjet_taqsimlangan / 1000000, 1) }} млн</td>
                             <td class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_mahalliy_byudjet > 0 ? 'text-red-700' : 'text-green-700' }}">
@@ -321,7 +317,7 @@
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">Янги Ўз дирекция</td>
+                            <td class="px-4 py-3 font-medium text-gray-900">Янги Ўзбекистон</td>
                             <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->yangi_oz_direksiya_tushadigan / 1000000, 1) }} млн</td>
                             <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->yangi_oz_direksiya_taqsimlangan / 1000000, 1) }} млн</td>
                             <td class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_yangi_oz_direksiya > 0 ? 'text-red-700' : 'text-green-700' }}">
@@ -329,13 +325,48 @@
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">Шайхонтоҳур</td>
+                            <td class="px-4 py-3 font-medium text-gray-900">Шайхонтоҳур тумани</td>
                             <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->shayxontohur_tushadigan / 1000000, 1) }} млн</td>
                             <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->shayxontohur_taqsimlangan / 1000000, 1) }} млн</td>
                             <td class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700' }}">
                                 {{ number_format($yer->qoldiq_shayxontohur / 1000000, 1) }} млн
                             </td>
                         </tr>
+
+
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium text-gray-900">Янгиҳаёт индустриал технопаки</td>
+                            <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->yangi_hayot_industrial_park_tushadigan / 1000000, 1) }} млн</td>
+                            <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->yangi_hayot_industrial_park_taqsimlangan / 1000000, 1) }} млн</td>
+                            <td class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_mahalliy_byudjet > 0 ? 'text-red-700' : 'text-green-700' }}">
+                                {{ number_format($yer->qoldiq_mahalliy_byudjet / 1000000, 1) }} млн
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium text-gray-900">КСЗ дирекциялари</td>
+                            <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->ksz_direksiyalari_tushadigan / 1000000, 1) }} млн</td>
+                            <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->ksz_direksiyalari_taqsimlangan / 1000000, 1) }} млн</td>
+                            <td class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_jamgarma > 0 ? 'text-red-700' : 'text-green-700' }}">
+                                {{ number_format($yer->qoldiq_jamgarma / 1000000, 1) }} млн
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium text-gray-900">Тошкент сити дирекцияси</td>
+                            <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->toshkent_city_direksiya_tushadigan / 1000000, 1) }} млн</td>
+                            <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->toshkent_city_direksiya_taqsimlangan / 1000000, 1) }} млн</td>
+                            <td class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_yangi_oz_direksiya > 0 ? 'text-red-700' : 'text-green-700' }}">
+                                {{ number_format($yer->qoldiq_yangi_oz_direksiya / 1000000, 1) }} млн
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium text-gray-900">Туманлар бюжети</td>
+                            <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->tuman_byudjeti_tushadigan / 1000000, 1) }} млн</td>
+                            <td class="px-4 py-3 text-right text-gray-900">{{ number_format($yer->tuman_byudjeti_taqsimlangan / 1000000, 1) }} млн</td>
+                            <td class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700' }}">
+                                {{ number_format($yer->qoldiq_shayxontohur / 1000000, 1) }} млн
+                            </td>
+                        </tr>
+
                         <tr class="bg-gray-100 font-semibold">
                             <td class="px-4 py-3 text-gray-900">ЖАМИ</td>
                             <td class="px-4 py-3 text-right text-gray-900">
@@ -488,14 +519,14 @@ function openTab(evt, tabName) {
     for (var i = 0; i < tabContents.length; i++) {
         tabContents[i].classList.add("hidden");
     }
-    
+
     // Remove active class from all buttons
     var tabButtons = document.getElementsByClassName("tab-button");
     for (var i = 0; i < tabButtons.length; i++) {
         tabButtons[i].classList.remove("active", "border-gray-700", "text-gray-900");
         tabButtons[i].classList.add("border-transparent", "text-gray-600");
     }
-    
+
     // Show current tab and mark button as active
     document.getElementById(tabName).classList.remove("hidden");
     evt.currentTarget.classList.add("active", "border-gray-700", "text-gray-900");
