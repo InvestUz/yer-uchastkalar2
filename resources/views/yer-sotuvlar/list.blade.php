@@ -195,24 +195,24 @@
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['boshlangich_narx'] / 1000000000, 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Бошланғич нарх (млрд сўм)</div>
+                                {{ number_format($statistics['boshlangich_narx'] , 1) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Бошланғич нарх (сўм)</div>
                         </div>
 <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['chegirma'] / 1000000000, 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Чегирма суммаси (млрд сўм)</div>
+                                {{ number_format($statistics['chegirma'] , 1) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Чегирма суммаси (сўм)</div>
                         </div>
 
 <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['golib_tolagan'] / 1000000000, 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Ғолиб аукционга тўлаган сумма (млрд сўм)</div>
+                                {{ number_format($statistics['golib_tolagan'] , 1) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Ғолиб аукционга тўлаган сумма (сўм)</div>
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['total_price'] / 1000000000, 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Сотилган нарх (млрд сўм)</div>
+                                {{ number_format($statistics['total_price'] , 1) }}</div>
+                            <div class="text-sm text-gray-600 mt-1">Сотилган нарх (сўм)</div>
                         </div>
                     </div>
                 </div>
