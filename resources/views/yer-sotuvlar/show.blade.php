@@ -151,28 +151,28 @@
                     @if ($yer->qurilish_turi_1 || $yer->qurilish_maydoni)
                         <h3
                             class="text-sm font-semibold text-gray-900 uppercase tracking-wide pt-4 pb-2 border-b border-gray-200">
-                            Қурилиш</h3>
+                            Қурилишга рухсат берилган объект тури</h3>
                         <table class="min-w-full text-sm">
                             <tbody class="divide-y divide-gray-100">
                                 @if ($yer->qurilish_turi_1)
                                     <tr>
-                                        <td class="py-2 text-gray-600 w-40">Тури 1</td>
+                                        <td class="py-2 text-gray-600 w-40">Соҳаси </td>
                                         <td class="py-2 text-gray-900">{{ $yer->qurilish_turi_1 }}</td>
                                     </tr>
                                 @endif
 
-                                @if ($yer->qurilish_maydoni)
+                                {{-- @if ($yer->qurilish_maydoni)
                                     <tr>
                                         <td class="py-2 text-gray-600">Майдони</td>
                                         <td class="py-2 font-medium text-gray-900">
                                             {{ number_format($yer->qurilish_maydoni, 0) }} м²</td>
                                     </tr>
-                                @endif
+                                @endif --}}
                                 @if ($yer->investitsiya)
                                     <tr>
-                                        <td class="py-2 text-gray-600">Инвестиция</td>
+                                        <td class="py-2 text-gray-600">Киритиладиган инвестиция</td>
                                         <td class="py-2 font-medium text-gray-900">
-                                            {{ number_format($yer->investitsiya / 1000000, 1) }} млн</td>
+                                            {{ number_format($yer->investitsiya, 1) }} АҚШ доллари</td>
                                     </tr>
                                 @endif
                             </tbody>
@@ -282,33 +282,33 @@
                             <tr>
                                 <td class="py-2 text-gray-600">Ғолиб тўлаган</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->golib_tolagan / 1000000, 1) }} млн</td>
+                                    {{ number_format($yer->golib_tolagan, 1) }} cўм</td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Буюртмачига ўтказилган</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->buyurtmachiga_otkazilgan / 1000000, 1) }} млн</td>
+                                    {{ number_format($yer->buyurtmachiga_otkazilgan, 1) }} cўм</td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Чегирма</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->chegirma / 1000000, 1) }} млн</td>
+                                    {{ number_format($yer->chegirma, 1) }} cўм</td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Аукцион харажати</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->auksion_harajati / 1000000, 1) }} млн</td>
+                                    {{ number_format($yer->auksion_harajati, 1) }} cўм</td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Ер аукцион харажат</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->yer_auksion_harajat / 1000000, 1) }} млн</td>
+                                    {{ number_format($yer->yer_auksion_harajat, 1) }} cўм</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div>
+                <div  style="display: none">
                     <h3
                         class="text-sm font-semibold text-gray-900 uppercase tracking-wide pb-2 border-b border-gray-200 mb-3">
                         Бошқа маълумотлар</h3>
@@ -364,45 +364,45 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Тошкент шаҳар бюджети</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->mahalliy_byudjet_tushadigan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->mahalliy_byudjet_tushadigan, 1) }} сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->mahalliy_byudjet_taqsimlangan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->mahalliy_byudjet_taqsimlangan, 1) }} сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_mahalliy_byudjet > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_mahalliy_byudjet / 1000000, 1) }} млн
+                                {{ number_format($yer->qoldiq_mahalliy_byudjet, 1) }} сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Жамғарма</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->jamgarma_tushadigan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->jamgarma_tushadigan, 1) }} сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->jamgarma_taqsimlangan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->jamgarma_taqsimlangan, 1) }} сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_jamgarma > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_jamgarma / 1000000, 1) }} млн
+                                {{ number_format($yer->qoldiq_jamgarma, 1) }} сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Янги Ўзбекистон</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->yangi_oz_direksiya_tushadigan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->yangi_oz_direksiya_tushadigan, 1) }} сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->yangi_oz_direksiya_taqsimlangan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->yangi_oz_direksiya_taqsimlangan, 1) }} сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_yangi_oz_direksiya > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_yangi_oz_direksiya / 1000000, 1) }} млн
+                                {{ number_format($yer->qoldiq_yangi_oz_direksiya, 1) }} сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Шайхонтоҳур тумани</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->shayxontohur_tushadigan / 1000000, 1) }} млн</td>
+                               сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->shayxontohur_taqsimlangan / 1000000, 1) }} млн</td>
+                               сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_shayxontohur / 1000000, 1) }} млн
+                                сўм
                             </td>
                         </tr>
 
@@ -410,61 +410,61 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Янгиҳаёт индустриал технопаки</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->yangi_hayot_industrial_park_tushadigan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->yangi_hayot_industrial_park_tushadigan, 1) }} сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->yangi_hayot_industrial_park_taqsimlangan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->yangi_hayot_industrial_park_taqsimlangan, 1) }} сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_mahalliy_byudjet > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_mahalliy_byudjet / 1000000, 1) }} млн
+                                {{ number_format($yer->qoldiq_mahalliy_byudjet, 1) }} сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">КСЗ дирекциялари</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->ksz_direksiyalari_tushadigan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->ksz_direksiyalari_tushadigan, 1) }} сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->ksz_direksiyalari_taqsimlangan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->ksz_direksiyalari_taqsimlangan, 1) }} сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_jamgarma > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_jamgarma / 1000000, 1) }} млн
+                                {{ number_format($yer->qoldiq_jamgarma, 1) }} сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Тошкент сити дирекцияси</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->toshkent_city_direksiya_tushadigan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->toshkent_city_direksiya_tushadigan, 1) }} сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->toshkent_city_direksiya_taqsimlangan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->toshkent_city_direksiya_taqsimlangan, 1) }} сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_yangi_oz_direksiya > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_yangi_oz_direksiya / 1000000, 1) }} млн
+                                {{ number_format($yer->qoldiq_yangi_oz_direksiya, 1) }} сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Туманлар бюжети</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->tuman_byudjeti_tushadigan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->tuman_byudjeti_tushadigan, 1) }} сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->tuman_byudjeti_taqsimlangan / 1000000, 1) }} млн</td>
+                                {{ number_format($yer->tuman_byudjeti_taqsimlangan, 1) }} сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_shayxontohur / 1000000, 1) }} млн
+                                {{ number_format($yer->qoldiq_shayxontohur, 1) }} сўм
                             </td>
                         </tr>
 
                         <tr class="bg-gray-100 font-semibold">
                             <td class="px-4 py-3 text-gray-900">ЖАМИ</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format(($yer->mahalliy_byudjet_tushadigan + $yer->jamgarma_tushadigan + $yer->yangi_oz_direksiya_tushadigan + $yer->shayxontohur_tushadigan) / 1000000, 1) }}
-                                млн
+                                {{-- {{ number_format(($yer->mahalliy_byudjet_tushadigan + $yer->jamgarma_tushadigan + $yer->yangi_oz_direksiya_tushadigan + $yer->shayxontohur_tushadigan) / 1000000, 1) }} --}}
+                                сўм
                             </td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format(($yer->mahalliy_byudjet_taqsimlangan + $yer->jamgarma_taqsimlangan + $yer->yangi_oz_direksiya_taqsimlangan + $yer->shayxontohur_taqsimlangan) / 1000000, 1) }}
-                                млн
+                                {{-- {{ number_format(($yer->mahalliy_byudjet_taqsimlangan + $yer->jamgarma_taqsimlangan + $yer->yangi_oz_direksiya_taqsimlangan + $yer->shayxontohur_taqsimlangan) / 1000000, 1) }} --}}
+                                сўм
                             </td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format(($yer->qoldiq_mahalliy_byudjet + $yer->qoldiq_jamgarma + $yer->qoldiq_yangi_oz_direksiya + $yer->qoldiq_shayxontohur) / 1000000, 1) }}
-                                млн
+                                {{-- {{ number_format(($yer->qoldiq_mahalliy_byudjet + $yer->qoldiq_jamgarma + $yer->qoldiq_yangi_oz_direksiya + $yer->qoldiq_shayxontohur) / 1000000, 1) }} --}}
+                                сўм
                             </td>
                         </tr>
                     </tbody>
