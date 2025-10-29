@@ -403,40 +403,6 @@
                     <p class="text-xs text-gray-500 mt-1">{{ $yer->holat ?? 'Маълум эмас' }}</p>
                 </div>
             @else
-                {{-- Payment Summary --}}
-                {{-- <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <div class="bg-gray-50 rounded p-3 border border-gray-200 text-center">
-                        <div class="text-xs text-gray-600 mb-1">Графикда</div>
-                        <div class="text-lg font-bold text-gray-900">{{ number_format($grafikJami / 1000000, 1) }}</div>
-                        <div class="text-xs text-gray-500">млн</div>
-                    </div>
-                    <div class="bg-gray-700 rounded p-3 text-center text-white">
-                        <div class="text-xs mb-1">Тўланган</div>
-                        <div class="text-lg font-bold">{{ number_format($faktJami / 1000000, 1) }}</div>
-                        <div class="text-xs">млн</div>
-                    </div>
-                    <div class="bg-gray-50 rounded p-3 border border-gray-200 text-center">
-                        <div class="text-xs text-gray-600 mb-1">Қарздорлик</div>
-                        <div class="text-lg font-bold text-gray-900">{{ number_format($qarzdorlik / 1000000, 1) }}</div>
-                        <div class="text-xs text-gray-500">млн</div>
-                    </div>
-                    <div class="bg-gray-800 rounded p-3 text-center text-white">
-                        <div class="text-xs mb-1">Фоиз</div>
-                        <div class="text-lg font-bold">{{ $foiz }}%</div>
-                        <div class="text-xs">бажарилди</div>
-                    </div>
-                </div> --}}
-
-                {{-- Progress Bar --}}
-                {{-- <div class="mb-4 bg-gray-100 rounded p-3">
-                    <div class="flex justify-between text-xs text-gray-600 mb-2">
-                        <span>График бажарилиши</span>
-                        <span>{{ $foiz }}%</span>
-                    </div>
-                    <div class="w-full bg-gray-300 rounded-full h-2">
-                        <div class="h-2 rounded-full {{ $foiz >= 80 ? 'bg-gray-700' : 'bg-gray-500' }}" style="width: {{ min($foiz, 100) }}%"></div>
-                    </div>
-                </div> --}}
 
                 {{-- Collapsible Sections --}}
                      <div class="space-y-2">
@@ -459,31 +425,46 @@
                                             <th class="px-3 py-2 text-center font-medium text-gray-700">%</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        @php
-                                            $jamiGrafik = 0;
-                                            $jamiFakt = 0;
-                                        @endphp
+                                   <tbody class="divide-y divide-gray-100">
+    @php
+        $jamiGrafik = 0;
+        $jamiFakt = 0;
+    @endphp
 
-                                        @foreach($tolovTaqqoslash as $tolov)
-                                        @php
-                                            $jamiGrafik += $tolov['grafik'];
-                                            $jamiFakt += $tolov['fakt'];
-                                        @endphp
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-3 py-2 text-gray-900">{{ $tolov['oy_nomi'] }} {{ $tolov['yil'] }}</td>
-                                            <td class="px-3 py-2 text-right text-gray-900">{{ number_format($tolov['grafik'] / 1000000, 1) }}</td>
-                                            <td class="px-3 py-2 text-right {{ $tolov['fakt'] > 0 ? 'text-gray-900' : 'text-gray-400' }}">
-                                                {{ number_format($tolov['fakt'] / 1000000, 1) }}
-                                            </td>
-                                            <td class="px-3 py-2 text-center">
-                                                <span class="px-2 py-1 rounded text-xs {{ $tolov['foiz'] >= 100 ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800' }}">
-                                                    {{ $tolov['foiz'] }}%
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
+    @foreach($tolovTaqqoslash as $tolov)
+    @php
+        $jamiGrafik += $tolov['grafik'];
+        $jamiFakt += $tolov['fakt'];
+    @endphp
+    <tr class="hover:bg-gray-50 {{ $tolov['is_advance'] ? 'bg-yellow-50' : '' }}">
+        <td class="px-3 py-2 text-gray-900">
+            {{ $tolov['oy_nomi'] }}
+            @if($tolov['is_advance'])
+                <span class="ml-2 px-2 py-0.5 text-xs bg-yellow-200 text-yellow-800 rounded">
+                    Аввалдан тўлов
+                </span>
+            @endif
+        </td>
+        <td class="px-3 py-2 text-right text-gray-900">
+            {{ number_format($tolov['grafik'] / 1000000, 1) }}
+        </td>
+        <td class="px-3 py-2 text-right {{ $tolov['fakt'] > 0 ? 'text-gray-900 font-semibold' : 'text-gray-400' }}">
+            {{ number_format($tolov['fakt'] / 1000000, 1) }}
+        </td>
+        <td class="px-3 py-2 text-center">
+            @if($tolov['is_advance'])
+                <span class="px-2 py-1 rounded text-xs bg-yellow-500 text-white">
+                    Аввалдан
+                </span>
+            @else
+                <span class="px-2 py-1 rounded text-xs {{ $tolov['foiz'] >= 100 ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800' }}">
+                    {{ $tolov['foiz'] }}%
+                </span>
+            @endif
+        </td>
+    </tr>
+    @endforeach
+</tbody>
 
                                     {{-- Jami (Total) Footer --}}
                                     <tfoot class="border-t-2 border-gray-300">

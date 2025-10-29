@@ -34,14 +34,14 @@ class YerSotuvController extends Controller
 
 
     // SVOD 3 - Bo'lib to'lash jadvali
-   public function svod3(Request $request)
+    public function svod3(Request $request)
     {
         $statistics = $this->getSvod3Statistics();
 
         return view('yer-sotuvlar.svod3', compact('statistics'));
     }
 
-        private function getSvod3Statistics()
+    private function getSvod3Statistics()
     {
         $tumanlar = [
             'Бектемир т.',
@@ -106,52 +106,48 @@ class YerSotuvController extends Controller
             SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
         ')->first();
 
-$P=$data->tushadigan_mablagh - $data->faktTolovlar->sum('tolov_summa') - $data->auksion_harajati / 50;
-dump($data->faktTolovlar->sum('tolov_summa'));
-if($P=0){
+        $P = $data->tushadigan_mablagh - $data->faktTolovlar->sum('tolov_summa') - $data->auksion_harajati / 50;
+        if ($P = 0) {
 
 
-        return [
-            'soni' => $data->soni ?? 0,
-            'maydoni' => $data->maydoni ?? 0,
-            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $P ?? 0,
- 'chegirma' => $data->chegirma ?? 0,
-            'golib_tolagan' => $data->golib_tolagan ?? 0,
-        ];
-    }
-else{
- return [
-            'soni' => $data->soni ?? 0,
-            'maydoni' => $data->maydoni ?? 0,
-            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $P ?? 0,
- 'chegirma' => $data->chegirma ?? 0,
-            'golib_tolagan' => $data->golib_tolagan ?? 0,
-        ];
-    }
-}
-
-
-
-private function getToliqTolanganlar($tumanPatterns = null)
-{
-    $query = YerSotuv::query();
-
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
+            return [
+                'soni' => $data->soni ?? 0,
+                'maydoni' => $data->maydoni ?? 0,
+                'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+                'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+                'tushadigan_mablagh' => $P ?? 0,
+                'chegirma' => $data->chegirma ?? 0,
+                'golib_tolagan' => $data->golib_tolagan ?? 0,
+            ];
+        } else {
+            return [
+                'soni' => $data->soni ?? 0,
+                'maydoni' => $data->maydoni ?? 0,
+                'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+                'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+                'tushadigan_mablagh' => $P ?? 0,
+                'chegirma' => $data->chegirma ?? 0,
+                'golib_tolagan' => $data->golib_tolagan ?? 0,
+            ];
+        }
     }
 
-    $query->where('tolov_turi', 'муддатли');
+    private function getToliqTolanganlar($tumanPatterns = null)
+    {
+        $query = YerSotuv::query();
 
-    // To'liq to'langan yerlar
-    $query->whereRaw('lot_raqami IN (
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $query->where('tolov_turi', 'муддатли');
+
+        // To'liq to'langan yerlar
+        $query->whereRaw('lot_raqami IN (
         SELECT ys.lot_raqami
         FROM yer_sotuvlar ys
         LEFT JOIN (
@@ -169,7 +165,7 @@ private function getToliqTolanganlar($tumanPatterns = null)
         AND COALESCE(g.jami_grafik, 0) > 0
     )');
 
-    $data = $query->selectRaw('
+        $data = $query->selectRaw('
         COUNT(*) as soni,
         SUM(maydoni) as maydoni,
         SUM(boshlangich_narx) as boshlangich_narx,
@@ -177,12 +173,12 @@ private function getToliqTolanganlar($tumanPatterns = null)
         SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
     ')->first();
 
-    // *** NEW: Tushgan summa calculation ***
-    // fakt_tolovlar + golib_tolagan for years 2024-2025
-    $tushganQuery = DB::table('yer_sotuvlar as ys')
-        ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
-        ->where('ys.tolov_turi', 'муддатли')
-        ->whereRaw('ys.lot_raqami IN (
+        // *** NEW: Tushgan summa calculation ***
+        // fakt_tolovlar + golib_tolagan for years 2024-2025
+        $tushganQuery = DB::table('yer_sotuvlar as ys')
+            ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
+            ->where('ys.tolov_turi', 'муддатли')
+            ->whereRaw('ys.lot_raqami IN (
             SELECT ys2.lot_raqami
             FROM yer_sotuvlar ys2
             LEFT JOIN (
@@ -200,51 +196,51 @@ private function getToliqTolanganlar($tumanPatterns = null)
             AND COALESCE(g.jami_grafik, 0) > 0
         )');
 
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $tushganQuery->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $tushganQuery->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
 
-    // Calculate: SUM(fakt_tolovlar for 2024-2025) + SUM(golib_tolagan)
-    $tushganData = $tushganQuery->selectRaw('
+        // Calculate: SUM(fakt_tolovlar for 2024-2025) + SUM(golib_tolagan)
+        $tushganData = $tushganQuery->selectRaw('
         SUM(CASE WHEN YEAR(f.tolov_sana) IN (2024, 2025) THEN f.tolov_summa ELSE 0 END) as fakt_summa,
         SUM(COALESCE(ys.golib_tolagan, 0)) as golib_summa
     ')->first();
 
-    $tushganSumma = ($tushganData->fakt_summa ?? 0) + ($tushganData->golib_summa ?? 0);
+        $tushganSumma = ($tushganData->fakt_summa ?? 0) + ($tushganData->golib_summa ?? 0);
 
-    return [
-        'soni' => $data->soni ?? 0,
-        'maydoni' => $data->maydoni ?? 0,
-        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-        'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-        'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0,
-        'tushgan_summa' => $tushganSumma,  // fakt_tolovlar (2024-2025) + golib_tolagan
- 'chegirma' => $data->chegirma ?? 0,
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0,
+            'tushgan_summa' => $tushganSumma,  // fakt_tolovlar (2024-2025) + golib_tolagan
+            'chegirma' => $data->chegirma ?? 0,
             'golib_tolagan' => $data->golib_tolagan ?? 0,
-    ];
-}
-
-
-private function getNazoratdagilar($tumanPatterns = null)
-{
-    $query = YerSotuv::query();
-
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
+        ];
     }
 
-    $query->where('tolov_turi', 'муддатли');
 
-    // Nazoratdagi yerlar - to'liq to'lanmagan
-    $query->whereRaw('lot_raqami IN (
+    private function getNazoratdagilar($tumanPatterns = null)
+    {
+        $query = YerSotuv::query();
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $query->where('tolov_turi', 'муддатли');
+
+        // Nazoratdagi yerlar - to'liq to'lanmagan
+        $query->whereRaw('lot_raqami IN (
         SELECT ys.lot_raqami
         FROM yer_sotuvlar ys
         LEFT JOIN (
@@ -261,7 +257,7 @@ private function getNazoratdagilar($tumanPatterns = null)
         AND COALESCE(f.jami_fakt, 0) < COALESCE(g.jami_grafik, 0)
     )');
 
-    $data = $query->selectRaw('
+        $data = $query->selectRaw('
         COUNT(*) as soni,
         SUM(maydoni) as maydoni,
         SUM(boshlangich_narx) as boshlangich_narx,
@@ -269,31 +265,31 @@ private function getNazoratdagilar($tumanPatterns = null)
         SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
     ')->first();
 
-    // Grafik va fakt to'lovlarni hisoblash
-    $tolovData = DB::table('yer_sotuvlar as ys')
-        ->leftJoin('grafik_tolovlar as g', 'g.lot_raqami', '=', 'ys.lot_raqami')
-        ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
-        ->where('ys.tolov_turi', 'муддатли');
+        // Grafik va fakt to'lovlarni hisoblash
+        $tolovData = DB::table('yer_sotuvlar as ys')
+            ->leftJoin('grafik_tolovlar as g', 'g.lot_raqami', '=', 'ys.lot_raqami')
+            ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
+            ->where('ys.tolov_turi', 'муддатли');
 
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $tolovData->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $tolovData->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
 
-    $tolovData = $tolovData->selectRaw('
+        $tolovData = $tolovData->selectRaw('
         SUM(g.grafik_summa) as jami_grafik,
         SUM(f.tolov_summa) as jami_fakt
     ')->first();
 
-    // *** NEW: Tushgan summa calculation ***
-    // fakt_tolovlar + golib_tolagan for years 2024-2025
-    $tushganQuery = DB::table('yer_sotuvlar as ys')
-        ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
-        ->where('ys.tolov_turi', 'муддатли')
-        ->whereRaw('ys.lot_raqami IN (
+        // *** NEW: Tushgan summa calculation ***
+        // fakt_tolovlar + golib_tolagan for years 2024-2025
+        $tushganQuery = DB::table('yer_sotuvlar as ys')
+            ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
+            ->where('ys.tolov_turi', 'муддатли')
+            ->whereRaw('ys.lot_raqami IN (
             SELECT ys2.lot_raqami
             FROM yer_sotuvlar ys2
             LEFT JOIN (
@@ -310,33 +306,33 @@ private function getNazoratdagilar($tumanPatterns = null)
             AND COALESCE(f2.jami_fakt, 0) < COALESCE(g.jami_grafik, 0)
         )');
 
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $tushganQuery->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $tushganQuery->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
 
-    // Calculate: SUM(fakt_tolovlar for 2024-2025) + SUM(golib_tolagan)
-    $tushganData = $tushganQuery->selectRaw('
+        // Calculate: SUM(fakt_tolovlar for 2024-2025) + SUM(golib_tolagan)
+        $tushganData = $tushganQuery->selectRaw('
         SUM(CASE WHEN YEAR(f.tolov_sana) IN (2024, 2025) THEN f.tolov_summa ELSE 0 END) as fakt_summa,
         SUM(COALESCE(ys.golib_tolagan, 0)) as golib_summa
     ')->first();
 
-    $tushganSumma = ($tushganData->fakt_summa ?? 0) + ($tushganData->golib_summa ?? 0);
+        $tushganSumma = ($tushganData->fakt_summa ?? 0) + ($tushganData->golib_summa ?? 0);
 
-    return [
-        'soni' => $data->soni ?? 0,
-        'maydoni' => $data->maydoni ?? 0,
-        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-        'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-        'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0,
-        'grafik_summa' => $tolovData->jami_grafik ?? 0,
-        'fakt_summa' => $tolovData->jami_fakt ?? 0,
-        'tushgan_summa' => $tushganSumma  // fakt_tolovlar (2024-2025) + golib_tolagan
-    ];
-}
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0,
+            'grafik_summa' => $tolovData->jami_grafik ?? 0,
+            'fakt_summa' => $tolovData->jami_fakt ?? 0,
+            'tushgan_summa' => $tushganSumma  // fakt_tolovlar (2024-2025) + golib_tolagan
+        ];
+    }
 
 
     private function getGrafikOrtda($tumanPatterns = null)
@@ -430,7 +426,7 @@ private function getNazoratdagilar($tumanPatterns = null)
         ];
     }
 
-     private function addToSvod3Total(&$jami, $stat)
+    private function addToSvod3Total(&$jami, $stat)
     {
         foreach (['soni', 'maydoni', 'boshlangich_narx', 'sotilgan_narx', 'tushadigan_mablagh'] as $field) {
             $jami['narhini_bolib'][$field] += $stat['narhini_bolib'][$field];
@@ -552,95 +548,95 @@ private function getNazoratdagilar($tumanPatterns = null)
         die();
     }
 
-private function showFilteredData(Request $request, array $filters)
-{
-    $query = YerSotuv::query();
+    private function showFilteredData(Request $request, array $filters)
+    {
+        $query = YerSotuv::query();
 
-    // **GLOBAL SEARCH** - Search across multiple columns
-    if (!empty($filters['search'])) {
-        $searchTerm = $filters['search'];
-        $query->where(function ($q) use ($searchTerm) {
-            $q->where('lot_raqami', 'like', '%' . $searchTerm . '%')
-              ->orWhere('tuman', 'like', '%' . $searchTerm . '%')
-              ->orWhere('mfy', 'like', '%' . $searchTerm . '%')
-              ->orWhere('manzil', 'like', '%' . $searchTerm . '%')
-              ->orWhere('unikal_raqam', 'like', '%' . $searchTerm . '%')
-              ->orWhere('zona', 'like', '%' . $searchTerm . '%')
-              ->orWhere('golib_nomi', 'like', '%' . $searchTerm . '%')
-              ->orWhere('auksion_golibi', 'like', '%' . $searchTerm . '%')
-              ->orWhere('telefon', 'like', '%' . $searchTerm . '%')
-              ->orWhere('holat', 'like', '%' . $searchTerm . '%')
-              ->orWhere('asos', 'like', '%' . $searchTerm . '%')
-              ->orWhere('shartnoma_raqam', 'like', '%' . $searchTerm . '%')
-              ->orWhere('tolov_turi', 'like', '%' . $searchTerm . '%');
-        });
-    }
+        // **GLOBAL SEARCH** - Search across multiple columns
+        if (!empty($filters['search'])) {
+            $searchTerm = $filters['search'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('lot_raqami', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('tuman', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('mfy', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('manzil', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('unikal_raqam', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('zona', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('golib_nomi', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('auksion_golibi', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('telefon', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('holat', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('asos', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('shartnoma_raqam', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('tolov_turi', 'like', '%' . $searchTerm . '%');
+            });
+        }
 
-    // Tuman filter
-    if (!empty($filters['tuman'])) {
-        $tumanPatterns = $this->getTumanPatterns($filters['tuman']);
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
+        // Tuman filter
+        if (!empty($filters['tuman'])) {
+            $tumanPatterns = $this->getTumanPatterns($filters['tuman']);
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
 
-    // Yil filter
-    if (!empty($filters['yil'])) {
-        $query->where('yil', $filters['yil']);
-    }
+        // Yil filter
+        if (!empty($filters['yil'])) {
+            $query->where('yil', $filters['yil']);
+        }
 
-    // **Date Range Filter for Auksion Sana**
-    if (!empty($filters['auksion_sana_from'])) {
-        $query->whereDate('auksion_sana', '>=', $filters['auksion_sana_from']);
-    }
+        // **Date Range Filter for Auksion Sana**
+        if (!empty($filters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $filters['auksion_sana_from']);
+        }
 
-    if (!empty($filters['auksion_sana_to'])) {
-        $query->whereDate('auksion_sana', '<=', $filters['auksion_sana_to']);
-    }
+        if (!empty($filters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $filters['auksion_sana_to']);
+        }
 
-    // **Date Range Filter for Shartnoma Sana**
-    if (!empty($filters['shartnoma_sana_from'])) {
-        $query->whereDate('shartnoma_sana', '>=', $filters['shartnoma_sana_from']);
-    }
+        // **Date Range Filter for Shartnoma Sana**
+        if (!empty($filters['shartnoma_sana_from'])) {
+            $query->whereDate('shartnoma_sana', '>=', $filters['shartnoma_sana_from']);
+        }
 
-    if (!empty($filters['shartnoma_sana_to'])) {
-        $query->whereDate('shartnoma_sana', '<=', $filters['shartnoma_sana_to']);
-    }
+        if (!empty($filters['shartnoma_sana_to'])) {
+            $query->whereDate('shartnoma_sana', '<=', $filters['shartnoma_sana_to']);
+        }
 
-    // **Price Range Filter**
-    if (!empty($filters['narx_from'])) {
-        $query->where('sotilgan_narx', '>=', $filters['narx_from']);
-    }
+        // **Price Range Filter**
+        if (!empty($filters['narx_from'])) {
+            $query->where('sotilgan_narx', '>=', $filters['narx_from']);
+        }
 
-    if (!empty($filters['narx_to'])) {
-        $query->where('sotilgan_narx', '<=', $filters['narx_to']);
-    }
+        if (!empty($filters['narx_to'])) {
+            $query->where('sotilgan_narx', '<=', $filters['narx_to']);
+        }
 
-    // **Area Range Filter**
-    if (!empty($filters['maydoni_from'])) {
-        $query->where('maydoni', '>=', $filters['maydoni_from']);
-    }
+        // **Area Range Filter**
+        if (!empty($filters['maydoni_from'])) {
+            $query->where('maydoni', '>=', $filters['maydoni_from']);
+        }
 
-    if (!empty($filters['maydoni_to'])) {
-        $query->where('maydoni', '<=', $filters['maydoni_to']);
-    }
+        if (!empty($filters['maydoni_to'])) {
+            $query->where('maydoni', '<=', $filters['maydoni_to']);
+        }
 
-    // SPECIAL FILTERS - Priority order matters!
+        // SPECIAL FILTERS - Priority order matters!
 
-    // 1. Auksonda turgan
-    if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
-        $query->where(function ($q) {
-            $q->where('tolov_turi', '!=', 'муддатли')
-                ->where('tolov_turi', '!=', 'муддатли эмас')
-                ->orWhereNull('tolov_turi');
-        });
-    }
-    // 2. Toliq tolangan (Bo'lib to'lashdan - to'liq tugatilgan)
-    elseif (!empty($request->toliq_tolangan) && $request->toliq_tolangan === 'true') {
-        $query->where('tolov_turi', 'муддатли');
-        $query->whereRaw('lot_raqami IN (
+        // 1. Auksonda turgan
+        if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
+            $query->where(function ($q) {
+                $q->where('tolov_turi', '!=', 'муддатли')
+                    ->where('tolov_turi', '!=', 'муддатли эмас')
+                    ->orWhereNull('tolov_turi');
+            });
+        }
+        // 2. Toliq tolangan (Bo'lib to'lashdan - to'liq tugatilgan)
+        elseif (!empty($request->toliq_tolangan) && $request->toliq_tolangan === 'true') {
+            $query->where('tolov_turi', 'муддатли');
+            $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
             FROM yer_sotuvlar ys
             LEFT JOIN (
@@ -657,11 +653,11 @@ private function showFilteredData(Request $request, array $filters)
             AND COALESCE(f.jami_fakt, 0) >= COALESCE(g.jami_grafik, 0)
             AND COALESCE(g.jami_grafik, 0) > 0
         )');
-    }
-    // 3. Nazoratda (Bo'lib to'lashdan - hali to'lanayotgan)
-    elseif (!empty($request->nazoratda) && $request->nazoratda === 'true') {
-        $query->where('tolov_turi', 'муддатли');
-        $query->whereRaw('lot_raqami IN (
+        }
+        // 3. Nazoratda (Bo'lib to'lashdan - hali to'lanayotgan)
+        elseif (!empty($request->nazoratda) && $request->nazoratda === 'true') {
+            $query->where('tolov_turi', 'муддатли');
+            $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
             FROM yer_sotuvlar ys
             LEFT JOIN (
@@ -677,12 +673,12 @@ private function showFilteredData(Request $request, array $filters)
             WHERE ys.tolov_turi = "муддатли"
             AND COALESCE(f.jami_fakt, 0) < COALESCE(g.jami_grafik, 0)
         )');
-    }
-    // 4. Grafik ortda (Nazoratdagilardan - muddati o'tganlar)
-    elseif (!empty($request->grafik_ortda) && $request->grafik_ortda === 'true') {
-        $bugun = now()->format('Y-m-d');
-        $query->where('tolov_turi', 'муддатли');
-        $query->whereRaw('lot_raqami IN (
+        }
+        // 4. Grafik ortda (Nazoratdagilardan - muddati o'tganlar)
+        elseif (!empty($request->grafik_ortda) && $request->grafik_ortda === 'true') {
+            $bugun = now()->format('Y-m-d');
+            $query->where('tolov_turi', 'муддатли');
+            $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
             FROM yer_sotuvlar ys
             LEFT JOIN (
@@ -702,93 +698,93 @@ private function showFilteredData(Request $request, array $filters)
             AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
             AND COALESCE(g.jami_grafik, 0) > 0
         )', [$bugun, $bugun]);
-    }
-    // 5. Oddiy tolov turi filter
-    elseif (!empty($filters['tolov_turi'])) {
-        $query->where('tolov_turi', $filters['tolov_turi']);
-    }
-
-    // Holat filter
-    if (!empty($filters['holat'])) {
-        $query->where('holat', 'like', '%' . $filters['holat'] . '%');
-
-        // Agar holat (34) bo'lsa, avtomatik ravishda asos=ПФ-135 qo'shish
-        if (strpos($filters['holat'], '(34)') !== false) {
-            $query->where('asos', 'ПФ-135');
         }
-    }
+        // 5. Oddiy tolov turi filter
+        elseif (!empty($filters['tolov_turi'])) {
+            $query->where('tolov_turi', $filters['tolov_turi']);
+        }
 
-    // Asos filter
-    if (!empty($filters['asos'])) {
-        $query->where('asos', 'like', '%' . $filters['asos'] . '%');
-    }
+        // Holat filter
+        if (!empty($filters['holat'])) {
+            $query->where('holat', 'like', '%' . $filters['holat'] . '%');
 
-    // MUHIM: Statistikani paginatsiyadan OLDIN hisoblash
-    $statistics = [
-        'total_lots' => $query->count(),
-        'total_area' => $query->sum('maydoni'),
-        'total_price' => $query->sum('sotilgan_narx'),
-        'boshlangich_narx' => $query->sum('boshlangich_narx'),
-        'chegirma' => $query->sum('chegirma'),
-        'golib_tolagan' => $query->sum('golib_tolagan'),
-
-    ];
-
-    // **ENHANCED SORTING** with more options and proper NULL handling
-    $sortField = $request->get('sort', 'auksion_sana');
-    $sortDirection = $request->get('direction', 'desc');
-
-    $allowedSortFields = [
-        'auksion_sana',
-        'shartnoma_sana',
-        'sotilgan_narx',
-        'boshlangich_narx',
-        'maydoni',
-        'tuman',
-        'lot_raqami',
-        'yil',
-        'manzil',
-        'golib_nomi',
-        'telefon',
-        'tolov_turi',
-        'holat',
-        'asos'
-    ];
-
-    if (in_array($sortField, $allowedSortFields)) {
-        // Handle NULL values for date and numeric fields
-        if (in_array($sortField, ['auksion_sana', 'shartnoma_sana', 'sotilgan_narx', 'boshlangich_narx', 'maydoni'])) {
-            // NULLs last for DESC, NULLs first for ASC
-            if ($sortDirection === 'desc') {
-                $query->orderByRaw("CASE WHEN {$sortField} IS NULL THEN 1 ELSE 0 END");
-                $query->orderBy($sortField, 'desc');
-            } else {
-                $query->orderByRaw("CASE WHEN {$sortField} IS NULL THEN 1 ELSE 0 END");
-                $query->orderBy($sortField, 'asc');
+            // Agar holat (34) bo'lsa, avtomatik ravishda asos=ПФ-135 qo'shish
+            if (strpos($filters['holat'], '(34)') !== false) {
+                $query->where('asos', 'ПФ-135');
             }
-        } else {
-            $query->orderBy($sortField, $sortDirection);
         }
+
+        // Asos filter
+        if (!empty($filters['asos'])) {
+            $query->where('asos', 'like', '%' . $filters['asos'] . '%');
+        }
+
+        // MUHIM: Statistikani paginatsiyadan OLDIN hisoblash
+        $statistics = [
+            'total_lots' => $query->count(),
+            'total_area' => $query->sum('maydoni'),
+            'total_price' => $query->sum('sotilgan_narx'),
+            'boshlangich_narx' => $query->sum('boshlangich_narx'),
+            'chegirma' => $query->sum('chegirma'),
+            'golib_tolagan' => $query->sum('golib_tolagan'),
+
+        ];
+
+        // **ENHANCED SORTING** with more options and proper NULL handling
+        $sortField = $request->get('sort', 'auksion_sana');
+        $sortDirection = $request->get('direction', 'desc');
+
+        $allowedSortFields = [
+            'auksion_sana',
+            'shartnoma_sana',
+            'sotilgan_narx',
+            'boshlangich_narx',
+            'maydoni',
+            'tuman',
+            'lot_raqami',
+            'yil',
+            'manzil',
+            'golib_nomi',
+            'telefon',
+            'tolov_turi',
+            'holat',
+            'asos'
+        ];
+
+        if (in_array($sortField, $allowedSortFields)) {
+            // Handle NULL values for date and numeric fields
+            if (in_array($sortField, ['auksion_sana', 'shartnoma_sana', 'sotilgan_narx', 'boshlangich_narx', 'maydoni'])) {
+                // NULLs last for DESC, NULLs first for ASC
+                if ($sortDirection === 'desc') {
+                    $query->orderByRaw("CASE WHEN {$sortField} IS NULL THEN 1 ELSE 0 END");
+                    $query->orderBy($sortField, 'desc');
+                } else {
+                    $query->orderByRaw("CASE WHEN {$sortField} IS NULL THEN 1 ELSE 0 END");
+                    $query->orderBy($sortField, 'asc');
+                }
+            } else {
+                $query->orderBy($sortField, $sortDirection);
+            }
+        }
+
+        // Paginatsiya
+        $yerlar = $query->paginate(50)->withQueryString();
+
+        // Dropdown uchun ro'yxatlar
+        $tumanlar = YerSotuv::select('tuman')
+            ->distinct()
+            ->whereNotNull('tuman')
+            ->orderBy('tuman')
+            ->pluck('tuman');
+
+        $yillar = YerSotuv::select('yil')
+            ->distinct()
+            ->whereNotNull('yil')
+            ->orderBy('yil', 'desc')
+            ->pluck('yil');
+
+        return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
     }
-
-    // Paginatsiya
-    $yerlar = $query->paginate(50)->withQueryString();
-
-    // Dropdown uchun ro'yxatlar
-    $tumanlar = YerSotuv::select('tuman')
-        ->distinct()
-        ->whereNotNull('tuman')
-        ->orderBy('tuman')
-        ->pluck('tuman');
-
-    $yillar = YerSotuv::select('yil')
-        ->distinct()
-        ->whereNotNull('yil')
-        ->orderBy('yil', 'desc')
-        ->pluck('yil');
-
-    return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
-}
 
     private function getDetailedStatistics()
     {
@@ -891,26 +887,26 @@ private function showFilteredData(Request $request, array $filters)
         return array_unique($patterns);
     }
 
-   private function getTumanData($tumanPatterns = null, $tolovTuri = null)
-{
-    $query = YerSotuv::query();
+    private function getTumanData($tumanPatterns = null, $tolovTuri = null)
+    {
+        $query = YerSotuv::query();
 
-    // Tuman filter (agar mavjud bo'lsa)
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
+        // Tuman filter (agar mavjud bo'lsa)
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
 
-    // Tolov turi filter
-    if ($tolovTuri) {
-        $query->where('tolov_turi', $tolovTuri);
-    }
+        // Tolov turi filter
+        if ($tolovTuri) {
+            $query->where('tolov_turi', $tolovTuri);
+        }
 
-    // Main data (including 'низоли')
-    $data = $query->selectRaw('
+        // Main data (including 'низоли')
+        $data = $query->selectRaw('
         COUNT(*) as soni,
         SUM(maydoni) as maydoni,
         SUM(boshlangich_narx) as boshlangich_narx,
@@ -918,43 +914,43 @@ private function showFilteredData(Request $request, array $filters)
         SUM(chegirma) as chegirma
     ')->first();
 
-    // Separate query for tushadigan_mablagh (excluding 'низоли')
-    // ✅ CHANGED: Use golib_tolagan instead of tushadigan_mablagh
-    $queryTushadigan = YerSotuv::query();
+        // Separate query for tushadigan_mablagh (excluding 'низоли')
+        // ✅ CHANGED: Use golib_tolagan instead of tushadigan_mablagh
+        $queryTushadigan = YerSotuv::query();
 
-    // Apply same tuman filter
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $queryTushadigan->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
+        // Apply same tuman filter
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $queryTushadigan->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
 
-    // Apply same tolov_turi filter
-    if ($tolovTuri) {
-        $queryTushadigan->where('tolov_turi', $tolovTuri);
-    }
+        // Apply same tolov_turi filter
+        if ($tolovTuri) {
+            $queryTushadigan->where('tolov_turi', $tolovTuri);
+        }
 
-    // Exclude 'низоли' for tushadigan_mablagh only
-    $queryTushadigan->where('tolov_turi', '!=', 'низоли');
+        // Exclude 'низоли' for tushadigan_mablagh only
+        $queryTushadigan->where('tolov_turi', '!=', 'низоли');
 
-    // ✅ CHANGED: Sum golib_tolagan instead of tushadigan_mablagh
-    // SUM(golib_tolagan) as tushadigan_mablagh
-    $tushadiganData = $queryTushadigan->selectRaw('
+        // ✅ CHANGED: Sum golib_tolagan instead of tushadigan_mablagh
+        // SUM(golib_tolagan) as tushadigan_mablagh
+        $tushadiganData = $queryTushadigan->selectRaw('
             SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
 
     ')->first();
 
-    return [
-        'soni' => $data->soni ?? 0,
-        'maydoni' => $data->maydoni ?? 0,
-        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-        'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-        'chegirma' => $data->chegirma ?? 0,
-        'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh ?? 0
-    ];
-}
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'chegirma' => $data->chegirma ?? 0,
+            'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh ?? 0
+        ];
+    }
     private function getAuksondaTurgan($tumanPatterns = null)
     {
         $query = YerSotuv::query();
@@ -1084,45 +1080,80 @@ private function showFilteredData(Request $request, array $filters)
 
         return view('yer-sotuvlar.show', compact('yer', 'tolovTaqqoslash'));
     }
+private function taqqoslashHisoblash($yer)
+{
+    // Get all months that have either grafik OR fakt payments
+    $grafikByMonth = $yer->grafikTolovlar->groupBy(function ($item) {
+        return $item->yil . '-' . str_pad($item->oy, 2, '0', STR_PAD_LEFT);
+    });
 
-    private function taqqoslashHisoblash($yer)
-    {
-        // Agar grafik to'lovlar bo'sh bo'lsa
-        if ($yer->grafikTolovlar->isEmpty()) {
-            return [];
-        }
+    $faktByMonth = $yer->faktTolovlar->groupBy(function ($item) {
+        return $item->tolov_sana->format('Y-m');
+    });
 
-        // Grafik to'lovlarni guruhlash
-        $grafikByMonth = $yer->grafikTolovlar->groupBy(function ($item) {
-            return $item->yil . '-' . str_pad($item->oy, 2, '0', STR_PAD_LEFT);
-        });
+    $taqqoslash = [];
+    $allMonths = [];
 
-        // Fakt to'lovlarni oy bo'yicha guruhlash
-        $faktByMonth = $yer->faktTolovlar->groupBy(function ($item) {
-            return $item->tolov_sana->format('Y-m');
-        });
+    // Collect all unique months from grafik
+    foreach ($grafikByMonth as $key => $grafikItems) {
+        $allMonths[$key] = [
+            'yil' => $grafikItems->first()->yil,
+            'oy' => $grafikItems->first()->oy,
+            'oy_nomi' => $grafikItems->first()->oy_nomi,
+            'grafik_summa' => $grafikItems->sum('grafik_summa'),
+            'is_advance' => false,
+            'payment_date' => null
+        ];
+    }
 
-        $taqqoslash = [];
+    // Add months from fakt that don't exist in grafik (ADVANCE PAYMENTS)
+    foreach ($faktByMonth as $key => $faktItems) {
+        if (!isset($allMonths[$key])) {
+            // Get the actual payment date from first payment in this month
+            $firstPayment = $faktItems->first();
 
-        foreach ($grafikByMonth as $key => $grafikItems) {
-            $grafikSumma = $grafikItems->sum('grafik_summa');
-            $faktSumma = $faktByMonth->get($key)?->sum('tolov_summa') ?? 0;
-            $farq = $grafikSumma - $faktSumma;
-            $foiz = $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0;
-
-            $taqqoslash[] = [
-                'yil' => $grafikItems->first()->yil,
-                'oy' => $grafikItems->first()->oy,
-                'oy_nomi' => $grafikItems->first()->oy_nomi,
-                'grafik' => $grafikSumma,
-                'fakt' => $faktSumma,
-                'farq' => $farq,
-                'foiz' => $foiz
+            $allMonths[$key] = [
+                'yil' => (int)$firstPayment->tolov_sana->format('Y'),
+                'oy' => (int)$firstPayment->tolov_sana->format('m'),
+                'oy_nomi' => 'Avvaldan to\'lagan summasi',  // Special label
+                'grafik_summa' => 0,  // No grafik for this month
+                'is_advance' => true,
+                'payment_date' => $firstPayment->tolov_sana->format('d.m.Y')  // Actual date
             ];
         }
-
-        return collect($taqqoslash)->sortBy('yil')->values()->all();
     }
+
+    // Sort by year and month
+    ksort($allMonths);
+
+    // Build comparison table
+    foreach ($allMonths as $key => $monthData) {
+        $grafikSumma = $monthData['grafik_summa'];
+        $faktSumma = $faktByMonth->get($key)?->sum('tolov_summa') ?? 0;
+        $farq = $grafikSumma - $faktSumma;
+        $foiz = $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0;
+
+        // Display name: either "oy_nomi yil" or "Avvaldan to'lagan (date)"
+        $displayName = $monthData['is_advance']
+            ? $monthData['oy_nomi'] . ' (' . $monthData['payment_date'] . ')'
+            : $monthData['oy_nomi'] . ' ' . $monthData['yil'];
+
+        $taqqoslash[] = [
+            'yil' => $monthData['yil'],
+            'oy' => $monthData['oy'],
+            'oy_nomi' => $displayName,  // Enhanced display name
+            'grafik' => $grafikSumma,
+            'fakt' => $faktSumma,
+            'farq' => $farq,
+            'foiz' => $foiz,
+            'is_advance' => $monthData['is_advance']  // Flag for styling
+        ];
+    }
+
+    return $taqqoslash;
+}
+
+
     private function comparePayments($grafik, $fakt)
     {
         $result = [];

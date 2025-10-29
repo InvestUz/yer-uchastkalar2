@@ -14,9 +14,18 @@ use Carbon\Carbon;
 class YerSotuvSeeder extends Seeder
 {
     private $oyNomlari = [
-        1 => 'yanvar', 2 => 'fevral', 3 => 'mart', 4 => 'aprel',
-        5 => 'may', 6 => 'iyun', 7 => 'iyul', 8 => 'avgust',
-        9 => 'sentabr', 10 => 'oktabr', 11 => 'noyabr', 12 => 'dekabr'
+        1 => 'yanvar',
+        2 => 'fevral',
+        3 => 'mart',
+        4 => 'aprel',
+        5 => 'may',
+        6 => 'iyun',
+        7 => 'iyul',
+        8 => 'avgust',
+        9 => 'sentabr',
+        10 => 'oktabr',
+        11 => 'noyabr',
+        12 => 'dekabr'
     ];
 
     private $notFoundLots = [];
@@ -93,7 +102,6 @@ class YerSotuvSeeder extends Seeder
             }
 
             $this->command->info("Jami {$count} ta lot yuklandi!");
-
         } catch (\Exception $e) {
             $this->command->error("Xatolik: " . $e->getMessage());
         }
@@ -179,85 +187,108 @@ class YerSotuvSeeder extends Seeder
         return YerSotuv::create($data);
     }
 
-    private function createGrafikTolovlar($row, $yerSotuv): void
-    {
-        // FIXED: Correct column mapping based on Excel structure
-        // Column 51 = 2024 фев, Column 52 = 2024 март, etc.
-        $grafikData = [
-            2024 => [
-                2 => 51,   // fevral
-                3 => 52,   // mart
-                4 => 53,   // aprel
-                5 => 54,   // may
-                6 => 55,   // iyun
-                7 => 56,   // iyul
-                8 => 57,   // avgust
-                9 => 58,   // sentabr
-                10 => 59,  // oktabr
-                11 => 60,  // noyabr
-                12 => 61   // dekabr
-            ],
-            2025 => [
-                1 => 62,   // yanvar
-                2 => 63,   // fevral
-                3 => 64,   // mart
-                4 => 65,   // aprel
-                5 => 66,   // may
-                6 => 67,   // iyun
-                7 => 68,   // iyul
-                8 => 69,   // avgust
-                9 => 70,   // sentabr
-                10 => 71,  // oktabr
-                11 => 72,  // noyabr
-                12 => 73   // dekabr
-            ],
-            2026 => [
-                1 => 74, 2 => 75, 3 => 76, 4 => 77, 5 => 78, 6 => 79,
-                7 => 80, 8 => 81, 9 => 82, 10 => 83, 11 => 84, 12 => 85
-            ],
-            2027 => [
-                1 => 86, 2 => 87, 3 => 88, 4 => 89, 5 => 90, 6 => 91,
-                7 => 92, 8 => 93, 9 => 94, 10 => 95, 11 => 96, 12 => 97
-            ],
-            2028 => [
-                1 => 98, 2 => 99, 3 => 100, 4 => 101, 5 => 102, 6 => 103,
-                7 => 104, 8 => 105, 9 => 106, 10 => 107, 11 => 108, 12 => 109
-            ],
-            2029 => [
-                1 => 110, 2 => 111, 3 => 112, 4 => 113, 5 => 114, 6 => 115,
-                7 => 116, 8 => 117, 9 => 118, 10 => 119, 11 => 120, 12 => 121
-            ]
-        ];
+   private function createGrafikTolovlar($row, $yerSotuv): void
+{
+    $grafikData = [
+        2024 => [
+            2 => 51, 3 => 52, 4 => 53, 5 => 54, 6 => 55, 7 => 56,
+            8 => 57, 9 => 58, 10 => 59, 11 => 60, 12 => 61
+        ],
+        2025 => [
+            1 => 62, 2 => 63, 3 => 64, 4 => 65, 5 => 66, 6 => 67,
+            7 => 68, 8 => 69, 9 => 70, 10 => 71, 11 => 72, 12 => 73
+        ],
+        2026 => [
+            1 => 74, 2 => 75, 3 => 76, 4 => 77, 5 => 78, 6 => 79,
+            7 => 80, 8 => 81, 9 => 82, 10 => 83, 11 => 84, 12 => 85
+        ],
+        2027 => [
+            1 => 86, 2 => 87, 3 => 88, 4 => 89, 5 => 90, 6 => 91,
+            7 => 92, 8 => 93, 9 => 94, 10 => 95, 11 => 96, 12 => 97
+        ],
+        2028 => [
+            1 => 98, 2 => 99, 3 => 100, 4 => 101, 5 => 102, 6 => 103,
+            7 => 104, 8 => 105, 9 => 106, 10 => 107, 11 => 108, 12 => 109
+        ],
+        2029 => [
+            1 => 110, 2 => 111, 3 => 112, 4 => 113, 5 => 114, 6 => 115,
+            7 => 116, 8 => 117, 9 => 118, 10 => 119, 11 => 120, 12 => 121
+        ]
+    ];
 
-        $grafikCount = 0;
-        foreach ($grafikData as $yil => $oylar) {
-            foreach ($oylar as $oy => $ustunIndex) {
-                // Check if column exists in row
-                if (!isset($row[$ustunIndex])) {
-                    continue;
+    // Step 1: Collect all months with data and find first/last payment month
+    $monthsWithData = [];
+    $firstPaymentMonth = null;
+    $lastPaymentMonth = null;
+
+    foreach ($grafikData as $yil => $oylar) {
+        foreach ($oylar as $oy => $ustunIndex) {
+            if (!isset($row[$ustunIndex])) {
+                continue;
+            }
+
+            $summa = $this->parseNumber($row[$ustunIndex]);
+
+            if ($summa !== null && $summa > 0) {
+                $currentMonth = Carbon::create($yil, $oy, 1);
+                $monthsWithData[] = [
+                    'date' => $currentMonth,
+                    'yil' => $yil,
+                    'oy' => $oy,
+                    'summa' => $summa
+                ];
+
+                // Track first and last payment months
+                if ($firstPaymentMonth === null || $currentMonth->lt($firstPaymentMonth)) {
+                    $firstPaymentMonth = $currentMonth;
                 }
-
-                $summa = $this->parseNumber($row[$ustunIndex]);
-
-                if ($summa > 0) {
-                    GrafikTolov::create([
-                        'yer_sotuv_id' => $yerSotuv->id,
-                        'lot_raqami' => $yerSotuv->lot_raqami,
-                        'yil' => $yil,
-                        'oy' => $oy,
-                        'oy_nomi' => $this->oyNomlari[$oy],
-                        'grafik_summa' => $summa
-                    ]);
-                    $grafikCount++;
+                if ($lastPaymentMonth === null || $currentMonth->gt($lastPaymentMonth)) {
+                    $lastPaymentMonth = $currentMonth;
                 }
             }
         }
-
-        if ($grafikCount > 0) {
-            $this->command->info("  LOT {$yerSotuv->lot_raqami}: {$grafikCount} ta grafik to'lov");
-        }
     }
 
+    // If no payment data found, skip
+    if (empty($monthsWithData)) {
+        return;
+    }
+
+    // Step 2: Create records for ALL months between first and last payment
+    $grafikCount = 0;
+    $currentDate = $firstPaymentMonth->copy();
+
+    while ($currentDate->lte($lastPaymentMonth)) {
+        $yil = $currentDate->year;
+        $oy = $currentDate->month;
+
+        // Find if this month has payment data
+        $summa = 0;
+        foreach ($monthsWithData as $monthData) {
+            if ($monthData['yil'] == $yil && $monthData['oy'] == $oy) {
+                $summa = $monthData['summa'];
+                break;
+            }
+        }
+
+        // Create record for this month (with data or 0)
+        GrafikTolov::create([
+            'yer_sotuv_id' => $yerSotuv->id,
+            'lot_raqami' => $yerSotuv->lot_raqami,
+            'yil' => $yil,
+            'oy' => $oy,
+            'oy_nomi' => $this->oyNomlari[$oy],
+            'grafik_summa' => $summa
+        ]);
+
+        $grafikCount++;
+        $currentDate->addMonth();
+    }
+
+    if ($grafikCount > 0) {
+        $this->command->info("  LOT {$yerSotuv->lot_raqami}: {$grafikCount} ta grafik to'lov ({$firstPaymentMonth->format('Y-m')} dan {$lastPaymentMonth->format('Y-m')} gacha)");
+    }
+}
     private function importFaktTolovlar(): void
     {
         $file = storage_path('app/excel/Yer_2025-2024-fakt.xlsx');
@@ -327,7 +358,6 @@ class YerSotuvSeeder extends Seeder
             if ($skipped > 0) {
                 $this->command->warn("{$skipped} ta o'tkazib yuborildi");
             }
-
         } catch (\Exception $e) {
             $this->command->error("Xatolik: " . $e->getMessage());
             $this->command->error("Stack trace: " . $e->getTraceAsString());
