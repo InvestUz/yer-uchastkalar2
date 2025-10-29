@@ -33,7 +33,6 @@ class YerSotuvController extends Controller
 
 
 
-
     // SVOD 3 - Bo'lib to'lash jadvali
     public function svod3(Request $request)
     {
@@ -42,7 +41,57 @@ class YerSotuvController extends Controller
         return view('yer-sotuvlar.svod3', compact('statistics'));
     }
 
-   private function getSvod3Statistics()
+    private function getCalculationBreakdown($lotRaqamlari)
+    {
+        if (empty($lotRaqamlari)) {
+            return [
+                'golib_tolagan' => 0,
+                'shartnoma_summasi' => 0,
+                'T_total' => 0,
+                'fakt_tolovlar' => 0,
+                'auksion_harajati' => 0,
+                'auksion_1_percent' => 0,
+                'B_calculated' => 0
+            ];
+        }
+
+        // Get base data from yer_sotuvlar
+        $baseData = YerSotuv::whereIn('lot_raqami', $lotRaqamlari)
+            ->selectRaw('
+            SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+            SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+            SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+        ')
+            ->first();
+
+        // Get ALL fakt tolovlar
+        $faktTolovlar = FaktTolov::whereIn('lot_raqami', $lotRaqamlari)
+            ->sum('tolov_summa');
+
+        // Calculate step by step
+        $golib = $baseData->golib_tolagan ?? 0;
+        $shartnoma = $baseData->shartnoma_summasi ?? 0;
+        $T = $golib + $shartnoma;
+
+        $fakt = $faktTolovlar;
+        $auksion = $baseData->auksion_harajati ?? 0;
+        $auksion1Percent = $auksion * 0.01;
+
+        $B = $T - $fakt - $auksion1Percent;
+
+        return [
+            'golib_tolagan' => $golib,
+            'shartnoma_summasi' => $shartnoma,
+            'T_total' => $T,
+            'fakt_tolovlar' => $fakt,
+            'auksion_harajati' => $auksion,
+            'auksion_1_percent' => $auksion1Percent,
+            'B_calculated' => $B
+        ];
+    }
+
+
+    private function getSvod3Statistics()
     {
         $tumanlar = [
             'Бектемир т.',
@@ -82,26 +131,26 @@ class YerSotuvController extends Controller
         return $result;
     }
 
-/**
- * NARHINI BO'LIB - All lots sold with installment payment
- * Formula: T = golib_tolagan + shartnoma_summasi
- */
-private function getNarhiniBolib($tumanPatterns = null)
-{
-    $query = YerSotuv::query();
+    /**
+     * NARHINI BO'LIB - All lots sold with installment payment
+     * Formula: T = golib_tolagan + shartnoma_summasi
+     */
+    private function getNarhiniBolib($tumanPatterns = null)
+    {
+        $query = YerSotuv::query();
 
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
 
-    // Bo'lib to'lash (muddatli)
-    $query->where('tolov_turi', 'муддатли');
+        // Bo'lib to'lash (muddatli)
+        $query->where('tolov_turi', 'муддатли');
 
-    $data = $query->selectRaw('
+        $data = $query->selectRaw('
         COUNT(*) as soni,
         SUM(maydoni) as maydoni,
         SUM(boshlangich_narx) as boshlangich_narx,
@@ -109,227 +158,186 @@ private function getNarhiniBolib($tumanPatterns = null)
         SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
     ')->first();
 
-    return [
-        'soni' => $data->soni ?? 0,
-        'maydoni' => $data->maydoni ?? 0,
-        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-        'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-        'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0
-    ];
-}
-
-/**
- * TO'LIQ TO'LANGANLAR - Fully paid lots
- * Formula:
- * T = golib_tolagan + shartnoma_summasi
- * B = T - ALL(fakt_tolovlar) - (auksion_harajati × 1%)
- */
-private function getToliqTolanganlar($tumanPatterns = null)
-{
-    $query = YerSotuv::query();
-
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $data->tushadigan_mablagh ?? 0
+        ];
     }
 
-    $query->where('tolov_turi', 'муддатли');
 
-    // To'liq to'langan yerlar
-    $query->whereRaw('lot_raqami IN (
+    /**
+     * TO'LIQ TO'LANGANLAR - Fully paid lots
+     * Formula:
+     * T = golib_tolagan + shartnoma_summasi
+     * B = T - (fakt_tolovlar + auksion_harajati)
+     * Fully paid when: B ≤ 0
+     */
+    private function getToliqTolanganlar($tumanPatterns = null)
+    {
+        $query = YerSotuv::query();
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $query->where('tolov_turi', 'муддатли');
+
+        // To'liq to'langan: B ≤ 0
+        // B = (golib_tolagan + shartnoma_summasi) - (fakt_tolovlar + auksion_harajati) ≤ 0
+        $query->whereRaw('lot_raqami IN (
         SELECT ys.lot_raqami
         FROM yer_sotuvlar ys
-        LEFT JOIN (
-            SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
-            FROM grafik_tolovlar
-            GROUP BY lot_raqami
-        ) g ON g.lot_raqami = ys.lot_raqami
         LEFT JOIN (
             SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
             FROM fakt_tolovlar
             GROUP BY lot_raqami
         ) f ON f.lot_raqami = ys.lot_raqami
         WHERE ys.tolov_turi = "муддатли"
-        AND COALESCE(f.jami_fakt, 0) >= COALESCE(g.jami_grafik, 0)
-        AND COALESCE(g.jami_grafik, 0) > 0
+        AND (
+            (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+            - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+        ) <= 0
+        AND (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0)) > 0
     )');
 
-    $data = $query->selectRaw('
+        $data = $query->selectRaw('
         COUNT(*) as soni,
         SUM(maydoni) as maydoni,
         SUM(boshlangich_narx) as boshlangich_narx,
         SUM(sotilgan_narx) as sotilgan_narx,
-        SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as T_total,
-        SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati_total
+        SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as T_total
     ')->first();
 
-    // Get lot raqamlari for TO'LIQ TO'LANGAN lots
-    $lotlar = YerSotuv::query();
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $lotlar->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
+        // For fully paid lots, tushgan_summa = tushadigan_mablagh (they paid everything)
+        $tushganSumma = $data->T_total ?? 0;
+
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $data->T_total ?? 0,
+            'tushgan_summa' => $tushganSumma
+        ];
     }
-    $lotlar->where('tolov_turi', 'муддатли');
-    $lotlar->whereRaw('lot_raqami IN (
+
+
+
+    /**
+     * NAZORATDAGILAR - Lots under monitoring (not fully paid)
+     * Formula:
+     * T = golib_tolagan + shartnoma_summasi
+     * B = T - (fakt_tolovlar + auksion_harajati)
+     * Under monitoring when: B > 0
+     */
+    private function getNazoratdagilar($tumanPatterns = null)
+    {
+        $query = YerSotuv::query();
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $query->where('tolov_turi', 'муддатли');
+
+        // Nazoratdagi: B > 0
+        // B = (golib_tolagan + shartnoma_summasi) - (fakt_tolovlar + auksion_harajati) > 0
+        $query->whereRaw('lot_raqami IN (
         SELECT ys.lot_raqami
         FROM yer_sotuvlar ys
-        LEFT JOIN (
-            SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
-            FROM grafik_tolovlar
-            GROUP BY lot_raqami
-        ) g ON g.lot_raqami = ys.lot_raqami
         LEFT JOIN (
             SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
             FROM fakt_tolovlar
             GROUP BY lot_raqami
         ) f ON f.lot_raqami = ys.lot_raqami
         WHERE ys.tolov_turi = "муддатли"
-        AND COALESCE(f.jami_fakt, 0) >= COALESCE(g.jami_grafik, 0)
-        AND COALESCE(g.jami_grafik, 0) > 0
+        AND (
+            (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+            - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+        ) > 0
     )');
 
-    $lotRaqamlari = $lotlar->pluck('lot_raqami');
-
-    // Calculate total fakt payments for these lots
-    $totalFakt = FaktTolov::whereIn('lot_raqami', $lotRaqamlari)->sum('tolov_summa');
-
-    // FORMULA: B = T - Fakt - (Auksion_harajati × 1%)
-    $tushganSumma = $data->T_total - $totalFakt - ($data->auksion_harajati_total * 0.01);
-
-    return [
-        'soni' => $data->soni ?? 0,
-        'maydoni' => $data->maydoni ?? 0,
-        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-        'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-        'tushadigan_mablagh' => $data->T_total,
-        'tushgan_summa' => $tushganSumma  // B = T - Fakt - (Auksion × 1%)
-    ];
-}
-
-/**
- * NAZORATDAGILAR - Lots under monitoring (not fully paid)
- * Formula:
- * T = golib_tolagan + shartnoma_summasi
- * B = T - ALL(fakt_tolovlar) - (auksion_harajati × 1%)
- */
-private function getNazoratdagilar($tumanPatterns = null)
-{
-    $query = YerSotuv::query();
-
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
-
-    $query->where('tolov_turi', 'муддатли');
-
-    // Nazoratdagi yerlar - to'liq to'lanmagan
-    $query->whereRaw('lot_raqami IN (
-        SELECT ys.lot_raqami
-        FROM yer_sotuvlar ys
-        LEFT JOIN (
-            SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
-            FROM grafik_tolovlar
-            GROUP BY lot_raqami
-        ) g ON g.lot_raqami = ys.lot_raqami
-        LEFT JOIN (
-            SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
-            FROM fakt_tolovlar
-            GROUP BY lot_raqami
-        ) f ON f.lot_raqami = ys.lot_raqami
-        WHERE ys.tolov_turi = "муддатли"
-        AND COALESCE(f.jami_fakt, 0) < COALESCE(g.jami_grafik, 0)
-    )');
-
-    $data = $query->selectRaw('
+        $data = $query->selectRaw('
         COUNT(*) as soni,
         SUM(maydoni) as maydoni,
         SUM(boshlangich_narx) as boshlangich_narx,
         SUM(sotilgan_narx) as sotilgan_narx,
-        SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as T_total,
-        SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati_total
+        SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as T_total
     ')->first();
 
-    // Get lot raqamlari for NAZORATDAGI lots
-    $lotlar = YerSotuv::query();
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $lotlar->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
-    $lotlar->where('tolov_turi', 'муддатли');
-    $lotlar->whereRaw('lot_raqami IN (
+        // Get lot raqamlari to calculate actual tushgan_summa
+        $lotlar = YerSotuv::query();
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $lotlar->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+        $lotlar->where('tolov_turi', 'муддатли');
+        $lotlar->whereRaw('lot_raqami IN (
         SELECT ys.lot_raqami
         FROM yer_sotuvlar ys
-        LEFT JOIN (
-            SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
-            FROM grafik_tolovlar
-            GROUP BY lot_raqami
-        ) g ON g.lot_raqami = ys.lot_raqami
         LEFT JOIN (
             SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
             FROM fakt_tolovlar
             GROUP BY lot_raqami
         ) f ON f.lot_raqami = ys.lot_raqami
         WHERE ys.tolov_turi = "муддатли"
-        AND COALESCE(f.jami_fakt, 0) < COALESCE(g.jami_grafik, 0)
+        AND (
+            (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+            - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+        ) > 0
     )');
 
-    $lotRaqamlari = $lotlar->pluck('lot_raqami');
+        $lotRaqamlari = $lotlar->pluck('lot_raqami')->toArray();
 
-    // Calculate total fakt payments for these lots
-    $totalFakt = FaktTolov::whereIn('lot_raqami', $lotRaqamlari)->sum('tolov_summa');
+        // Calculate tushgan_summa: fakt_tolovlar + auksion_harajati
+        $tushganData = DB::table('yer_sotuvlar as ys')
+            ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
+            ->whereIn('ys.lot_raqami', $lotRaqamlari)
+            ->selectRaw('
+            SUM(COALESCE(f.tolov_summa, 0)) as jami_fakt,
+            SUM(COALESCE(ys.auksion_harajati, 0)) as jami_auksion
+        ')
+            ->first();
 
-    // Grafik va fakt to'lovlarni hisoblash
-    $tolovData = DB::table('yer_sotuvlar as ys')
-        ->leftJoin('grafik_tolovlar as g', 'g.lot_raqami', '=', 'ys.lot_raqami')
-        ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
-        ->where('ys.tolov_turi', 'муддатли');
+        $tushganSumma = ($tushganData->jami_fakt ?? 0) + ($tushganData->jami_auksion ?? 0);
 
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $tolovData->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('ys.tuman', 'like', '%' . $pattern . '%');
-            }
-        });
+        // For grafik and fakt sums (for display purposes)
+        $tolovData = DB::table('yer_sotuvlar as ys')
+            ->leftJoin('grafik_tolovlar as g', 'g.lot_raqami', '=', 'ys.lot_raqami')
+            ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
+            ->whereIn('ys.lot_raqami', $lotRaqamlari)
+            ->selectRaw('
+            SUM(COALESCE(g.grafik_summa, 0)) as jami_grafik,
+            SUM(COALESCE(f.tolov_summa, 0)) as jami_fakt
+        ')
+            ->first();
+
+        return [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'sotilgan_narx' => $data->sotilgan_narx ?? 0,
+            'tushadigan_mablagh' => $data->T_total ?? 0,
+            'grafik_summa' => $tolovData->jami_grafik ?? 0,
+            'fakt_summa' => $tolovData->jami_fakt ?? 0,
+            'tushgan_summa' => $tushganSumma
+        ];
     }
-
-    $tolovData = $tolovData->selectRaw('
-        SUM(g.grafik_summa) as jami_grafik,
-        SUM(f.tolov_summa) as jami_fakt
-    ')->first();
-
-    // FORMULA: B = T - Fakt - (Auksion_harajati × 1%)
-    $tushganSumma = $data->T_total - $totalFakt - ($data->auksion_harajati_total * 0.01);
-
-    return [
-        'soni' => $data->soni ?? 0,
-        'maydoni' => $data->maydoni ?? 0,
-        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-        'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-        'tushadigan_mablagh' => $data->T_total,
-        'grafik_summa' => $tolovData->jami_grafik ?? 0,
-        'fakt_summa' => $tolovData->jami_fakt ?? 0,
-        'tushgan_summa' => $tushganSumma  // B = T - Fakt - (Auksion × 1%)
-    ];
-}
-
-
-
-
-
-  private function getGrafikOrtda($tumanPatterns = null)
+    private function getGrafikOrtda($tumanPatterns = null)
     {
         $bugun = now()->format('Y-m-d');
 
@@ -345,7 +353,8 @@ private function getNazoratdagilar($tumanPatterns = null)
 
         $query->where('tolov_turi', 'муддатли');
 
-        // Grafik bo'yicha ortda qolganlar
+        // Grafik bo'yicha ortda qolganlar (subset of nazoratdagilar)
+        // These are lots where: B > 0 AND scheduled payments > actual payments
         $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
             FROM yer_sotuvlar ys
@@ -363,6 +372,10 @@ private function getNazoratdagilar($tumanPatterns = null)
                 GROUP BY lot_raqami
             ) f ON f.lot_raqami = ys.lot_raqami
             WHERE ys.tolov_turi = "муддатли"
+            AND (
+                (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+                - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+            ) > 0
             AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
             AND COALESCE(g.jami_grafik, 0) > 0
         )', [$bugun, $bugun]);
@@ -411,7 +424,7 @@ private function getNazoratdagilar($tumanPatterns = null)
     }
 
 
-     private function initializeSvod3Total()
+    private function initializeSvod3Total()
     {
         return [
             'narhini_bolib' => ['soni' => 0, 'maydoni' => 0, 'boshlangich_narx' => 0, 'sotilgan_narx' => 0, 'tushadigan_mablagh' => 0],
@@ -422,7 +435,8 @@ private function getNazoratdagilar($tumanPatterns = null)
     }
 
 
-   private function addToSvod3Total(&$jami, $stat)
+
+    private function addToSvod3Total(&$jami, $stat)
     {
         foreach (['soni', 'maydoni', 'boshlangich_narx', 'sotilgan_narx', 'tushadigan_mablagh'] as $field) {
             $jami['narhini_bolib'][$field] += $stat['narhini_bolib'][$field];
@@ -628,48 +642,30 @@ private function getNazoratdagilar($tumanPatterns = null)
                     ->orWhereNull('tolov_turi');
             });
         }
-        // 2. Toliq tolangan (Bo'lib to'lashdan - to'liq tugatilgan)
+        // 2. Toliq tolangan - UPDATED LOGIC
         elseif (!empty($request->toliq_tolangan) && $request->toliq_tolangan === 'true') {
             $query->where('tolov_turi', 'муддатли');
-            $query->whereRaw('lot_raqami IN (
-            SELECT ys.lot_raqami
-            FROM yer_sotuvlar ys
-            LEFT JOIN (
-                SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
-                FROM grafik_tolovlar
-                GROUP BY lot_raqami
-            ) g ON g.lot_raqami = ys.lot_raqami
-            LEFT JOIN (
-                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
-                FROM fakt_tolovlar
-                GROUP BY lot_raqami
-            ) f ON f.lot_raqami = ys.lot_raqami
-            WHERE ys.tolov_turi = "муддатли"
-            AND COALESCE(f.jami_fakt, 0) >= COALESCE(g.jami_grafik, 0)
-            AND COALESCE(g.jami_grafik, 0) > 0
-        )');
+            $query->whereRaw('(
+                (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
+                - (
+                    COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
+                    + COALESCE(auksion_harajati, 0)
+                )
+            ) <= 0
+            AND (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) > 0');
         }
-        // 3. Nazoratda (Bo'lib to'lashdan - hali to'lanayotgan)
+        // 3. Nazoratda - UPDATED LOGIC
         elseif (!empty($request->nazoratda) && $request->nazoratda === 'true') {
             $query->where('tolov_turi', 'муддатли');
-            $query->whereRaw('lot_raqami IN (
-            SELECT ys.lot_raqami
-            FROM yer_sotuvlar ys
-            LEFT JOIN (
-                SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
-                FROM grafik_tolovlar
-                GROUP BY lot_raqami
-            ) g ON g.lot_raqami = ys.lot_raqami
-            LEFT JOIN (
-                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
-                FROM fakt_tolovlar
-                GROUP BY lot_raqami
-            ) f ON f.lot_raqami = ys.lot_raqami
-            WHERE ys.tolov_turi = "муддатли"
-            AND COALESCE(f.jami_fakt, 0) < COALESCE(g.jami_grafik, 0)
-        )');
+            $query->whereRaw('(
+                (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
+                - (
+                    COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
+                    + COALESCE(auksion_harajati, 0)
+                )
+            ) > 0');
         }
-        // 4. Grafik ortda (Nazoratdagilardan - muddati o'tganlar)
+        // 4. Grafik ortda (subset of nazoratda)
         elseif (!empty($request->grafik_ortda) && $request->grafik_ortda === 'true') {
             $bugun = now()->format('Y-m-d');
             $query->where('tolov_turi', 'муддатли');
@@ -690,6 +686,10 @@ private function getNazoratdagilar($tumanPatterns = null)
                 GROUP BY lot_raqami
             ) f ON f.lot_raqami = ys.lot_raqami
             WHERE ys.tolov_turi = "муддатли"
+            AND (
+                (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+                - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+            ) > 0
             AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
             AND COALESCE(g.jami_grafik, 0) > 0
         )', [$bugun, $bugun]);
@@ -1074,78 +1074,78 @@ private function getNazoratdagilar($tumanPatterns = null)
 
         return view('yer-sotuvlar.show', compact('yer', 'tolovTaqqoslash'));
     }
-private function taqqoslashHisoblash($yer)
-{
-    // Get all months that have either grafik OR fakt payments
-    $grafikByMonth = $yer->grafikTolovlar->groupBy(function ($item) {
-        return $item->yil . '-' . str_pad($item->oy, 2, '0', STR_PAD_LEFT);
-    });
+    private function taqqoslashHisoblash($yer)
+    {
+        // Get all months that have either grafik OR fakt payments
+        $grafikByMonth = $yer->grafikTolovlar->groupBy(function ($item) {
+            return $item->yil . '-' . str_pad($item->oy, 2, '0', STR_PAD_LEFT);
+        });
 
-    $faktByMonth = $yer->faktTolovlar->groupBy(function ($item) {
-        return $item->tolov_sana->format('Y-m');
-    });
+        $faktByMonth = $yer->faktTolovlar->groupBy(function ($item) {
+            return $item->tolov_sana->format('Y-m');
+        });
 
-    $taqqoslash = [];
-    $allMonths = [];
+        $taqqoslash = [];
+        $allMonths = [];
 
-    // Collect all unique months from grafik
-    foreach ($grafikByMonth as $key => $grafikItems) {
-        $allMonths[$key] = [
-            'yil' => $grafikItems->first()->yil,
-            'oy' => $grafikItems->first()->oy,
-            'oy_nomi' => $grafikItems->first()->oy_nomi,
-            'grafik_summa' => $grafikItems->sum('grafik_summa'),
-            'is_advance' => false,
-            'payment_date' => null
-        ];
-    }
-
-    // Add months from fakt that don't exist in grafik (ADVANCE PAYMENTS)
-    foreach ($faktByMonth as $key => $faktItems) {
-        if (!isset($allMonths[$key])) {
-            // Get the actual payment date from first payment in this month
-            $firstPayment = $faktItems->first();
-
+        // Collect all unique months from grafik
+        foreach ($grafikByMonth as $key => $grafikItems) {
             $allMonths[$key] = [
-                'yil' => (int)$firstPayment->tolov_sana->format('Y'),
-                'oy' => (int)$firstPayment->tolov_sana->format('m'),
-                'oy_nomi' => 'Avvaldan to\'lagan summasi',  // Special label
-                'grafik_summa' => 0,  // No grafik for this month
-                'is_advance' => true,
-                'payment_date' => $firstPayment->tolov_sana->format('d.m.Y')  // Actual date
+                'yil' => $grafikItems->first()->yil,
+                'oy' => $grafikItems->first()->oy,
+                'oy_nomi' => $grafikItems->first()->oy_nomi,
+                'grafik_summa' => $grafikItems->sum('grafik_summa'),
+                'is_advance' => false,
+                'payment_date' => null
             ];
         }
+
+        // Add months from fakt that don't exist in grafik (ADVANCE PAYMENTS)
+        foreach ($faktByMonth as $key => $faktItems) {
+            if (!isset($allMonths[$key])) {
+                // Get the actual payment date from first payment in this month
+                $firstPayment = $faktItems->first();
+
+                $allMonths[$key] = [
+                    'yil' => (int)$firstPayment->tolov_sana->format('Y'),
+                    'oy' => (int)$firstPayment->tolov_sana->format('m'),
+                    'oy_nomi' => 'Avvaldan to\'lagan summasi',  // Special label
+                    'grafik_summa' => 0,  // No grafik for this month
+                    'is_advance' => true,
+                    'payment_date' => $firstPayment->tolov_sana->format('d.m.Y')  // Actual date
+                ];
+            }
+        }
+
+        // Sort by year and month
+        ksort($allMonths);
+
+        // Build comparison table
+        foreach ($allMonths as $key => $monthData) {
+            $grafikSumma = $monthData['grafik_summa'];
+            $faktSumma = $faktByMonth->get($key)?->sum('tolov_summa') ?? 0;
+            $farq = $grafikSumma - $faktSumma;
+            $foiz = $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0;
+
+            // Display name: either "oy_nomi yil" or "Avvaldan to'lagan (date)"
+            $displayName = $monthData['is_advance']
+                ? $monthData['oy_nomi'] . ' (' . $monthData['payment_date'] . ')'
+                : $monthData['oy_nomi'] . ' ' . $monthData['yil'];
+
+            $taqqoslash[] = [
+                'yil' => $monthData['yil'],
+                'oy' => $monthData['oy'],
+                'oy_nomi' => $displayName,  // Enhanced display name
+                'grafik' => $grafikSumma,
+                'fakt' => $faktSumma,
+                'farq' => $farq,
+                'foiz' => $foiz,
+                'is_advance' => $monthData['is_advance']  // Flag for styling
+            ];
+        }
+
+        return $taqqoslash;
     }
-
-    // Sort by year and month
-    ksort($allMonths);
-
-    // Build comparison table
-    foreach ($allMonths as $key => $monthData) {
-        $grafikSumma = $monthData['grafik_summa'];
-        $faktSumma = $faktByMonth->get($key)?->sum('tolov_summa') ?? 0;
-        $farq = $grafikSumma - $faktSumma;
-        $foiz = $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0;
-
-        // Display name: either "oy_nomi yil" or "Avvaldan to'lagan (date)"
-        $displayName = $monthData['is_advance']
-            ? $monthData['oy_nomi'] . ' (' . $monthData['payment_date'] . ')'
-            : $monthData['oy_nomi'] . ' ' . $monthData['yil'];
-
-        $taqqoslash[] = [
-            'yil' => $monthData['yil'],
-            'oy' => $monthData['oy'],
-            'oy_nomi' => $displayName,  // Enhanced display name
-            'grafik' => $grafikSumma,
-            'fakt' => $faktSumma,
-            'farq' => $farq,
-            'foiz' => $foiz,
-            'is_advance' => $monthData['is_advance']  // Flag for styling
-        ];
-    }
-
-    return $taqqoslash;
-}
 
 
     private function comparePayments($grafik, $fakt)
