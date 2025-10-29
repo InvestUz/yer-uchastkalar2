@@ -333,7 +333,7 @@ class YerSotuvController extends Controller
         'sotilgan_narx' => $data->sotilgan_narx ?? 0,
         'tushadigan_mablagh' => $data->T_total ?? 0,
         'grafik_summa' => $tolovData->jami_grafik ?? 0,
-        'fakt_summa' => $tolovData->jami_fakt ?? 0,
+        'fakt_summa' => $tolovData->jami_fakt  ?? 0,
         'tushgan_summa' => $tushganSumma
     ];
 }
@@ -431,18 +431,22 @@ class YerSotuvController extends Controller
             ->whereIn('ys.lot_raqami', $lotRaqamlari)
             ->selectRaw('
                 SUM(COALESCE(g.grafik_summa, 0)) as jami_grafik,
-                SUM(COALESCE(f.tolov_summa, 0)) as jami_fakt
+                SUM(COALESCE(f.tolov_summa, 0)) as jami_fakt,
+                SUM(COALESCE(ys.golib_tolagan, 0)) as jami_golib
+
             ')
             ->first();
 
         $grafikSumma = $tolovData->jami_grafik ?? 0;
-        $faktSumma = $tolovData->jami_fakt ?? 0;
+        // $faktSumma = $tolovData->jami_fakt ?? 0;
+$faktSumma = ($tolovData->jami_fakt ?? 0) - ($tolovData->jami_golib ?? 0);
+
 
         return [
             'soni' => $data->soni ?? 0,
             'maydoni' => $data->maydoni ?? 0,
             'grafik_summa' => $grafikSumma,  // ✅ Only up to today
-            'fakt_summa' => $faktSumma,      // ✅ All payments
+            'fakt_summa' => $faktSumma ,      // ✅ All payments
             'farq_summa' => $grafikSumma - $faktSumma,
             'foiz' => $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0
         ];
