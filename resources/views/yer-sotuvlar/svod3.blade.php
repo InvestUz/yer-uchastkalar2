@@ -55,7 +55,7 @@
                                     <!-- Row 3: More detailed sub-headers -->
                                     <tr class="table-secondary text-center align-middle" style="font-weight: bold;">
                                         <!-- Under "shundan" of Narhini bo'lib -->
-                                        <th rowspan="2">тушадиган қиймат<br>(млрд сўм)</th>
+                                        <th rowspan="2">Сотилган ер тўлови бўйича тушадиган қиймат<br>(млрд сўм)</th>
 
                                         <!-- Toliq tolanganlar - 5 columns -->
                                         <th rowspan="2">сони</th>
@@ -83,7 +83,7 @@
                                         <th>тушган қиймат<br>(млрд сўм)</th>
 
                                         <!-- Under "shundan" of Nazoratdagilar -->
-                                        <th>тушадиган қиймат<br>(млрд сўм)</th>
+                                        <th>Сотилган ер тўлови бўйича тушадиган қиймат<br>(млрд сўм)</th>
                                         <th>тушган қиймат<br>(млрд сўм)</th>
                                     </tr>
                                 </thead>

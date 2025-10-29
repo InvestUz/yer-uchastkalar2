@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
-                    <div class="text-xs">тушадиган қиймат</div>
+                    <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
                     {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan), 2) }} сўм
                 </div>
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
