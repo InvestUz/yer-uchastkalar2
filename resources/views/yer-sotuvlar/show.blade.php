@@ -439,11 +439,7 @@
     <tr class="hover:bg-gray-50 {{ $tolov['is_advance'] ? 'bg-yellow-50' : '' }}">
         <td class="px-3 py-2 text-gray-900">
             {{ $tolov['oy_nomi'] }}
-            @if($tolov['is_advance'])
-                <span class="ml-2 px-2 py-0.5 text-xs bg-yellow-200 text-yellow-800 rounded">
-                    Аввалдан тўлов
-                </span>
-            @endif
+
         </td>
         <td class="px-3 py-2 text-right text-gray-900">
             {{ number_format($tolov['grafik'] / 1000000, 1) }}
@@ -454,7 +450,7 @@
         <td class="px-3 py-2 text-center">
             @if($tolov['is_advance'])
                 <span class="px-2 py-1 rounded text-xs bg-yellow-500 text-white">
-                    Аввалдан
+                    -
                 </span>
             @else
                 <span class="px-2 py-1 rounded text-xs {{ $tolov['foiz'] >= 100 ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800' }}">
