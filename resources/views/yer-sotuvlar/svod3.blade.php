@@ -1,9 +1,221 @@
 @extends('layouts.app')
 
-@section('title', 'Бўлиб тўлаш шарти билан сотилган ерлар')
+@section('title', 'DEBUG: Бўлиб тўлаш шарти билан сотилган ерлар')
 
 @section('content')
 <div class="container-fluid py-4">
+
+    {{-- DEBUG SECTION START --}}
+    <div class="card mb-4 border-danger">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">🔍 DEBUG INFORMATION - DETAILED CALCULATION LOG</h5>
+        </div>
+        <div class="card-body" style="font-family: monospace; font-size: 11px;">
+
+            <h6 class="text-primary">═══════════════════════════════════════════════════════════</h6>
+            <h6 class="text-primary">JAMI (TOTAL) VALUES</h6>
+            <h6 class="text-primary">═══════════════════════════════════════════════════════════</h6>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-success mt-3">📊 NARHINI BO'LIB</h6>
+                    <table class="table table-sm table-bordered">
+                        <tr><td>soni</td><td class="text-end"><strong>{{ $statistics['jami']['narhini_bolib']['soni'] }}</strong></td></tr>
+                        <tr><td>maydoni</td><td class="text-end">{{ number_format($statistics['jami']['narhini_bolib']['maydoni'], 4) }}</td></tr>
+                        <tr><td>boshlangich_narx</td><td class="text-end">{{ number_format($statistics['jami']['narhini_bolib']['boshlangich_narx'], 2) }}</td></tr>
+                        <tr><td>sotilgan_narx</td><td class="text-end">{{ number_format($statistics['jami']['narhini_bolib']['sotilgan_narx'], 2) }}</td></tr>
+                        <tr class="table-warning">
+                            <td><strong>tushadigan_mablagh (B)</strong></td>
+                            <td class="text-end"><strong>{{ number_format($statistics['jami']['narhini_bolib']['tushadigan_mablagh'], 2) }}</strong></td>
+                        </tr>
+                        <tr class="table-info">
+                            <td>млрд сўм</td>
+                            <td class="text-end"><strong>{{ number_format($statistics['jami']['narhini_bolib']['tushadigan_mablagh'] / 1000000000, 1) }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-md-6">
+                    <h6 class="text-success mt-3">✅ TO'LIQ TO'LANGANLAR</h6>
+                    <table class="table table-sm table-bordered">
+                        <tr><td>soni</td><td class="text-end"><strong>{{ $statistics['jami']['toliq_tolanganlar']['soni'] }}</strong></td></tr>
+                        <tr><td>maydoni</td><td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['maydoni'], 4) }}</td></tr>
+                        <tr><td>boshlangich_narx</td><td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['boshlangich_narx'], 2) }}</td></tr>
+                        <tr><td>sotilgan_narx</td><td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['sotilgan_narx'], 2) }}</td></tr>
+                        <tr class="table-primary">
+                            <td><strong>tushadigan_mablagh (T)</strong></td>
+                            <td class="text-end"><strong>{{ number_format($statistics['jami']['toliq_tolanganlar']['tushadigan_mablagh'], 2) }}</strong></td>
+                        </tr>
+                        <tr class="table-warning">
+                            <td><strong>tushgan_summa (B)</strong></td>
+                            <td class="text-end"><strong>{{ number_format($statistics['jami']['toliq_tolanganlar']['tushgan_summa'], 2) }}</strong></td>
+                        </tr>
+                        <tr class="table-info">
+                            <td>млрд сўм (T)</td>
+                            <td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
+                        </tr>
+                        <tr class="table-info">
+                            <td>млрд сўм (B)</td>
+                            <td class="text-end"><strong>{{ number_format($statistics['jami']['toliq_tolanganlar']['tushgan_summa'] / 1000000000, 1) }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-success mt-3">⏳ NAZORATDAGILAR</h6>
+                    <table class="table table-sm table-bordered">
+                        <tr><td>soni</td><td class="text-end"><strong>{{ $statistics['jami']['nazoratdagilar']['soni'] }}</strong></td></tr>
+                        <tr><td>maydoni</td><td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['maydoni'], 4) }}</td></tr>
+                        <tr><td>boshlangich_narx</td><td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['boshlangich_narx'], 2) }}</td></tr>
+                        <tr><td>sotilgan_narx</td><td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['sotilgan_narx'], 2) }}</td></tr>
+                        <tr class="table-primary">
+                            <td><strong>tushadigan_mablagh (T)</strong></td>
+                            <td class="text-end"><strong>{{ number_format($statistics['jami']['nazoratdagilar']['tushadigan_mablagh'], 2) }}</strong></td>
+                        </tr>
+                        <tr class="table-warning">
+                            <td><strong>tushgan_summa (B)</strong></td>
+                            <td class="text-end"><strong>{{ number_format($statistics['jami']['nazoratdagilar']['tushgan_summa'], 2) }}</strong></td>
+                        </tr>
+                        <tr><td>grafik_summa</td><td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['grafik_summa'], 2) }}</td></tr>
+                        <tr><td>fakt_summa</td><td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['fakt_summa'], 2) }}</td></tr>
+                        <tr class="table-info">
+                            <td>млрд сўм (T)</td>
+                            <td class="text-end">{{ number_format($statistics['jami']['nazoratdagilar']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
+                        </tr>
+                        <tr class="table-info">
+                            <td>млрд сўм (B)</td>
+                            <td class="text-end"><strong>{{ number_format($statistics['jami']['nazoratdagilar']['tushgan_summa'] / 1000000000, 1) }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-md-6">
+                    <h6 class="text-success mt-3">⚠️ GRAFIK ORTDA</h6>
+                    <table class="table table-sm table-bordered">
+                        <tr><td>soni</td><td class="text-end"><strong>{{ $statistics['jami']['grafik_ortda']['soni'] }}</strong></td></tr>
+                        <tr><td>maydoni</td><td class="text-end">{{ number_format($statistics['jami']['grafik_ortda']['maydoni'], 4) }}</td></tr>
+                        <tr><td>grafik_summa</td><td class="text-end">{{ number_format($statistics['jami']['grafik_ortda']['grafik_summa'], 2) }}</td></tr>
+                        <tr><td>fakt_summa</td><td class="text-end">{{ number_format($statistics['jami']['grafik_ortda']['fakt_summa'], 2) }}</td></tr>
+                        <tr><td>farq_summa</td><td class="text-end">{{ number_format($statistics['jami']['grafik_ortda']['grafik_summa'] - $statistics['jami']['grafik_ortda']['fakt_summa'], 2) }}</td></tr>
+                        <tr><td>foiz</td><td class="text-end">{{ number_format($statistics['jami']['grafik_ortda']['foiz'], 1) }}%</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <h6 class="text-primary mt-4">═══════════════════════════════════════════════════════════</h6>
+            <h6 class="text-primary">TUMANLAR (DISTRICTS) - FIRST 3 EXAMPLES</h6>
+            <h6 class="text-primary">═══════════════════════════════════════════════════════════</h6>
+
+            @foreach($statistics['tumanlar'] as $index => $tuman)
+                @if($index < 3)
+                <div class="card mb-3 border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <strong>{{ $index + 1 }}. {{ $tuman['tuman'] }}</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6 class="text-success">📊 NARHINI BO'LIB</h6>
+                                <table class="table table-sm table-bordered">
+                                    <tr><td>soni</td><td class="text-end">{{ $tuman['narhini_bolib']['soni'] }}</td></tr>
+                                    <tr><td>maydoni</td><td class="text-end">{{ number_format($tuman['narhini_bolib']['maydoni'], 2) }}</td></tr>
+                                    <tr><td>boshlangich_narx</td><td class="text-end">{{ number_format($tuman['narhini_bolib']['boshlangich_narx'], 2) }}</td></tr>
+                                    <tr><td>sotilgan_narx</td><td class="text-end">{{ number_format($tuman['narhini_bolib']['sotilgan_narx'], 2) }}</td></tr>
+                                    <tr class="table-warning">
+                                        <td><strong>tushadigan (B)</strong></td>
+                                        <td class="text-end"><strong>{{ number_format($tuman['narhini_bolib']['tushadigan_mablagh'], 2) }}</strong></td>
+                                    </tr>
+                                    <tr class="table-info">
+                                        <td>млрд</td>
+                                        <td class="text-end"><strong>{{ number_format($tuman['narhini_bolib']['tushadigan_mablagh'] / 1000000000, 1) }}</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="col-md-3">
+                                <h6 class="text-success">✅ TO'LIQ</h6>
+                                <table class="table table-sm table-bordered">
+                                    <tr><td>soni</td><td class="text-end">{{ $tuman['toliq_tolanganlar']['soni'] }}</td></tr>
+                                    <tr><td>maydoni</td><td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['maydoni'], 2) }}</td></tr>
+                                    <tr><td>boshlangich</td><td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['boshlangich_narx'], 2) }}</td></tr>
+                                    <tr><td>sotilgan</td><td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['sotilgan_narx'], 2) }}</td></tr>
+                                    <tr class="table-primary">
+                                        <td><strong>tushadigan (T)</strong></td>
+                                        <td class="text-end"><strong>{{ number_format($tuman['toliq_tolanganlar']['tushadigan_mablagh'], 2) }}</strong></td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td><strong>tushgan (B)</strong></td>
+                                        <td class="text-end"><strong>{{ number_format($tuman['toliq_tolanganlar']['tushgan_summa'], 2) }}</strong></td>
+                                    </tr>
+                                    <tr class="table-info">
+                                        <td>млрд (B)</td>
+                                        <td class="text-end"><strong>{{ number_format($tuman['toliq_tolanganlar']['tushgan_summa'] / 1000000000, 1) }}</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="col-md-3">
+                                <h6 class="text-success">⏳ NAZORAT</h6>
+                                <table class="table table-sm table-bordered">
+                                    <tr><td>soni</td><td class="text-end">{{ $tuman['nazoratdagilar']['soni'] }}</td></tr>
+                                    <tr><td>maydoni</td><td class="text-end">{{ number_format($tuman['nazoratdagilar']['maydoni'], 2) }}</td></tr>
+                                    <tr><td>boshlangich</td><td class="text-end">{{ number_format($tuman['nazoratdagilar']['boshlangich_narx'], 2) }}</td></tr>
+                                    <tr><td>sotilgan</td><td class="text-end">{{ number_format($tuman['nazoratdagilar']['sotilgan_narx'], 2) }}</td></tr>
+                                    <tr class="table-primary">
+                                        <td><strong>tushadigan (T)</strong></td>
+                                        <td class="text-end"><strong>{{ number_format($tuman['nazoratdagilar']['tushadigan_mablagh'], 2) }}</strong></td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td><strong>tushgan (B)</strong></td>
+                                        <td class="text-end"><strong>{{ number_format($tuman['nazoratdagilar']['tushgan_summa'], 2) }}</strong></td>
+                                    </tr>
+                                    <tr><td>grafik</td><td class="text-end">{{ number_format($tuman['nazoratdagilar']['grafik_summa'], 2) }}</td></tr>
+                                    <tr><td>fakt</td><td class="text-end">{{ number_format($tuman['nazoratdagilar']['fakt_summa'], 2) }}</td></tr>
+                                    <tr class="table-info">
+                                        <td>млрд (B)</td>
+                                        <td class="text-end"><strong>{{ number_format($tuman['nazoratdagilar']['tushgan_summa'] / 1000000000, 1) }}</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="col-md-3">
+                                <h6 class="text-success">⚠️ GRAFIK ORTDA</h6>
+                                <table class="table table-sm table-bordered">
+                                    <tr><td>soni</td><td class="text-end">{{ $tuman['grafik_ortda']['soni'] }}</td></tr>
+                                    <tr><td>maydoni</td><td class="text-end">{{ number_format($tuman['grafik_ortda']['maydoni'], 2) }}</td></tr>
+                                    <tr><td>grafik</td><td class="text-end">{{ number_format($tuman['grafik_ortda']['grafik_summa'], 2) }}</td></tr>
+                                    <tr><td>fakt</td><td class="text-end">{{ number_format($tuman['grafik_ortda']['fakt_summa'], 2) }}</td></tr>
+                                    <tr><td>foiz</td><td class="text-end">{{ number_format($tuman['grafik_ortda']['foiz'], 1) }}%</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            @endforeach
+
+            <div class="alert alert-info mt-3">
+                <h6>📝 FORMULA EXPLANATION (CORRECTED):</h6>
+                <ul>
+                    <li><strong>T</strong> = Тушадиган қиймат = Ғолиб бошланғич аукционга тўлаган сумма (golib_tolagan) + Шартнома бўйича тушадиган (shartnoma_summasi)</li>
+                    <li><strong>B</strong> = Тушган қиймат (To'liq to'lov summasi) = T - ВПР Бахтиёр ака (total_fakt_tolovlar) - Аукцион ҳаражати 1 фоиз (auksion_harajati × 0.01)</li>
+                    <li><strong>total_fakt_tolovlar</strong> = BARCHA to'lovlar yig'indisi (SUM of ALL payments from fakt_tolovlar table)</li>
+                    <li><strong>auksion_harajati × 0.01</strong> = Аукцион ҳаражатининг 1 фоизи (1% of auction cost)</li>
+                </ul>
+                <div class="mt-3 p-3 bg-light">
+                    <strong>FORMULA:</strong><br>
+                    <code style="font-size: 14px;">
+                        B = T - Fakt - (Auksion_harajati × 0.01)<br>
+                        B = (golib_tolagan + shartnoma_summasi) - SUM(fakt_tolovlar) - (auksion_harajati × 1%)
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- DEBUG SECTION END --}}
+
     <div class="card">
         <div class="card-header bg-primary text-white text-center">
             <h5 class="mb-0 text-dark" style="color: #000; font-weight: bold;">Тошкент шаҳрида аукцион савдоларида бўлиб тўлаш шарти билан сотилган ер участкалари тўғрисида</h5>
@@ -32,7 +244,7 @@
                             <th rowspan="3">сотилган нархи<br>(млрд сўм)</th>
                             <th colspan="1">шундан</th>
 
-                            <!-- Shundan holatiga - 11 columns (was 12, now removed 1 'сони') -->
+                            <!-- Shundan holatiga - 11 columns -->
                             <th colspan="5">тўлиқ тўланганлар</th>
                             <th colspan="6">назоратдагилар</th>
 
@@ -103,7 +315,7 @@
                             <td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['boshlangich_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($statistics['jami']['toliq_tolanganlar']['sotilgan_narx'] / 1000000000, 1) }}</td>
-                            <td class="text-end">{{ number_format(($statistics['jami']['toliq_tolanganlar']['tushgan_summa'] ?? 0) / 1000000000, 1) }}zzz</td>
+                            <td class="text-end">{{ number_format(($statistics['jami']['toliq_tolanganlar']['tushgan_summa'] ?? 0) / 1000000000, 1) }}</td>
 
                             <!-- Nazoratdagilar - 6 columns -->
                             <td class="text-end">
@@ -163,7 +375,7 @@
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['maydoni'], 2) }}</td>
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['boshlangich_narx'] / 1000000000, 1) }}</td>
                             <td class="text-end">{{ number_format($tuman['toliq_tolanganlar']['sotilgan_narx'] / 1000000000, 1) }}</td>
-                            <td class="text-end">{{ number_format(($tuman['toliq_tolanganlar']['tushadigan_mablagh'] ?? 0) / 1000000000, 1) }} xxx</td>
+                            <td class="text-end">{{ number_format(($tuman['toliq_tolanganlar']['tushgan_summa'] ?? 0) / 1000000000, 1) }}</td>
 
                             <!-- Nazoratdagilar - 6 columns -->
                             <td class="text-end">
