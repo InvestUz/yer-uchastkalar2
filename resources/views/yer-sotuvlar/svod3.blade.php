@@ -174,7 +174,7 @@
                                             {{ number_format($statistics['jami']['grafik_ortda']['grafik_summa'] / 1000000000, 1) }}
                                         </td>
                                         <td class="text-end">
-                                            {{ number_format($statistics['jami']['grafik_ortda']['fakt_summa'] / 1000000000, 1) }}yyy
+                                            {{ number_format($statistics['jami']['grafik_ortda']['fakt_summa'] / 1000000000, 1) }}
                                         </td>
                                         <td class="text-end">
                                             {{ number_format($statistics['jami']['grafik_ortda']['foiz'], 1) }}</td>
@@ -281,7 +281,7 @@
                                                 {{ number_format(($tuman['grafik_ortda']['grafik_summa'] ?? 0) / 1000000000, 1) }}
                                             </td>
                                             <td class="text-end">
-                                                {{ number_format(($tuman['grafik_ortda']['fakt_summa'] ?? 0) / 1000000000, 1) }}xxx
+                                                {{ number_format(($tuman['grafik_ortda']['fakt_summa'] ?? 0) / 1000000000, 1) }}
                                             </td>
                                             <td class="text-end">
                                                 {{ number_format($tuman['grafik_ortda']['foiz'] ?? 0, 1) }}</td>

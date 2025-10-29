@@ -40,39 +40,40 @@
                 </div>
                 <div class="text-center p-3 bg-white rounded border border-gray-200">
                     <div class="text-xs text-gray-600">Бошланғич нархи</div>
-                    <div class="text-lg font-bold text-gray-900">{{ number_format($yer->boshlangich_narx / 1000000000, 2) }}
-                        млрд сўм</div>
+                    <div class="text-lg font-bold text-gray-900">{{ number_format($yer->boshlangich_narx, 2) }}
+                        сўм</div>
                 </div>
                 <div class="text-center p-3 bg-white rounded border border-gray-200">
                     <div class="text-xs text-gray-600">Сотилган нархи</div>
-                    <div class="text-lg font-bold text-gray-900">{{ number_format($yer->sotilgan_narx / 1000000000, 2) }}
-                        млрд сўм</div>
+                    <div class="text-lg font-bold text-gray-900">{{ number_format($yer->sotilgan_narx, 2) }}
+                        сўм</div>
                 </div>
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
-                    <div class="text-xs">Шартнома бўйича тўлов</div>
-                    <div class="text-lg font-bold">{{ number_format($yer->shartnoma_summasi / 1000000000, 2) }} млрд сўм
+                    <div class="text-xs">Шартнома графиги б-ча тўлов</div>
+                    <div class="text-lg font-bold">{{ number_format($yer->shartnoma_summasi, 2) }} сўм
                     </div>
                 </div>
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
                     <div class="text-xs">тушадиган қиймат</div>
-                    {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan) / 1000000000, 2) }} млрд сўм
+                    {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan), 2) }} сўм
                 </div>
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
                     <div class="text-xs">Baxtyor fakt + auksion_harajati</div>
                     <div class="text-lg font-bold">
-                        {{ number_format(($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati) / 1000000000, 2) }}
-                        млрд сўм</div>
+                        {{ number_format(($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2) }}
+                        сўм</div>
                 </div>
 
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
 
                     <div class="text-xs">тушадиган қиймат - (Baxtyor fakt + auksion_harajati)</div>
-                    {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati)) / 1000000000, 2) }}
-                    млрд сўм
+                    {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati)), 2) }}
+                    сўм
                 </div>
             </div>
         </div>
     </div>
+
 
     {{-- Tabbed Content --}}
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
