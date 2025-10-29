@@ -58,7 +58,7 @@
                     {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan), 2) }} сўм
                 </div>
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
-                    <div class="text-xs">Baxtyor fakt + auksion_harajati</div>
+                    <div class="text-xs">Амалда тўланган қиймат</div>
                     <div class="text-lg font-bold">
                         {{ number_format(($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2) }}
                         сўм</div>
@@ -66,7 +66,7 @@
 
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
 
-                    <div class="text-xs">тушадиган қиймат - (Baxtyor fakt + auksion_harajati)</div>
+                    <div class="text-xs">Тўланиши лозим бўлган қолдик қиймат</div>
                     {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati)), 2) }}
                     сўм
                 </div>
@@ -203,8 +203,15 @@
                                 <td class="py-2 font-medium text-gray-900">{{ $yer->golib_nomi ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <td class="py-2 text-gray-600">Ғолиб тури</td>
-                                <td class="py-2 text-gray-900">{{ $yer->golib_turi ?? '-' }}</td>
+                                <td class="py-2 text-gray-600">Субъект тури</td>
+                                <td class="py-2 text-gray-900">
+@if($yer->golib_turi == 'юр лицо')
+юридик шахс
+@else
+жисмоний шахс
+@endif
+
+                                </td>
                             </tr>
                             @if ($yer->telefon)
                                 <tr>
