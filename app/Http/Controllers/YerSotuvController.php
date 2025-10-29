@@ -422,24 +422,25 @@ class YerSotuvController extends Controller
         $lotRaqamlari = $lotlar->pluck('lot_raqami')->toArray();
 
         // ✅ FIXED: Only sum grafik payments up to today
-        $tolovData = DB::table('yer_sotuvlar as ys')
-            ->leftJoin('grafik_tolovlar as g', function ($join) use ($bugun) {
-                $join->on('g.lot_raqami', '=', 'ys.lot_raqami')
-                    ->whereRaw('CONCAT(g.yil, "-", LPAD(g.oy, 2, "0"), "-01") <= ?', [$bugun]);
-            })
-            ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
-            ->whereIn('ys.lot_raqami', $lotRaqamlari)
-            ->selectRaw('
-                SUM(COALESCE(g.grafik_summa, 0)) as jami_grafik,
-                SUM(COALESCE(f.tolov_summa, 0)) as jami_fakt,
-                SUM(COALESCE(ys.golib_tolagan, 0)) as jami_golib
+       $tolovData = DB::table('yer_sotuvlar as ys')
+    ->leftJoin('grafik_tolovlar as g', function ($join) use ($bugun) {
+        $join->on('g.lot_raqami', '=', 'ys.lot_raqami')
+            ->whereRaw('CONCAT(g.yil, "-", LPAD(g.oy, 2, "0"), "-01") <= ?', [$bugun]);
+    })
+    ->leftJoin('fakt_tolovlar as f', 'f.lot_raqami', '=', 'ys.lot_raqami')
+    ->whereIn('ys.lot_raqami', $lotRaqamlari)
+    ->selectRaw('
+        SUM(COALESCE(g.grafik_summa, 0)) as jami_grafik,
+        SUM(COALESCE(f.tolov_summa, 0)) as jami_fakt,
+        SUM(COALESCE(ys.golib_tolagan, 0)) as jami_golib,
+        SUM(COALESCE(ys.auksion_harajati, 0)) as jami_auksion_harajati
+    ')
+    ->first();
 
-            ')
-            ->first();
 
         $grafikSumma = $tolovData->jami_grafik ?? 0;
         // $faktSumma = $tolovData->jami_fakt ?? 0;
-$faktSumma = ($tolovData->jami_fakt ?? 0) - ($tolovData->jami_golib ?? 0);
+$faktSumma = ($tolovData->jami_fakt ?? 0) - ($tolovData->jami_golib ?? 0) + ($tolovData->jami_auksion_harajati ?? 0);
 
 
         return [
