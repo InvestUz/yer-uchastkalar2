@@ -22,50 +22,27 @@ class YerSotuvController extends Controller
         return now()->subMonth()->endOfMonth()->format('Y-m-d');
     }
 
- public function index(Request $request)
-{
-    // ✅ FIX: Collect ALL possible filters from request
-    $filters = [
-        'search' => $request->search,
-        'tuman' => $request->tuman,
-        'yil' => $request->yil,
-        'tolov_turi' => $request->tolov_turi,
-        'holat' => $request->holat,
-        'asos' => $request->asos,
-        'auksion_sana_from' => $request->auksion_sana_from,
-        'auksion_sana_to' => $request->auksion_sana_to,
-        'shartnoma_sana_from' => $request->shartnoma_sana_from,
-        'shartnoma_sana_to' => $request->shartnoma_sana_to,
-        'narx_from' => $request->narx_from,
-        'narx_to' => $request->narx_to,
-        'maydoni_from' => $request->maydoni_from,
-        'maydoni_to' => $request->maydoni_to,
-        'auksonda_turgan' => $request->auksonda_turgan,
-        'grafik_ortda' => $request->grafik_ortda,
-        'toliq_tolangan' => $request->toliq_tolangan,
-        'nazoratda' => $request->nazoratda,
-    ];
+    /**
+     * ✅ FIXED: Apply date filters to statistics and show in statistics view
+     */
+    public function index(Request $request)
+    {
+        // Debug mode
+        if ($request->has('debug')) {
+            return $this->debugMulkQabul();
+        }
 
-    // Debug mode
-    if ($request->has('debug')) {
-        return $this->debugMulkQabul();
+        // Get date filters
+        $dateFilters = [
+            'auksion_sana_from' => $request->auksion_sana_from,
+            'auksion_sana_to' => $request->auksion_sana_to,
+        ];
+
+        // Get statistics with date filters applied
+        $statistics = $this->getDetailedStatistics($dateFilters);
+
+        return view('yer-sotuvlar.statistics', compact('statistics', 'dateFilters'));
     }
-
-    // ✅ FIX: Check if ANY filter has a value (not just specific ones)
-    $hasFilters = collect($filters)->filter(function ($value) {
-        return !is_null($value) && $value !== '';
-    })->isNotEmpty();
-
-    // Agar filter bo'lsa, filtered data ko'rsatish
-    if ($hasFilters) {
-        return $this->showFilteredData($request, $filters);
-    }
-
-    // Aks holda statistics table ko'rsatish
-    $statistics = $this->getDetailedStatistics();
-
-    return view('yer-sotuvlar.statistics', compact('statistics'));
-}
 
     // SVOD 3 - Bo'lib to'lash jadvali
     public function svod3(Request $request)
@@ -370,186 +347,184 @@ class YerSotuvController extends Controller
      * GRAFIK ORTDA - Lots behind schedule
      * Uses consistent cutoff date from getGrafikCutoffDate()
      */
-/**
- * Get detailed month-by-month breakdown for "grafik ortda" lots
- */
-private function getGrafikOrtda($tumanPatterns = null)
-{
-    $bugun = $this->getGrafikCutoffDate();
+    private function getGrafikOrtda($tumanPatterns = null)
+    {
+        $bugun = $this->getGrafikCutoffDate();
 
-    Log::info('=== GRAFIK ORTDA STATISTICS DEBUG START ===');
-    Log::info('Cutoff Date: ' . $bugun);
-    Log::info('Tuman Patterns: ' . json_encode($tumanPatterns));
+        Log::info('=== GRAFIK ORTDA STATISTICS DEBUG START ===');
+        Log::info('Cutoff Date: ' . $bugun);
+        Log::info('Tuman Patterns: ' . json_encode($tumanPatterns));
 
-    // Build the base query with tuman filter
-    $query = YerSotuv::query();
+        // Build the base query with tuman filter
+        $query = YerSotuv::query();
 
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
-
-    $query->where('tolov_turi', 'муддатли');
-
-    // Subquery to find lots behind schedule
-    $query->whereRaw('lot_raqami IN (
-        SELECT ys.lot_raqami
-        FROM yer_sotuvlar ys
-        LEFT JOIN (
-            SELECT lot_raqami,
-                   SUM(grafik_summa) as jami_grafik
-            FROM grafik_tolovlar
-            WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
-            GROUP BY lot_raqami
-        ) g ON g.lot_raqami = ys.lot_raqami
-        LEFT JOIN (
-            SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
-            FROM fakt_tolovlar
-            GROUP BY lot_raqami
-        ) f ON f.lot_raqami = ys.lot_raqami
-        WHERE ys.tolov_turi = "муддатли"
-        AND (
-            (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
-            - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
-        ) > 0
-        AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
-        AND COALESCE(g.jami_grafik, 0) > 0
-    )', [$bugun]);
-
-    $data = $query->selectRaw('
-        COUNT(*) as soni,
-        SUM(maydoni) as maydoni
-    ')->first();
-
-    Log::info('Found lots count: ' . ($data->soni ?? 0));
-    Log::info('Total area: ' . ($data->maydoni ?? 0));
-
-    // Create fresh query to get lot numbers
-    $lotlarQuery = YerSotuv::query();
-
-    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-        $lotlarQuery->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
-
-    $lotlarQuery->where('tolov_turi', 'муддатли');
-    $lotlarQuery->whereRaw('lot_raqami IN (
-        SELECT ys.lot_raqami
-        FROM yer_sotuvlar ys
-        LEFT JOIN (
-            SELECT lot_raqami,
-                   SUM(grafik_summa) as jami_grafik
-            FROM grafik_tolovlar
-            WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
-            GROUP BY lot_raqami
-        ) g ON g.lot_raqami = ys.lot_raqami
-        LEFT JOIN (
-            SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
-            FROM fakt_tolovlar
-            GROUP BY lot_raqami
-        ) f ON f.lot_raqami = ys.lot_raqami
-        WHERE ys.tolov_turi = "муддатли"
-        AND (
-            (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
-            - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
-        ) > 0
-        AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
-        AND COALESCE(g.jami_grafik, 0) > 0
-    )', [$bugun]);
-
-    $lotRaqamlari = $lotlarQuery->pluck('lot_raqami')->toArray();
-
-    Log::info('Lot Raqamlari: ' . json_encode($lotRaqamlari));
-
-    if (empty($lotRaqamlari)) {
-        Log::info('=== GRAFIK ORTDA STATISTICS DEBUG END (NO LOTS) ===');
-        return [
-            'soni' => 0,
-            'maydoni' => 0,
-            'grafik_summa' => 0,
-            'fakt_summa' => 0,
-            'farq_summa' => 0,
-            'foiz' => 0
-        ];
-    }
-
-    // ✅ FIXED: Only get months UP TO cutoff date
-    $grafikSumma = DB::table('grafik_tolovlar')
-        ->whereIn('lot_raqami', $lotRaqamlari)
-        ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
-        ->sum('grafik_summa');
-
-    $faktSumma = DB::table('fakt_tolovlar')
-        ->whereIn('lot_raqami', $lotRaqamlari)
-        ->sum('tolov_summa');
-
-    Log::info('--- PAYMENT CALCULATION (FIXED WITH PROPER DATE FILTER) ---');
-    Log::info('Cutoff Date Applied: ' . $bugun);
-    Log::info('Grafik Summa (scheduled up to cutoff): ' . number_format($grafikSumma, 2));
-    Log::info('Fakt Summa (all actual payments): ' . number_format($faktSumma, 2));
-    Log::info('Difference (grafik - fakt): ' . number_format($grafikSumma - $faktSumma, 2));
-
-    $foiz = $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0;
-    Log::info('Percentage: ' . $foiz . '%');
-
-    // ✅ DEBUG: Show monthly breakdown to verify
-    $monthlyDetails = DB::table('grafik_tolovlar')
-        ->whereIn('lot_raqami', $lotRaqamlari)
-        ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
-        ->select('lot_raqami', 'yil', 'oy', 'grafik_summa')
-        ->orderBy('lot_raqami')
-        ->orderBy('yil')
-        ->orderBy('oy')
-        ->get();
-
-    Log::info('--- MONTHLY GRAFIK BREAKDOWN (ONLY PAST DUE) ---');
-    $currentLot = null;
-    $lotTotal = 0;
-
-    foreach ($monthlyDetails as $month) {
-        if ($currentLot !== $month->lot_raqami) {
-            if ($currentLot !== null) {
-                Log::info(sprintf('  LOT %s TOTAL: %.2f млрд', $currentLot, $lotTotal / 1_000_000_000));
-                Log::info('  ---');
-            }
-            $currentLot = $month->lot_raqami;
-            $lotTotal = 0;
-            Log::info('LOT ' . $currentLot . ':');
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
         }
 
-        $lotTotal += $month->grafik_summa;
-        Log::info(sprintf('  %d-%02d: %.2f млн', $month->yil, $month->oy, $month->grafik_summa / 1_000_000));
+        $query->where('tolov_turi', 'муддатли');
+
+        // Subquery to find lots behind schedule
+        $query->whereRaw('lot_raqami IN (
+            SELECT ys.lot_raqami
+            FROM yer_sotuvlar ys
+            LEFT JOIN (
+                SELECT lot_raqami,
+                       SUM(grafik_summa) as jami_grafik
+                FROM grafik_tolovlar
+                WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
+                GROUP BY lot_raqami
+            ) g ON g.lot_raqami = ys.lot_raqami
+            LEFT JOIN (
+                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
+                FROM fakt_tolovlar
+                GROUP BY lot_raqami
+            ) f ON f.lot_raqami = ys.lot_raqami
+            WHERE ys.tolov_turi = "муддатли"
+            AND (
+                (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+                - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+            ) > 0
+            AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
+            AND COALESCE(g.jami_grafik, 0) > 0
+        )', [$bugun]);
+
+        $data = $query->selectRaw('
+            COUNT(*) as soni,
+            SUM(maydoni) as maydoni
+        ')->first();
+
+        Log::info('Found lots count: ' . ($data->soni ?? 0));
+        Log::info('Total area: ' . ($data->maydoni ?? 0));
+
+        // Create fresh query to get lot numbers
+        $lotlarQuery = YerSotuv::query();
+
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $lotlarQuery->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
+
+        $lotlarQuery->where('tolov_turi', 'муддатли');
+        $lotlarQuery->whereRaw('lot_raqami IN (
+            SELECT ys.lot_raqami
+            FROM yer_sotuvlar ys
+            LEFT JOIN (
+                SELECT lot_raqami,
+                       SUM(grafik_summa) as jami_grafik
+                FROM grafik_tolovlar
+                WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
+                GROUP BY lot_raqami
+            ) g ON g.lot_raqami = ys.lot_raqami
+            LEFT JOIN (
+                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
+                FROM fakt_tolovlar
+                GROUP BY lot_raqami
+            ) f ON f.lot_raqami = ys.lot_raqami
+            WHERE ys.tolov_turi = "муддатли"
+            AND (
+                (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+                - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+            ) > 0
+            AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
+            AND COALESCE(g.jami_grafik, 0) > 0
+        )', [$bugun]);
+
+        $lotRaqamlari = $lotlarQuery->pluck('lot_raqami')->toArray();
+
+        Log::info('Lot Raqamlari: ' . json_encode($lotRaqamlari));
+
+        if (empty($lotRaqamlari)) {
+            Log::info('=== GRAFIK ORTDA STATISTICS DEBUG END (NO LOTS) ===');
+            return [
+                'soni' => 0,
+                'maydoni' => 0,
+                'grafik_summa' => 0,
+                'fakt_summa' => 0,
+                'farq_summa' => 0,
+                'foiz' => 0
+            ];
+        }
+
+        // ✅ FIXED: Only get months UP TO cutoff date
+        $grafikSumma = DB::table('grafik_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
+            ->sum('grafik_summa');
+
+        $faktSumma = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->sum('tolov_summa');
+
+        Log::info('--- PAYMENT CALCULATION (FIXED WITH PROPER DATE FILTER) ---');
+        Log::info('Cutoff Date Applied: ' . $bugun);
+        Log::info('Grafik Summa (scheduled up to cutoff): ' . number_format($grafikSumma, 2));
+        Log::info('Fakt Summa (all actual payments): ' . number_format($faktSumma, 2));
+        Log::info('Difference (grafik - fakt): ' . number_format($grafikSumma - $faktSumma, 2));
+
+        $foiz = $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0;
+        Log::info('Percentage: ' . $foiz . '%');
+
+        // ✅ DEBUG: Show monthly breakdown to verify
+        $monthlyDetails = DB::table('grafik_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
+            ->select('lot_raqami', 'yil', 'oy', 'grafik_summa')
+            ->orderBy('lot_raqami')
+            ->orderBy('yil')
+            ->orderBy('oy')
+            ->get();
+
+        Log::info('--- MONTHLY GRAFIK BREAKDOWN (ONLY PAST DUE) ---');
+        $currentLot = null;
+        $lotTotal = 0;
+
+        foreach ($monthlyDetails as $month) {
+            if ($currentLot !== $month->lot_raqami) {
+                if ($currentLot !== null) {
+                    Log::info(sprintf('  LOT %s TOTAL: %.2f млрд', $currentLot, $lotTotal / 1_000_000_000));
+                    Log::info('  ---');
+                }
+                $currentLot = $month->lot_raqami;
+                $lotTotal = 0;
+                Log::info('LOT ' . $currentLot . ':');
+            }
+
+            $lotTotal += $month->grafik_summa;
+            Log::info(sprintf('  %d-%02d: %.2f млн', $month->yil, $month->oy, $month->grafik_summa / 1_000_000));
+        }
+
+        if ($currentLot !== null) {
+            Log::info(sprintf('  LOT %s TOTAL: %.2f млрд', $currentLot, $lotTotal / 1_000_000_000));
+        }
+
+        Log::info('--- VERIFICATION ---');
+        Log::info('Sum of monthly grafik: ' . number_format($monthlyDetails->sum('grafik_summa'), 2));
+        Log::info('Direct query grafik: ' . number_format($grafikSumma, 2));
+        Log::info('Match: ' . ($monthlyDetails->sum('grafik_summa') == $grafikSumma ? '✅ YES' : '❌ NO'));
+
+        $result = [
+            'soni' => $data->soni ?? 0,
+            'maydoni' => $data->maydoni ?? 0,
+            'grafik_summa' => $grafikSumma,
+            'fakt_summa' => $faktSumma,
+            'farq_summa' => $grafikSumma - $faktSumma,
+            'foiz' => $foiz
+        ];
+
+        Log::info('=== GRAFIK ORTDA STATISTICS DEBUG END ===');
+        Log::info(json_encode($result, JSON_PRETTY_PRINT));
+
+        return $result;
     }
 
-    if ($currentLot !== null) {
-        Log::info(sprintf('  LOT %s TOTAL: %.2f млрд', $currentLot, $lotTotal / 1_000_000_000));
-    }
-
-    Log::info('--- VERIFICATION ---');
-    Log::info('Sum of monthly grafik: ' . number_format($monthlyDetails->sum('grafik_summa'), 2));
-    Log::info('Direct query grafik: ' . number_format($grafikSumma, 2));
-    Log::info('Match: ' . ($monthlyDetails->sum('grafik_summa') == $grafikSumma ? '✅ YES' : '❌ NO'));
-
-    $result = [
-        'soni' => $data->soni ?? 0,
-        'maydoni' => $data->maydoni ?? 0,
-        'grafik_summa' => $grafikSumma,
-        'fakt_summa' => $faktSumma,
-        'farq_summa' => $grafikSumma - $faktSumma,
-        'foiz' => $foiz
-    ];
-
-    Log::info('=== GRAFIK ORTDA STATISTICS DEBUG END ===');
-    Log::info(json_encode($result, JSON_PRETTY_PRINT));
-
-    return $result;
-}
     private function initializeSvod3Total()
     {
         return [
@@ -603,13 +578,14 @@ private function getGrafikOrtda($tumanPatterns = null)
             'maydoni_from' => $request->maydoni_from,
             'maydoni_to' => $request->maydoni_to,
             'auksonda_turgan' => $request->auksonda_turgan,
-            'grafik_ortda' => $request->grafik_ortda,  // ✅ ADDED THIS!
-            'toliq_tolangan' => $request->toliq_tolangan,  // ✅ ADDED THIS TOO!
-            'nazoratda' => $request->nazoratda,  // ✅ AND THIS!
+            'grafik_ortda' => $request->grafik_ortda,
+            'toliq_tolangan' => $request->toliq_tolangan,
+            'nazoratda' => $request->nazoratda,
         ];
 
         return $this->showFilteredData($request, $filters);
     }
+
     private function debugMulkQabul()
     {
         echo "<h1>DEBUG: Mulk Qabul Qilmagan Yerlar</h1>";
@@ -917,7 +893,7 @@ private function getGrafikOrtda($tumanPatterns = null)
         return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
     }
 
-    private function getDetailedStatistics()
+    private function getDetailedStatistics($dateFilters = [])
     {
         $tumanlar = [
             'Бектемир тумани',
@@ -937,16 +913,16 @@ private function getGrafikOrtda($tumanPatterns = null)
         $statistics = [];
 
         foreach ($tumanlar as $tuman) {
-            $stat = $this->calculateTumanStatistics($tuman);
+            $stat = $this->calculateTumanStatistics($tuman, $dateFilters);
             $statistics[] = $stat;
         }
 
         $jami = [
-            'jami' => $this->getTumanData(null),
-            'bir_yola' => $this->getTumanData(null, 'муддатли эмас'),
-            'bolib' => $this->getTumanData(null, 'муддатли'),
-            'auksonda' => $this->getAuksondaTurgan(null),
-            'mulk_qabul' => $this->getMulkQabulQilmagan(null)
+            'jami' => $this->getTumanData(null, null, $dateFilters),
+            'bir_yola' => $this->getTumanData(null, 'муддатли эмас', $dateFilters),
+            'bolib' => $this->getTumanData(null, 'муддатли', $dateFilters),
+            'auksonda' => $this->getAuksondaTurgan(null, $dateFilters),
+            'mulk_qabul' => $this->getMulkQabulQilmagan(null, $dateFilters)
         ];
 
         return [
@@ -955,15 +931,15 @@ private function getGrafikOrtda($tumanPatterns = null)
         ];
     }
 
-    private function calculateTumanStatistics($tumanName)
+    private function calculateTumanStatistics($tumanName, $dateFilters = [])
     {
         $tumanPatterns = $this->getTumanPatterns($tumanName);
 
-        $jami = $this->getTumanData($tumanPatterns);
-        $birYola = $this->getTumanData($tumanPatterns, 'муддатли эмас');
-        $bolib = $this->getTumanData($tumanPatterns, 'муддатли');
-        $auksonda = $this->getAuksondaTurgan($tumanPatterns);
-        $mulkQabul = $this->getMulkQabulQilmagan($tumanPatterns);
+        $jami = $this->getTumanData($tumanPatterns, null, $dateFilters);
+        $birYola = $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters);
+        $bolib = $this->getTumanData($tumanPatterns, 'муддатли', $dateFilters);
+        $auksonda = $this->getAuksondaTurgan($tumanPatterns, $dateFilters);
+        $mulkQabul = $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters);
 
         return [
             'tuman' => $tumanName,
@@ -1003,7 +979,7 @@ private function getGrafikOrtda($tumanPatterns = null)
         return array_unique($patterns);
     }
 
-    private function getTumanData($tumanPatterns = null, $tolovTuri = null)
+    private function getTumanData($tumanPatterns = null, $tolovTuri = null, $dateFilters = [])
     {
         $query = YerSotuv::query();
 
@@ -1017,6 +993,14 @@ private function getGrafikOrtda($tumanPatterns = null)
 
         if ($tolovTuri) {
             $query->where('tolov_turi', $tolovTuri);
+        }
+
+        // Apply date filters
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
         }
 
         $data = $query->selectRaw('
@@ -1043,6 +1027,14 @@ private function getGrafikOrtda($tumanPatterns = null)
 
         $queryTushadigan->where('tolov_turi', '!=', 'низоли');
 
+        // Apply date filters to tushadigan query too
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $queryTushadigan->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $queryTushadigan->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+        }
+
         $tushadiganData = $queryTushadigan->selectRaw('
             SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
         ')->first();
@@ -1057,7 +1049,7 @@ private function getGrafikOrtda($tumanPatterns = null)
         ];
     }
 
-    private function getAuksondaTurgan($tumanPatterns = null)
+    private function getAuksondaTurgan($tumanPatterns = null, $dateFilters = [])
     {
         $query = YerSotuv::query();
 
@@ -1074,6 +1066,14 @@ private function getGrafikOrtda($tumanPatterns = null)
                 ->where('tolov_turi', '!=', 'муддатли эмас')
                 ->orWhereNull('tolov_turi');
         });
+
+        // Apply date filters
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+        }
 
         $data = $query->selectRaw('
             COUNT(*) as soni,
@@ -1092,7 +1092,7 @@ private function getGrafikOrtda($tumanPatterns = null)
         ];
     }
 
-    private function getMulkQabulQilmagan($tumanPatterns = null)
+    private function getMulkQabulQilmagan($tumanPatterns = null, $dateFilters = [])
     {
         $query = YerSotuv::query();
 
@@ -1106,6 +1106,14 @@ private function getGrafikOrtda($tumanPatterns = null)
 
         $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%');
         $query->where('asos', 'ПФ-135');
+
+        // Apply date filters
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+        }
 
         $data = $query->selectRaw('
             COUNT(*) as soni,
