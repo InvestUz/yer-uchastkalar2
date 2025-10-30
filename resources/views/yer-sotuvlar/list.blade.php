@@ -29,157 +29,13 @@
                     </div>
                 </div>
 
-             <!-- SINGLE COMBINED SEARCH AND FILTERS FORM -->
-<form method="GET" action="{{ route('yer-sotuvlar.list') }}"
-    class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-
-    <!-- Global Search (at top) -->
-    <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            Умумий қидирув (барча устунлар бўйича)
-        </label>
-        <input type="text" name="search"
-            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-            value="{{ request('search') }}"
-            placeholder="Лот рақами, туман, манзил, ғолиб номи ёки бошқа маълумот киритинг...">
-    </div>
-
-    <!-- Advanced Filters Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
-        <!-- Tuman Filter -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Туман</label>
-            <select name="tuman"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Барчаси</option>
-                @foreach ($tumanlar as $tuman)
-                    <option value="{{ $tuman }}" {{ request('tuman') == $tuman ? 'selected' : '' }}>
-                        {{ $tuman }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <!-- Year Filter -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Йил</label>
-            <select name="yil"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Барчаси</option>
-                @foreach ($yillar as $yil)
-                    <option value="{{ $yil }}" {{ request('yil') == $yil ? 'selected' : '' }}>
-                        {{ $yil }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <!-- Auksion Date From -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Аукцион санаси (дан)</label>
-            <input type="date" name="auksion_sana_from"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value="{{ request('auksion_sana_from') }}">
-        </div>
-
-        <!-- Auksion Date To -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Аукцион санаси (гача)</label>
-            <input type="date" name="auksion_sana_to"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value="{{ request('auksion_sana_to') }}">
-        </div>
-
-        <!-- Holat Filter -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Ҳолат</label>
-            <input type="text" name="holat"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value="{{ request('holat') }}" placeholder="Ҳолат қидириш">
-        </div>
-
-        <!-- Asos Filter -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Асос</label>
-            <input type="text" name="asos"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value="{{ request('asos') }}" placeholder="Асос қидириш">
-        </div>
-
-        <!-- Tolov Turi Filter -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Тўлов тури</label>
-            <select name="tolov_turi"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Барчаси</option>
-                <option value="муддатли" {{ request('tolov_turi') == 'муддатли' ? 'selected' : '' }}>
-                    Муддатли</option>
-                <option value="муддатли эмас"
-                    {{ request('tolov_turi') == 'муддатли эмас' ? 'selected' : '' }}>Муддатли эмас</option>
-            </select>
-        </div>
-
-        <!-- Sort Field -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Саралаш</label>
-            <select name="sort"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="auksion_sana" {{ request('sort') == 'auksion_sana' ? 'selected' : '' }}>
-                    Аукцион санаси</option>
-                <option value="sotilgan_narx" {{ request('sort') == 'sotilgan_narx' ? 'selected' : '' }}>
-                    Сотилган нарх</option>
-                <option value="boshlangich_narx"
-                    {{ request('sort') == 'boshlangich_narx' ? 'selected' : '' }}>Бошланғич нарх</option>
-                <option value="maydoni" {{ request('sort') == 'maydoni' ? 'selected' : '' }}>Майдон
-                </option>
-                <option value="tuman" {{ request('sort') == 'tuman' ? 'selected' : '' }}>Туман</option>
-                <option value="lot_raqami" {{ request('sort') == 'lot_raqami' ? 'selected' : '' }}>Лот
-                    рақами</option>
-            </select>
-        </div>
-
-
-
-        <!-- Search Button -->
-        <div class="flex items-end">
-            <button type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Қидириш
-            </button>
-        </div>
-
-        <!-- Reset Button -->
-        <div class="flex items-end">
-            <a href="{{ route('yer-sotuvlar.list') }}"
-                class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Тозалаш
-            </a>
-        </div>
-    </div>
-</form>
                 <!-- Active Filters Display -->
+                @if(request()->hasAny(['search', 'tuman', 'yil', 'tolov_turi', 'holat', 'asos', 'auksion_sana_from', 'auksion_sana_to', 'narx_from', 'narx_to', 'maydoni_from', 'maydoni_to']))
                 <div class="bg-white px-6 py-4 border-b border-gray-200">
                     <div class="flex flex-wrap gap-3">
                         @if (request('search'))
-                            <div
-                                class="inline-flex items-center bg-blue-100 border border-blue-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-blue-100 border border-blue-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
@@ -189,10 +45,8 @@
                         @endif
 
                         @if (request('tuman'))
-                            <div
-                                class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 </svg>
@@ -202,10 +56,8 @@
                         @endif
 
                         @if (request('yil'))
-                            <div
-                                class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
@@ -215,10 +67,8 @@
                         @endif
 
                         @if (request('tolov_turi'))
-                            <div
-                                class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                 </svg>
@@ -228,24 +78,19 @@
                         @endif
 
                         @if (request('holat'))
-                            <div
-                                class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <span class="text-gray-600">Ҳолат:</span>
-                                <span
-                                    class="ml-1 font-semibold text-gray-900">{{ Str::limit(request('holat'), 40) }}</span>
+                                <span class="ml-1 font-semibold text-gray-900">{{ Str::limit(request('holat'), 40) }}</span>
                             </div>
                         @endif
 
                         @if (request('asos'))
-                            <div
-                                class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
@@ -255,10 +100,8 @@
                         @endif
 
                         @if (request('auksion_sana_from') || request('auksion_sana_to'))
-                            <div
-                                class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
@@ -271,10 +114,8 @@
                         @endif
 
                         @if (request('narx_from') || request('narx_to'))
-                            <div
-                                class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                 </svg>
@@ -287,10 +128,8 @@
                         @endif
 
                         @if (request('maydoni_from') || request('maydoni_to'))
-                            <div
-                                class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                                 </svg>
@@ -302,40 +141,34 @@
                         @endif
                     </div>
                 </div>
+                @endif
 
                 <!-- Statistics Summary -->
                 <div class="bg-white px-6 py-5">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-3xl font-bold text-gray-800">{{ number_format($statistics['total_lots']) }}
-                            </div>
-                            <div class="text-sm text-gray-600 mt-1">Жами лотлар</div>
-                        </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['total_area'], 2) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Жами майдон (га)</div>
+                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['total_lots']) }}</div>
+                            <div class="text-xs text-gray-600 mt-1">Жами лотлар</div>
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['boshlangich_narx'] , 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Бошланғич нарх (сўм)</div>
-                        </div>
-<div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['chegirma'] , 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Чегирма суммаси (сўм)</div>
-                        </div>
-
-<div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['golib_tolagan'] , 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Ғолиб аукционга тўлаган сумма (сўм)</div>
+                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['total_area'], 2) }}</div>
+                            <div class="text-xs text-gray-600 mt-1">Майдон (га)</div>
                         </div>
                         <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-3xl font-bold text-gray-800">
-                                {{ number_format($statistics['total_price'] , 1) }}</div>
-                            <div class="text-sm text-gray-600 mt-1">Сотилган нарх (сўм)</div>
+                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['boshlangich_narx'] / 1000000000, 1) }}</div>
+                            <div class="text-xs text-gray-600 mt-1">Бошланғич (млрд)</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['chegirma'] / 1000000000, 1) }}</div>
+                            <div class="text-xs text-gray-600 mt-1">Чегирма (млрд)</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['golib_tolagan'] / 1000000000, 1) }}</div>
+                            <div class="text-xs text-gray-600 mt-1">Ғолиб тўлаган (млрд)</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="text-2xl font-bold text-green-600">{{ number_format($statistics['total_price'] / 1000000000, 1) }}</div>
+                            <div class="text-xs text-gray-600 mt-1">Сотилган (млрд)</div>
                         </div>
                     </div>
                 </div>
@@ -349,14 +182,12 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-700">
                             <tr>
-                                <!-- Sortable Column Helper Function -->
                                 @php
                                     function sortableColumn($field, $label)
                                     {
                                         $currentSort = request('sort', 'auksion_sana');
                                         $currentDirection = request('direction', 'desc');
-                                        $newDirection =
-                                            $currentSort === $field && $currentDirection === 'asc' ? 'desc' : 'asc';
+                                        $newDirection = $currentSort === $field && $currentDirection === 'asc' ? 'desc' : 'asc';
 
                                         $queryParams = array_merge(request()->except(['sort', 'direction', 'page']), [
                                             'sort' => $field,
@@ -365,11 +196,7 @@
 
                                         $url = route('yer-sotuvlar.list', $queryParams);
                                         $isActive = $currentSort === $field;
-
-                                        $arrow = '';
-                                        if ($isActive) {
-                                            $arrow = $currentDirection === 'asc' ? '↑' : '↓';
-                                        }
+                                        $arrow = $isActive ? ($currentDirection === 'asc' ? '↑' : '↓') : '⇅';
 
                                         return [
                                             'url' => $url,
@@ -378,10 +205,7 @@
                                             'label' => $label,
                                         ];
                                     }
-                                @endphp
 
-                                <!-- Sortable Headers -->
-                                  @php
                                     $columns = [
                                         'lot_raqami' => '№ Лот',
                                         'tuman' => 'Туман',
@@ -390,101 +214,89 @@
                                         'boshlangich_narx' => 'Бошл. нарх',
                                         'auksion_sana' => 'Аукцион',
                                         'sotilgan_narx' => 'Сотил. нарх',
-                                        'chegirma' => 'Чегирма қиммати',
-                                        'golib_tolagan' => 'Ғолиб тўлаган сумма',
+                                        'chegirma' => 'Чегирма',
+                                        'golib_tolagan' => 'Ғолиб тўлаган',
                                         'golib' => 'Ғолиб',
                                     ];
                                 @endphp
 
                                 @foreach ($columns as $field => $label)
                                     @php $col = sortableColumn($field, $label); @endphp
-                                    <th scope="col"
-                                        class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
+                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
                                         <a href="{{ $col['url'] }}" class="flex items-center justify-between group">
                                             <span>{{ $col['label'] }}</span>
-                                            <span
-                                                class="ml-2 {{ $col['isActive'] ? 'text-yellow-300' : 'text-gray-400 group-hover:text-gray-300' }}">
-                                                {{ $col['arrow'] ?: '⇅' }}
+                                            <span class="ml-2 {{ $col['isActive'] ? 'text-yellow-300' : 'text-gray-400 group-hover:text-gray-300' }}">
+                                                {{ $col['arrow'] }}
                                             </span>
                                         </a>
                                     </th>
                                 @endforeach
 
-
-                                <th scope="col"
-                                    class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                    Тўлов тури</th>
-                                <th scope="col"
-                                    class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                    Ҳолат</th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Тўлов тури</th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Ҳолат</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($yerlar as $yer)
                                 <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm font-medium">
                                         <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}"
-                                            class="font-semibold text-gray-900 hover:text-gray-700 hover:underline">
+                                            class="font-semibold text-blue-600 hover:text-blue-800 hover:underline">
                                             {{ $yer->lot_raqami }}
                                         </a>
                                     </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
                                         {{ $yer->tuman }}
                                     </td>
-                                    <td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate"
-                                        title="{{ $yer->manzil }}">
-                                        {{ Str::limit($yer->manzil, 50) }}
+                                    <td class="px-3 py-3 text-sm text-gray-900 max-w-xs" title="{{ $yer->manzil }}">
+                                        {{ Str::limit($yer->manzil, 40) }}
                                     </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
                                         {{ number_format($yer->maydoni, 4) }}
                                     </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ number_format($yer->boshlangich_narx, 0, '.', ' ') }}
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ number_format($yer->boshlangich_narx / 1000000, 1) }} млн
                                     </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
                                         {{ $yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '-' }}
                                     </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                                        {{ number_format($yer->sotilgan_narx, 0, '.', ' ') }}
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-right">
+                                        {{ number_format($yer->sotilgan_narx / 1000000, 1) }} млн
                                     </td>
-<td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                                        {{ number_format($yer->chegirma, 0, '.', ' ') }}
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ number_format($yer->chegirma / 1000000, 1) }} млн
                                     </td>
-<td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-
-                                        {{ number_format($yer->golib_tolagan + $yer->total_tolov = $yer->faktTolovlar->sum('tolov_summa'), 0, '.', ' ' ) }}
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-right">
+                                        @php
+                                            $total_tolov = $yer->faktTolovlar->sum('tolov_summa');
+                                            $golib_total = $yer->golib_tolagan + $total_tolov;
+                                        @endphp
+                                        {{ number_format($golib_total / 1000000, 1) }} млн
                                     </td>
-
-                                    <td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate"
-                                        title="{{ $yer->golib_nomi }}">
-                                        {{ Str::limit($yer->golib_nomi, 40) }}
+                                    <td class="px-3 py-3 text-sm text-gray-900 max-w-xs" title="{{ $yer->golib_nomi }}">
+                                        {{ Str::limit($yer->golib_nomi, 30) }}
                                     </td>
-
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                                    <td class="px-3 py-3 whitespace-nowrap text-sm">
                                         @if ($yer->tolov_turi === 'муддатли')
-                                            <span
-                                                class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                                 Муддатли
                                             </span>
                                         @elseif($yer->tolov_turi === 'муддатли эмас')
-                                            <span
-                                                class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                муддатли эмас
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Муддатли эмас
                                             </span>
                                         @else
                                             <span class="text-gray-400">-</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-4 text-sm text-gray-600 max-w-sm truncate"
-                                        title="{{ $yer->holat }}">
-                                        {{ Str::limit($yer->holat, 60) }}
+                                    <td class="px-3 py-3 text-sm text-gray-600 max-w-sm" title="{{ $yer->holat }}">
+                                        {{ Str::limit($yer->holat, 50) }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="11" class="px-4 py-8 text-center text-gray-500">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                    <td colspan="12" class="px-4 py-8 text-center text-gray-500">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                         </svg>
@@ -515,6 +327,195 @@
             </div>
         </div>
 
+        <!-- FILTERS SECTION - MOVED TO BOTTOM -->
+        <div class="mx-auto mt-6">
+            <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
+                <div class="bg-gray-700 px-6 py-3">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        Филтрлаш ва Қидириш
+                    </h2>
+                </div>
+
+                <form method="GET" action="{{ route('yer-sotuvlar.list') }}" class="bg-gray-50 px-6 py-5">
+
+                    <!-- Global Search -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Умумий қидирув
+                        </label>
+                        <input type="text" name="search"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                            value="{{ request('search') }}"
+                            placeholder="Лот рақами, туман, манзил, ғолиб номи ёки бошқа маълумот...">
+                    </div>
+
+                    <!-- Advanced Filters Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+
+                        <!-- Tuman Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Туман</label>
+                            <select name="tuman"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Барчаси</option>
+                                @foreach ($tumanlar as $tuman)
+                                    <option value="{{ $tuman }}" {{ request('tuman') == $tuman ? 'selected' : '' }}>
+                                        {{ $tuman }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Йил</label>
+                            <select name="yil"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Барчаси</option>
+                                @foreach ($yillar as $yil)
+                                    <option value="{{ $yil }}" {{ request('yil') == $yil ? 'selected' : '' }}>
+                                        {{ $yil }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Tolov Turi Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Тўлов тури</label>
+                            <select name="tolov_turi"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Барчаси</option>
+                                <option value="муддатли" {{ request('tolov_turi') == 'муддатли' ? 'selected' : '' }}>
+                                    Муддатли</option>
+                                <option value="муддатли эмас" {{ request('tolov_turi') == 'муддатли эмас' ? 'selected' : '' }}>
+                                    Муддатли эмас</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort Field -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Саралаш</label>
+                            <select name="sort"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="auksion_sana" {{ request('sort') == 'auksion_sana' ? 'selected' : '' }}>
+                                    Аукцион санаси</option>
+                                <option value="sotilgan_narx" {{ request('sort') == 'sotilgan_narx' ? 'selected' : '' }}>
+                                    Сотилган нарх</option>
+                                <option value="boshlangich_narx" {{ request('sort') == 'boshlangich_narx' ? 'selected' : '' }}>
+                                    Бошланғич нарх</option>
+                                <option value="maydoni" {{ request('sort') == 'maydoni' ? 'selected' : '' }}>Майдон</option>
+                                <option value="tuman" {{ request('sort') == 'tuman' ? 'selected' : '' }}>Туман</option>
+                                <option value="lot_raqami" {{ request('sort') == 'lot_raqami' ? 'selected' : '' }}>Лот рақами</option>
+                            </select>
+                        </div>
+
+                        <!-- Auksion Date From -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Аукцион санаси (дан)</label>
+                            <input type="date" name="auksion_sana_from"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ request('auksion_sana_from') }}">
+                        </div>
+
+                        <!-- Auksion Date To -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Аукцион санаси (гача)</label>
+                            <input type="date" name="auksion_sana_to"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ request('auksion_sana_to') }}">
+                        </div>
+
+                        <!-- Holat Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ҳолат</label>
+                            <input type="text" name="holat"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ request('holat') }}" placeholder="Ҳолат қидириш">
+                        </div>
+
+                        <!-- Asos Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Асос</label>
+                            <input type="text" name="asos"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ request('asos') }}" placeholder="Асос қидириш">
+                        </div>
+
+                        <!-- Sort Direction -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Тартиб</label>
+                            <select name="direction"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="desc" {{ request('direction') == 'desc' ? 'selected' : '' }}>Камайиш ↓</option>
+                                <option value="asc" {{ request('direction') == 'asc' ? 'selected' : '' }}>Ўсиш ↑</option>
+                            </select>
+                        </div>
+
+                        <!-- Price From -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Нарх (дан)</label>
+                            <input type="number" name="narx_from"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ request('narx_from') }}" placeholder="0">
+                        </div>
+
+                        <!-- Price To -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Нарх (гача)</label>
+                            <input type="number" name="narx_to"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ request('narx_to') }}" placeholder="∞">
+                        </div>
+
+                        <!-- Area From -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Майдон (дан) га</label>
+                            <input type="number" step="0.01" name="maydoni_from"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ request('maydoni_from') }}" placeholder="0">
+                        </div>
+
+                        <!-- Area To -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Майдон (гача) га</label>
+                            <input type="number" step="0.01" name="maydoni_to"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="{{ request('maydoni_to') }}" placeholder="∞">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Қидириш
+                        </button>
+
+                        <a href="{{ route('yer-sotuvlar.list') }}"
+                            class="flex-1 text-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Тозалаш
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
 
     </div>
 
