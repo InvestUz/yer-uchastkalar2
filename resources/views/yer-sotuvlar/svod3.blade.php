@@ -16,7 +16,7 @@
                         <h2 class="text-xl md:text-2xl font-semibold text-blue-200">
                             ЙИҒМА МАЪЛУМОТ
                         </h2>
-                        <p class="text-sm text-blue-300 mt-2">{{ now()->format('d.m.Y') }} ҳолатига</p>
+                        <p class="text-sm text-blue-300 text-white mt-2">{{ now()->format('d.m.Y') }} ҳолатига</p>
                     </div>
                 </div>
             </div>
