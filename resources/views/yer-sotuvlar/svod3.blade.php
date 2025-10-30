@@ -26,7 +26,7 @@
                     <table class="w-full border-collapse statistics-table">
                         <thead>
                             <!-- Row 1: Main section headers -->
-                            <tr style="background: #eff6ff !important;">
+                            <tr style="background:#eff6ff !important;">
                                 <th rowspan="4" class="sticky-col border border-slate-300 px-4 py-4 text-center align-middle font-bold text-slate-800" style="min-width: 60px;">
                                     Т/р
                                 </th>
@@ -45,7 +45,7 @@
                             </tr>
 
                             <!-- Row 2: Sub-section headers -->
-                            <tr class="bg-slate-50">
+                            <tr style="background:#eff6ff !important;">
                                 <!-- Narhini bo'lib to'lash - 5 columns -->
                                 <th rowspan="3" class="border border-slate-300 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 80px;">
                                     сони
@@ -84,7 +84,7 @@
                             </tr>
 
                             <!-- Row 3: More detailed sub-headers -->
-                            <tr class="bg-slate-50">
+                            <tr style="background:#eff6ff !important;">
                                 <!-- Under "shundan" of Narhini bo'lib -->
                                 <th rowspan="2" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 130px;">
                                     Сотилган ер тўлови бўйича тушадиган қиймат<br>(млрд сўм)
@@ -111,7 +111,7 @@
                             </tr>
 
                             <!-- Row 4: Bottom level details -->
-                            <tr class="bg-slate-50">
+                            <tr style="background:#eff6ff !important;">
                                 <!-- Under "shundan" of Toliq tolanganlar -->
                                 <th class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 120px;">
                                     тушган қиймат<br>(млрд сўм)

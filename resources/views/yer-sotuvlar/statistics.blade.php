@@ -51,7 +51,7 @@
                             </tr>
 
                             <!-- Row 2: Sub headers -->
-                            <tr class="bg-slate-50">
+                            <tr style="background:#eff6ff !important;">
                                 <th rowspan="2" class="border border-slate-300 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 80px;">
                                     сони
                                 </th>
@@ -94,7 +94,7 @@
                             </tr>
 
                             <!-- Row 3: Detailed headers -->
-                            <tr class="bg-slate-50">
+                            <tr style="background:#eff6ff !important;">
                                 <th class="border border-slate-300 px-3 py-3 text-center font-semibold text-slate-700 text-xs" style="min-width: 120px;">
                                     Чегирма<br>қиймати<br>(млрд сўм)
                                 </th>
