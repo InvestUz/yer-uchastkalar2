@@ -258,63 +258,11 @@
 
         <!-- Premium Filter Section -->
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-t-4 border-blue-600">
-            <div class="bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 px-6 py-4">
-                <h3 class="text-lg font-bold text-white flex items-center">
-                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                    </svg>
-                    Филтрлаш ва қидириш
-                </h3>
-            </div>
+
             <div class="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
                 <form method="GET" action="{{ route('yer-sotuvlar.index') }}">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                        <!-- Tuman Filter -->
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Туман:</label>
-                            <select name="tuman" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white">
-                                <option value="">Барчаси</option>
-                                <option value="Бектемир т." {{ request('tuman') == 'Бектемир т.' ? 'selected' : '' }}>Бектемир тумани.</option>
-                                <option value="Мирзо Улуғбек т." {{ request('tuman') == 'Мирзо Улуғбек т.' ? 'selected' : '' }}>Мирзо Улуғбек тумани.</option>
-                                <option value="Миробод т." {{ request('tuman') == 'Миробод т.' ? 'selected' : '' }}>Миробод тумани.</option>
-                                <option value="Олмазор т." {{ request('tuman') == 'Олмазор т.' ? 'selected' : '' }}>Олмазор тумани.</option>
-                                <option value="Сирғали т." {{ request('tuman') == 'Сирғали т.' ? 'selected' : '' }}>Сирғали тумани.</option>
-                                <option value="Учтепа т." {{ request('tuman') == 'Учтепа т.' ? 'selected' : '' }}>Учтепа тумани.</option>
-                                <option value="Чилонзор т." {{ request('tuman') == 'Чилонзор т.' ? 'selected' : '' }}>Чилонзор тумани.</option>
-                                <option value="Шайхонтоҳур т." {{ request('tuman') == 'Шайхонтоҳур т.' ? 'selected' : '' }}>Шайхонтоҳур тумани.</option>
-                                <option value="Юнусобод т." {{ request('tuman') == 'Юнусобод т.' ? 'selected' : '' }}>Юнусобод тумани.</option>
-                                <option value="Яккасарой т." {{ request('tuman') == 'Яккасарой т.' ? 'selected' : '' }}>Яккасарой тумани.</option>
-                                <option value="Янги ҳаёт т." {{ request('tuman') == 'Янги ҳаёт т.' ? 'selected' : '' }}>Янги ҳаёт тумани.</option>
-                                <option value="Яшнобод т." {{ request('tuman') == 'Яшнобод т.' ? 'selected' : '' }}>Яшнобод тумани.</option>
-                            </select>
-                        </div>
 
-                        <!-- Year Filter -->
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Йил:</label>
-                            <select name="yil" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white">
-                                <option value="">Барчаси</option>
-                                @for($year = date('Y'); $year >= 2020; $year--)
-                                    <option value="{{ $year }}" {{ request('yil') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                                @endfor
-                            </select>
-                        </div>
-
-                        <!-- Payment Type -->
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Тўлов тури:</label>
-                            <select name="tolov_turi" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white">
-                                <option value="">Барчаси</option>
-                                <option value="муддатли" {{ request('tolov_turi') == 'муддатли' ? 'selected' : '' }}>Муддатли</option>
-                                <option value="муддатли эмас" {{ request('tolov_turi') == 'муддатли эмас' ? 'selected' : '' }}>Муддатли эмас</option>
-                            </select>
-                        </div>
-
-                        <!-- Status -->
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Ҳолат:</label>
-                            <input type="text" name="holat" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ request('holat') }}" placeholder="Ҳолат қидириш">
-                        </div>
 
                         <!-- Date From -->
                         <div>
@@ -328,24 +276,7 @@
                             <input type="date" name="auksion_sana_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ request('auksion_sana_to') }}">
                         </div>
 
-                        <!-- Subject Type -->
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Субъект тури:</label>
-                            <select name="subekt_turi" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white">
-                                <option value="">Барчаси</option>
-                                <option value="Юридик шахс" {{ request('subekt_turi') == 'Юридик шахс' ? 'selected' : '' }}>Юридик шахс</option>
-                                <option value="Жисмоний шахс" {{ request('subekt_turi') == 'Жисмоний шахс' ? 'selected' : '' }}>Жисмоний шахс</option>
-                            </select>
-                        </div>
-
-                        <!-- Asos -->
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Асос:</label>
-                            <input type="text" name="asos" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ request('asos') }}" placeholder="Асос қидириш">
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
+  <!-- Action Buttons -->
                     <div class="flex gap-4 mt-6">
                         <button type="submit" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,6 +291,9 @@
                             Тозалаш
                         </a>
                     </div>
+                    </div>
+
+
                 </form>
             </div>
         </div>
