@@ -231,8 +231,11 @@
     }
 
     .table thead th {
-        background-color: #e9ecef;
+        background-color: #d7ebff;
     }
+.table tbody{
+    background-color: #fff !important;
+}
 
     a {
         color: #0d6efd;
