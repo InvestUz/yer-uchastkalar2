@@ -6,6 +6,10 @@
     <title>@yield('title', 'Ер Участкалари Маълумотлар Тизими')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+
+.bg-gray-700 {
+            background-color: #7abbdf !important;
+        }
         @media print {
             .no-print { display: none; }
         }

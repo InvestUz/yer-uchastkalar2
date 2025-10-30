@@ -9,7 +9,7 @@
         <div class="mx-auto mb-6">
             <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
                 <!-- Header -->
-                <div class="bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-4">
+                <div class="bg-gray-700 px-6 py-4">
                     <div class="flex justify-between items-center">
                         <h1 class="text-xl font-semibold text-white flex items-center">
                             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
