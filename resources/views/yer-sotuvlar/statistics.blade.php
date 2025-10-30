@@ -7,15 +7,15 @@
     <div class="max-w-[98%] mx-auto">
         <!-- Premium Government Header -->
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden mb-6 border-t-4 border-blue-600">
-            <div class="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 px-8 py-6">
+            <div class="bg-white px-8 py-6">
                 <div class="flex items-center justify-center space-x-4">
                     <!-- Government Emblem -->
 
                     <div class="text-center">
-                        <h1 class="text-2xl md:text-3xl font-bold text-white tracking-wide mb-1">
+                        <h1 class="text-2xl md:text-3xl font-bold text-blue tracking-wide mb-1">
                             Тошкент шаҳрида аукцион савдоларида сотилган ер участкалари тўғрисида
                         </h1>
-                        <h2 class="text-xl md:text-2xl font-semibold text-blue-200">
+                        <h2 class="text-xl md:text-2xl font-semibold text-blue">
                             ЙИҒМА МАЪЛУМОТ
                         </h2>
                     </div>
