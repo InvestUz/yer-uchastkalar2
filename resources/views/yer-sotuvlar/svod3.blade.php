@@ -302,7 +302,7 @@
                 }
 
                 .table thead th {
-                    background-color: #d7ebff;
+                    background-color: #edf7f9;
                 }
 .table tbody{
     background-color: #fff !important;
