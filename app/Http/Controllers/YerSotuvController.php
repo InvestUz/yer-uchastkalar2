@@ -22,25 +22,50 @@ class YerSotuvController extends Controller
         return now()->subMonth()->endOfMonth()->format('Y-m-d');
     }
 
-    public function index(Request $request)
-    {
-        $filters = $request->only(['tuman', 'yil', 'tolov_turi', 'holat', 'asos', 'auksonda_turgan']);
+ public function index(Request $request)
+{
+    // ✅ FIX: Collect ALL possible filters from request
+    $filters = [
+        'search' => $request->search,
+        'tuman' => $request->tuman,
+        'yil' => $request->yil,
+        'tolov_turi' => $request->tolov_turi,
+        'holat' => $request->holat,
+        'asos' => $request->asos,
+        'auksion_sana_from' => $request->auksion_sana_from,
+        'auksion_sana_to' => $request->auksion_sana_to,
+        'shartnoma_sana_from' => $request->shartnoma_sana_from,
+        'shartnoma_sana_to' => $request->shartnoma_sana_to,
+        'narx_from' => $request->narx_from,
+        'narx_to' => $request->narx_to,
+        'maydoni_from' => $request->maydoni_from,
+        'maydoni_to' => $request->maydoni_to,
+        'auksonda_turgan' => $request->auksonda_turgan,
+        'grafik_ortda' => $request->grafik_ortda,
+        'toliq_tolangan' => $request->toliq_tolangan,
+        'nazoratda' => $request->nazoratda,
+    ];
 
-        // Debug mode
-        if ($request->has('debug')) {
-            return $this->debugMulkQabul();
-        }
-
-        // Agar filter bo'lsa, filtered data ko'rsatish
-        if (!empty(array_filter($filters))) {
-            return $this->showFilteredData($request, $filters);
-        }
-
-        // Aks holda statistics table ko'rsatish
-        $statistics = $this->getDetailedStatistics();
-
-        return view('yer-sotuvlar.statistics', compact('statistics'));
+    // Debug mode
+    if ($request->has('debug')) {
+        return $this->debugMulkQabul();
     }
+
+    // ✅ FIX: Check if ANY filter has a value (not just specific ones)
+    $hasFilters = collect($filters)->filter(function ($value) {
+        return !is_null($value) && $value !== '';
+    })->isNotEmpty();
+
+    // Agar filter bo'lsa, filtered data ko'rsatish
+    if ($hasFilters) {
+        return $this->showFilteredData($request, $filters);
+    }
+
+    // Aks holda statistics table ko'rsatish
+    $statistics = $this->getDetailedStatistics();
+
+    return view('yer-sotuvlar.statistics', compact('statistics'));
+}
 
     // SVOD 3 - Bo'lib to'lash jadvali
     public function svod3(Request $request)
