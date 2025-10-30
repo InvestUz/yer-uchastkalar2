@@ -651,17 +651,27 @@ class YerSotuvController extends Controller
 
     public function list(Request $request)
     {
+        // Collect ALL filters from the request
         $filters = [
+            'search' => $request->search,
             'tuman' => $request->tuman,
             'yil' => $request->yil,
             'tolov_turi' => $request->tolov_turi,
             'holat' => $request->holat,
             'asos' => $request->asos,
+            'auksion_sana_from' => $request->auksion_sana_from,
+            'auksion_sana_to' => $request->auksion_sana_to,
+            'shartnoma_sana_from' => $request->shartnoma_sana_from,
+            'shartnoma_sana_to' => $request->shartnoma_sana_to,
+            'narx_from' => $request->narx_from,
+            'narx_to' => $request->narx_to,
+            'maydoni_from' => $request->maydoni_from,
+            'maydoni_to' => $request->maydoni_to,
+            'auksonda_turgan' => $request->auksonda_turgan,
         ];
 
         return $this->showFilteredData($request, $filters);
     }
-
     private function debugMulkQabul()
     {
         echo "<h1>DEBUG: Mulk Qabul Qilmagan Yerlar</h1>";
@@ -913,9 +923,20 @@ class YerSotuvController extends Controller
         $sortDirection = $request->get('direction', 'desc');
 
         $allowedSortFields = [
-            'auksion_sana', 'shartnoma_sana', 'sotilgan_narx', 'boshlangich_narx',
-            'maydoni', 'tuman', 'lot_raqami', 'yil', 'manzil', 'golib_nomi',
-            'telefon', 'tolov_turi', 'holat', 'asos'
+            'auksion_sana',
+            'shartnoma_sana',
+            'sotilgan_narx',
+            'boshlangich_narx',
+            'maydoni',
+            'tuman',
+            'lot_raqami',
+            'yil',
+            'manzil',
+            'golib_nomi',
+            'telefon',
+            'tolov_turi',
+            'holat',
+            'asos'
         ];
 
         if (in_array($sortField, $allowedSortFields)) {
