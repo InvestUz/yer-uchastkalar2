@@ -493,18 +493,100 @@ $faktSumma = ($tolovData->jami_fakt ?? 0) - ($tolovData->jami_golib ?? 0) + ($to
 
     // Qolgan metodlar (showFilteredData, getDetailedStatistics, va h.k.)
 
-    public function list(Request $request)
-    {
-        $filters = [
-            'tuman' => $request->tuman,
-            'yil' => $request->yil,
-            'tolov_turi' => $request->tolov_turi,
-            'holat' => $request->holat,
-            'asos' => $request->asos,
-        ];
+   public function list(Request $request)
+{
+    $query = YerSotuv::query();
 
-        return $this->showFilteredData($request, $filters);
+    // Global search across multiple columns
+    if ($request->filled('search')) {
+        $searchTerm = $request->search;
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('lot_raqami', 'LIKE', "%{$searchTerm}%")
+              ->orWhere('tuman', 'LIKE', "%{$searchTerm}%")
+              ->orWhere('manzil', 'LIKE', "%{$searchTerm}%")
+              ->orWhere('golib_nomi', 'LIKE', "%{$searchTerm}%")
+              ->orWhere('holat', 'LIKE', "%{$searchTerm}%")
+              ->orWhere('asos', 'LIKE', "%{$searchTerm}%");
+        });
     }
+
+    // Tuman filter
+    if ($request->filled('tuman')) {
+        $query->where('tuman', $request->tuman);
+    }
+
+    // Year filter
+    if ($request->filled('yil')) {
+        $query->whereYear('auksion_sana', $request->yil);
+    }
+
+    // Date range filter
+    if ($request->filled('auksion_sana_from')) {
+        $query->whereDate('auksion_sana', '>=', $request->auksion_sana_from);
+    }
+    if ($request->filled('auksion_sana_to')) {
+        $query->whereDate('auksion_sana', '<=', $request->auksion_sana_to);
+    }
+
+    // Price range filter
+    if ($request->filled('narx_from')) {
+        $query->where('sotilgan_narx', '>=', $request->narx_from);
+    }
+    if ($request->filled('narx_to')) {
+        $query->where('sotilgan_narx', '<=', $request->narx_to);
+    }
+
+    // Area range filter
+    if ($request->filled('maydoni_from')) {
+        $query->where('maydoni', '>=', $request->maydoni_from);
+    }
+    if ($request->filled('maydoni_to')) {
+        $query->where('maydoni', '<=', $request->maydoni_to);
+    }
+
+    // Holat filter
+    if ($request->filled('holat')) {
+        $query->where('holat', 'LIKE', "%{$request->holat}%");
+    }
+
+    // Asos filter
+    if ($request->filled('asos')) {
+        $query->where('asos', 'LIKE', "%{$request->asos}%");
+    }
+
+    // Tolov turi filter
+    if ($request->filled('tolov_turi')) {
+        $query->where('tolov_turi', $request->tolov_turi);
+    }
+
+    // Sorting
+    $sortField = $request->get('sort', 'auksion_sana');
+    $sortDirection = $request->get('direction', 'desc');
+    $query->orderBy($sortField, $sortDirection);
+
+    // Get paginated results
+    $yerlar = $query->paginate(50)->appends($request->all());
+
+    // Calculate statistics
+    $statistics = [
+        'total_lots' => $query->count(),
+        'total_area' => $query->sum('maydoni'),
+        'boshlangich_narx' => $query->sum('boshlangich_narx'),
+        'chegirma' => $query->sum('chegirma'),
+        'golib_tolagan' => $query->sum('golib_tolagan'),
+        'total_price' => $query->sum('sotilgan_narx'),
+    ];
+
+    // Get unique values for filters
+    $tumanlar = YerSotuv::distinct()->pluck('tuman')->sort()->values();
+    $yillar = YerSotuv::distinct()
+        ->selectRaw('YEAR(auksion_sana) as year')
+        ->whereNotNull('auksion_sana')
+        ->orderBy('year', 'desc')
+        ->pluck('year');
+
+    return view('yer-sotuvlar.list', compact('yerlar', 'statistics', 'tumanlar', 'yillar'));
+}
 
      private function debugMulkQabul()
     {

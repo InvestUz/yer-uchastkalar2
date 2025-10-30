@@ -29,26 +29,149 @@
                     </div>
                 </div>
 
-                <!-- SEARCH AND FILTERS FORM -->
-                <form method="GET" action="{{ route('yer-sotuvlar.list') }}"
-                    class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+             <!-- SINGLE COMBINED SEARCH AND FILTERS FORM -->
+<form method="GET" action="{{ route('yer-sotuvlar.list') }}"
+    class="bg-gray-50 px-6 py-4 border-b border-gray-200">
 
-                    <!-- Global Search -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            Умумий қидирув (барча устунлар бўйича)
-                        </label>
-                        <input type="text" name="search"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                            value="{{ request('search') }}"
-                            placeholder="Лот рақами, туман, манзил, ғолиб номи ёки бошқа маълумот киритинг...">
-                    </div>
-                </form>
+    <!-- Global Search (at top) -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Умумий қидирув (барча устунлар бўйича)
+        </label>
+        <input type="text" name="search"
+            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+            value="{{ request('search') }}"
+            placeholder="Лот рақами, туман, манзил, ғолиб номи ёки бошқа маълумот киритинг...">
+    </div>
 
+    <!-- Advanced Filters Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- Tuman Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Туман</label>
+            <select name="tuman"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Барчаси</option>
+                @foreach ($tumanlar as $tuman)
+                    <option value="{{ $tuman }}" {{ request('tuman') == $tuman ? 'selected' : '' }}>
+                        {{ $tuman }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Year Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Йил</label>
+            <select name="yil"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Барчаси</option>
+                @foreach ($yillar as $yil)
+                    <option value="{{ $yil }}" {{ request('yil') == $yil ? 'selected' : '' }}>
+                        {{ $yil }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Auksion Date From -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Аукцион санаси (дан)</label>
+            <input type="date" name="auksion_sana_from"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value="{{ request('auksion_sana_from') }}">
+        </div>
+
+        <!-- Auksion Date To -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Аукцион санаси (гача)</label>
+            <input type="date" name="auksion_sana_to"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value="{{ request('auksion_sana_to') }}">
+        </div>
+
+        <!-- Holat Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Ҳолат</label>
+            <input type="text" name="holat"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value="{{ request('holat') }}" placeholder="Ҳолат қидириш">
+        </div>
+
+        <!-- Asos Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Асос</label>
+            <input type="text" name="asos"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value="{{ request('asos') }}" placeholder="Асос қидириш">
+        </div>
+
+        <!-- Tolov Turi Filter -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Тўлов тури</label>
+            <select name="tolov_turi"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Барчаси</option>
+                <option value="муддатли" {{ request('tolov_turi') == 'муддатли' ? 'selected' : '' }}>
+                    Муддатли</option>
+                <option value="муддатли эмас"
+                    {{ request('tolov_turi') == 'муддатли эмас' ? 'selected' : '' }}>Муддатли эмас</option>
+            </select>
+        </div>
+
+        <!-- Sort Field -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Саралаш</label>
+            <select name="sort"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="auksion_sana" {{ request('sort') == 'auksion_sana' ? 'selected' : '' }}>
+                    Аукцион санаси</option>
+                <option value="sotilgan_narx" {{ request('sort') == 'sotilgan_narx' ? 'selected' : '' }}>
+                    Сотилган нарх</option>
+                <option value="boshlangich_narx"
+                    {{ request('sort') == 'boshlangich_narx' ? 'selected' : '' }}>Бошланғич нарх</option>
+                <option value="maydoni" {{ request('sort') == 'maydoni' ? 'selected' : '' }}>Майдон
+                </option>
+                <option value="tuman" {{ request('sort') == 'tuman' ? 'selected' : '' }}>Туман</option>
+                <option value="lot_raqami" {{ request('sort') == 'lot_raqami' ? 'selected' : '' }}>Лот
+                    рақами</option>
+            </select>
+        </div>
+
+
+
+        <!-- Search Button -->
+        <div class="flex items-end">
+            <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Қидириш
+            </button>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="flex items-end">
+            <a href="{{ route('yer-sotuvlar.list') }}"
+                class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Тозалаш
+            </a>
+        </div>
+    </div>
+</form>
                 <!-- Active Filters Display -->
                 <div class="bg-white px-6 py-4 border-b border-gray-200">
                     <div class="flex flex-wrap gap-3">
@@ -392,146 +515,7 @@
             </div>
         </div>
 
-   <!-- SEARCH AND FILTERS FORM -->
-                <form method="GET" action="{{ route('yer-sotuvlar.list') }}"
-                    class="bg-gray-50 px-6 py-4 border-b border-gray-200">
 
-                    <!-- Advanced Filters Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
-                        <!-- Tuman Filter -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Туман</label>
-                            <select name="tuman"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Барчаси</option>
-                                @foreach ($tumanlar as $tuman)
-                                    <option value="{{ $tuman }}" {{ request('tuman') == $tuman ? 'selected' : '' }}>
-                                        {{ $tuman }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Year Filter -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Йил</label>
-                            <select name="yil"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Барчаси</option>
-                                @foreach ($yillar as $yil)
-                                    <option value="{{ $yil }}" {{ request('yil') == $yil ? 'selected' : '' }}>
-                                        {{ $yil }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Auksion Date From -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Аукцион санаси (дан)</label>
-                            <input type="date" name="auksion_sana_from"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value="{{ request('auksion_sana_from') }}">
-                        </div>
-
-                        <!-- Auksion Date To -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Аукцион санаси (гача)</label>
-                            <input type="date" name="auksion_sana_to"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value="{{ request('auksion_sana_to') }}">
-                        </div>
-
-
-
-                        <!-- Holat Filter -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Ҳолат</label>
-                            <input type="text" name="holat"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value="{{ request('holat') }}" placeholder="Ҳолат қидириш">
-                        </div>
-
-                        <!-- Asos Filter -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Асос</label>
-                            <input type="text" name="asos"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value="{{ request('asos') }}" placeholder="Асос қидириш">
-                        </div>
-
-                        <!-- Tolov Turi Filter -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Тўлов тури</label>
-                            <select name="tolov_turi"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Барчаси</option>
-                                <option value="муддатли" {{ request('tolov_turi') == 'муддатли' ? 'selected' : '' }}>
-                                    Муддатли</option>
-                                <option value="муддатли эмас"
-                                    {{ request('tolov_turi') == 'муддатли эмас' ? 'selected' : '' }}>Муддатли эмас</option>
-                            </select>
-                        </div>
-
-                        <!-- Sort Field -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Саралаш</label>
-                            <select name="sort"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="auksion_sana" {{ request('sort') == 'auksion_sana' ? 'selected' : '' }}>
-                                    Аукцион санаси</option>
-                                <option value="sotilgan_narx" {{ request('sort') == 'sotilgan_narx' ? 'selected' : '' }}>
-                                    Сотилган нарх</option>
-                                <option value="boshlangich_narx"
-                                    {{ request('sort') == 'boshlangich_narx' ? 'selected' : '' }}>Бошланғич нарх</option>
-                                <option value="maydoni" {{ request('sort') == 'maydoni' ? 'selected' : '' }}>Майдон
-                                </option>
-                                <option value="tuman" {{ request('sort') == 'tuman' ? 'selected' : '' }}>Туман</option>
-                                <option value="lot_raqami" {{ request('sort') == 'lot_raqami' ? 'selected' : '' }}>Лот
-                                    рақами</option>
-                            </select>
-                        </div>
-
-                        <!-- Sort Direction -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Тартиб</label>
-                            <select name="direction"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="desc" {{ request('direction') == 'desc' ? 'selected' : '' }}>Камайиш ↓
-                                </option>
-                                <option value="asc" {{ request('direction') == 'asc' ? 'selected' : '' }}>Ўсиш ↑
-                                </option>
-                            </select>
-                        </div>
-
-                        <!-- Search Button -->
-                        <div class="flex items-end">
-                            <button type="submit"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                Қидириш
-                            </button>
-                        </div>
-
-                        <!-- Reset Button -->
-                        <div class="flex items-end">
-                            <a href="{{ route('yer-sotuvlar.list') }}"
-                                class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                Тозалаш
-                            </a>
-                        </div>
-                    </div>
-                </form>
     </div>
 
     <style>

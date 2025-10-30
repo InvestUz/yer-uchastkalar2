@@ -8,7 +8,8 @@
     <style>
 
 .bg-gray-700 {
-            background-color: #7abbdf !important;
+            /* background-color: #edf7f9 !important; */
+/* color: #1e3a8a !important; */
         }
         @media print {
             .no-print { display: none; }
