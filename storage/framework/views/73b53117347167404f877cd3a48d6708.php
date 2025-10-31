@@ -20,12 +20,9 @@
                 <div class="flex flex-col md:flex-row md:justify-between md:items-center">
                     <div>
                         <h1 class="text-xl font-bold text-white">Лот № <?php echo e($yer->lot_raqami); ?></h1>
-                        <p class="text-gray-300 text-sm mt-1"><?php echo e($yer->tuman); ?> • <?php echo e($yer->mfy); ?></p>
+                        <p class="text-gray-300 text-sm mt-1"><?php echo e($yer->tuman); ?> • <?php echo e($yer->mfy); ?> • <?php echo e($yer->unikal_raqam); ?></p>
                     </div>
-                    <div class="mt-2 md:mt-0 flex items-center space-x-4 text-sm text-gray-300">
-                        <span><?php echo e($yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '-'); ?></span>
-                        <span class="px-2 py-1 bg-white/20 rounded text-xs"><?php echo e($yer->yil); ?></span>
-                    </div>
+
                 </div>
             </div>
 
@@ -83,7 +80,7 @@
             <nav class="flex -mb-px overflow-x-auto">
                 <button onclick="openTab(event, 'basic')"
                     class="tab-button active px-6 py-3 text-sm font-medium border-b-2 border-gray-700 text-gray-900">
-                    Асосий
+                    Асосий маълумотлар
                 </button>
                 <button onclick="openTab(event, 'financial')"
                     class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-600 hover:text-gray-900">
@@ -106,7 +103,7 @@
                 
                 <div class="space-y-4">
                     <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide pb-2 border-b border-gray-200">Ер
-                        участка</h3>
+                        участкаси маълумотлари</h3>
                     <table class="min-w-full text-sm">
                         <tbody class="divide-y divide-gray-100">
                             <tr>
@@ -179,9 +176,13 @@
                 
                 <div class="space-y-4">
                     <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide pb-2 border-b border-gray-200">
-                        Аукцион ва Ғолиб</h3>
+                        Аукцион маълумотлари</h3>
                     <table class="min-w-full text-sm">
                         <tbody class="divide-y divide-gray-100">
+      <tr>
+                                <td class="py-2 text-gray-600 w-40">Аукцион санаси</td>
+                                <td class="py-2 text-gray-900"><?php echo e($yer->auksion_sana ?? '-'); ?></td>
+                            </tr>
                             <tr>
                                 <td class="py-2 text-gray-600 w-40">Аукцион тури</td>
                                 <td class="py-2 text-gray-900"><?php echo e($yer->auksion_turi ?? '-'); ?></td>
@@ -281,11 +282,7 @@
                                 <td class="py-2 text-right font-medium text-gray-900">
                                     <?php echo e(number_format($yer->golib_tolagan, 1)); ?> cўм</td>
                             </tr>
-                            <tr>
-                                <td class="py-2 text-gray-600">Буюртмачига ўтказилган</td>
-                                <td class="py-2 text-right font-medium text-gray-900">
-                                    <?php echo e(number_format($yer->buyurtmachiga_otkazilgan, 1)); ?> cўм</td>
-                            </tr>
+                            
                             <tr>
                                 <td class="py-2 text-gray-600">Чегирма</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
@@ -296,11 +293,7 @@
                                 <td class="py-2 text-right font-medium text-gray-900">
                                     <?php echo e(number_format($yer->auksion_harajati, 1)); ?> cўм</td>
                             </tr>
-                            <tr>
-                                <td class="py-2 text-gray-600">Ер аукцион харажат</td>
-                                <td class="py-2 text-right font-medium text-gray-900">
-                                    <?php echo e(number_format($yer->yer_auksion_harajat, 1)); ?> cўм</td>
-                            </tr>
+                            
                         </tbody>
                     </table>
                 </div>
