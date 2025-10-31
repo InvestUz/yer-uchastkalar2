@@ -47,9 +47,16 @@ class YerSotuvController extends Controller
     // SVOD 3 - Bo'lib to'lash jadvali
     public function svod3(Request $request)
     {
-        $statistics = $this->getSvod3Statistics();
+        // Get date filters
+        $dateFilters = [
+            'auksion_sana_from' => $request->auksion_sana_from,
+            'auksion_sana_to' => $request->auksion_sana_to,
+        ];
 
-        return view('yer-sotuvlar.svod3', compact('statistics'));
+        // Get statistics with date filters applied
+        $statistics = $this->getSvod3Statistics($dateFilters);
+
+        return view('yer-sotuvlar.svod3', compact('statistics', 'dateFilters'));
     }
 
     private function getCalculationBreakdown($lotRaqamlari)
@@ -101,7 +108,7 @@ class YerSotuvController extends Controller
         ];
     }
 
-    private function getSvod3Statistics()
+    private function getSvod3Statistics($dateFilters = [])
     {
         $tumanlar = [
             'Бектемир тумани',
@@ -128,10 +135,10 @@ class YerSotuvController extends Controller
 
             $stat = [
                 'tuman' => $tuman,
-                'narhini_bolib' => $this->getNarhiniBolib($tumanPatterns),
-                'toliq_tolanganlar' => $this->getToliqTolanganlar($tumanPatterns),
-                'nazoratdagilar' => $this->getNazoratdagilar($tumanPatterns),
-                'grafik_ortda' => $this->getGrafikOrtda($tumanPatterns)
+                'narhini_bolib' => $this->getNarhiniBolib($tumanPatterns, $dateFilters),
+                'toliq_tolanganlar' => $this->getToliqTolanganlar($tumanPatterns, $dateFilters),
+                'nazoratdagilar' => $this->getNazoratdagilar($tumanPatterns, $dateFilters),
+                'grafik_ortda' => $this->getGrafikOrtda($tumanPatterns, $dateFilters)
             ];
 
             $result['tumanlar'][] = $stat;
@@ -145,7 +152,7 @@ class YerSotuvController extends Controller
      * NARHINI BO'LIB - All lots sold with installment payment
      * Formula: T = golib_tolagan + shartnoma_summasi
      */
-    private function getNarhiniBolib($tumanPatterns = null)
+    private function getNarhiniBolib($tumanPatterns = null, $dateFilters = [])
     {
         $query = YerSotuv::query();
 
@@ -157,16 +164,23 @@ class YerSotuvController extends Controller
             });
         }
 
-        // Bo'lib to'lash (muddatli)
         $query->where('tolov_turi', 'муддатли');
 
+        // Apply date filters
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+        }
+
         $data = $query->selectRaw('
-            COUNT(*) as soni,
-            SUM(maydoni) as maydoni,
-            SUM(boshlangich_narx) as boshlangich_narx,
-            SUM(sotilgan_narx) as sotilgan_narx,
-            SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
-        ')->first();
+        COUNT(*) as soni,
+        SUM(maydoni) as maydoni,
+        SUM(boshlangich_narx) as boshlangich_narx,
+        SUM(sotilgan_narx) as sotilgan_narx,
+        SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
+    ')->first();
 
         return [
             'soni' => $data->soni ?? 0,
@@ -184,7 +198,7 @@ class YerSotuvController extends Controller
      * B = T - (fakt_tolovlar + auksion_harajati)
      * Fully paid when: B ≤ 0
      */
-    private function getToliqTolanganlar($tumanPatterns = null)
+    private function getToliqTolanganlar($tumanPatterns = null, $dateFilters = [])
     {
         $query = YerSotuv::query();
 
@@ -197,6 +211,14 @@ class YerSotuvController extends Controller
         }
 
         $query->where('tolov_turi', 'муддатли');
+
+        // Apply date filters
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+        }
 
         // To'liq to'langan: B ≤ 0
         $query->whereRaw('lot_raqami IN (
@@ -243,7 +265,7 @@ class YerSotuvController extends Controller
      * B = T - (fakt_tolovlar + auksion_harajati)
      * Under monitoring when: B > 0
      */
-    private function getNazoratdagilar($tumanPatterns = null)
+    private function getNazoratdagilar($tumanPatterns = null, $dateFilters = [])
     {
         $query = YerSotuv::query();
 
@@ -257,6 +279,13 @@ class YerSotuvController extends Controller
 
         $query->where('tolov_turi', 'муддатли');
 
+        // Apply date filters
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+        }
         // Nazoratdagi: B > 0
         $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
@@ -347,15 +376,10 @@ class YerSotuvController extends Controller
      * GRAFIK ORTDA - Lots behind schedule
      * Uses consistent cutoff date from getGrafikCutoffDate()
      */
-    private function getGrafikOrtda($tumanPatterns = null)
+    private function getGrafikOrtda($tumanPatterns = null, $dateFilters = [])
     {
         $bugun = $this->getGrafikCutoffDate();
 
-        Log::info('=== GRAFIK ORTDA STATISTICS DEBUG START ===');
-        Log::info('Cutoff Date: ' . $bugun);
-        Log::info('Tuman Patterns: ' . json_encode($tumanPatterns));
-
-        // Build the base query with tuman filter
         $query = YerSotuv::query();
 
         if ($tumanPatterns !== null && !empty($tumanPatterns)) {
@@ -367,6 +391,14 @@ class YerSotuvController extends Controller
         }
 
         $query->where('tolov_turi', 'муддатли');
+
+        // Apply date filters
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+        }
 
         // Subquery to find lots behind schedule
         $query->whereRaw('lot_raqami IN (
