@@ -45,19 +45,25 @@
 
                         сўм</div>
                 </div>
+
+  <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                    <div class="text-xs">Аукцион хизмат ҳақи 1 фоиз</div>
+                    <?php echo e(number_format(( $yer->auksion_harajati), 2)); ?> сўм
+                </div>
+    <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                    <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
+                    <?php echo e(number_format((($yer->shartnoma_summasi + $yer->golib_tolagan) - $yer->auksion_harajati), 2)); ?> сўм
+                </div>
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
                     <div class="text-xs">Шартнома графиги б-ча тўлов</div>
                     <div class="text-lg font-bold"><?php echo e(number_format($yer->shartnoma_summasi, 2)); ?> сўм
                     </div>
                 </div>
-                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
-                    <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
-                    <?php echo e(number_format(($yer->shartnoma_summasi + $yer->golib_tolagan), 2)); ?> сўм
-                </div>
+
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
                     <div class="text-xs">Амалда тўланган қиймат</div>
                     <div class="text-lg font-bold">
-                        <?php echo e(number_format(($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2)); ?>
+                        <?php echo e(number_format(($yer->faktTolovlar->sum('tolov_summa')), 2)); ?>
 
                         сўм</div>
                 </div>
@@ -239,7 +245,7 @@
                     <?php if($yer->shartnoma_sana || $yer->shartnoma_raqam): ?>
                         <h3
                             class="text-sm font-semibold text-gray-900 uppercase tracking-wide pt-4 pb-2 border-b border-gray-200">
-                            Шартнома</h3>
+                            Шартнома маълумотлари</h3>
                         <table class="min-w-full text-sm">
                             <tbody class="divide-y divide-gray-100">
                                 <?php if($yer->shartnoma_holati): ?>

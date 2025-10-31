@@ -22,7 +22,8 @@
                 <div class="flex flex-col md:flex-row md:justify-between md:items-center">
                     <div>
                         <h1 class="text-xl font-bold text-white">Лот № {{ $yer->lot_raqami }}</h1>
-                        <p class="text-gray-300 text-sm mt-1">{{ $yer->tuman }} • {{ $yer->mfy }} • {{ $yer->unikal_raqam }}</p>
+                        <p class="text-gray-300 text-sm mt-1">{{ $yer->tuman }} • {{ $yer->mfy }} •
+                            {{ $yer->unikal_raqam }}</p>
                     </div>
 
                 </div>
@@ -45,26 +46,32 @@
                     <div class="text-lg font-bold text-gray-900">{{ number_format($yer->sotilgan_narx, 2) }}
                         сўм</div>
                 </div>
+
+                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                    <div class="text-xs">Аукцион хизмат ҳақи 1 фоиз</div>
+                    {{ number_format($yer->auksion_harajati, 2) }} сўм
+                </div>
+                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                    <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
+                    {{ number_format($yer->shartnoma_summasi + $yer->golib_tolagan - $yer->auksion_harajati, 2) }} сўм
+                </div>
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
                     <div class="text-xs">Шартнома графиги б-ча тўлов</div>
                     <div class="text-lg font-bold">{{ number_format($yer->shartnoma_summasi, 2) }} сўм
                     </div>
                 </div>
-                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
-                    <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
-                    {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan), 2) }} сўм
-                </div>
+
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
                     <div class="text-xs">Амалда тўланган қиймат</div>
                     <div class="text-lg font-bold">
-                        {{ number_format(($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2) }}
+                        {{ number_format($yer->faktTolovlar->sum('tolov_summa'), 2) }}
                         сўм</div>
                 </div>
 
                 <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
 
                     <div class="text-xs">Тўланиши лозим бўлган қолдик қиймат</div>
-                    {{ number_format(($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati)), 2) }}
+                    {{ number_format($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2) }}
                     сўм
                 </div>
             </div>
@@ -183,7 +190,7 @@
                         Аукцион маълумотлари</h3>
                     <table class="min-w-full text-sm">
                         <tbody class="divide-y divide-gray-100">
-      <tr>
+                            <tr>
                                 <td class="py-2 text-gray-600 w-40">Аукцион санаси</td>
                                 <td class="py-2 text-gray-900">{{ $yer->auksion_sana ?? '-' }}</td>
                             </tr>
@@ -206,11 +213,11 @@
                             <tr>
                                 <td class="py-2 text-gray-600">Субъект тури</td>
                                 <td class="py-2 text-gray-900">
-@if($yer->golib_turi == 'юр лицо')
-юридик шахс
-@else
-жисмоний шахс
-@endif
+                                    @if ($yer->golib_turi == 'юр лицо')
+                                        юридик шахс
+                                    @else
+                                        жисмоний шахс
+                                    @endif
 
                                 </td>
                             </tr>
@@ -242,7 +249,7 @@
                     @if ($yer->shartnoma_sana || $yer->shartnoma_raqam)
                         <h3
                             class="text-sm font-semibold text-gray-900 uppercase tracking-wide pt-4 pb-2 border-b border-gray-200">
-                            Шартнома</h3>
+                            Шартнома маълумотлари</h3>
                         <table class="min-w-full text-sm">
                             <tbody class="divide-y divide-gray-100">
                                 @if ($yer->shartnoma_holati)
@@ -309,7 +316,7 @@
                     </table>
                 </div>
 
-                <div  style="display: none">
+                <div style="display: none">
                     <h3
                         class="text-sm font-semibold text-gray-900 uppercase tracking-wide pb-2 border-b border-gray-200 mb-3">
                         Бошқа маълумотлар</h3>
@@ -398,9 +405,9 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Шайхонтоҳур тумани</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                               сўм</td>
+                                сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                               сўм</td>
+                                сўм</td>
                             <td
                                 class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700' }}">
                                 сўм
