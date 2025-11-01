@@ -800,7 +800,7 @@ private function getMulkQabulQilmagan($tumanPatterns = null, $dateFilters = [])
 
     $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%');
     $query->where('asos', 'ПФ-135');
-    // $query->where('tolov_turi', 'муддатли эмас');
+    // Removed the tolov_turi filter to get both types
 
     if (!empty($dateFilters['auksion_sana_from'])) {
         $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
@@ -811,7 +811,7 @@ private function getMulkQabulQilmagan($tumanPatterns = null, $dateFilters = [])
 
     // Clone query for debugging
     $debugQuery = clone $query;
-    $lots = $debugQuery->get(['id', 'lot_raqami', 'tuman', 'golib_tolagan', 'auksion_harajati']);
+    $lots = $debugQuery->get(['id', 'lot_raqami', 'tuman', 'tolov_turi', 'golib_tolagan', 'auksion_harajati']);
 
     // Log detailed information
     \Log::info('SQL Query: ' . $debugQuery->toSql());
@@ -825,39 +825,59 @@ private function getMulkQabulQilmagan($tumanPatterns = null, $dateFilters = [])
         \Log::info('=== Lot Financial Details ===');
         foreach ($lots as $lot) {
             \Log::info(sprintf(
-                'Lot ID: %s, Lot #: %s, Tuman: %s, Golib Tolagan: %s, Auksion Harajati: %s',
+                'Lot ID: %s, Lot #: %s, Tuman: %s, Tolov Turi: %s, Golib Tolagan: %s, Auksion Harajati: %s',
                 $lot->id,
                 $lot->lot_raqami,
                 $lot->tuman,
+                $lot->tolov_turi ?? 'NULL',
                 $lot->golib_tolagan ?? 'NULL',
                 $lot->auksion_harajati ?? 'NULL'
             ));
         }
 
-        // Calculate totals
-        $totalGolibTolagan = $lots->sum(fn($lot) => floatval($lot->golib_tolagan ?? 0));
-        $totalAuksionHarajati = $lots->sum(fn($lot) => floatval($lot->auksion_harajati ?? 0));
+        // Calculate totals with conditional logic
+        $totalGolibTolagan = 0;
+        $totalAuksionHarajatiSubtracted = 0;
+
+        foreach ($lots as $lot) {
+            $golibTolagan = floatval($lot->golib_tolagan ?? 0);
+            $auksionHarajati = floatval($lot->auksion_harajati ?? 0);
+
+            // Only subtract auksion_harajati if tolov_turi is 'муддатли эмас'
+            if ($lot->tolov_turi === 'муддатли эмас') {
+                $totalGolibTolagan += ($golibTolagan - $auksionHarajati);
+                $totalAuksionHarajatiSubtracted += $auksionHarajati;
+            } else {
+                // For 'муддатли', just add golib_tolagan without subtracting
+                $totalGolibTolagan += $golibTolagan;
+            }
+        }
 
         \Log::info('=== Totals ===');
-        \Log::info('Total Golib Tolagan: ' . number_format($totalGolibTolagan,3, 2));
-        \Log::info('Total Auksion Harajati: ' . number_format($totalAuksionHarajati, 3,2));
-        \Log::info('Difference (Golib Tolagan - Auksion Harajati): ' . number_format($totalGolibTolagan - $totalAuksionHarajati, 3,2));
+        \Log::info('Total Auksion Harajati (subtracted only from муддатли эмас): ' . number_format($totalAuksionHarajatiSubtracted, 2, '.', ','));
+        \Log::info('Total Auksion Mablagh (after conditional subtraction): ' . number_format($totalGolibTolagan, 2, '.', ','));
     }
 
-    // Original calculation
-    $data = $query->selectRaw('
-        COUNT(*) as soni,
-        SUM(COALESCE(golib_tolagan, 0)) as total_golib_tolagan
-    ')->first();
+    // Calculate using the same logic for return value
+    $results = $query->get(['tolov_turi', 'golib_tolagan', 'auksion_harajati']);
 
-    $auksionMablagh = $data->total_golib_tolagan ?? 0;
+    $auksionMablagh = 0;
+    foreach ($results as $result) {
+        $golibTolagan = floatval($result->golib_tolagan ?? 0);
+        $auksionHarajati = floatval($result->auksion_harajati ?? 0);
+
+        if ($result->tolov_turi === 'муддатли эмас') {
+            $auksionMablagh += ($golibTolagan - $auksionHarajati);
+        } else {
+            $auksionMablagh += $golibTolagan;
+        }
+    }
 
     return [
-        'soni' => $data->soni ?? 0,
+        'soni' => $results->count(),
         'auksion_mablagh' => $auksionMablagh
     ];
 }
-
     public function list(Request $request)
     {
         $filters = [
