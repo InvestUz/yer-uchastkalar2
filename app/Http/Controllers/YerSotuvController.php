@@ -556,7 +556,7 @@ class YerSotuvController extends Controller
     $column_bolib_tushadigan = $golibTolaganBolib + $shartnomaByYigindi - $auksionXizmatHaqiBolib;
 
     // Column: Bo'lib tushgan (fakt + golib - 1% fee)
-    $column_bolib_tushgan = $faktTolovlarBolib + $column_bolib_golib_minus_fee;
+    $column_bolib_tushgan = $faktTolovlarBolib ;
 
     // Column: Jami tushgan (bir yo'la + bo'lib)
     $column_jami_tushgan_yigindi = $biryola_fakt + $column_bolib_tushgan;

@@ -197,7 +197,7 @@
                                     @php
                                         $tushganJamiNazorat = $statistics['jami']['nazoratdagilar']['tushgan_summa'] ?? 0;
                                     @endphp
-                                    {{ $tushganJamiNazorat > 0 ? number_format($tushganJamiNazorat / 1000000000, 1) : '0.0' }}
+                                    {{ $tushganJamiNazorat > 0 ? number_format($tushganJamiNazorat / 1000000000, 1) : '0.0' }}cccc
                                 </td>
 
                                 <!-- Grafik ortda - 5 columns -->
