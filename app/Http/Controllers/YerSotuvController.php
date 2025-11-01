@@ -733,13 +733,16 @@ class YerSotuvController extends Controller
             SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh,
             SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
         ')->first();
+
+
+
         return [
             'soni' => $data->soni ?? 0,
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
             'chegirma' => $data->chegirma ?? 0,
-            'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh - $tushadiganData->auksion_harajati ?? 0
+            'tushadigan_mablagh' => ($tushadiganData->tushadigan_mablagh - $tushadiganData->auksion_harajati ) ?? 0
         ];
     }
 

@@ -453,7 +453,8 @@
                                     name="td_biryola_tushadigan"
                                     data-column="col_biryola_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>xxx
+                                    <?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 15: Bir yo'la tushgan -->
@@ -461,8 +462,7 @@
                                     name="td_biryola_tushgan"
                                     data-column="col_biryola_tushgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-                                    <?php echo e(number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1)); ?>
-
+                                    <?php echo e(number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1)); ?>xxx
                                 </td>
 
 
