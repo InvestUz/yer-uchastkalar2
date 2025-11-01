@@ -28,51 +28,51 @@
                             <!-- HEADER ROW 1: Main Section Headers -->
                             <tr id="header_row_1" style="background: #eff6ff !important;">
                                 <!-- Column 0: Т/р -->
-                                <th id="th_col_tr" 
-                                    name="col_tr" 
-                                    rowspan="5" 
-                                    class="sticky-col border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-800" 
+                                <th id="th_col_tr"
+                                    name="col_tr"
+                                    rowspan="5"
+                                    class="sticky-col border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-800"
                                     style="min-width: 60px;">
                                     Т/р
                                 </th>
-                                
+
                                 <!-- Column 1: Ҳудудлар -->
-                                <th id="th_col_hudud" 
-                                    name="col_hudud" 
-                                    rowspan="5" 
-                                    class="sticky-col-2 border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-800" 
+                                <th id="th_col_hudud"
+                                    name="col_hudud"
+                                    rowspan="5"
+                                    class="sticky-col-2 border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-800"
                                     style="min-width: 200px;">
                                     Ҳудудлар
                                 </th>
-                                
+
                                 <!-- Columns 2-8: Сотилган ер участкалари -->
-                                <th id="th_section_sotilgan" 
-                                    name="section_sotilgan_yer" 
-                                    colspan="7" 
+                                <th id="th_section_sotilgan"
+                                    name="section_sotilgan_yer"
+                                    colspan="7"
                                     class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">
                                     Сотилган ер участкалари
                                 </th>
-                                
+
                                 <!-- Columns 9-22: шундан (Бир йўла + Бўлиб тўлаш) -->
-                                <th id="th_section_shundan" 
-                                    name="section_shundan" 
-                                    colspan="14" 
+                                <th id="th_section_shundan"
+                                    name="section_shundan"
+                                    colspan="14"
                                     class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">
                                     шундан
                                 </th>
-                                
+
                                 <!-- Columns 23-26: Аукционда турган ерлар -->
-                                <th id="th_section_auksion" 
-                                    name="section_auksion_turgan" 
-                                    colspan="4" 
+                                <th id="th_section_auksion"
+                                    name="section_auksion_turgan"
+                                    colspan="4"
                                     class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">
                                     Аукционда сотилган ва савдо натижасини расмийлаштишда турган ерлар
                                 </th>
-                                
+
                                 <!-- Columns 27-28: Мулк қабул қилмаган -->
-                                <th id="th_section_mulk" 
-                                    name="section_mulk_qabul" 
-                                    colspan="2" 
+                                <th id="th_section_mulk"
+                                    name="section_mulk_qabul"
+                                    colspan="2"
                                     class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">
                                     Мулкни қабул қилиб олиш тугмаси босилмаган ерлар
                                 </th>
@@ -81,111 +81,111 @@
                             <!-- HEADER ROW 2: Sub Section Headers -->
                             <tr id="header_row_2" style="background: #eff6ff !important;">
                                 <!-- Columns 2-5: Basic info under Sotilgan yer -->
-                                <th id="th_col_jami_soni" 
-                                    name="col_jami_soni" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_jami_soni"
+                                    name="col_jami_soni"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 70px;">
                                     Сони
                                 </th>
-                                <th id="th_col_jami_maydoni" 
-                                    name="col_jami_maydoni" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_jami_maydoni"
+                                    name="col_jami_maydoni"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 90px;">
                                     Майдони<br>(га)
                                 </th>
-                                <th id="th_col_jami_boshlangich" 
-                                    name="col_jami_boshlangich" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_jami_boshlangich"
+                                    name="col_jami_boshlangich"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 110px;">
                                     Бошланғич<br>нархи<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_jami_sotilgan" 
-                                    name="col_jami_sotilgan" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_jami_sotilgan"
+                                    name="col_jami_sotilgan"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 110px;">
                                     Сотилган<br>нархи<br>(млрд сўм)
                                 </th>
-                                
+
                                 <!-- Columns 6-7: шундан under Sotilgan yer -->
-                                <th id="th_subsection_jami_shundan" 
-                                    name="subsection_jami_shundan" 
-                                    colspan="2" 
-                                    rowspan="2" 
+                                <th id="th_subsection_jami_shundan"
+                                    name="subsection_jami_shundan"
+                                    colspan="2"
+                                    rowspan="2"
                                     class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">
                                     шундан
                                 </th>
-                                
+
                                 <!-- Column 8: Жами тушган -->
-                                <th id="th_col_jami_tushgan" 
-                                    name="col_jami_tushgan" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_jami_tushgan"
+                                    name="col_jami_tushgan"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 130px;">
                                     Жами тушган маблағ<br>(млрд сўм)
                                 </th>
-                                
+
                                 <!-- Columns 9-15: Бир йўла тўлаш -->
-                                <th id="th_subsection_biryola" 
-                                    name="subsection_biryola_tolash" 
-                                    colspan="7" 
+                                <th id="th_subsection_biryola"
+                                    name="subsection_biryola_tolash"
+                                    colspan="7"
                                     class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">
                                     Бир йўла тўлаш шарти билан сотилган
                                 </th>
-                                
+
                                 <!-- Columns 16-22: Бўлиб тўлаш -->
-                                <th id="th_subsection_bolib" 
-                                    name="subsection_bolib_tolash" 
-                                    colspan="7" 
+                                <th id="th_subsection_bolib"
+                                    name="subsection_bolib_tolash"
+                                    colspan="7"
                                     class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">
                                     Нархини бўлиб тўлаш шарти билан сотилган
                                 </th>
-                                
+
                                 <!-- Columns 23-26: Auksion details -->
-                                <th id="th_col_auksion_soni" 
-                                    name="col_auksion_soni" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_auksion_soni"
+                                    name="col_auksion_soni"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 70px;">
                                     сони
                                 </th>
-                                <th id="th_col_auksion_maydoni" 
-                                    name="col_auksion_maydoni" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_auksion_maydoni"
+                                    name="col_auksion_maydoni"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 90px;">
                                     майдони<br>(га)
                                 </th>
-                                <th id="th_col_auksion_boshlangich" 
-                                    name="col_auksion_boshlangich" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_auksion_boshlangich"
+                                    name="col_auksion_boshlangich"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 110px;">
                                     бошланғич<br>нархи<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_auksion_sotilgan" 
-                                    name="col_auksion_sotilgan" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_auksion_sotilgan"
+                                    name="col_auksion_sotilgan"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 110px;">
                                     сотилган<br>нархи<br>(млрд сўм)
                                 </th>
-                                
+
                                 <!-- Columns 27-28: Mulk qabul details -->
-                                <th id="th_col_mulk_soni" 
-                                    name="col_mulk_soni" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_mulk_soni"
+                                    name="col_mulk_soni"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 70px;">
                                     сони
                                 </th>
-                                <th id="th_col_mulk_mablagh" 
-                                    name="col_mulk_mablagh" 
-                                    rowspan="4" 
-                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" 
+                                <th id="th_col_mulk_mablagh"
+                                    name="col_mulk_mablagh"
+                                    rowspan="4"
+                                    class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm"
                                     style="min-width: 130px;">
                                     аукционда турган маблағ<br>(млрд сўм)
                                 </th>
@@ -194,77 +194,77 @@
                             <!-- HEADER ROW 3: Detail Headers -->
                             <tr id="header_row_3" style="background: #eff6ff !important;">
                                 <!-- Columns 9-12: Bir yo'la basic fields -->
-                                <th id="th_col_biryola_soni" 
-                                    name="col_biryola_soni" 
-                                    rowspan="3" 
-                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_biryola_soni"
+                                    name="col_biryola_soni"
+                                    rowspan="3"
+                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs"
                                     style="min-width: 60px;">
                                     сони
                                 </th>
-                                <th id="th_col_biryola_maydoni" 
-                                    name="col_biryola_maydoni" 
-                                    rowspan="3" 
-                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_biryola_maydoni"
+                                    name="col_biryola_maydoni"
+                                    rowspan="3"
+                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs"
                                     style="min-width: 80px;">
                                     майдони<br>(га)
                                 </th>
-                                <th id="th_col_biryola_boshlangich" 
-                                    name="col_biryola_boshlangich" 
-                                    rowspan="3" 
-                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_biryola_boshlangich"
+                                    name="col_biryola_boshlangich"
+                                    rowspan="3"
+                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs"
                                     style="min-width: 100px;">
                                     бошланғич<br>нархи<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_biryola_sotilgan" 
-                                    name="col_biryola_sotilgan" 
-                                    rowspan="3" 
-                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_biryola_sotilgan"
+                                    name="col_biryola_sotilgan"
+                                    rowspan="3"
+                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs"
                                     style="min-width: 100px;">
                                     сотилган<br>нархи<br>(млрд сўм)
                                 </th>
-                                
+
                                 <!-- Columns 13-15: шундан under Bir yo'la -->
-                                <th id="th_subsection_biryola_shundan" 
-                                    name="subsection_biryola_shundan" 
-                                    colspan="3" 
+                                <th id="th_subsection_biryola_shundan"
+                                    name="subsection_biryola_shundan"
+                                    colspan="3"
                                     class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">
                                     шундан
                                 </th>
-                                
+
                                 <!-- Columns 16-19: Bo'lib basic fields -->
-                                <th id="th_col_bolib_soni" 
-                                    name="col_bolib_soni" 
-                                    rowspan="3" 
-                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_bolib_soni"
+                                    name="col_bolib_soni"
+                                    rowspan="3"
+                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs"
                                     style="min-width: 60px;">
                                     сони
                                 </th>
-                                <th id="th_col_bolib_maydoni" 
-                                    name="col_bolib_maydoni" 
-                                    rowspan="3" 
-                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_bolib_maydoni"
+                                    name="col_bolib_maydoni"
+                                    rowspan="3"
+                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs"
                                     style="min-width: 80px;">
                                     майдони<br>(га)
                                 </th>
-                                <th id="th_col_bolib_boshlangich" 
-                                    name="col_bolib_boshlangich" 
-                                    rowspan="3" 
-                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_bolib_boshlangich"
+                                    name="col_bolib_boshlangich"
+                                    rowspan="3"
+                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs"
                                     style="min-width: 100px;">
                                     бошланғич<br>нархи<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_bolib_sotilgan" 
-                                    name="col_bolib_sotilgan" 
-                                    rowspan="3" 
-                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_bolib_sotilgan"
+                                    name="col_bolib_sotilgan"
+                                    rowspan="3"
+                                    class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs"
                                     style="min-width: 100px;">
                                     сотилган<br>нархи<br>(млрд сўм)
                                 </th>
-                                
+
                                 <!-- Columns 20-22: шундан under Bo'lib -->
-                                <th id="th_subsection_bolib_shundan" 
-                                    name="subsection_bolib_shundan" 
-                                    colspan="3" 
+                                <th id="th_subsection_bolib_shundan"
+                                    name="subsection_bolib_shundan"
+                                    colspan="3"
                                     class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">
                                     шундан
                                 </th>
@@ -273,55 +273,55 @@
                             <!-- HEADER ROW 4: Final Detail Level 1 -->
                             <tr id="header_row_4" style="background: #eff6ff !important;">
                                 <!-- Columns 6-7: Details under Jami shundan -->
-                                <th id="th_col_jami_chegirma" 
-                                    name="col_jami_chegirma" 
-                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_jami_chegirma"
+                                    name="col_jami_chegirma"
+                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs"
                                     style="min-width: 100px;">
                                     Чегирма<br>қиймати<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_jami_tushadigan" 
-                                    name="col_jami_tushadigan" 
-                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_jami_tushadigan"
+                                    name="col_jami_tushadigan"
+                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs"
                                     style="min-width: 120px;">
                                     Сотилган ер тўлови бўйича<br>тушадиган маблағ<br>(млрд сўм)
                                 </th>
-                                
+
                                 <!-- Columns 13-15: Details under Bir yo'la shundan -->
-                                <th id="th_col_biryola_chegirma" 
-                                    name="col_biryola_chegirma" 
-                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_biryola_chegirma"
+                                    name="col_biryola_chegirma"
+                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs"
                                     style="min-width: 90px;">
                                     чегирма<br>қиймати<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_biryola_tushadigan" 
-                                    name="col_biryola_tushadigan" 
-                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_biryola_tushadigan"
+                                    name="col_biryola_tushadigan"
+                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs"
                                     style="min-width: 120px;">
                                     сотилган ер<br>тўлови бўйича<br>тушадиган<br>маблағ<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_biryola_tushgan" 
-                                    name="col_biryola_tushgan" 
-                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_biryola_tushgan"
+                                    name="col_biryola_tushgan"
+                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs"
                                     style="min-width: 100px;">
                                     тушган<br>маблағ<br>(млрд сўм)
                                 </th>
-                                
+
                                 <!-- Columns 20-22: Details under Bo'lib shundan -->
-                                <th id="th_col_bolib_chegirma" 
-                                    name="col_bolib_chegirma" 
-                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_bolib_chegirma"
+                                    name="col_bolib_chegirma"
+                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs"
                                     style="min-width: 90px;">
                                     чегирма<br>қиймати<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_bolib_tushadigan" 
-                                    name="col_bolib_tushadigan" 
-                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_bolib_tushadigan"
+                                    name="col_bolib_tushadigan"
+                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs"
                                     style="min-width: 120px;">
                                     сотилган ер<br>тўлови бўйича<br>тушадиган<br>маблағ<br>(млрд сўм)
                                 </th>
-                                <th id="th_col_bolib_tushgan" 
-                                    name="col_bolib_tushgan" 
-                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" 
+                                <th id="th_col_bolib_tushgan"
+                                    name="col_bolib_tushgan"
+                                    class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs"
                                     style="min-width: 100px;">
                                     тушган<br>маблағ<br>(млрд сўм)
                                 </th>
@@ -332,236 +332,236 @@
                             <!-- JAMI ROW -->
                             <tr id="row_jami" name="row_total" class="bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100 border-y-2 border-amber-400">
                                 <!-- Column 0-1: Label -->
-                                <td id="td_jami_label" 
-                                    name="td_jami_label" 
-                                    colspan="2" 
+                                <td id="td_jami_label"
+                                    name="td_jami_label"
+                                    colspan="2"
                                     class="sticky-col border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-900 text-base uppercase bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100">
                                     ЖАМИ:
                                 </td>
-                                
+
                                 <!-- Column 2: Jami soni -->
-                                <td id="td_jami_soni" 
-                                    name="td_jami_soni" 
-                                    data-column="col_jami_soni" 
+                                <td id="td_jami_soni"
+                                    name="td_jami_soni"
+                                    data-column="col_jami_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     <a href="{{ route('yer-sotuvlar.list') }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                         {{ $statistics['jami']['jami']['soni'] }}
                                     </a>
                                 </td>
-                                
+
                                 <!-- Column 3: Jami maydoni -->
-                                <td id="td_jami_maydoni" 
-                                    name="td_jami_maydoni" 
-                                    data-column="col_jami_maydoni" 
+                                <td id="td_jami_maydoni"
+                                    name="td_jami_maydoni"
+                                    data-column="col_jami_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['jami']['maydoni'], 2) }}
                                 </td>
-                                
+
                                 <!-- Column 4: Jami boshlangich narx -->
-                                <td id="td_jami_boshlangich" 
-                                    name="td_jami_boshlangich" 
-                                    data-column="col_jami_boshlangich" 
+                                <td id="td_jami_boshlangich"
+                                    name="td_jami_boshlangich"
+                                    data-column="col_jami_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['jami']['boshlangich_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 5: Jami sotilgan narx -->
-                                <td id="td_jami_sotilgan" 
-                                    name="td_jami_sotilgan" 
-                                    data-column="col_jami_sotilgan" 
+                                <td id="td_jami_sotilgan"
+                                    name="td_jami_sotilgan"
+                                    data-column="col_jami_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['jami']['sotilgan_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 6: Jami chegirma -->
-                                <td id="td_jami_chegirma" 
-                                    name="td_jami_chegirma" 
-                                    data-column="col_jami_chegirma" 
+                                <td id="td_jami_chegirma"
+                                    name="td_jami_chegirma"
+                                    data-column="col_jami_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['jami']['chegirma'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 7: Jami tushadigan mablagh -->
-                                <td id="td_jami_tushadigan" 
-                                    name="td_jami_tushadigan" 
-                                    data-column="col_jami_tushadigan" 
+                                <td id="td_jami_tushadigan"
+                                    name="td_jami_tushadigan"
+                                    data-column="col_jami_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['jami']['tushadigan_mablagh'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 8: Jami tushgan mablagh -->
-                           <td id="td_jami_tushgan" 
-    name="td_jami_tushgan" 
-    data-column="col_jami_tushgan"
-    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-    {{ number_format($statistics['jami']['jami_tushgan_yigindi'] / 1000000000, 1) }}
-</td>
+                                <td id="td_jami_tushgan"
+                                    name="td_jami_tushgan"
+                                    data-column="col_jami_tushgan"
+                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+                                    {{ number_format($statistics['jami']['jami_tushgan_yigindi'] / 1000000000, 1) }}
+                                </td>
                                 <!-- Column 9: Bir yo'la soni -->
-                                <td id="td_biryola_soni" 
-                                    name="td_biryola_soni" 
-                                    data-column="col_biryola_soni" 
+                                <td id="td_biryola_soni"
+                                    name="td_biryola_soni"
+                                    data-column="col_biryola_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                         {{ $statistics['jami']['bir_yola']['soni'] }}
                                     </a>
                                 </td>
-                                
+
                                 <!-- Column 10: Bir yo'la maydoni -->
-                                <td id="td_biryola_maydoni" 
-                                    name="td_biryola_maydoni" 
-                                    data-column="col_biryola_maydoni" 
+                                <td id="td_biryola_maydoni"
+                                    name="td_biryola_maydoni"
+                                    data-column="col_biryola_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['bir_yola']['maydoni'], 2) }}
                                 </td>
-                                
+
                                 <!-- Column 11: Bir yo'la boshlangich -->
-                                <td id="td_biryola_boshlangich" 
-                                    name="td_biryola_boshlangich" 
-                                    data-column="col_biryola_boshlangich" 
+                                <td id="td_biryola_boshlangich"
+                                    name="td_biryola_boshlangich"
+                                    data-column="col_biryola_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['bir_yola']['boshlangich_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 12: Bir yo'la sotilgan -->
-                                <td id="td_biryola_sotilgan" 
-                                    name="td_biryola_sotilgan" 
-                                    data-column="col_biryola_sotilgan" 
+                                <td id="td_biryola_sotilgan"
+                                    name="td_biryola_sotilgan"
+                                    data-column="col_biryola_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['bir_yola']['sotilgan_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 13: Bir yo'la chegirma -->
-                                <td id="td_biryola_chegirma" 
-                                    name="td_biryola_chegirma" 
-                                    data-column="col_biryola_chegirma" 
+                                <td id="td_biryola_chegirma"
+                                    name="td_biryola_chegirma"
+                                    data-column="col_biryola_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['bir_yola']['chegirma'] / 1000000000, 1) }}
                                 </td>
-                                
-       <!-- Column 14: Bir yo'la tushadigan -->
-<td id="td_biryola_tushadigan" 
-    name="td_biryola_tushadigan" 
-    data-column="col_biryola_tushadigan"
-    class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-    {{ number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1) }}
-</td>
 
-<!-- Column 15: Bir yo'la tushgan -->
-<td id="td_biryola_tushgan" 
-    name="td_biryola_tushgan" 
-    data-column="col_biryola_tushgan"
-    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-    {{ number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1) }}
-</td>
+                                <!-- Column 14: Bir yo'la tushadigan -->
+                                <td id="td_biryola_tushadigan"
+                                    name="td_biryola_tushadigan"
+                                    data-column="col_biryola_tushadigan"
+                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
+                                    {{ number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                </td>
 
-                                
+                                <!-- Column 15: Bir yo'la tushgan -->
+                                <td id="td_biryola_tushgan"
+                                    name="td_biryola_tushgan"
+                                    data-column="col_biryola_tushgan"
+                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+                                    {{ number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1) }}
+                                </td>
+
+
                                 <!-- Column 16: Bo'lib soni -->
-                                <td id="td_bolib_soni" 
-                                    name="td_bolib_soni" 
-                                    data-column="col_bolib_soni" 
+                                <td id="td_bolib_soni"
+                                    name="td_bolib_soni"
+                                    data-column="col_bolib_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                         {{ $statistics['jami']['bolib']['soni'] }}
                                     </a>
                                 </td>
-                                
+
                                 <!-- Column 17: Bo'lib maydoni -->
-                                <td id="td_bolib_maydoni" 
-                                    name="td_bolib_maydoni" 
-                                    data-column="col_bolib_maydoni" 
+                                <td id="td_bolib_maydoni"
+                                    name="td_bolib_maydoni"
+                                    data-column="col_bolib_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['bolib']['maydoni'], 2) }}
                                 </td>
-                                
+
                                 <!-- Column 18: Bo'lib boshlangich -->
-                                <td id="td_bolib_boshlangich" 
-                                    name="td_bolib_boshlangich" 
-                                    data-column="col_bolib_boshlangich" 
+                                <td id="td_bolib_boshlangich"
+                                    name="td_bolib_boshlangich"
+                                    data-column="col_bolib_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['bolib']['boshlangich_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 19: Bo'lib sotilgan -->
-                                <td id="td_bolib_sotilgan" 
-                                    name="td_bolib_sotilgan" 
-                                    data-column="col_bolib_sotilgan" 
+                                <td id="td_bolib_sotilgan"
+                                    name="td_bolib_sotilgan"
+                                    data-column="col_bolib_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['bolib']['sotilgan_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 20: Bo'lib chegirma -->
-                                <td id="td_bolib_chegirma" 
-                                    name="td_bolib_chegirma" 
-                                    data-column="col_bolib_chegirma" 
+                                <td id="td_bolib_chegirma"
+                                    name="td_bolib_chegirma"
+                                    data-column="col_bolib_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['bolib']['chegirma'] / 1000000000, 1) }}
                                 </td>
-                 
-<!-- Column 21: Bo'lib tushadigan -->
-<td id="td_bolib_tushadigan" 
-    name="td_bolib_tushadigan" 
-    data-column="col_bolib_tushadigan"
-    class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-    {{ number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1) }}
-</td>
 
-<!-- Column 22: Bo'lib tushgan -->
-<td id="td_bolib_tushgan" 
-    name="td_bolib_tushgan" 
-    data-column="col_bolib_tushgan"
-    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-    {{ number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1) }}
-</td>
+                                <!-- Column 21: Bo'lib tushadigan -->
+                                <td id="td_bolib_tushadigan"
+                                    name="td_bolib_tushadigan"
+                                    data-column="col_bolib_tushadigan"
+                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
+                                    {{ number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1) }}
+                                </td>
 
-                                
+                                <!-- Column 22: Bo'lib tushgan -->
+                                <td id="td_bolib_tushgan"
+                                    name="td_bolib_tushgan"
+                                    data-column="col_bolib_tushgan"
+                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+                                    {{ number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1) }}
+                                </td>
+
+
                                 <!-- Column 23: Auksion soni -->
-                                <td id="td_auksion_soni" 
-                                    name="td_auksion_soni" 
-                                    data-column="col_auksion_soni" 
+                                <td id="td_auksion_soni"
+                                    name="td_auksion_soni"
+                                    data-column="col_auksion_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     <a href="{{ route('yer-sotuvlar.list', ['auksonda_turgan' => 'true']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                         {{ $statistics['jami']['auksonda']['soni'] }}
                                     </a>
                                 </td>
-                                
+
                                 <!-- Column 24: Auksion maydoni -->
-                                <td id="td_auksion_maydoni" 
-                                    name="td_auksion_maydoni" 
-                                    data-column="col_auksion_maydoni" 
+                                <td id="td_auksion_maydoni"
+                                    name="td_auksion_maydoni"
+                                    data-column="col_auksion_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['auksonda']['maydoni'], 2) }}
                                 </td>
-                                
+
                                 <!-- Column 25: Auksion boshlangich -->
-                                <td id="td_auksion_boshlangich" 
-                                    name="td_auksion_boshlangich" 
-                                    data-column="col_auksion_boshlangich" 
+                                <td id="td_auksion_boshlangich"
+                                    name="td_auksion_boshlangich"
+                                    data-column="col_auksion_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['auksonda']['boshlangich_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 26: Auksion sotilgan -->
-                                <td id="td_auksion_sotilgan" 
-                                    name="td_auksion_sotilgan" 
-                                    data-column="col_auksion_sotilgan" 
+                                <td id="td_auksion_sotilgan"
+                                    name="td_auksion_sotilgan"
+                                    data-column="col_auksion_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['auksonda']['sotilgan_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 27: Mulk qabul soni -->
-                                <td id="td_mulk_soni" 
-                                    name="td_mulk_soni" 
-                                    data-column="col_mulk_soni" 
+                                <td id="td_mulk_soni"
+                                    name="td_mulk_soni"
+                                    data-column="col_mulk_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     <a href="{{ route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida (34)']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                         {{ $statistics['jami']['mulk_qabul']['soni'] }}
                                     </a>
                                 </td>
-                                
+
                                 <!-- Column 28: Mulk qabul mablagh -->
-                                <td id="td_mulk_mablagh" 
-                                    name="td_mulk_mablagh" 
-                                    data-column="col_mulk_mablagh" 
+                                <td id="td_mulk_mablagh"
+                                    name="td_mulk_mablagh"
+                                    data-column="col_mulk_mablagh"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['mulk_qabul']['auksion_mablagh'] / 1000000000, 1) }}
                                 </td>
@@ -569,270 +569,270 @@
 
                             <!-- TUMANLAR ROWS -->
                             @foreach($statistics['tumanlar'] as $index => $tuman)
-                            <tr id="row_tuman_{{ $index }}" 
-                                name="row_tuman_{{ Str::slug($tuman['tuman']) }}" 
+                            <tr id="row_tuman_{{ $index }}"
+                                name="row_tuman_{{ Str::slug($tuman['tuman']) }}"
                                 data-tuman="{{ $tuman['tuman'] }}"
                                 class="hover:bg-blue-50 transition-colors duration-150 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">
-                                
+
                                 <!-- Column 0: T/r -->
-                                <td id="td_tuman_{{ $index }}_tr" 
-                                    name="td_tuman_{{ $index }}_tr" 
+                                <td id="td_tuman_{{ $index }}_tr"
+                                    name="td_tuman_{{ $index }}_tr"
                                     data-column="col_tr"
                                     class="sticky-col border border-slate-400 px-3 py-3 text-center align-middle font-medium text-slate-700">
                                     {{ $index + 1 }}
                                 </td>
-                                
+
                                 <!-- Column 1: Hudud -->
-                                <td id="td_tuman_{{ $index }}_hudud" 
-                                    name="td_tuman_{{ $index }}_hudud" 
+                                <td id="td_tuman_{{ $index }}_hudud"
+                                    name="td_tuman_{{ $index }}_hudud"
                                     data-column="col_hudud"
                                     class="sticky-col-2 border border-slate-400 px-3 py-3 align-middle font-semibold text-slate-800">
                                     {{ $tuman['tuman'] }}
                                 </td>
-                                
+
                                 <!-- Column 2: Jami soni -->
-                                <td id="td_tuman_{{ $index }}_jami_soni" 
-                                    name="td_tuman_{{ $index }}_jami_soni" 
+                                <td id="td_tuman_{{ $index }}_jami_soni"
+                                    name="td_tuman_{{ $index }}_jami_soni"
                                     data-column="col_jami_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     @if($tuman['jami']['soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['jami']['soni'] }}
-                                        </a>
+                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        {{ $tuman['jami']['soni'] }}
+                                    </a>
                                     @else
-                                        0
+                                    0
                                     @endif
                                 </td>
-                                
+
                                 <!-- Column 3: Jami maydoni -->
-                                <td id="td_tuman_{{ $index }}_jami_maydoni" 
-                                    name="td_tuman_{{ $index }}_jami_maydoni" 
+                                <td id="td_tuman_{{ $index }}_jami_maydoni"
+                                    name="td_tuman_{{ $index }}_jami_maydoni"
                                     data-column="col_jami_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['jami']['maydoni'], 2) }}
                                 </td>
-                                
+
                                 <!-- Column 4: Jami boshlangich -->
-                                <td id="td_tuman_{{ $index }}_jami_boshlangich" 
-                                    name="td_tuman_{{ $index }}_jami_boshlangich" 
+                                <td id="td_tuman_{{ $index }}_jami_boshlangich"
+                                    name="td_tuman_{{ $index }}_jami_boshlangich"
                                     data-column="col_jami_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['jami']['boshlangich_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 5: Jami sotilgan -->
-                                <td id="td_tuman_{{ $index }}_jami_sotilgan" 
-                                    name="td_tuman_{{ $index }}_jami_sotilgan" 
+                                <td id="td_tuman_{{ $index }}_jami_sotilgan"
+                                    name="td_tuman_{{ $index }}_jami_sotilgan"
                                     data-column="col_jami_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['jami']['sotilgan_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 6: Jami chegirma -->
-                                <td id="td_tuman_{{ $index }}_jami_chegirma" 
-                                    name="td_tuman_{{ $index }}_jami_chegirma" 
+                                <td id="td_tuman_{{ $index }}_jami_chegirma"
+                                    name="td_tuman_{{ $index }}_jami_chegirma"
                                     data-column="col_jami_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['jami']['chegirma'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 7: Jami tushadigan -->
-                                <td id="td_tuman_{{ $index }}_jami_tushadigan" 
-                                    name="td_tuman_{{ $index }}_jami_tushadigan" 
+                                <td id="td_tuman_{{ $index }}_jami_tushadigan"
+                                    name="td_tuman_{{ $index }}_jami_tushadigan"
                                     data-column="col_jami_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['jami']['tushadigan_mablagh'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 8: Jami tushgan -->
-                            <td id="td_tuman_{{ $index }}_jami_tushgan" 
-        name="td_tuman_{{ $index }}_jami_tushgan" 
-        data-column="col_jami_tushgan"
-        class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-        {{ number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1) }}
-    </td>
-                                
+                                <td id="td_tuman_{{ $index }}_jami_tushgan"
+                                    name="td_tuman_{{ $index }}_jami_tushgan"
+                                    data-column="col_jami_tushgan"
+                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+                                    {{ number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1) }}
+                                </td>
+
                                 <!-- Column 9: Bir yo'la soni -->
-                                <td id="td_tuman_{{ $index }}_biryola_soni" 
-                                    name="td_tuman_{{ $index }}_biryola_soni" 
+                                <td id="td_tuman_{{ $index }}_biryola_soni"
+                                    name="td_tuman_{{ $index }}_biryola_soni"
                                     data-column="col_biryola_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     @if($tuman['bir_yola']['soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли эмас']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['bir_yola']['soni'] }}
-                                        </a>
+                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли эмас']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        {{ $tuman['bir_yola']['soni'] }}
+                                    </a>
                                     @else
-                                        0
+                                    0
                                     @endif
                                 </td>
-                                
+
                                 <!-- Column 10: Bir yo'la maydoni -->
-                                <td id="td_tuman_{{ $index }}_biryola_maydoni" 
-                                    name="td_tuman_{{ $index }}_biryola_maydoni" 
+                                <td id="td_tuman_{{ $index }}_biryola_maydoni"
+                                    name="td_tuman_{{ $index }}_biryola_maydoni"
                                     data-column="col_biryola_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['bir_yola']['maydoni'], 2) }}
                                 </td>
-                                
+
                                 <!-- Column 11: Bir yo'la boshlangich -->
-                                <td id="td_tuman_{{ $index }}_biryola_boshlangich" 
-                                    name="td_tuman_{{ $index }}_biryola_boshlangich" 
+                                <td id="td_tuman_{{ $index }}_biryola_boshlangich"
+                                    name="td_tuman_{{ $index }}_biryola_boshlangich"
                                     data-column="col_biryola_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['bir_yola']['boshlangich_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 12: Bir yo'la sotilgan -->
-                                <td id="td_tuman_{{ $index }}_biryola_sotilgan" 
-                                    name="td_tuman_{{ $index }}_biryola_sotilgan" 
+                                <td id="td_tuman_{{ $index }}_biryola_sotilgan"
+                                    name="td_tuman_{{ $index }}_biryola_sotilgan"
                                     data-column="col_biryola_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['bir_yola']['sotilgan_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 13: Bir yo'la chegirma -->
-                                <td id="td_tuman_{{ $index }}_biryola_chegirma" 
-                                    name="td_tuman_{{ $index }}_biryola_chegirma" 
+                                <td id="td_tuman_{{ $index }}_biryola_chegirma"
+                                    name="td_tuman_{{ $index }}_biryola_chegirma"
                                     data-column="col_biryola_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['bir_yola']['chegirma'] / 1000000000, 1) }}
                                 </td>
-                                
-                                
-    <!-- Column 14: Bir yo'la tushadigan -->
-    <td id="td_tuman_{{ $index }}_biryola_tushadigan" 
-        name="td_tuman_{{ $index }}_biryola_tushadigan" 
-        data-column="col_biryola_tushadigan"
-        class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-        {{ number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1) }}
-    </td>
-    
-    <!-- Column 15: Bir yo'la tushgan -->
-    <td id="td_tuman_{{ $index }}_biryola_tushgan" 
-        name="td_tuman_{{ $index }}_biryola_tushgan" 
-        data-column="col_biryola_tushgan"
-        class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-        {{ number_format($tuman['biryola_fakt'] / 1000000000, 1) }}
-    </td>
-    
-                                
+
+
+                                <!-- Column 14: Bir yo'la tushadigan -->
+                                <td id="td_tuman_{{ $index }}_biryola_tushadigan"
+                                    name="td_tuman_{{ $index }}_biryola_tushadigan"
+                                    data-column="col_biryola_tushadigan"
+                                    class="border border-slate-400 px-3 py-3 text-right text-slate-700">
+                                    {{ number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                </td>
+
+                                <!-- Column 15: Bir yo'la tushgan -->
+                                <td id="td_tuman_{{ $index }}_biryola_tushgan"
+                                    name="td_tuman_{{ $index }}_biryola_tushgan"
+                                    data-column="col_biryola_tushgan"
+                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+                                    {{ number_format($tuman['biryola_fakt'] / 1000000000, 1) }}
+                                </td>
+
+
                                 <!-- Column 16: Bo'lib soni -->
-                                <td id="td_tuman_{{ $index }}_bolib_soni" 
-                                    name="td_tuman_{{ $index }}_bolib_soni" 
+                                <td id="td_tuman_{{ $index }}_bolib_soni"
+                                    name="td_tuman_{{ $index }}_bolib_soni"
                                     data-column="col_bolib_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     @if($tuman['bolib']['soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['bolib']['soni'] }}
-                                        </a>
+                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        {{ $tuman['bolib']['soni'] }}
+                                    </a>
                                     @else
-                                        0
+                                    0
                                     @endif
                                 </td>
-                                
+
                                 <!-- Column 17: Bo'lib maydoni -->
-                                <td id="td_tuman_{{ $index }}_bolib_maydoni" 
-                                    name="td_tuman_{{ $index }}_bolib_maydoni" 
+                                <td id="td_tuman_{{ $index }}_bolib_maydoni"
+                                    name="td_tuman_{{ $index }}_bolib_maydoni"
                                     data-column="col_bolib_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['bolib']['maydoni'], 2) }}
                                 </td>
-                                
+
                                 <!-- Column 18: Bo'lib boshlangich -->
-                                <td id="td_tuman_{{ $index }}_bolib_boshlangich" 
-                                    name="td_tuman_{{ $index }}_bolib_boshlangich" 
+                                <td id="td_tuman_{{ $index }}_bolib_boshlangich"
+                                    name="td_tuman_{{ $index }}_bolib_boshlangich"
                                     data-column="col_bolib_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['bolib']['boshlangich_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 19: Bo'lib sotilgan -->
-                                <td id="td_tuman_{{ $index }}_bolib_sotilgan" 
-                                    name="td_tuman_{{ $index }}_bolib_sotilgan" 
+                                <td id="td_tuman_{{ $index }}_bolib_sotilgan"
+                                    name="td_tuman_{{ $index }}_bolib_sotilgan"
                                     data-column="col_bolib_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['bolib']['sotilgan_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 20: Bo'lib chegirma -->
-                                <td id="td_tuman_{{ $index }}_bolib_chegirma" 
-                                    name="td_tuman_{{ $index }}_bolib_chegirma" 
+                                <td id="td_tuman_{{ $index }}_bolib_chegirma"
+                                    name="td_tuman_{{ $index }}_bolib_chegirma"
                                     data-column="col_bolib_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['bolib']['chegirma'] / 1000000000, 1) }}
                                 </td>
-                                
-                             <!-- Column 21: Bo'lib tushadigan -->
-    <td id="td_tuman_{{ $index }}_bolib_tushadigan" 
-        name="td_tuman_{{ $index }}_bolib_tushadigan" 
-        data-column="col_bolib_tushadigan"
-        class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-        {{ number_format($tuman['bolib_tushadigan'] / 1000000000, 1) }}
-    </td>
-    
-    <!-- Column 22: Bo'lib tushgan -->
-    <td id="td_tuman_{{ $index }}_bolib_tushgan" 
-        name="td_tuman_{{ $index }}_bolib_tushgan" 
-        data-column="col_bolib_tushgan"
-        class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-        {{ number_format($tuman['bolib_tushgan'] / 1000000000, 1) }}
-    </td>
-                                
+
+                                <!-- Column 21: Bo'lib tushadigan -->
+                                <td id="td_tuman_{{ $index }}_bolib_tushadigan"
+                                    name="td_tuman_{{ $index }}_bolib_tushadigan"
+                                    data-column="col_bolib_tushadigan"
+                                    class="border border-slate-400 px-3 py-3 text-right text-slate-700">
+                                    {{ number_format($tuman['bolib_tushadigan'] / 1000000000, 1) }}
+                                </td>
+
+                                <!-- Column 22: Bo'lib tushgan -->
+                                <td id="td_tuman_{{ $index }}_bolib_tushgan"
+                                    name="td_tuman_{{ $index }}_bolib_tushgan"
+                                    data-column="col_bolib_tushgan"
+                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+                                    {{ number_format($tuman['bolib_tushgan'] / 1000000000, 1) }}
+                                </td>
+
                                 <!-- Column 23: Auksion soni -->
-                                <td id="td_tuman_{{ $index }}_auksion_soni" 
-                                    name="td_tuman_{{ $index }}_auksion_soni" 
+                                <td id="td_tuman_{{ $index }}_auksion_soni"
+                                    name="td_tuman_{{ $index }}_auksion_soni"
                                     data-column="col_auksion_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     @if($tuman['auksonda']['soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'auksonda_turgan' => 'true']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['auksonda']['soni'] }}
-                                        </a>
+                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'auksonda_turgan' => 'true']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        {{ $tuman['auksonda']['soni'] }}
+                                    </a>
                                     @else
-                                        0
+                                    0
                                     @endif
                                 </td>
-                                
+
                                 <!-- Column 24: Auksion maydoni -->
-                                <td id="td_tuman_{{ $index }}_auksion_maydoni" 
-                                    name="td_tuman_{{ $index }}_auksion_maydoni" 
+                                <td id="td_tuman_{{ $index }}_auksion_maydoni"
+                                    name="td_tuman_{{ $index }}_auksion_maydoni"
                                     data-column="col_auksion_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['auksonda']['maydoni'], 2) }}
                                 </td>
-                                
+
                                 <!-- Column 25: Auksion boshlangich -->
-                                <td id="td_tuman_{{ $index }}_auksion_boshlangich" 
-                                    name="td_tuman_{{ $index }}_auksion_boshlangich" 
+                                <td id="td_tuman_{{ $index }}_auksion_boshlangich"
+                                    name="td_tuman_{{ $index }}_auksion_boshlangich"
                                     data-column="col_auksion_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['auksonda']['boshlangich_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 26: Auksion sotilgan -->
-                                <td id="td_tuman_{{ $index }}_auksion_sotilgan" 
-                                    name="td_tuman_{{ $index }}_auksion_sotilgan" 
+                                <td id="td_tuman_{{ $index }}_auksion_sotilgan"
+                                    name="td_tuman_{{ $index }}_auksion_sotilgan"
                                     data-column="col_auksion_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['auksonda']['sotilgan_narx'] / 1000000000, 1) }}
                                 </td>
-                                
+
                                 <!-- Column 27: Mulk qabul soni -->
-                                <td id="td_tuman_{{ $index }}_mulk_soni" 
-                                    name="td_tuman_{{ $index }}_mulk_soni" 
+                                <td id="td_tuman_{{ $index }}_mulk_soni"
+                                    name="td_tuman_{{ $index }}_mulk_soni"
                                     data-column="col_mulk_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     @if($tuman['mulk_qabul']['soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida (34)']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['mulk_qabul']['soni'] }}
-                                        </a>
+                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida (34)']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        {{ $tuman['mulk_qabul']['soni'] }}
+                                    </a>
                                     @else
-                                        0
+                                    0
                                     @endif
                                 </td>
-                                
+
                                 <!-- Column 28: Mulk qabul mablagh -->
-                                <td id="td_tuman_{{ $index }}_mulk_mablagh" 
-                                    name="td_tuman_{{ $index }}_mulk_mablagh" 
+                                <td id="td_tuman_{{ $index }}_mulk_mablagh"
+                                    name="td_tuman_{{ $index }}_mulk_mablagh"
                                     data-column="col_mulk_mablagh"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                     {{ number_format($tuman['mulk_qabul']['auksion_mablagh'] / 1000000000, 1) }}
@@ -913,9 +913,12 @@
     }
 
     @media print {
-        .sticky-col, .sticky-col-2 {
+
+        .sticky-col,
+        .sticky-col-2 {
             position: static;
         }
+
         body {
             background: white;
         }
