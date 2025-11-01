@@ -439,7 +439,7 @@ class YerSotuvController extends Controller
     }
 
     // ✅ NEW METHOD: Calculate additional columns based on images
-   private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters = [])
+private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters = [])
 {
     // Get base data
     $jami = $this->getTumanData($tumanPatterns, null, $dateFilters);
@@ -463,8 +463,8 @@ class YerSotuvController extends Controller
         $auksionHarajatiBolib = YerSotuv::whereIn('lot_raqami', $bolibLots)->sum('auksion_harajati');
     }
 
-    // Get golib_tolagan for bir yo'la
-    $golibTolaganBirYola = YerSotuv::query()
+    // Get bir yo'la data with proper filters
+    $birYolaQuery = YerSotuv::query()
         ->when($tumanPatterns, function($q) use ($tumanPatterns) {
             $q->where(function ($query) use ($tumanPatterns) {
                 foreach ($tumanPatterns as $pattern) {
@@ -478,8 +478,21 @@ class YerSotuvController extends Controller
         })
         ->when(!empty($dateFilters['auksion_sana_to']), function($q) use ($dateFilters) {
             $q->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
-        })
-        ->sum('golib_tolagan');
+        });
+
+    // Get golib_tolagan for bir yo'la
+    $golibTolaganBirYola = (clone $birYolaQuery)->sum('golib_tolagan');
+
+    // Get Mulk Qabul Qilmagan amount for bir yo'la (ПФ-135, holat 34)
+    $mulkQabulBirYola = (clone $birYolaQuery)
+        ->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%')
+        ->where('asos', 'ПФ-135')
+        ->selectRaw('
+            SUM(COALESCE(golib_tolagan, 0) - COALESCE(auksion_harajati, 0)) as mulk_qabul_mablagh
+        ')
+        ->first();
+
+    $mulkQabulMablaghBirYola = $mulkQabulBirYola->mulk_qabul_mablagh ?? 0;
 
     // Get golib_tolagan for bo'lib
     $golibTolaganBolib = YerSotuv::query()
@@ -517,9 +530,9 @@ class YerSotuvController extends Controller
         })
         ->sum('shartnoma_summasi');
 
-    // Column: Bir yo'la - golib tolagan minus 1% fee
+    // Column: Bir yo'la - golib tolagan minus 1% fee minus Mulk Qabul Qilmagan
     $auksionXizmatHaqiBirYola = $golibTolaganBirYola * 0.01;
-    $column_biryola_tushgan_minus_fee = $golibTolaganBirYola - $auksionXizmatHaqiBirYola;
+    $column_biryola_tushgan_minus_fee = $golibTolaganBirYola - $auksionXizmatHaqiBirYola - $mulkQabulMablaghBirYola;
 
     // Column: Bo'lib - golib tolagan minus 1% fee
     $auksionXizmatHaqiBolib = $golibTolaganBolib * 0.01;
