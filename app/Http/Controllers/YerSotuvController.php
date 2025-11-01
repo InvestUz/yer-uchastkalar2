@@ -800,7 +800,7 @@ private function getMulkQabulQilmagan($tumanPatterns = null, $dateFilters = [])
 
     $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%');
     $query->where('asos', 'ПФ-135');
-    $query->where('tolov_turi', 'муддатли эмас');
+    // $query->where('tolov_turi', 'муддатли эмас');
 
     if (!empty($dateFilters['auksion_sana_from'])) {
         $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
