@@ -116,7 +116,6 @@ class YerSotuvController extends Controller
             SUM(sotilgan_narx) as sotilgan_narx,
             SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
         ')->first();
-
         return [
             'soni' => $data->soni ?? 0,
             'maydoni' => $data->maydoni ?? 0,
@@ -172,7 +171,6 @@ class YerSotuvController extends Controller
         ')->first();
 
         $tushganSumma = $data->T_total ?? 0;
-
         return [
             'soni' => $data->soni ?? 0,
             'maydoni' => $data->maydoni ?? 0,
@@ -732,16 +730,16 @@ class YerSotuvController extends Controller
         }
 
         $tushadiganData = $queryTushadigan->selectRaw('
-            SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh
+            SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as tushadigan_mablagh,
+            SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
         ')->first();
-
         return [
             'soni' => $data->soni ?? 0,
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
             'chegirma' => $data->chegirma ?? 0,
-            'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh ?? 0
+            'tushadigan_mablagh' => $tushadiganData->tushadigan_mablagh - $tushadiganData->auksion_harajati ?? 0
         ];
     }
 
