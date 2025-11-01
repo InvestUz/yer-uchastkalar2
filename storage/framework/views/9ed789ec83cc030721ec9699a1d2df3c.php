@@ -587,7 +587,8 @@
                                     name="td_mulk_mablagh"
                                     data-column="col_mulk_mablagh"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <?php echo e(number_format($statistics['jami']['mulk_qabul']['auksion_mablagh'] / 1000000000, 1)); ?> zzz
+                                    <?php echo e(number_format($statistics['jami']['mulk_qabul']['auksion_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
                             </tr>
 
