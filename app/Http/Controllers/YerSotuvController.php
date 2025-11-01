@@ -447,10 +447,10 @@ class YerSotuvController extends Controller
     $jami = $this->getTumanData($tumanPatterns, null, $dateFilters);
     $birYola = $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters);
     $bolib = $this->getTumanData($tumanPatterns, 'муддатли', $dateFilters);
-    
+
     // Get lot numbers for bo'lib to'lash
     $bolibLots = $this->getBolibLotlar($tumanPatterns, $dateFilters);
-    
+
     // Calculate fakt tolovlar (actual payments received) for bo'lib
     $faktTolovlarBolib = 0;
     if (!empty($bolibLots)) {
@@ -458,13 +458,13 @@ class YerSotuvController extends Controller
             ->whereIn('lot_raqami', $bolibLots)
             ->sum('tolov_summa');
     }
-    
+
     // Get auksion harajati for bo'lib
     $auksionHarajatiBolib = 0;
     if (!empty($bolibLots)) {
         $auksionHarajatiBolib = YerSotuv::whereIn('lot_raqami', $bolibLots)->sum('auksion_harajati');
     }
-    
+
     // Get golib_tolagan for bir yo'la
     $golibTolaganBirYola = YerSotuv::query()
         ->when($tumanPatterns, function($q) use ($tumanPatterns) {
@@ -482,7 +482,7 @@ class YerSotuvController extends Controller
             $q->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
         })
         ->sum('golib_tolagan');
-    
+
     // Get golib_tolagan for bo'lib
     $golibTolaganBolib = YerSotuv::query()
         ->when($tumanPatterns, function($q) use ($tumanPatterns) {
@@ -500,7 +500,7 @@ class YerSotuvController extends Controller
             $q->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
         })
         ->sum('golib_tolagan');
-    
+
     // Get shartnoma summasi for bo'lib
     $shartnomaByYigindi = YerSotuv::query()
         ->when($tumanPatterns, function($q) use ($tumanPatterns) {
@@ -518,30 +518,30 @@ class YerSotuvController extends Controller
             $q->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
         })
         ->sum('shartnoma_summasi');
-    
+
     // Column: Bir yo'la - golib tolagan minus 1% fee
     $auksionXizmatHaqiBirYola = $golibTolaganBirYola * 0.01;
     $column_biryola_tushgan_minus_fee = $golibTolaganBirYola - $auksionXizmatHaqiBirYola;
-    
+
     // Column: Bo'lib - golib tolagan minus 1% fee
     $auksionXizmatHaqiBolib = $golibTolaganBolib * 0.01;
     $column_bolib_golib_minus_fee = $golibTolaganBolib - $auksionXizmatHaqiBolib;
-    
+
     // Column: Bo'lib tushadigan (golib + shartnoma - 1% fee)
     $column_bolib_tushadigan = $golibTolaganBolib + $shartnomaByYigindi - $auksionXizmatHaqiBolib;
-    
+
     // Column: Bo'lib tushgan (fakt + golib - 1% fee)
     $column_bolib_tushgan = $faktTolovlarBolib + $column_bolib_golib_minus_fee;
-    
+
     // Column: Jami tushgan (bir yo'la + bo'lib)
     $column_jami_tushgan_yigindi = $column_biryola_tushgan_minus_fee + $column_bolib_tushgan;
-    
+
     // Get auksonda data
     $auksonda = $this->getAuksondaTurgan($tumanPatterns, $dateFilters);
-    
+
     // Column: Jami tushadigan + auksion
     $column_jami_tushadigan_plus_auksion = $jami['tushadigan_mablagh'] + $auksonda['sotilgan_narx'];
-    
+
     return [
         'jami_tushadigan_plus_auksion' => $column_jami_tushadigan_plus_auksion,
         'jami_tushgan_yigindi' => $column_jami_tushgan_yigindi,
@@ -552,11 +552,11 @@ class YerSotuvController extends Controller
         'bolib_tushgan' => $column_bolib_tushgan,
     ];
 }
-    
+
     private function getBolibLotlar($tumanPatterns = null, $dateFilters = [])
     {
         $query = YerSotuv::query();
-        
+
         if ($tumanPatterns !== null && !empty($tumanPatterns)) {
             $query->where(function ($q) use ($tumanPatterns) {
                 foreach ($tumanPatterns as $pattern) {
@@ -564,16 +564,16 @@ class YerSotuvController extends Controller
                 }
             });
         }
-        
+
         $query->where('tolov_turi', 'муддатли');
-        
+
         if (!empty($dateFilters['auksion_sana_from'])) {
             $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
         }
         if (!empty($dateFilters['auksion_sana_to'])) {
             $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
         }
-        
+
         return $query->pluck('lot_raqami')->toArray();
     }
 
@@ -598,16 +598,16 @@ class YerSotuvController extends Controller
 
         foreach ($tumanlar as $tuman) {
             $stat = $this->calculateTumanStatistics($tuman, $dateFilters);
-            
+
             // ✅ ADD: Calculate additional columns
             $additionalCols = $this->calculateAdditionalColumns(
-                $stat['tuman_patterns'], 
+                $stat['tuman_patterns'],
                 $dateFilters
             );
-            
+
             // Merge additional columns into statistics
             $stat = array_merge($stat, $additionalCols);
-            
+
             $statistics[] = $stat;
         }
 
@@ -618,7 +618,7 @@ class YerSotuvController extends Controller
             'auksonda' => $this->getAuksondaTurgan(null, $dateFilters),
             'mulk_qabul' => $this->getMulkQabulQilmagan(null, $dateFilters)
         ];
-        
+
         // ✅ ADD: Calculate additional columns for JAMI
         $additionalColsJami = $this->calculateAdditionalColumns(null, $dateFilters);
         $jami = array_merge($jami, $additionalColsJami);
@@ -786,43 +786,77 @@ class YerSotuvController extends Controller
             'golib_tolagan' => $data->golib_tolagan ?? 0,
         ];
     }
+private function getMulkQabulQilmagan($tumanPatterns = null, $dateFilters = [])
+{
+    $query = YerSotuv::query();
 
-    private function getMulkQabulQilmagan($tumanPatterns = null, $dateFilters = [])
-    {
-        $query = YerSotuv::query();
-
-        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
-            $query->where(function ($q) use ($tumanPatterns) {
-                foreach ($tumanPatterns as $pattern) {
-                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-                }
-            });
-        }
-
-        $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%');
-        $query->where('asos', 'ПФ-135');
-
-        if (!empty($dateFilters['auksion_sana_from'])) {
-            $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
-        }
-        if (!empty($dateFilters['auksion_sana_to'])) {
-            $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
-        }
-
-        $data = $query->selectRaw('
-            COUNT(*) as soni,
-            SUM(CASE
-                WHEN davaktivda_turgan IS NOT NULL AND davaktivda_turgan > 0
-                THEN davaktivda_turgan
-                ELSE sotilgan_narx
-            END) as auksion_mablagh
-        ')->first();
-
-        return [
-            'soni' => $data->soni ?? 0,
-            'auksion_mablagh' => $data->auksion_mablagh ?? 0
-        ];
+    if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+        $query->where(function ($q) use ($tumanPatterns) {
+            foreach ($tumanPatterns as $pattern) {
+                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+            }
+        });
     }
+
+    $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%');
+    $query->where('asos', 'ПФ-135');
+    $query->where('tolov_turi', 'муддатли эмас');
+
+    if (!empty($dateFilters['auksion_sana_from'])) {
+        $query->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+    }
+    if (!empty($dateFilters['auksion_sana_to'])) {
+        $query->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+    }
+
+    // Clone query for debugging
+    $debugQuery = clone $query;
+    $lots = $debugQuery->get(['id', 'lot_raqami', 'tuman', 'golib_tolagan', 'auksion_harajati']);
+
+    // Log detailed information
+    \Log::info('SQL Query: ' . $debugQuery->toSql());
+    \Log::info('Query Bindings:', $debugQuery->getBindings());
+    \Log::info('Lots Found: ' . $lots->count());
+    \Log::info('Lot IDs: ' . $lots->pluck('id')->implode(', '));
+    \Log::info('Lot Numbers: ' . $lots->pluck('lot_raqami')->implode(', '));
+
+    // Log golib_tolagan and auksion_harajati for each lot
+    if ($lots->count() > 0) {
+        \Log::info('=== Lot Financial Details ===');
+        foreach ($lots as $lot) {
+            \Log::info(sprintf(
+                'Lot ID: %s, Lot #: %s, Tuman: %s, Golib Tolagan: %s, Auksion Harajati: %s',
+                $lot->id,
+                $lot->lot_raqami,
+                $lot->tuman,
+                $lot->golib_tolagan ?? 'NULL',
+                $lot->auksion_harajati ?? 'NULL'
+            ));
+        }
+
+        // Calculate totals
+        $totalGolibTolagan = $lots->sum(fn($lot) => floatval($lot->golib_tolagan ?? 0));
+        $totalAuksionHarajati = $lots->sum(fn($lot) => floatval($lot->auksion_harajati ?? 0));
+
+        \Log::info('=== Totals ===');
+        \Log::info('Total Golib Tolagan: ' . number_format($totalGolibTolagan,3, 2));
+        \Log::info('Total Auksion Harajati: ' . number_format($totalAuksionHarajati, 3,2));
+        \Log::info('Difference (Golib Tolagan - Auksion Harajati): ' . number_format($totalGolibTolagan - $totalAuksionHarajati, 3,2));
+    }
+
+    // Original calculation
+    $data = $query->selectRaw('
+        COUNT(*) as soni,
+        SUM(COALESCE(golib_tolagan, 0)) as total_golib_tolagan
+    ')->first();
+
+    $auksionMablagh = $data->total_golib_tolagan ?? 0;
+
+    return [
+        'soni' => $data->soni ?? 0,
+        'auksion_mablagh' => $auksionMablagh
+    ];
+}
 
     public function list(Request $request)
     {
