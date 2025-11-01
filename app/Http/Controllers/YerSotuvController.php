@@ -438,8 +438,7 @@ class YerSotuvController extends Controller
         }
     }
 
-    // ✅ NEW METHOD: Calculate additional columns based on images
-private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters = [])
+ private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters = [])
 {
     // Get base data
     $jami = $this->getTumanData($tumanPatterns, null, $dateFilters);
@@ -463,8 +462,8 @@ private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters 
         $auksionHarajatiBolib = YerSotuv::whereIn('lot_raqami', $bolibLots)->sum('auksion_harajati');
     }
 
-    // Get bir yo'la data with proper filters
-    $birYolaQuery = YerSotuv::query()
+    // Get golib_tolagan for bir yo'la
+    $golibTolaganBirYola = YerSotuv::query()
         ->when($tumanPatterns, function($q) use ($tumanPatterns) {
             $q->where(function ($query) use ($tumanPatterns) {
                 foreach ($tumanPatterns as $pattern) {
@@ -478,21 +477,33 @@ private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters 
         })
         ->when(!empty($dateFilters['auksion_sana_to']), function($q) use ($dateFilters) {
             $q->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
-        });
+        })
+        ->sum('golib_tolagan');
 
-    // Get golib_tolagan for bir yo'la
-    $golibTolaganBirYola = (clone $birYolaQuery)->sum('golib_tolagan');
-
-    // Get Mulk Qabul Qilmagan amount for bir yo'la (ПФ-135, holat 34)
-    $mulkQabulBirYola = (clone $birYolaQuery)
+    // Calculate Mulk Qabul Qilmagan for муддатли эмас only
+    $mulkQabulBirYolaQuery = YerSotuv::query()
+        ->when($tumanPatterns, function($q) use ($tumanPatterns) {
+            $q->where(function ($query) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $query->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        })
+        ->where('tolov_turi', 'муддатли эмас')
         ->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%')
         ->where('asos', 'ПФ-135')
-        ->selectRaw('
-            SUM(COALESCE(golib_tolagan, 0) - COALESCE(auksion_harajati, 0)) as mulk_qabul_mablagh
-        ')
-        ->first();
+        ->when(!empty($dateFilters['auksion_sana_from']), function($q) use ($dateFilters) {
+            $q->whereDate('auksion_sana', '>=', $dateFilters['auksion_sana_from']);
+        })
+        ->when(!empty($dateFilters['auksion_sana_to']), function($q) use ($dateFilters) {
+            $q->whereDate('auksion_sana', '<=', $dateFilters['auksion_sana_to']);
+        });
 
-    $mulkQabulMablaghBirYola = $mulkQabulBirYola->mulk_qabul_mablagh ?? 0;
+    $mulkQabulData = $mulkQabulBirYolaQuery->selectRaw('
+        SUM(COALESCE(golib_tolagan, 0) - COALESCE(auksion_harajati, 0)) as mulk_qabul_mablagh
+    ')->first();
+
+    $mulkQabulMablaghBirYola = $mulkQabulData->mulk_qabul_mablagh ?? 0;
 
     // Get golib_tolagan for bo'lib
     $golibTolaganBolib = YerSotuv::query()
@@ -530,9 +541,12 @@ private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters 
         })
         ->sum('shartnoma_summasi');
 
-    // Column: Bir yo'la - golib tolagan minus 1% fee minus Mulk Qabul Qilmagan
+    // Column: Bir yo'la - golib tolagan minus 1% fee
     $auksionXizmatHaqiBirYola = $golibTolaganBirYola * 0.01;
-    $column_biryola_tushgan_minus_fee = $golibTolaganBirYola - $auksionXizmatHaqiBirYola - $mulkQabulMablaghBirYola;
+    $column_biryola_tushgan_minus_fee = $golibTolaganBirYola - $auksionXizmatHaqiBirYola;
+
+    // Calculate biryola_fakt: tushadigan_mablagh (муддатли эмас) - Mulk Qabul Qilmagan
+    $biryola_fakt = $birYola['tushadigan_mablagh'] - $mulkQabulMablaghBirYola;
 
     // Column: Bo'lib - golib tolagan minus 1% fee
     $auksionXizmatHaqiBolib = $golibTolaganBolib * 0.01;
@@ -545,7 +559,7 @@ private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters 
     $column_bolib_tushgan = $faktTolovlarBolib + $column_bolib_golib_minus_fee;
 
     // Column: Jami tushgan (bir yo'la + bo'lib)
-    $column_jami_tushgan_yigindi = $column_biryola_tushgan_minus_fee + $column_bolib_tushgan;
+    $column_jami_tushgan_yigindi = $biryola_fakt + $column_bolib_tushgan;
 
     // Get auksonda data
     $auksonda = $this->getAuksondaTurgan($tumanPatterns, $dateFilters);
@@ -557,7 +571,7 @@ private function calculateAdditionalColumns($tumanPatterns = null, $dateFilters 
         'jami_tushadigan_plus_auksion' => $column_jami_tushadigan_plus_auksion,
         'jami_tushgan_yigindi' => $column_jami_tushgan_yigindi,
         'biryola_tushgan_minus_fee' => $column_biryola_tushgan_minus_fee,
-        'biryola_fakt' => $column_biryola_tushgan_minus_fee, // Same as above
+        'biryola_fakt' => $biryola_fakt,
         'bolib_golib_minus_fee' => $column_bolib_golib_minus_fee,
         'bolib_tushadigan' => $column_bolib_tushadigan,
         'bolib_tushgan' => $column_bolib_tushgan,
