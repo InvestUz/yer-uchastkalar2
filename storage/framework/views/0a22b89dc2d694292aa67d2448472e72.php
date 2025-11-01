@@ -394,14 +394,13 @@
                                 </td>
                                 
                                 <!-- Column 8: Jami tushgan mablagh -->
-                                <td id="td_jami_tushgan" 
-                                    name="td_jami_tushgan" 
-                                    data-column="col_jami_tushgan" 
-                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-                                    <?php echo e(number_format(($statistics['jami']['bir_yola']['tushadigan_mablagh'] + $statistics['jami']['bolib']['tushadigan_mablagh']) / 1000000000, 1)); ?>
+                           <td id="td_jami_tushgan" 
+    name="td_jami_tushgan" 
+    data-column="col_jami_tushgan"
+    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+    <?php echo e(number_format($statistics['jami']['jami_tushgan_yigindi'] / 1000000000, 1)); ?>
 
-                                </td>
-                                
+</td>
                                 <!-- Column 9: Bir yo'la soni -->
                                 <td id="td_biryola_soni" 
                                     name="td_biryola_soni" 
@@ -449,23 +448,24 @@
 
                                 </td>
                                 
-                                <!-- Column 14: Bir yo'la tushadigan -->
-                                <td id="td_biryola_tushadigan" 
-                                    name="td_biryola_tushadigan" 
-                                    data-column="col_biryola_tushadigan" 
-                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+       <!-- Column 14: Bir yo'la tushadigan -->
+<td id="td_biryola_tushadigan" 
+    name="td_biryola_tushadigan" 
+    data-column="col_biryola_tushadigan"
+    class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
+    <?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
 
-                                </td>
-                                
-                                <!-- Column 15: Bir yo'la tushgan -->
-                                <td id="td_biryola_tushgan" 
-                                    name="td_biryola_tushgan" 
-                                    data-column="col_biryola_tushgan" 
-                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-                                    <?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+</td>
 
-                                </td>
+<!-- Column 15: Bir yo'la tushgan -->
+<td id="td_biryola_tushgan" 
+    name="td_biryola_tushgan" 
+    data-column="col_biryola_tushgan"
+    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+    <?php echo e(number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1)); ?>
+
+</td>
+
                                 
                                 <!-- Column 16: Bo'lib soni -->
                                 <td id="td_bolib_soni" 
@@ -513,24 +513,25 @@
                                     <?php echo e(number_format($statistics['jami']['bolib']['chegirma'] / 1000000000, 1)); ?>
 
                                 </td>
-                                
-                                <!-- Column 21: Bo'lib tushadigan -->
-                                <td id="td_bolib_tushadigan" 
-                                    name="td_bolib_tushadigan" 
-                                    data-column="col_bolib_tushadigan" 
-                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <?php echo e(number_format($statistics['jami']['bolib']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+                 
+<!-- Column 21: Bo'lib tushadigan -->
+<td id="td_bolib_tushadigan" 
+    name="td_bolib_tushadigan" 
+    data-column="col_bolib_tushadigan"
+    class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
+    <?php echo e(number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1)); ?>
 
-                                </td>
-                                
-                                <!-- Column 22: Bo'lib tushgan -->
-                                <td id="td_bolib_tushgan" 
-                                    name="td_bolib_tushgan" 
-                                    data-column="col_bolib_tushgan" 
-                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-                                    <?php echo e(number_format($statistics['jami']['bolib']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+</td>
 
-                                </td>
+<!-- Column 22: Bo'lib tushgan -->
+<td id="td_bolib_tushgan" 
+    name="td_bolib_tushgan" 
+    data-column="col_bolib_tushgan"
+    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+    <?php echo e(number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1)); ?>
+
+</td>
+
                                 
                                 <!-- Column 23: Auksion soni -->
                                 <td id="td_auksion_soni" 
@@ -677,13 +678,13 @@
                                 </td>
                                 
                                 <!-- Column 8: Jami tushgan -->
-                                <td id="td_tuman_<?php echo e($index); ?>_jami_tushgan" 
-                                    name="td_tuman_<?php echo e($index); ?>_jami_tushgan" 
-                                    data-column="col_jami_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-                                    <?php echo e(number_format(($tuman['bir_yola']['tushadigan_mablagh'] + $tuman['bolib']['tushadigan_mablagh']) / 1000000000, 1)); ?>
+                            <td id="td_tuman_<?php echo e($index); ?>_jami_tushgan" 
+        name="td_tuman_<?php echo e($index); ?>_jami_tushgan" 
+        data-column="col_jami_tushgan"
+        class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+        <?php echo e(number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1)); ?>
 
-                                </td>
+    </td>
                                 
                                 <!-- Column 9: Bir yo'la soni -->
                                 <td id="td_tuman_<?php echo e($index); ?>_biryola_soni" 
@@ -736,23 +737,25 @@
 
                                 </td>
                                 
-                                <!-- Column 14: Bir yo'la tushadigan -->
-                                <td id="td_tuman_<?php echo e($index); ?>_biryola_tushadigan" 
-                                    name="td_tuman_<?php echo e($index); ?>_biryola_tushadigan" 
-                                    data-column="col_biryola_tushadigan"
-                                    class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    <?php echo e(number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
-
-                                </td>
                                 
-                                <!-- Column 15: Bir yo'la tushgan -->
-                                <td id="td_tuman_<?php echo e($index); ?>_biryola_tushgan" 
-                                    name="td_tuman_<?php echo e($index); ?>_biryola_tushgan" 
-                                    data-column="col_biryola_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-                                    <?php echo e(number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+    <!-- Column 14: Bir yo'la tushadigan -->
+    <td id="td_tuman_<?php echo e($index); ?>_biryola_tushadigan" 
+        name="td_tuman_<?php echo e($index); ?>_biryola_tushadigan" 
+        data-column="col_biryola_tushadigan"
+        class="border border-slate-400 px-3 py-3 text-right text-slate-700">
+        <?php echo e(number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
 
-                                </td>
+    </td>
+    
+    <!-- Column 15: Bir yo'la tushgan -->
+    <td id="td_tuman_<?php echo e($index); ?>_biryola_tushgan" 
+        name="td_tuman_<?php echo e($index); ?>_biryola_tushgan" 
+        data-column="col_biryola_tushgan"
+        class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+        <?php echo e(number_format($tuman['biryola_fakt'] / 1000000000, 1)); ?>
+
+    </td>
+    
                                 
                                 <!-- Column 16: Bo'lib soni -->
                                 <td id="td_tuman_<?php echo e($index); ?>_bolib_soni" 
@@ -805,23 +808,23 @@
 
                                 </td>
                                 
-                                <!-- Column 21: Bo'lib tushadigan -->
-                                <td id="td_tuman_<?php echo e($index); ?>_bolib_tushadigan" 
-                                    name="td_tuman_<?php echo e($index); ?>_bolib_tushadigan" 
-                                    data-column="col_bolib_tushadigan"
-                                    class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    <?php echo e(number_format($tuman['bolib']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+                             <!-- Column 21: Bo'lib tushadigan -->
+    <td id="td_tuman_<?php echo e($index); ?>_bolib_tushadigan" 
+        name="td_tuman_<?php echo e($index); ?>_bolib_tushadigan" 
+        data-column="col_bolib_tushadigan"
+        class="border border-slate-400 px-3 py-3 text-right text-slate-700">
+        <?php echo e(number_format($tuman['bolib_tushadigan'] / 1000000000, 1)); ?>
 
-                                </td>
-                                
-                                <!-- Column 22: Bo'lib tushgan -->
-                                <td id="td_tuman_<?php echo e($index); ?>_bolib_tushgan" 
-                                    name="td_tuman_<?php echo e($index); ?>_bolib_tushgan" 
-                                    data-column="col_bolib_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-                                    <?php echo e(number_format($tuman['bolib']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+    </td>
+    
+    <!-- Column 22: Bo'lib tushgan -->
+    <td id="td_tuman_<?php echo e($index); ?>_bolib_tushgan" 
+        name="td_tuman_<?php echo e($index); ?>_bolib_tushgan" 
+        data-column="col_bolib_tushgan"
+        class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+        <?php echo e(number_format($tuman['bolib_tushgan'] / 1000000000, 1)); ?>
 
-                                </td>
+    </td>
                                 
                                 <!-- Column 23: Auksion soni -->
                                 <td id="td_tuman_<?php echo e($index); ?>_auksion_soni" 
