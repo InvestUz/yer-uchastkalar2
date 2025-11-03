@@ -393,7 +393,7 @@
                                 <td id="td_jami_tushgan"
                                     name="td_jami_tushgan"
                                     data-column="col_jami_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 ">
                                     {{ number_format($statistics['jami']['jami_tushgan_yigindi'] / 1000000000, 1) }}
                                 </td>
                                 <!-- Column 9: Bir yo'la soni -->
@@ -450,7 +450,7 @@
                                 <td id="td_biryola_tushgan"
                                     name="td_biryola_tushgan"
                                     data-column="col_biryola_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 ">
                                     {{ number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1) }}
                                 </td>
 
@@ -509,7 +509,7 @@
                                 <td id="td_bolib_tushgan"
                                     name="td_bolib_tushgan"
                                     data-column="col_bolib_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
+                                    class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 ">
                                     {{ number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1) }}vvv
                                 </td>
 
@@ -648,7 +648,7 @@
                                 <td id="td_tuman_{{ $index }}_jami_tushgan"
                                     name="td_tuman_{{ $index }}_jami_tushgan"
                                     data-column="col_jami_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium ">
                                     {{ number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1) }}
                                 </td>
 
@@ -711,7 +711,7 @@
                                 <td id="td_tuman_{{ $index }}_biryola_tushgan"
                                     name="td_tuman_{{ $index }}_biryola_tushgan"
                                     data-column="col_biryola_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium ">
                                     {{ number_format($tuman['biryola_fakt'] / 1000000000, 1) }}
                                 </td>
 
@@ -774,7 +774,7 @@
                                 <td id="td_tuman_{{ $index }}_bolib_tushgan"
                                     name="td_tuman_{{ $index }}_bolib_tushgan"
                                     data-column="col_bolib_tushgan"
-                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
+                                    class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium ">
                                     {{ number_format($tuman['bolib_tushgan'] / 1000000000, 1) }}
                                 </td>
 
