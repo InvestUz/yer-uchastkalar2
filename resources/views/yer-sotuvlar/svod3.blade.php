@@ -172,7 +172,7 @@
                                     @php
                                         $tushganJamiToliq = $statistics['jami']['toliq_tolanganlar']['tushgan_summa'] ?? 0;
                                     @endphp
-                                    {{ $tushganJamiToliq > 0 ? number_format($tushganJamiToliq / 1000000000, 1) : '0.0' }}uuu
+                                    {{ $tushganJamiToliq > 0 ? number_format($tushganJamiToliq / 1000000000, 1) : '0.0' }}
                                 </td>
 
                                 <!-- Nazoratdagilar - 6 columns -->
@@ -197,7 +197,7 @@
                                     @php
                                         $tushganJamiNazorat = $statistics['jami']['nazoratdagilar']['tushgan_summa'] ?? 0;
                                     @endphp
-                                    {{ $tushganJamiNazorat > 0 ? number_format($tushganJamiNazorat / 1000000000, 1) : '0.0' }}cccc
+                                    {{ $tushganJamiNazorat > 0 ? number_format($tushganJamiNazorat / 1000000000, 1) : '0.0' }}
                                 </td>
 
                                 <!-- Grafik ortda - 5 columns -->

@@ -528,7 +528,8 @@
                                     name="td_bolib_tushgan"
                                     data-column="col_bolib_tushgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 ">
-                                    <?php echo e(number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1)); ?>vvv
+                                    <?php echo e(number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1)); ?>
+
                                 </td>
 
 
