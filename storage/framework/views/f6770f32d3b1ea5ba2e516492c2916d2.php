@@ -166,6 +166,13 @@
 
                 <!-- Enhanced Center Navigation -->
                 <nav class="hidden lg:flex items-center space-x-3">
+                      <a href="<?php echo e(route('yer-sotuvlar.monitoring')); ?>"
+                       class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 <?php echo e(request()->routeIs('yer-sotuvlar.monitoring') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'); ?>">
+                        <div class="flex items-center space-x-2">
+                         
+                            <span>Мониторинг</span>
+                        </div>
+                    </a>
                     <a href="<?php echo e(route('yer-sotuvlar.index')); ?>"
                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 <?php echo e(request()->routeIs('yer-sotuvlar.index') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'); ?>">
                         <div class="flex items-center space-x-2">

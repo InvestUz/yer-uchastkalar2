@@ -3,7 +3,7 @@
 <?php $__env->startSection('title', 'Мониторинг ва Аналитика'); ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="max-w-[1600px] mx-auto">
+<div class="max-w-[98%] mx-auto">
     <!-- Header -->
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-slate-800 mb-2">
@@ -96,19 +96,30 @@
     </div>
 
     <!-- Main Charts -->
-<div class="grid grid-cols-1 lg:grid-cols-[1fr_3fr] gap-6 mb-8">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
         <!-- Payment Status Distribution -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Тўлов ҳолати бўйича тақсимот</h3>
-            <div class="h-80">
+        <div class="xl:col-span-4 bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                </svg>
+                Тўлов ҳолати бўйича тақсимот
+            </h3>
+            <div class="h-72">
                 <canvas id="paymentStatusChart"></canvas>
             </div>
         </div>
 
         <!-- Monthly Payment Comparison -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Ойлик график vs факт тўловлар</h3>
-            <div class="h-80">
+        <div class="xl:col-span-8 bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                </svg>
+                Ойлик график vs факт тўловлар
+            </h3>
+            <div class="h-72">
                 <canvas id="monthlyComparisonChart"></canvas>
             </div>
         </div>
@@ -118,17 +129,76 @@
     <div class="grid grid-cols-1 gap-6 mb-8">
         <!-- Grafik vs Fakt by Tuman -->
         <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Туманлар бўйича график ва факт тўловлар таққослаш</h3>
-            <div class="h-96">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Туманлар бўйича график ва факт тўловлар таққослаш
+            </h3>
+            <div class="h-[32rem]">
                 <canvas id="tumanComparisonChart"></canvas>
             </div>
         </div>
+    </div>
 
-        <!-- Overdue Payments by Tuman -->
+
+    <!-- Top Performers and Needs Attention -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Top Performers -->
         <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Туманлар бўйича ортда қолган тўловлар</h3>
-            <div class="h-80">
-                <canvas id="overdueByTumanChart"></canvas>
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                </svg>
+                Энг яхши натижа (топ 6)
+            </h3>
+            <div class="space-y-2.5">
+                <?php $__currentLoopData = collect($tumanStats)->sortByDesc('percentage')->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-all duration-300 border border-green-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                            <?php echo e($index + 1); ?>
+
+                        </div>
+                        <span class="font-semibold text-slate-800 text-sm"><?php echo e($stat['tuman']); ?></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-20 bg-green-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full" style="width: <?php echo e(min($stat['percentage'], 100)); ?>%"></div>
+                        </div>
+                        <span class="text-base font-bold text-green-600 min-w-[60px] text-right"><?php echo e(number_format($stat['percentage'], 1)); ?>%</span>
+                    </div>
+                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+
+        <!-- Needs Attention -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Диққат талаб қилади (топ 6)
+            </h3>
+            <div class="space-y-2.5">
+                <?php $__currentLoopData = collect($tumanStats)->sortBy('percentage')->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-rose-50 rounded-lg hover:from-red-100 hover:to-rose-100 transition-all duration-300 border border-red-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                            <?php echo e($index + 1); ?>
+
+                        </div>
+                        <span class="font-semibold text-slate-800 text-sm"><?php echo e($stat['tuman']); ?></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-20 bg-red-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full" style="width: <?php echo e(min($stat['percentage'], 100)); ?>%"></div>
+                        </div>
+                        <span class="text-base font-bold text-red-600 min-w-[60px] text-right"><?php echo e(number_format($stat['percentage'], 1)); ?>%</span>
+                    </div>
+                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
         </div>
     </div>
@@ -200,63 +270,17 @@
             </table>
         </div>
     </div>
-
-    <!-- Additional Analytics -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-        <!-- Top Performers -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                </svg>
-                Энг яхши натижа (топ 5)
-            </h3>
-            <div class="space-y-3">
-                <?php $__currentLoopData = collect($tumanStats)->sortByDesc('percentage')->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                            <?php echo e($index + 1); ?>
-
-                        </div>
-                        <span class="font-semibold text-slate-800"><?php echo e($stat['tuman']); ?></span>
-                    </div>
-                    <span class="text-lg font-bold" style="color: rgb(29, 78, 216);"><?php echo e(number_format($stat['percentage'], 1)); ?>%</span>
-                </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            </div>
-        </div>
-
-        <!-- Needs Attention -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                Диққат талаб қилади (топ 5)
-            </h3>
-            <div class="space-y-3">
-                <?php $__currentLoopData = collect($tumanStats)->sortBy('percentage')->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                            <?php echo e($index + 1); ?>
-
-                        </div>
-                        <span class="font-semibold text-slate-800"><?php echo e($stat['tuman']); ?></span>
-                    </div>
-                    <span class="text-lg font-bold text-red-600"><?php echo e(number_format($stat['percentage'], 1)); ?>%</span>
-                </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
 <script>
+// Disable datalabels globally, enable only where needed
+Chart.defaults.set('plugins.datalabels', {
+    display: false
+});
 // Payment Status Distribution Chart
 const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
 new Chart(paymentStatusCtx, {
@@ -277,8 +301,9 @@ new Chart(paymentStatusCtx, {
                 'rgb(239, 68, 68)',
                 'rgb(156, 163, 175)'
             ],
-            borderWidth: 2,
-            borderColor: '#fff'
+            borderWidth: 3,
+            borderColor: '#fff',
+            hoverOffset: 8
         }]
     },
     options: {
@@ -288,23 +313,30 @@ new Chart(paymentStatusCtx, {
             legend: {
                 position: 'bottom',
                 labels: {
-                    font: { size: 12, weight: 'bold' },
+                    font: { size: 11, weight: 'bold' },
                     color: '#000',
-                    padding: 15
+                    padding: 12,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
                 }
             },
             tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleFont: { size: 13, weight: 'bold' },
+                bodyFont: { size: 12 },
                 callbacks: {
                     label: function(context) {
                         let label = context.label || '';
                         let value = context.parsed || 0;
                         let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        let percentage = ((value / total) * 100).toFixed(1);
-                        return label + ': ' + value + ' (' + percentage + '%)';
+                        let percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return label + ': ' + value + ' дона (' + percentage + '%)';
                     }
                 }
             }
-        }
+        },
+        cutout: '65%'
     }
 });
 
@@ -321,7 +353,9 @@ new Chart(monthlyCtx, {
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
             tension: 0.4,
             fill: true,
-            borderWidth: 3
+            borderWidth: 3,
+            pointRadius: 4,
+            pointHoverRadius: 6
         }, {
             label: 'Факт',
             data: <?php echo json_encode($chartData['monthly']['fakt']); ?>,
@@ -329,17 +363,36 @@ new Chart(monthlyCtx, {
             backgroundColor: 'rgba(29, 78, 216, 0.1)',
             tension: 0.4,
             fill: true,
-            borderWidth: 3
+            borderWidth: 3,
+            pointRadius: 4,
+            pointHoverRadius: 6
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false
+        },
         plugins: {
             legend: {
                 labels: {
-                    font: { size: 12, weight: 'bold' },
-                    color: '#000'
+                    font: { size: 13, weight: 'bold' },
+                    color: '#000',
+                    padding: 15,
+                    usePointStyle: true
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleFont: { size: 13, weight: 'bold' },
+                bodyFont: { size: 12 },
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+                    }
                 }
             }
         },
@@ -348,16 +401,24 @@ new Chart(monthlyCtx, {
                 beginAtZero: true,
                 ticks: {
                     callback: function(value) {
-                        return (value / 1000000000).toFixed(1) + ' млрд';
+                        return value.toFixed(1) + ' млрд';
                     },
-                    font: { weight: 'bold' },
+                    font: { weight: 'bold', size: 11 },
                     color: '#000'
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
                 }
             },
             x: {
                 ticks: {
-                    font: { weight: 'bold' },
-                    color: '#000'
+                    font: { weight: 'bold', size: 10 },
+                    color: '#000',
+                    maxRotation: 45,
+                    minRotation: 45
+                },
+                grid: {
+                    display: false
                 }
             }
         }
@@ -375,23 +436,44 @@ new Chart(tumanCtx, {
             data: <?php echo json_encode($chartData['tuman']['grafik']); ?>,
             backgroundColor: 'rgba(239, 68, 68, 0.8)',
             borderColor: 'rgb(239, 68, 68)',
-            borderWidth: 2
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false
         }, {
             label: 'Факт',
             data: <?php echo json_encode($chartData['tuman']['fakt']); ?>,
             backgroundColor: 'rgba(29, 78, 216, 0.8)',
             borderColor: 'rgb(29, 78, 216)',
-            borderWidth: 2
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false
+        },
         plugins: {
             legend: {
                 labels: {
-                    font: { size: 12, weight: 'bold' },
-                    color: '#000'
+                    font: { size: 13, weight: 'bold' },
+                    color: '#000',
+                    padding: 15,
+                    usePointStyle: true
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleFont: { size: 13, weight: 'bold' },
+                bodyFont: { size: 12 },
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+                    }
                 }
             }
         },
@@ -400,74 +482,30 @@ new Chart(tumanCtx, {
                 beginAtZero: true,
                 ticks: {
                     callback: function(value) {
-                        return (value / 1000000000).toFixed(1) + ' млрд';
+                        return value.toFixed(1) + ' млрд';
                     },
-                    font: { weight: 'bold' },
+                    font: { weight: 'bold', size: 11 },
                     color: '#000'
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
                 }
             },
             x: {
                 ticks: {
-                    font: { weight: 'bold', size: 10 },
+                    font: { weight: 'bold', size: 9 },
                     color: '#000',
                     maxRotation: 45,
                     minRotation: 45
+                },
+                grid: {
+                    display: false
                 }
             }
         }
     }
 });
 
-// Overdue by Tuman Chart
-const overdueCtx = document.getElementById('overdueByTumanChart').getContext('2d');
-new Chart(overdueCtx, {
-    type: 'bar',
-    data: {
-        labels: <?php echo json_encode($chartData['overdue']['labels']); ?>,
-        datasets: [{
-            label: 'Ортда қолган маблағ (млрд)',
-            data: <?php echo json_encode($chartData['overdue']['amounts']); ?>,
-            backgroundColor: function(context) {
-                const value = context.parsed.y;
-                if (value > 10) return 'rgba(239, 68, 68, 0.8)';
-                if (value > 5) return 'rgba(249, 115, 22, 0.8)';
-                return 'rgba(34, 197, 94, 0.8)';
-            },
-            borderColor: function(context) {
-                const value = context.parsed.y;
-                if (value > 10) return 'rgb(239, 68, 68)';
-                if (value > 5) return 'rgb(249, 115, 22)';
-                return 'rgb(34, 197, 94)';
-            },
-            borderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
-        scales: {
-            x: {
-                beginAtZero: true,
-                ticks: {
-                    font: { weight: 'bold' },
-                    color: '#000'
-                }
-            },
-            y: {
-                ticks: {
-                    font: { weight: 'bold', size: 11 },
-                    color: '#000'
-                }
-            }
-        }
-    }
-});
 </script>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Администратор\Desktop\yer-uchastkalar2\resources\views/yer-sotuvlar/monitoring.blade.php ENDPATH**/ ?>
