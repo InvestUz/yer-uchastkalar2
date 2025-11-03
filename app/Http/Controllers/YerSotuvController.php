@@ -167,6 +167,7 @@ class YerSotuvController extends Controller
             SUM(maydoni) as maydoni,
             SUM(boshlangich_narx) as boshlangich_narx,
             SUM(sotilgan_narx) as sotilgan_narx,
+            SUM(auksion_harajati) as auksion_harajati,
             SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) as T_total
         ')->first();
 
@@ -177,7 +178,7 @@ class YerSotuvController extends Controller
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
             'tushadigan_mablagh' => $data->T_total ?? 0,
-            'tushgan_summa' => $tushganSumma
+            'tushgan_summa' => $tushganSumma-$data->auksion_harajati,
         ];
     }
 

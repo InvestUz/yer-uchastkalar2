@@ -172,7 +172,7 @@
                                     @php
                                         $tushganJamiToliq = $statistics['jami']['toliq_tolanganlar']['tushgan_summa'] ?? 0;
                                     @endphp
-                                    {{ $tushganJamiToliq > 0 ? number_format($tushganJamiToliq / 1000000000, 1) : '0.0' }}
+                                    {{ $tushganJamiToliq > 0 ? number_format($tushganJamiToliq / 1000000000, 1) : '0.0' }}uuu
                                 </td>
 
                                 <!-- Nazoratdagilar - 6 columns -->
