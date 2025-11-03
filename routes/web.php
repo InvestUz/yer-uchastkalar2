@@ -23,6 +23,9 @@ Route::get('/svod3', [YerSotuvController::class, 'svod3'])->name('yer-sotuvlar.s
 Route::get('/ruyxat', [YerSotuvController::class, 'list'])->name('yer-sotuvlar.list');
 
 Route::get('/yer/{lot_raqami}', [YerSotuvController::class, 'show'])->name('yer-sotuvlar.show');
+// Add these routes to web.php
+Route::put('/yer/{lot_raqami}', [YerSotuvController::class, 'update'])->name('yer-sotuvlar.update');
+Route::get('/yer/{lot_raqami}/edit', [YerSotuvController::class, 'edit'])->name('yer-sotuvlar.edit');
 
 Route::get('/debug-davaktiv', function() {
 

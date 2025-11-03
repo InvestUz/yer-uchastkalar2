@@ -288,4 +288,21 @@ class YerSotuvController extends Controller
 
         return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
     }
+
+    public function edit($lot_raqami)
+{
+    $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
+    return view('yer-sotuvlar.edit', compact('yer'));
+}
+
+public function update(Request $request, $lot_raqami)
+{
+    $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
+    $yer->update($request->all());
+    
+    return redirect()->route('yer-sotuvlar.show', $lot_raqami)
+                     ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
+}
+
+
 }
