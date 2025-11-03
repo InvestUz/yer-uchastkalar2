@@ -245,8 +245,8 @@
                     <select name="auksion_turi" 
                             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                         <option value="">Танланг</option>
-                        <option value="Очиқ" <?php echo e(old('auksion_turi', $yer->auksion_turi) == 'Очиқ' ? 'selected' : ''); ?>>Очиқ</option>
-                        <option value="Ёпиқ" <?php echo e(old('auksion_turi', $yer->auksion_turi) == 'Ёпиқ' ? 'selected' : ''); ?>>Ёпиқ</option>
+                        <option value="Очиқ" <?php echo e(old('auksion_turi', $yer->auksion_turi) == 'Очиқ аукцион' ? 'selected' : ''); ?>>Очиқ</option>
+                    <option value="Ёпиқ" <?php echo e(old('auksion_turi', $yer->auksion_turi) == 'Ёпиқ аукцион' ? 'selected' : ''); ?>>Ёпиқ</option>
                     </select>
                 </div>
 
@@ -619,7 +619,7 @@
 </div>
 <?php endif; ?>
 
-<script>
+<!-- <script>
     // Auto-hide success/error messages after 5 seconds
     setTimeout(function() {
         const messages = document.querySelectorAll('.animate-fadeIn');
@@ -631,6 +631,6 @@
             }, 500);
         });
     }, 5000);
-</script>
+</script> -->
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Администратор\Desktop\yer-uchastkalar2\resources\views/yer-sotuvlar/edit.blade.php ENDPATH**/ ?>
