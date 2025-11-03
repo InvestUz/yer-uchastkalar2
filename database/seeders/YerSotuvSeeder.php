@@ -58,7 +58,7 @@ class YerSotuvSeeder extends Seeder
 
     private function importAsosiyMalumot(): void
     {
-        $file = storage_path('app/excel/Sotilgan_yerlar_30_10_2025.xlsx');
+        $file = storage_path('app/excel/Sotilgan_yerlar_03_11_2025_Bazaga++.xlsx');
 
         if (!file_exists($file)) {
             $this->command->error("Fayl topilmadi: $file");
