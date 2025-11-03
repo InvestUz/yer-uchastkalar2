@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Йиғма маълумот'); ?>
 
-@section('title', 'Йиғма маълумот')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
     <div class="max-w-[98%] mx-auto">
         <!-- Premium Government Header -->
@@ -344,8 +342,9 @@
                                     name="td_jami_soni"
                                     data-column="col_jami_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list') }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['jami']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list')); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['jami']['soni']); ?>
+
                                     </a>
                                 </td>
 
@@ -354,7 +353,8 @@
                                     name="td_jami_maydoni"
                                     data-column="col_jami_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['jami']['maydoni'], 2) }}
+                                    <?php echo e(number_format($statistics['jami']['jami']['maydoni'], 2)); ?>
+
                                 </td>
 
                                 <!-- Column 4: Jami boshlangich narx -->
@@ -362,7 +362,8 @@
                                     name="td_jami_boshlangich"
                                     data-column="col_jami_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['jami']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['jami']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 5: Jami sotilgan narx -->
@@ -370,7 +371,8 @@
                                     name="td_jami_sotilgan"
                                     data-column="col_jami_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['jami']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['jami']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 6: Jami chegirma -->
@@ -378,7 +380,8 @@
                                     name="td_jami_chegirma"
                                     data-column="col_jami_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['jami']['chegirma'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['jami']['chegirma'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 7: Jami tushadigan mablagh -->
@@ -386,7 +389,8 @@
                                     name="td_jami_tushadigan"
                                     data-column="col_jami_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['jami']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['jami']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 8: Jami tushgan mablagh -->
@@ -394,15 +398,17 @@
                                     name="td_jami_tushgan"
                                     data-column="col_jami_tushgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-                                    {{ number_format($statistics['jami']['jami_tushgan_yigindi'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['jami_tushgan_yigindi'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <!-- Column 9: Bir yo'la soni -->
                                 <td id="td_biryola_soni"
                                     name="td_biryola_soni"
                                     data-column="col_biryola_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['bir_yola']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['bir_yola']['soni']); ?>
+
                                     </a>
                                 </td>
 
@@ -411,7 +417,8 @@
                                     name="td_biryola_maydoni"
                                     data-column="col_biryola_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bir_yola']['maydoni'], 2) }}
+                                    <?php echo e(number_format($statistics['jami']['bir_yola']['maydoni'], 2)); ?>
+
                                 </td>
 
                                 <!-- Column 11: Bir yo'la boshlangich -->
@@ -419,7 +426,8 @@
                                     name="td_biryola_boshlangich"
                                     data-column="col_biryola_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bir_yola']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['bir_yola']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 12: Bir yo'la sotilgan -->
@@ -427,7 +435,8 @@
                                     name="td_biryola_sotilgan"
                                     data-column="col_biryola_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bir_yola']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['bir_yola']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 13: Bir yo'la chegirma -->
@@ -435,7 +444,8 @@
                                     name="td_biryola_chegirma"
                                     data-column="col_biryola_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bir_yola']['chegirma'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['bir_yola']['chegirma'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 14: Bir yo'la tushadigan -->
@@ -443,7 +453,8 @@
                                     name="td_biryola_tushadigan"
                                     data-column="col_biryola_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 15: Bir yo'la tushgan -->
@@ -451,7 +462,8 @@
                                     name="td_biryola_tushgan"
                                     data-column="col_biryola_tushgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-                                    {{ number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1)); ?>
+
                                 </td>
 
 
@@ -460,8 +472,9 @@
                                     name="td_bolib_soni"
                                     data-column="col_bolib_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['bolib']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['bolib']['soni']); ?>
+
                                     </a>
                                 </td>
 
@@ -470,7 +483,8 @@
                                     name="td_bolib_maydoni"
                                     data-column="col_bolib_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bolib']['maydoni'], 2) }}
+                                    <?php echo e(number_format($statistics['jami']['bolib']['maydoni'], 2)); ?>
+
                                 </td>
 
                                 <!-- Column 18: Bo'lib boshlangich -->
@@ -478,7 +492,8 @@
                                     name="td_bolib_boshlangich"
                                     data-column="col_bolib_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bolib']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['bolib']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 19: Bo'lib sotilgan -->
@@ -486,7 +501,8 @@
                                     name="td_bolib_sotilgan"
                                     data-column="col_bolib_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bolib']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['bolib']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 20: Bo'lib chegirma -->
@@ -494,7 +510,8 @@
                                     name="td_bolib_chegirma"
                                     data-column="col_bolib_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bolib']['chegirma'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['bolib']['chegirma'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 21: Bo'lib tushadigan -->
@@ -502,7 +519,8 @@
                                     name="td_bolib_tushadigan"
                                     data-column="col_bolib_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 22: Bo'lib tushgan -->
@@ -510,7 +528,7 @@
                                     name="td_bolib_tushgan"
                                     data-column="col_bolib_tushgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900 bg-blue-50">
-                                    {{ number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1) }}vvv
+                                    <?php echo e(number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1)); ?>vvv
                                 </td>
 
 
@@ -519,8 +537,9 @@
                                     name="td_auksion_soni"
                                     data-column="col_auksion_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['auksonda_turgan' => 'true']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['auksonda']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['auksonda_turgan' => 'true'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['auksonda']['soni']); ?>
+
                                     </a>
                                 </td>
 
@@ -529,7 +548,8 @@
                                     name="td_auksion_maydoni"
                                     data-column="col_auksion_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['auksonda']['maydoni'], 2) }}
+                                    <?php echo e(number_format($statistics['jami']['auksonda']['maydoni'], 2)); ?>
+
                                 </td>
 
                                 <!-- Column 25: Auksion boshlangich -->
@@ -537,7 +557,8 @@
                                     name="td_auksion_boshlangich"
                                     data-column="col_auksion_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['auksonda']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['auksonda']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 26: Auksion sotilgan -->
@@ -545,7 +566,8 @@
                                     name="td_auksion_sotilgan"
                                     data-column="col_auksion_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['auksonda']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['auksonda']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 27: Mulk qabul soni -->
@@ -553,8 +575,9 @@
                                     name="td_mulk_soni"
                                     data-column="col_mulk_soni"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida (34)']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['mulk_qabul']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida (34)'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['mulk_qabul']['soni']); ?>
+
                                     </a>
                                 </td>
 
@@ -563,282 +586,312 @@
                                     name="td_mulk_mablagh"
                                     data-column="col_mulk_mablagh"
                                     class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['mulk_qabul']['auksion_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['mulk_qabul']['auksion_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
                             </tr>
 
                             <!-- TUMANLAR ROWS -->
-                            @foreach($statistics['tumanlar'] as $index => $tuman)
-                            <tr id="row_tuman_{{ $index }}"
-                                name="row_tuman_{{ Str::slug($tuman['tuman']) }}"
-                                data-tuman="{{ $tuman['tuman'] }}"
-                                class="hover:bg-blue-50 transition-colors duration-150 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">
+                            <?php $__currentLoopData = $statistics['tumanlar']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $tuman): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <tr id="row_tuman_<?php echo e($index); ?>"
+                                name="row_tuman_<?php echo e(Str::slug($tuman['tuman'])); ?>"
+                                data-tuman="<?php echo e($tuman['tuman']); ?>"
+                                class="hover:bg-blue-50 transition-colors duration-150 <?php echo e($index % 2 == 0 ? 'bg-white' : 'bg-slate-50'); ?>">
 
                                 <!-- Column 0: T/r -->
-                                <td id="td_tuman_{{ $index }}_tr"
-                                    name="td_tuman_{{ $index }}_tr"
+                                <td id="td_tuman_<?php echo e($index); ?>_tr"
+                                    name="td_tuman_<?php echo e($index); ?>_tr"
                                     data-column="col_tr"
                                     class="sticky-col border border-slate-400 px-3 py-3 text-center align-middle font-medium text-slate-700">
-                                    {{ $index + 1 }}
+                                    <?php echo e($index + 1); ?>
+
                                 </td>
 
                                 <!-- Column 1: Hudud -->
-                                <td id="td_tuman_{{ $index }}_hudud"
-                                    name="td_tuman_{{ $index }}_hudud"
+                                <td id="td_tuman_<?php echo e($index); ?>_hudud"
+                                    name="td_tuman_<?php echo e($index); ?>_hudud"
                                     data-column="col_hudud"
                                     class="sticky-col-2 border border-slate-400 px-3 py-3 align-middle font-semibold text-slate-800">
-                                    {{ $tuman['tuman'] }}
+                                    <?php echo e($tuman['tuman']); ?>
+
                                 </td>
 
                                 <!-- Column 2: Jami soni -->
-                                <td id="td_tuman_{{ $index }}_jami_soni"
-                                    name="td_tuman_{{ $index }}_jami_soni"
+                                <td id="td_tuman_<?php echo e($index); ?>_jami_soni"
+                                    name="td_tuman_<?php echo e($index); ?>_jami_soni"
                                     data-column="col_jami_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    @if($tuman['jami']['soni'] > 0)
-                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                        {{ $tuman['jami']['soni'] }}
+                                    <?php if($tuman['jami']['soni'] > 0): ?>
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman']])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        <?php echo e($tuman['jami']['soni']); ?>
+
                                     </a>
-                                    @else
+                                    <?php else: ?>
                                     0
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Column 3: Jami maydoni -->
-                                <td id="td_tuman_{{ $index }}_jami_maydoni"
-                                    name="td_tuman_{{ $index }}_jami_maydoni"
+                                <td id="td_tuman_<?php echo e($index); ?>_jami_maydoni"
+                                    name="td_tuman_<?php echo e($index); ?>_jami_maydoni"
                                     data-column="col_jami_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['jami']['maydoni'], 2) }}
+                                    <?php echo e(number_format($tuman['jami']['maydoni'], 2)); ?>
+
                                 </td>
 
                                 <!-- Column 4: Jami boshlangich -->
-                                <td id="td_tuman_{{ $index }}_jami_boshlangich"
-                                    name="td_tuman_{{ $index }}_jami_boshlangich"
+                                <td id="td_tuman_<?php echo e($index); ?>_jami_boshlangich"
+                                    name="td_tuman_<?php echo e($index); ?>_jami_boshlangich"
                                     data-column="col_jami_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['jami']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['jami']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 5: Jami sotilgan -->
-                                <td id="td_tuman_{{ $index }}_jami_sotilgan"
-                                    name="td_tuman_{{ $index }}_jami_sotilgan"
+                                <td id="td_tuman_<?php echo e($index); ?>_jami_sotilgan"
+                                    name="td_tuman_<?php echo e($index); ?>_jami_sotilgan"
                                     data-column="col_jami_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['jami']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['jami']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 6: Jami chegirma -->
-                                <td id="td_tuman_{{ $index }}_jami_chegirma"
-                                    name="td_tuman_{{ $index }}_jami_chegirma"
+                                <td id="td_tuman_<?php echo e($index); ?>_jami_chegirma"
+                                    name="td_tuman_<?php echo e($index); ?>_jami_chegirma"
                                     data-column="col_jami_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['jami']['chegirma'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['jami']['chegirma'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 7: Jami tushadigan -->
-                                <td id="td_tuman_{{ $index }}_jami_tushadigan"
-                                    name="td_tuman_{{ $index }}_jami_tushadigan"
+                                <td id="td_tuman_<?php echo e($index); ?>_jami_tushadigan"
+                                    name="td_tuman_<?php echo e($index); ?>_jami_tushadigan"
                                     data-column="col_jami_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['jami']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['jami']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 8: Jami tushgan -->
-                                <td id="td_tuman_{{ $index }}_jami_tushgan"
-                                    name="td_tuman_{{ $index }}_jami_tushgan"
+                                <td id="td_tuman_<?php echo e($index); ?>_jami_tushgan"
+                                    name="td_tuman_<?php echo e($index); ?>_jami_tushgan"
                                     data-column="col_jami_tushgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-                                    {{ number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 9: Bir yo'la soni -->
-                                <td id="td_tuman_{{ $index }}_biryola_soni"
-                                    name="td_tuman_{{ $index }}_biryola_soni"
+                                <td id="td_tuman_<?php echo e($index); ?>_biryola_soni"
+                                    name="td_tuman_<?php echo e($index); ?>_biryola_soni"
                                     data-column="col_biryola_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    @if($tuman['bir_yola']['soni'] > 0)
-                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли эмас']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                        {{ $tuman['bir_yola']['soni'] }}
+                                    <?php if($tuman['bir_yola']['soni'] > 0): ?>
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли эмас'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        <?php echo e($tuman['bir_yola']['soni']); ?>
+
                                     </a>
-                                    @else
+                                    <?php else: ?>
                                     0
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Column 10: Bir yo'la maydoni -->
-                                <td id="td_tuman_{{ $index }}_biryola_maydoni"
-                                    name="td_tuman_{{ $index }}_biryola_maydoni"
+                                <td id="td_tuman_<?php echo e($index); ?>_biryola_maydoni"
+                                    name="td_tuman_<?php echo e($index); ?>_biryola_maydoni"
                                     data-column="col_biryola_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bir_yola']['maydoni'], 2) }}
+                                    <?php echo e(number_format($tuman['bir_yola']['maydoni'], 2)); ?>
+
                                 </td>
 
                                 <!-- Column 11: Bir yo'la boshlangich -->
-                                <td id="td_tuman_{{ $index }}_biryola_boshlangich"
-                                    name="td_tuman_{{ $index }}_biryola_boshlangich"
+                                <td id="td_tuman_<?php echo e($index); ?>_biryola_boshlangich"
+                                    name="td_tuman_<?php echo e($index); ?>_biryola_boshlangich"
                                     data-column="col_biryola_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bir_yola']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bir_yola']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 12: Bir yo'la sotilgan -->
-                                <td id="td_tuman_{{ $index }}_biryola_sotilgan"
-                                    name="td_tuman_{{ $index }}_biryola_sotilgan"
+                                <td id="td_tuman_<?php echo e($index); ?>_biryola_sotilgan"
+                                    name="td_tuman_<?php echo e($index); ?>_biryola_sotilgan"
                                     data-column="col_biryola_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bir_yola']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bir_yola']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 13: Bir yo'la chegirma -->
-                                <td id="td_tuman_{{ $index }}_biryola_chegirma"
-                                    name="td_tuman_{{ $index }}_biryola_chegirma"
+                                <td id="td_tuman_<?php echo e($index); ?>_biryola_chegirma"
+                                    name="td_tuman_<?php echo e($index); ?>_biryola_chegirma"
                                     data-column="col_biryola_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bir_yola']['chegirma'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bir_yola']['chegirma'] / 1000000000, 1)); ?>
+
                                 </td>
 
 
                                 <!-- Column 14: Bir yo'la tushadigan -->
-                                <td id="td_tuman_{{ $index }}_biryola_tushadigan"
-                                    name="td_tuman_{{ $index }}_biryola_tushadigan"
+                                <td id="td_tuman_<?php echo e($index); ?>_biryola_tushadigan"
+                                    name="td_tuman_<?php echo e($index); ?>_biryola_tushadigan"
                                     data-column="col_biryola_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 15: Bir yo'la tushgan -->
-                                <td id="td_tuman_{{ $index }}_biryola_tushgan"
-                                    name="td_tuman_{{ $index }}_biryola_tushgan"
+                                <td id="td_tuman_<?php echo e($index); ?>_biryola_tushgan"
+                                    name="td_tuman_<?php echo e($index); ?>_biryola_tushgan"
                                     data-column="col_biryola_tushgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-                                    {{ number_format($tuman['biryola_fakt'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['biryola_fakt'] / 1000000000, 1)); ?>
+
                                 </td>
 
 
                                 <!-- Column 16: Bo'lib soni -->
-                                <td id="td_tuman_{{ $index }}_bolib_soni"
-                                    name="td_tuman_{{ $index }}_bolib_soni"
+                                <td id="td_tuman_<?php echo e($index); ?>_bolib_soni"
+                                    name="td_tuman_<?php echo e($index); ?>_bolib_soni"
                                     data-column="col_bolib_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    @if($tuman['bolib']['soni'] > 0)
-                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                        {{ $tuman['bolib']['soni'] }}
+                                    <?php if($tuman['bolib']['soni'] > 0): ?>
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        <?php echo e($tuman['bolib']['soni']); ?>
+
                                     </a>
-                                    @else
+                                    <?php else: ?>
                                     0
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Column 17: Bo'lib maydoni -->
-                                <td id="td_tuman_{{ $index }}_bolib_maydoni"
-                                    name="td_tuman_{{ $index }}_bolib_maydoni"
+                                <td id="td_tuman_<?php echo e($index); ?>_bolib_maydoni"
+                                    name="td_tuman_<?php echo e($index); ?>_bolib_maydoni"
                                     data-column="col_bolib_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bolib']['maydoni'], 2) }}
+                                    <?php echo e(number_format($tuman['bolib']['maydoni'], 2)); ?>
+
                                 </td>
 
                                 <!-- Column 18: Bo'lib boshlangich -->
-                                <td id="td_tuman_{{ $index }}_bolib_boshlangich"
-                                    name="td_tuman_{{ $index }}_bolib_boshlangich"
+                                <td id="td_tuman_<?php echo e($index); ?>_bolib_boshlangich"
+                                    name="td_tuman_<?php echo e($index); ?>_bolib_boshlangich"
                                     data-column="col_bolib_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bolib']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bolib']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 19: Bo'lib sotilgan -->
-                                <td id="td_tuman_{{ $index }}_bolib_sotilgan"
-                                    name="td_tuman_{{ $index }}_bolib_sotilgan"
+                                <td id="td_tuman_<?php echo e($index); ?>_bolib_sotilgan"
+                                    name="td_tuman_<?php echo e($index); ?>_bolib_sotilgan"
                                     data-column="col_bolib_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bolib']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bolib']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 20: Bo'lib chegirma -->
-                                <td id="td_tuman_{{ $index }}_bolib_chegirma"
-                                    name="td_tuman_{{ $index }}_bolib_chegirma"
+                                <td id="td_tuman_<?php echo e($index); ?>_bolib_chegirma"
+                                    name="td_tuman_<?php echo e($index); ?>_bolib_chegirma"
                                     data-column="col_bolib_chegirma"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bolib']['chegirma'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bolib']['chegirma'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 21: Bo'lib tushadigan -->
-                                <td id="td_tuman_{{ $index }}_bolib_tushadigan"
-                                    name="td_tuman_{{ $index }}_bolib_tushadigan"
+                                <td id="td_tuman_<?php echo e($index); ?>_bolib_tushadigan"
+                                    name="td_tuman_<?php echo e($index); ?>_bolib_tushadigan"
                                     data-column="col_bolib_tushadigan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['bolib_tushadigan'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bolib_tushadigan'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 22: Bo'lib tushgan -->
-                                <td id="td_tuman_{{ $index }}_bolib_tushgan"
-                                    name="td_tuman_{{ $index }}_bolib_tushgan"
+                                <td id="td_tuman_<?php echo e($index); ?>_bolib_tushgan"
+                                    name="td_tuman_<?php echo e($index); ?>_bolib_tushgan"
                                     data-column="col_bolib_tushgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium bg-blue-50">
-                                    {{ number_format($tuman['bolib_tushgan'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['bolib_tushgan'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 23: Auksion soni -->
-                                <td id="td_tuman_{{ $index }}_auksion_soni"
-                                    name="td_tuman_{{ $index }}_auksion_soni"
+                                <td id="td_tuman_<?php echo e($index); ?>_auksion_soni"
+                                    name="td_tuman_<?php echo e($index); ?>_auksion_soni"
                                     data-column="col_auksion_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    @if($tuman['auksonda']['soni'] > 0)
-                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'auksonda_turgan' => 'true']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                        {{ $tuman['auksonda']['soni'] }}
+                                    <?php if($tuman['auksonda']['soni'] > 0): ?>
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'auksonda_turgan' => 'true'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        <?php echo e($tuman['auksonda']['soni']); ?>
+
                                     </a>
-                                    @else
+                                    <?php else: ?>
                                     0
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Column 24: Auksion maydoni -->
-                                <td id="td_tuman_{{ $index }}_auksion_maydoni"
-                                    name="td_tuman_{{ $index }}_auksion_maydoni"
+                                <td id="td_tuman_<?php echo e($index); ?>_auksion_maydoni"
+                                    name="td_tuman_<?php echo e($index); ?>_auksion_maydoni"
                                     data-column="col_auksion_maydoni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['auksonda']['maydoni'], 2) }}
+                                    <?php echo e(number_format($tuman['auksonda']['maydoni'], 2)); ?>
+
                                 </td>
 
                                 <!-- Column 25: Auksion boshlangich -->
-                                <td id="td_tuman_{{ $index }}_auksion_boshlangich"
-                                    name="td_tuman_{{ $index }}_auksion_boshlangich"
+                                <td id="td_tuman_<?php echo e($index); ?>_auksion_boshlangich"
+                                    name="td_tuman_<?php echo e($index); ?>_auksion_boshlangich"
                                     data-column="col_auksion_boshlangich"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['auksonda']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['auksonda']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 26: Auksion sotilgan -->
-                                <td id="td_tuman_{{ $index }}_auksion_sotilgan"
-                                    name="td_tuman_{{ $index }}_auksion_sotilgan"
+                                <td id="td_tuman_<?php echo e($index); ?>_auksion_sotilgan"
+                                    name="td_tuman_<?php echo e($index); ?>_auksion_sotilgan"
                                     data-column="col_auksion_sotilgan"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['auksonda']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['auksonda']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Column 27: Mulk qabul soni -->
-                                <td id="td_tuman_{{ $index }}_mulk_soni"
-                                    name="td_tuman_{{ $index }}_mulk_soni"
+                                <td id="td_tuman_<?php echo e($index); ?>_mulk_soni"
+                                    name="td_tuman_<?php echo e($index); ?>_mulk_soni"
                                     data-column="col_mulk_soni"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    @if($tuman['mulk_qabul']['soni'] > 0)
-                                    <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida (34)']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                        {{ $tuman['mulk_qabul']['soni'] }}
+                                    <?php if($tuman['mulk_qabul']['soni'] > 0): ?>
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida (34)'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                        <?php echo e($tuman['mulk_qabul']['soni']); ?>
+
                                     </a>
-                                    @else
+                                    <?php else: ?>
                                     0
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Column 28: Mulk qabul mablagh -->
-                                <td id="td_tuman_{{ $index }}_mulk_mablagh"
-                                    name="td_tuman_{{ $index }}_mulk_mablagh"
+                                <td id="td_tuman_<?php echo e($index); ?>_mulk_mablagh"
+                                    name="td_tuman_<?php echo e($index); ?>_mulk_mablagh"
                                     data-column="col_mulk_mablagh"
                                     class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                    {{ number_format($tuman['mulk_qabul']['auksion_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['mulk_qabul']['auksion_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
@@ -848,15 +901,15 @@
         <!-- Filter Section -->
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-t-4 border-blue-600 mt-6">
             <div class="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
-                <form method="GET" action="{{ route('yer-sotuvlar.index') }}">
+                <form method="GET" action="<?php echo e(route('yer-sotuvlar.index')); ?>">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Бошланғич санаси:</label>
-                            <input type="date" name="auksion_sana_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ request('auksion_sana_from') }}">
+                            <input type="date" name="auksion_sana_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="<?php echo e(request('auksion_sana_from')); ?>">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Тугаш санаси:</label>
-                            <input type="date" name="auksion_sana_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ request('auksion_sana_to') }}">
+                            <input type="date" name="auksion_sana_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="<?php echo e(request('auksion_sana_to')); ?>">
                         </div>
                     </div>
                     <div class="flex gap-4 mt-6">
@@ -866,7 +919,7 @@
                             </svg>
                             Қидириш
                         </button>
-                        <a href="{{ route('yer-sotuvlar.index') }}" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
+                        <a href="<?php echo e(route('yer-sotuvlar.index')); ?>" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
@@ -924,4 +977,6 @@
         }
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Администратор\Desktop\yer-uchastkalar2\resources\views/yer-sotuvlar/statistics.blade.php ENDPATH**/ ?>
