@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\YerSotuv;
 use App\Services\YerSotuvService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class YerSotuvController extends Controller
 {
@@ -93,6 +94,279 @@ class YerSotuvController extends Controller
         $tolovTaqqoslash = $this->yerSotuvService->calculateTolovTaqqoslash($yer);
 
         return view('yer-sotuvlar.show', compact('yer', 'tolovTaqqoslash'));
+    }
+
+    /**
+     * Show edit form
+     */
+    public function edit($lot_raqami)
+    {
+        $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
+        return view('yer-sotuvlar.edit', compact('yer'));
+    }
+
+    /**
+     * Update yer sotuv data
+     */
+    public function update(Request $request, $lot_raqami)
+    {
+        $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
+        $yer->update($request->all());
+        
+        return redirect()->route('yer-sotuvlar.show', $lot_raqami)
+                         ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
+    }
+
+    /**
+     * Display monitoring and analytics page
+     */
+    public function monitoring(Request $request)
+    {
+        $dateFilters = [
+            'auksion_sana_from' => $request->auksion_sana_from,
+            'auksion_sana_to' => $request->auksion_sana_to,
+        ];
+
+        // Get all tumanlar
+        $tumanlar = [
+            'Бектемир тумани',
+            'Мирзо Улуғбек тумани',
+            'Миробод тумани',
+            'Олмазор тумани',
+            'Сирғали тумани',
+            'Учтепа тумани',
+            'Чилонзор тумани',
+            'Шайхонтоҳур тумани',
+            'Юнусобод тумани',
+            'Яккасарой тумани',
+            'Янги ҳаёт тумани',
+            'Яшнобод тумани'
+        ];
+
+        // Calculate summary
+        $summary = $this->calculateMonitoringSummary($dateFilters);
+
+        // Get tuman statistics
+        $tumanStats = [];
+        foreach ($tumanlar as $tuman) {
+            $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
+            $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters);
+            
+            if ($stats['lots'] > 0) {
+                $tumanStats[] = [
+                    'tuman' => $tuman,
+                    'lots' => $stats['lots'],
+                    'grafik' => $stats['grafik'],
+                    'fakt' => $stats['fakt'],
+                    'difference' => $stats['difference'],
+                    'percentage' => $stats['percentage']
+                ];
+            }
+        }
+
+        // Prepare chart data
+        $chartData = $this->prepareChartData($tumanStats, $dateFilters);
+
+        return view('yer-sotuvlar.monitoring', compact('summary', 'tumanStats', 'chartData', 'dateFilters'));
+    }
+
+    /**
+     * Calculate monitoring summary
+     */
+    private function calculateMonitoringSummary(array $dateFilters): array
+    {
+        $query = YerSotuv::query();
+        
+        $query->where('tolov_turi', 'муддатли');
+        $this->yerSotuvService->applyDateFilters($query, $dateFilters);
+
+        $totalLots = $query->count();
+
+        // Get lot numbers FIRST before modifying query
+        $lotRaqamlari = (clone $query)->pluck('lot_raqami')->toArray();
+
+        // Calculate expected amount
+        $data = $query->selectRaw('
+            SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+            SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+            SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+        ')->first();
+
+        $expectedAmount = ($data->golib_tolagan + $data->shartnoma_summasi) - $data->auksion_harajati;
+
+        // Calculate received amount
+        $receivedAmount = 0;
+        
+        if (!empty($lotRaqamlari)) {
+            $receivedAmount = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->sum('tolov_summa');
+        }
+
+        $paymentPercentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
+
+        return [
+            'total_lots' => $totalLots,
+            'expected_amount' => $expectedAmount,
+            'received_amount' => $receivedAmount,
+            'payment_percentage' => $paymentPercentage
+        ];
+    }
+
+    /**
+     * Calculate tuman monitoring statistics
+     */
+    private function calculateTumanMonitoring(?array $tumanPatterns, array $dateFilters): array
+    {
+        $query = YerSotuv::query();
+        
+        $this->yerSotuvService->applyTumanFilter($query, $tumanPatterns);
+        $query->where('tolov_turi', 'муддатли');
+        $this->yerSotuvService->applyDateFilters($query, $dateFilters);
+
+        $lots = $query->count();
+
+        if ($lots === 0) {
+            return [
+                'lots' => 0,
+                'grafik' => 0,
+                'fakt' => 0,
+                'difference' => 0,
+                'percentage' => 0
+            ];
+        }
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        // Get grafik summa (up to last month)
+        $bugun = $this->yerSotuvService->getGrafikCutoffDate();
+        
+        $grafikSumma = DB::table('grafik_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
+            ->sum('grafik_summa');
+
+        // Get fakt summa
+        $faktSumma = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->sum('tolov_summa');
+
+        $difference = $grafikSumma - $faktSumma;
+        $percentage = $grafikSumma > 0 ? ($faktSumma / $grafikSumma) * 100 : 0;
+
+        return [
+            'lots' => $lots,
+            'grafik' => $grafikSumma,
+            'fakt' => $faktSumma,
+            'difference' => $difference,
+            'percentage' => $percentage
+        ];
+    }
+
+    /**
+     * Prepare chart data
+     */
+    private function prepareChartData(array $tumanStats, array $dateFilters): array
+    {
+        // Payment status distribution
+        $toliqTolanganlar = $this->yerSotuvService->getToliqTolanganlar(null, $dateFilters);
+        $nazoratdagilar = $this->yerSotuvService->getNazoratdagilar(null, $dateFilters);
+        $grafikOrtda = $this->yerSotuvService->getGrafikOrtda(null, $dateFilters);
+        $auksonda = $this->yerSotuvService->getAuksondaTurgan(null, $dateFilters);
+
+        // Monthly comparison data
+        $monthlyData = $this->getMonthlyComparisonData($dateFilters);
+
+        // Tuman comparison data
+        $tumanLabels = array_column($tumanStats, 'tuman');
+        $tumanGrafik = array_map(function($val) { return $val / 1000000000; }, array_column($tumanStats, 'grafik'));
+        $tumanFakt = array_map(function($val) { return $val / 1000000000; }, array_column($tumanStats, 'fakt'));
+
+        // Overdue amounts by tuman
+        $overdueLabels = [];
+        $overdueAmounts = [];
+        foreach ($tumanStats as $stat) {
+            if ($stat['difference'] > 0) {
+                $overdueLabels[] = $stat['tuman'];
+                $overdueAmounts[] = round($stat['difference'] / 1000000000, 2);
+            }
+        }
+
+        return [
+            'status' => [
+                'completed' => $toliqTolanganlar['soni'],
+                'under_control' => $nazoratdagilar['soni'],
+                'overdue' => $grafikOrtda['soni'],
+                'auction' => $auksonda['soni']
+            ],
+            'monthly' => $monthlyData,
+            'tuman' => [
+                'labels' => $tumanLabels,
+                'grafik' => $tumanGrafik,
+                'fakt' => $tumanFakt
+            ],
+            'overdue' => [
+                'labels' => $overdueLabels,
+                'amounts' => $overdueAmounts
+            ]
+        ];
+    }
+
+    /**
+     * Get monthly comparison data for charts
+     */
+    private function getMonthlyComparisonData(array $dateFilters): array
+    {
+        $query = YerSotuv::query();
+        $query->where('tolov_turi', 'муддатли');
+        $this->yerSotuvService->applyDateFilters($query, $dateFilters);
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        if (empty($lotRaqamlari)) {
+            return [
+                'labels' => [],
+                'grafik' => [],
+                'fakt' => []
+            ];
+        }
+
+        // Get last 12 months
+        $months = [];
+        $grafikData = [];
+        $faktData = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $year = $date->year;
+            $month = $date->month;
+            
+            $monthLabel = $date->locale('uz')->translatedFormat('M Y');
+            $months[] = $monthLabel;
+
+            // Get grafik for this month
+            $grafikSum = DB::table('grafik_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->where('yil', $year)
+                ->where('oy', $month)
+                ->sum('grafik_summa');
+
+            // Get fakt for this month
+            $faktSum = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->whereYear('tolov_sana', $year)
+                ->whereMonth('tolov_sana', $month)
+                ->sum('tolov_summa');
+
+            $grafikData[] = round($grafikSum / 1000000000, 2);
+            $faktData[] = round($faktSum / 1000000000, 2);
+        }
+
+        return [
+            'labels' => $months,
+            'grafik' => $grafikData,
+            'fakt' => $faktData
+        ];
     }
 
     /**
@@ -288,21 +562,4 @@ class YerSotuvController extends Controller
 
         return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
     }
-
-    public function edit($lot_raqami)
-{
-    $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
-    return view('yer-sotuvlar.edit', compact('yer'));
-}
-
-public function update(Request $request, $lot_raqami)
-{
-    $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
-    $yer->update($request->all());
-    
-    return redirect()->route('yer-sotuvlar.show', $lot_raqami)
-                     ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
-}
-
-
 }
