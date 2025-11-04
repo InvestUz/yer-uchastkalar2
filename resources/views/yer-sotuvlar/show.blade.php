@@ -216,10 +216,16 @@
                                 <td class="py-2 text-gray-600">Ғолиб</td>
                                 <td class="py-2 font-medium text-gray-900">{{ $yer->golib_nomi ?? '-' }}</td>
                             </tr>
-   <tr>
-                                <td class="py-2 text-gray-600">Ғолиб рақами</td>
-                                <td class="py-2 font-medium text-gray-900">{{ $yer->telefon ?? '-' }}</td>
-                            </tr>
+  @if ($yer->telefon)
+                                <tr>
+                                    <td class="py-2 text-gray-600">Телефон</td>
+                                    <td class="py-2 text-gray-900">
+                                        <a href="tel:{{ $yer->telefon }}" class="text-blue-600 hover:text-blue-800">
+                                            {{ $yer->telefon }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endif
                             <tr>
                                 <td class="py-2 text-gray-600">Субъект тури</td>
                                 <td class="py-2 text-gray-900">
@@ -231,16 +237,7 @@
 
                                 </td>
                             </tr>
-                            @if ($yer->telefon)
-                                <tr>
-                                    <td class="py-2 text-gray-600">Телефон</td>
-                                    <td class="py-2 text-gray-900">
-                                        <a href="tel:{{ $yer->telefon }}" class="text-blue-600 hover:text-blue-800">
-                                            {{ $yer->telefon }}
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endif
+
                             <tr>
                                 <td class="py-2 text-gray-600">Тўлов тури</td>
                                 <td class="py-2">
