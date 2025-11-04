@@ -143,7 +143,7 @@
                                 <tr>
                                     <td class="py-2 text-gray-600">Локация</td>
                                     <td class="py-2">
-                                        <a href="https://www.google.com/maps?q={{ $yer->lokatsiya }}" target="_blank"
+                                        <a href="{{ $yer->lokatsiya }}" target="_blank"
                                             class="inline-flex items-center text-blue-600 hover:text-blue-800">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -215,6 +215,10 @@
                             <tr>
                                 <td class="py-2 text-gray-600">Ғолиб</td>
                                 <td class="py-2 font-medium text-gray-900">{{ $yer->golib_nomi ?? '-' }}</td>
+                            </tr>
+   <tr>
+                                <td class="py-2 text-gray-600">Ғолиб рақами</td>
+                                <td class="py-2 font-medium text-gray-900">{{ $yer->telefon ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Субъект тури</td>
