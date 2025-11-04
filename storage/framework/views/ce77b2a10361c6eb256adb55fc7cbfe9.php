@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Ер Участка Маълумотларини Таҳрирлаш - ' . $yer->lot_raqami); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -13,7 +11,7 @@
                 </h1>
                 <p class="text-slate-600">Лот рақами: <span class="font-semibold text-blue-600"><?php echo e($yer->lot_raqami); ?></span></p>
             </div>
-            <a href="<?php echo e(route('yer-sotuvlar.show', $yer->lot_raqami)); ?>" 
+            <a href="<?php echo e(route('yer-sotuvlar.show', $yer->lot_raqami)); ?>"
                class="flex items-center space-x-2 px-5 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -36,83 +34,83 @@
                 </svg>
                 <span>Асосий маълумотлар</span>
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Lot Raqami -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Лот рақами *</label>
-                    <input type="text" name="lot_raqami" value="<?php echo e(old('lot_raqami', $yer->lot_raqami)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all" 
+                    <input type="text" name="lot_raqami" value="<?php echo e(old('lot_raqami', $yer->lot_raqami)); ?>"
+                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all"
                            required readonly>
                 </div>
 
                 <!-- Tuman -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Туман</label>
-                    <input type="text" name="tuman" value="<?php echo e(old('tuman', $yer->tuman)); ?>" 
+                    <input type="text" name="tuman" value="<?php echo e(old('tuman', $yer->tuman)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- MFY -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">МФЙ</label>
-                    <input type="text" name="mfy" value="<?php echo e(old('mfy', $yer->mfy)); ?>" 
+                    <input type="text" name="mfy" value="<?php echo e(old('mfy', $yer->mfy)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Manzil -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Манзил</label>
-                    <input type="text" name="manzil" value="<?php echo e(old('manzil', $yer->manzil)); ?>" 
+                    <input type="text" name="manzil" value="<?php echo e(old('manzil', $yer->manzil)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Unikal Raqam -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Уникал рақам</label>
-                    <input type="text" name="unikal_raqam" value="<?php echo e(old('unikal_raqam', $yer->unikal_raqam)); ?>" 
+                    <input type="text" name="unikal_raqam" value="<?php echo e(old('unikal_raqam', $yer->unikal_raqam)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Zona -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Зона</label>
-                    <input type="text" name="zona" value="<?php echo e(old('zona', $yer->zona)); ?>" 
+                    <input type="text" name="zona" value="<?php echo e(old('zona', $yer->zona)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Bosh Reja Zona -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Бош режа зонаси</label>
-                    <input type="text" name="bosh_reja_zona" value="<?php echo e(old('bosh_reja_zona', $yer->bosh_reja_zona)); ?>" 
+                    <input type="text" name="bosh_reja_zona" value="<?php echo e(old('bosh_reja_zona', $yer->bosh_reja_zona)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Yangi Ozbekiston -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Янги Ўзбекистон</label>
-                    <input type="text" name="yangi_ozbekiston" value="<?php echo e(old('yangi_ozbekiston', $yer->yangi_ozbekiston)); ?>" 
+                    <input type="text" name="yangi_ozbekiston" value="<?php echo e(old('yangi_ozbekiston', $yer->yangi_ozbekiston)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Maydoni -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Майдони (га)</label>
-                    <input type="number" step="0.0001" name="maydoni" value="<?php echo e(old('maydoni', $yer->maydoni)); ?>" 
+                    <input type="number" step="0.0001" name="maydoni" value="<?php echo e(old('maydoni', $yer->maydoni)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Yil -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Йил</label>
-                    <input type="number" name="yil" value="<?php echo e(old('yil', $yer->yil)); ?>" 
+                    <input type="number" name="yil" value="<?php echo e(old('yil', $yer->yil)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Lokatsiya -->
                 <div class="md:col-span-2 lg:col-span-3">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Локация (Google Maps link)</label>
-                    <textarea name="lokatsiya" rows="2" 
+                    <textarea name="lokatsiya" rows="2"
                               class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all"><?php echo e(old('lokatsiya', $yer->lokatsiya)); ?></textarea>
                 </div>
             </div>
@@ -126,33 +124,33 @@
                 </svg>
                 <span>Қурилиш маълумотлари</span>
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Qurilish Turi 1 -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Қурилиш тури 1</label>
-                    <input type="text" name="qurilish_turi_1" value="<?php echo e(old('qurilish_turi_1', $yer->qurilish_turi_1)); ?>" 
+                    <input type="text" name="qurilish_turi_1" value="<?php echo e(old('qurilish_turi_1', $yer->qurilish_turi_1)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Qurilish Turi 2 -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Қурилиш тури 2</label>
-                    <input type="text" name="qurilish_turi_2" value="<?php echo e(old('qurilish_turi_2', $yer->qurilish_turi_2)); ?>" 
+                    <input type="text" name="qurilish_turi_2" value="<?php echo e(old('qurilish_turi_2', $yer->qurilish_turi_2)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Qurilish Maydoni -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Қурилиш майдони (кв.м)</label>
-                    <input type="number" step="0.01" name="qurilish_maydoni" value="<?php echo e(old('qurilish_maydoni', $yer->qurilish_maydoni)); ?>" 
+                    <input type="number" step="0.01" name="qurilish_maydoni" value="<?php echo e(old('qurilish_maydoni', $yer->qurilish_maydoni)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Investitsiya -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Инвестиция (АҚШ долл)</label>
-                    <input type="number" step="0.01" name="investitsiya" value="<?php echo e(old('investitsiya', $yer->investitsiya)); ?>" 
+                    <input type="number" step="0.01" name="investitsiya" value="<?php echo e(old('investitsiya', $yer->investitsiya)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
             </div>
@@ -166,40 +164,40 @@
                 </svg>
                 <span>Аукцион маълумотлари</span>
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Boshlangich Narx -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Бошланғич нарх</label>
-                    <input type="number" step="0.01" name="boshlangich_narx" value="<?php echo e(old('boshlangich_narx', $yer->boshlangich_narx)); ?>" 
+                    <input type="number" step="0.01" name="boshlangich_narx" value="<?php echo e(old('boshlangich_narx', $yer->boshlangich_narx)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Auksion Sana -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Аукцион санаси</label>
-                    <input type="date" name="auksion_sana" value="<?php echo e(old('auksion_sana', $yer->auksion_sana?->format('Y-m-d'))); ?>" 
+                    <input type="date" name="auksion_sana" value="<?php echo e(old('auksion_sana', $yer->auksion_sana?->format('Y-m-d'))); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Sotilgan Narx -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Сотилган нарх</label>
-                    <input type="number" step="0.01" name="sotilgan_narx" value="<?php echo e(old('sotilgan_narx', $yer->sotilgan_narx)); ?>" 
+                    <input type="number" step="0.01" name="sotilgan_narx" value="<?php echo e(old('sotilgan_narx', $yer->sotilgan_narx)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Auksion Golibi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Аукцион ғолиби</label>
-                    <input type="text" name="auksion_golibi" value="<?php echo e(old('auksion_golibi', $yer->auksion_golibi)); ?>" 
+                    <input type="text" name="auksion_golibi" value="<?php echo e(old('auksion_golibi', $yer->auksion_golibi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Golib Turi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ғолиб тури</label>
-                    <select name="golib_turi" 
+                    <select name="golib_turi"
                             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                         <option value="">Танланг</option>
                         <option value="юр лицо" <?php echo e(old('golib_turi', $yer->golib_turi) == 'юр лицо' ? 'selected' : ''); ?>>юр лицо</option>
@@ -210,21 +208,21 @@
                 <!-- Golib Nomi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ғолиб номи</label>
-                    <input type="text" name="golib_nomi" value="<?php echo e(old('golib_nomi', $yer->golib_nomi)); ?>" 
+                    <input type="text" name="golib_nomi" value="<?php echo e(old('golib_nomi', $yer->golib_nomi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Telefon -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Телефон</label>
-                    <input type="text" name="telefon" value="<?php echo e(old('telefon', $yer->telefon)); ?>" 
+                    <input type="text" name="telefon" value="<?php echo e(old('telefon', $yer->telefon)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Tolov Turi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Тўлов тури</label>
-                    <select name="tolov_turi" 
+                    <select name="tolov_turi"
                             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                         <option value="">Танланг</option>
                         <option value="муддатли" <?php echo e(old('tolov_turi', $yer->tolov_turi) == 'муддатли' ? 'selected' : ''); ?>>муддатли</option>
@@ -235,14 +233,14 @@
                 <!-- Asos -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Асос</label>
-                    <input type="text" name="asos" value="<?php echo e(old('asos', $yer->asos)); ?>" 
+                    <input type="text" name="asos" value="<?php echo e(old('asos', $yer->asos)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Auksion Turi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Аукцион тури</label>
-                    <select name="auksion_turi" 
+                    <select name="auksion_turi"
                             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                         <option value="">Танланг</option>
                         <option value="Очиқ" <?php echo e(old('auksion_turi', $yer->auksion_turi) == 'Очиқ аукцион' ? 'selected' : ''); ?>>Очиқ</option>
@@ -253,7 +251,7 @@
                 <!-- Holat -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ҳолат</label>
-                    <input type="text" name="holat" value="<?php echo e(old('holat', $yer->holat)); ?>" 
+                    <input type="text" name="holat" value="<?php echo e(old('holat', $yer->holat)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
             </div>
@@ -267,26 +265,26 @@
                 </svg>
                 <span>Шартнома маълумотлари</span>
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Shartnoma Holati -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома ҳолати</label>
-                    <input type="text" name="shartnoma_holati" value="<?php echo e(old('shartnoma_holati', $yer->shartnoma_holati)); ?>" 
+                    <input type="text" name="shartnoma_holati" value="<?php echo e(old('shartnoma_holati', $yer->shartnoma_holati)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Shartnoma Sana -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома санаси</label>
-                    <input type="date" name="shartnoma_sana" value="<?php echo e(old('shartnoma_sana', $yer->shartnoma_sana?->format('Y-m-d'))); ?>" 
+                    <input type="date" name="shartnoma_sana" value="<?php echo e(old('shartnoma_sana', $yer->shartnoma_sana?->format('Y-m-d'))); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Shartnoma Raqam -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома рақами</label>
-                    <input type="text" name="shartnoma_raqam" value="<?php echo e(old('shartnoma_raqam', $yer->shartnoma_raqam)); ?>" 
+                    <input type="text" name="shartnoma_raqam" value="<?php echo e(old('shartnoma_raqam', $yer->shartnoma_raqam)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
             </div>
@@ -300,274 +298,99 @@
                 </svg>
                 <span>Молиявий маълумотлар</span>
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Golib Tolagan -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ғолиб тўлаган</label>
-                    <input type="number" step="0.01" name="golib_tolagan" value="<?php echo e(old('golib_tolagan', $yer->golib_tolagan)); ?>" 
+                    <input type="number" step="0.01" name="golib_tolagan" value="<?php echo e(old('golib_tolagan', $yer->golib_tolagan)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Buyurtmachiga Otkazilgan -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Буюртмачига ўтказилган</label>
-                    <input type="number" step="0.01" name="buyurtmachiga_otkazilgan" value="<?php echo e(old('buyurtmachiga_otkazilgan', $yer->buyurtmachiga_otkazilgan)); ?>" 
+                    <input type="number" step="0.01" name="buyurtmachiga_otkazilgan" value="<?php echo e(old('buyurtmachiga_otkazilgan', $yer->buyurtmachiga_otkazilgan)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Chegirma -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Чегирма</label>
-                    <input type="number" step="0.01" name="chegirma" value="<?php echo e(old('chegirma', $yer->chegirma)); ?>" 
+                    <input type="number" step="0.01" name="chegirma" value="<?php echo e(old('chegirma', $yer->chegirma)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Auksion Harajati -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Аукцион ҳаражати (1%)</label>
-                    <input type="number" step="0.01" name="auksion_harajati" value="<?php echo e(old('auksion_harajati', $yer->auksion_harajati)); ?>" 
+                    <input type="number" step="0.01" name="auksion_harajati" value="<?php echo e(old('auksion_harajati', $yer->auksion_harajati)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Tushadigan Mablagh -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Тушадиган маблағ</label>
-                    <input type="number" step="0.01" name="tushadigan_mablagh" value="<?php echo e(old('tushadigan_mablagh', $yer->tushadigan_mablagh)); ?>" 
+                    <input type="number" step="0.01" name="tushadigan_mablagh" value="<?php echo e(old('tushadigan_mablagh', $yer->tushadigan_mablagh)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Davaktiv Jamgarmasi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Давактив жамғармаси</label>
-                    <input type="number" step="0.01" name="davaktiv_jamgarmasi" value="<?php echo e(old('davaktiv_jamgarmasi', $yer->davaktiv_jamgarmasi)); ?>" 
+                    <input type="number" step="0.01" name="davaktiv_jamgarmasi" value="<?php echo e(old('davaktiv_jamgarmasi', $yer->davaktiv_jamgarmasi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Shartnoma Tushgan -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома бўйича тушган</label>
-                    <input type="number" step="0.01" name="shartnoma_tushgan" value="<?php echo e(old('shartnoma_tushgan', $yer->shartnoma_tushgan)); ?>" 
+                    <input type="number" step="0.01" name="shartnoma_tushgan" value="<?php echo e(old('shartnoma_tushgan', $yer->shartnoma_tushgan)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Davaktivda Turgan -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Давактивда турган</label>
-                    <input type="number" step="0.01" name="davaktivda_turgan" value="<?php echo e(old('davaktivda_turgan', $yer->davaktivda_turgan)); ?>" 
+                    <input type="number" step="0.01" name="davaktivda_turgan" value="<?php echo e(old('davaktivda_turgan', $yer->davaktivda_turgan)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Yer Auksion Harajat -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ер аукцион ҳаражат</label>
-                    <input type="number" step="0.01" name="yer_auksion_harajat" value="<?php echo e(old('yer_auksion_harajat', $yer->yer_auksion_harajat)); ?>" 
+                    <input type="number" step="0.01" name="yer_auksion_harajat" value="<?php echo e(old('yer_auksion_harajat', $yer->yer_auksion_harajat)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Shartnoma Summasi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома суммаси</label>
-                    <input type="number" step="0.01" name="shartnoma_summasi" value="<?php echo e(old('shartnoma_summasi', $yer->shartnoma_summasi)); ?>" 
+                    <input type="number" step="0.01" name="shartnoma_summasi" value="<?php echo e(old('shartnoma_summasi', $yer->shartnoma_summasi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Farqi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Фарқи</label>
-                    <input type="number" step="0.01" name="farqi" value="<?php echo e(old('farqi', $yer->farqi)); ?>" 
+                    <input type="number" step="0.01" name="farqi" value="<?php echo e(old('farqi', $yer->farqi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
             </div>
         </div>
 
-        <!-- Тақсимот - Тушадиган -->
-        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-indigo-500">
-            <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center space-x-2">
-                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <span>Тақсимот - Тушадиган</span>
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Mahalliy Byudjet Tushadigan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Маҳаллий бюджет</label>
-                    <input type="number" step="0.01" name="mahalliy_byudjet_tushadigan" value="<?php echo e(old('mahalliy_byudjet_tushadigan', $yer->mahalliy_byudjet_tushadigan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Jamgarma Tushadigan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Жамғарма</label>
-                    <input type="number" step="0.01" name="jamgarma_tushadigan" value="<?php echo e(old('jamgarma_tushadigan', $yer->jamgarma_tushadigan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Yangi Oz Direksiya Tushadigan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Янги Ўзбекистон дир.</label>
-                    <input type="number" step="0.01" name="yangi_oz_direksiya_tushadigan" value="<?php echo e(old('yangi_oz_direksiya_tushadigan', $yer->yangi_oz_direksiya_tushadigan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Shayxontohur Tushadigan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Шайхонтоҳур</label>
-                    <input type="number" step="0.01" name="shayxontohur_tushadigan" value="<?php echo e(old('shayxontohur_tushadigan', $yer->shayxontohur_tushadigan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Yangi Hayot Industrial Park Tushadigan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Янги Ҳаёт Инд. Парк</label>
-                    <input type="number" step="0.01" name="yangi_hayot_industrial_park_tushadigan" value="<?php echo e(old('yangi_hayot_industrial_park_tushadigan', $yer->yangi_hayot_industrial_park_tushadigan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- KSZ Direksiyalari Tushadigan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">КСЗ дирекциялари</label>
-                    <input type="number" step="0.01" name="ksz_direksiyalari_tushadigan" value="<?php echo e(old('ksz_direksiyalari_tushadigan', $yer->ksz_direksiyalari_tushadigan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Toshkent City Direksiya Tushadigan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Тошкент Сити дир.</label>
-                    <input type="number" step="0.01" name="toshkent_city_direksiya_tushadigan" value="<?php echo e(old('toshkent_city_direksiya_tushadigan', $yer->toshkent_city_direksiya_tushadigan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Tuman Byudjeti Tushadigan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Туман бюджети</label>
-                    <input type="number" step="0.01" name="tuman_byudjeti_tushadigan" value="<?php echo e(old('tuman_byudjeti_tushadigan', $yer->tuman_byudjeti_tushadigan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-            </div>
-        </div>
-
-        <!-- Тақсимот - Тақсимланган -->
-        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-teal-500">
-            <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center space-x-2">
-                <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                </svg>
-                <span>Тақсимот - Тақсимланган</span>
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Mahalliy Byudjet Taqsimlangan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Маҳаллий бюджет</label>
-                    <input type="number" step="0.01" name="mahalliy_byudjet_taqsimlangan" value="<?php echo e(old('mahalliy_byudjet_taqsimlangan', $yer->mahalliy_byudjet_taqsimlangan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Jamgarma Taqsimlangan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Жамғарма</label>
-                    <input type="number" step="0.01" name="jamgarma_taqsimlangan" value="<?php echo e(old('jamgarma_taqsimlangan', $yer->jamgarma_taqsimlangan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Yangi Oz Direksiya Taqsimlangan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Янги Ўзбекистон дир.</label>
-                    <input type="number" step="0.01" name="yangi_oz_direksiya_taqsimlangan" value="<?php echo e(old('yangi_oz_direksiya_taqsimlangan', $yer->yangi_oz_direksiya_taqsimlangan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Shayxontohur Taqsimlangan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Шайхонтоҳур</label>
-                    <input type="number" step="0.01" name="shayxontohur_taqsimlangan" value="<?php echo e(old('shayxontohur_taqsimlangan', $yer->shayxontohur_taqsimlangan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Yangi Hayot Industrial Park Taqsimlangan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Янги Ҳаёт Инд. Парк</label>
-                    <input type="number" step="0.01" name="yangi_hayot_industrial_park_taqsimlangan" value="<?php echo e(old('yangi_hayot_industrial_park_taqsimlangan', $yer->yangi_hayot_industrial_park_taqsimlangan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- KSZ Direksiyalari Taqsimlangan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">КСЗ дирекциялари</label>
-                    <input type="number" step="0.01" name="ksz_direksiyalari_taqsimlangan" value="<?php echo e(old('ksz_direksiyalari_taqsimlangan', $yer->ksz_direksiyalari_taqsimlangan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Toshkent City Direksiya Taqsimlangan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Тошкент Сити дир.</label>
-                    <input type="number" step="0.01" name="toshkent_city_direksiya_taqsimlangan" value="<?php echo e(old('toshkent_city_direksiya_taqsimlangan', $yer->toshkent_city_direksiya_taqsimlangan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Tuman Byudjeti Taqsimlangan -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Туман бюджети</label>
-                    <input type="number" step="0.01" name="tuman_byudjeti_taqsimlangan" value="<?php echo e(old('tuman_byudjeti_taqsimlangan', $yer->tuman_byudjeti_taqsimlangan)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-            </div>
-        </div>
-
-        <!-- Қолдиқ -->
-        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
-            <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center space-x-2">
-                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
-                </svg>
-                <span>Қолдиқ</span>
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Qoldiq Mahalliy Byudjet -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Маҳаллий бюджет</label>
-                    <input type="number" step="0.01" name="qoldiq_mahalliy_byudjet" value="<?php echo e(old('qoldiq_mahalliy_byudjet', $yer->qoldiq_mahalliy_byudjet)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Qoldiq Jamgarma -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Жамғарма</label>
-                    <input type="number" step="0.01" name="qoldiq_jamgarma" value="<?php echo e(old('qoldiq_jamgarma', $yer->qoldiq_jamgarma)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Qoldiq Yangi Oz Direksiya -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Янги Ўзбекистон дир.</label>
-                    <input type="number" step="0.01" name="qoldiq_yangi_oz_direksiya" value="<?php echo e(old('qoldiq_yangi_oz_direksiya', $yer->qoldiq_yangi_oz_direksiya)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-
-                <!-- Qoldiq Shayxontohur -->
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Шайхонтоҳур</label>
-                    <input type="number" step="0.01" name="qoldiq_shayxontohur" value="<?php echo e(old('qoldiq_shayxontohur', $yer->qoldiq_shayxontohur)); ?>" 
-                           class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
-                </div>
-            </div>
-        </div>
 
         <!-- Form Actions -->
         <div class="flex items-center justify-between bg-slate-50 rounded-xl p-6 border-2 border-slate-200">
-            <a href="<?php echo e(route('yer-sotuvlar.show', $yer->lot_raqami)); ?>" 
+            <a href="<?php echo e(route('yer-sotuvlar.show', $yer->lot_raqami)); ?>"
                class="flex items-center space-x-2 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg transition-all duration-300 font-semibold">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
                 <span>Бекор қилиш</span>
             </a>
-            
-            <button type="submit" 
+
+            <button type="submit"
                     class="flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl font-bold">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -633,4 +456,5 @@
     }, 5000);
 </script> -->
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Администратор\Desktop\yer-uchastkalar2\resources\views/yer-sotuvlar/edit.blade.php ENDPATH**/ ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/edit.blade.php ENDPATH**/ ?>
