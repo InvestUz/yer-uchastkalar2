@@ -175,7 +175,6 @@ class YerSotuvService
                 $auksionMablagh += $golibTolagan;
             }
         }
-
         return [
             'soni' => $results->count(),
             'auksion_mablagh' => $auksionMablagh
