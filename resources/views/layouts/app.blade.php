@@ -154,7 +154,7 @@
                 <!-- Logo & Title -->
                 <div class="flex items-center space-x-4">
                     <div class="relative group">
-                        <div class="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                        <div class="w-16 h-16 rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                            <img src="https://toshkentinvest.uz/assets/frontend/tild6238-3031-4265-a564-343037346231/tic_logo_blue.png" alt="">
                         </div>
                     </div>
@@ -169,7 +169,7 @@
                       <!-- <a href="{{ route('yer-sotuvlar.monitoring') }}"
                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 {{ request()->routeIs('yer-sotuvlar.monitoring') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
                         <div class="flex items-center space-x-2">
-                         
+
                             <span>Мониторинг</span>
                         </div>
                     </a> -->
@@ -268,7 +268,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
                 <!-- Left Section -->
                 <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
