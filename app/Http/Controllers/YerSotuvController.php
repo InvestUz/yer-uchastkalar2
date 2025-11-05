@@ -204,8 +204,7 @@ class YerSotuvController extends Controller
         } else {
             $statistics['fakt_tolangan'] = 0;
         }
-        $statistics['qoldiq'] = ($statistics['shartnoma_summasi'] + $statistics['golib_tolagan'])
-            - ($statistics['fakt_tolangan'] + $statistics['auksion_harajati']);
+
 
         $paymentPercentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
 

@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Бўлиб тўлаш маълумоти'); ?>
 
-@section('title', 'Бўлиб тўлаш маълумоти')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
     <div class="max-w-[98%] mx-auto">
         <!-- Premium Government Header -->
@@ -37,7 +35,7 @@
                                     Нархини бўлиб тўлаш шарти билан сотилган
                                 </th>
                                 <th colspan="11" class="border border-slate-300 px-2 py-2 text-center font-bold text-slate-800 text-sm">
-                                    шундан, {{ now()->format('d.m.Y') }} ҳолатига
+                                    шундан, <?php echo e(now()->format('d.m.Y')); ?> ҳолатига
                                 </th>
                                 <th colspan="5" class="border border-slate-300 px-2 py-2 text-center font-bold text-slate-800 text-sm">
                                     шундан, графикда ортда қолганлар
@@ -136,202 +134,246 @@
 
                                 <!-- Narhini bolib tolash - 5 columns -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['narhini_bolib']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['narhini_bolib']['soni']); ?>
+
                                     </a>
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['narhini_bolib']['maydoni'], 2) }}
+                                    <?php echo e(number_format($statistics['jami']['narhini_bolib']['maydoni'], 2)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['narhini_bolib']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['narhini_bolib']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['narhini_bolib']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['narhini_bolib']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['narhini_bolib']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['narhini_bolib']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Toliq tolanganlar - 5 columns -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['toliq_tolanganlar']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['toliq_tolanganlar']['soni']); ?>
+
                                     </a>
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['toliq_tolanganlar']['maydoni'], 2) }}
+                                    <?php echo e(number_format($statistics['jami']['toliq_tolanganlar']['maydoni'], 2)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['toliq_tolanganlar']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['toliq_tolanganlar']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['toliq_tolanganlar']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['toliq_tolanganlar']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    @php
+                                    <?php
                                         $tushganJamiToliq = $statistics['jami']['toliq_tolanganlar']['tushgan_summa'] ?? 0;
-                                    @endphp
-                                    {{ $tushganJamiToliq > 0 ? number_format($tushganJamiToliq / 1000000000, 1) : '0.0' }}
+                                    ?>
+                                    <?php echo e($tushganJamiToliq > 0 ? number_format($tushganJamiToliq / 1000000000, 1) : '0.0'); ?>
+
                                 </td>
 
                                 <!-- Nazoratdagilar - 6 columns -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'nazoratda' => 'true']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['nazoratdagilar']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'nazoratda' => 'true'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['nazoratdagilar']['soni']); ?>
+
                                     </a>
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['nazoratdagilar']['maydoni'], 2) }}
+                                    <?php echo e(number_format($statistics['jami']['nazoratdagilar']['maydoni'], 2)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['nazoratdagilar']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['nazoratdagilar']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['nazoratdagilar']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['nazoratdagilar']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['nazoratdagilar']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['nazoratdagilar']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    @php
+                                    <?php
                                         $tushganJamiNazorat = $statistics['jami']['nazoratdagilar']['tushgan_summa'] ?? 0;
-                                    @endphp
-                                    {{ $tushganJamiNazorat > 0 ? number_format($tushganJamiNazorat / 1000000000, 1) : '0.0' }}
+                                    ?>
+                                    <?php echo e($tushganJamiNazorat > 0 ? number_format($tushganJamiNazorat / 1000000000, 1) : '0.0'); ?>
+
                                 </td>
 
                                 <!-- Grafik ortda - 5 columns -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['grafik_ortda']['soni'] }}
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+                                        <?php echo e($statistics['jami']['grafik_ortda']['soni']); ?>
+
                                     </a>
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['grafik_ortda']['maydoni'], 2) }}
+                                    <?php echo e(number_format($statistics['jami']['grafik_ortda']['maydoni'], 2)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['grafik_ortda']['grafik_summa'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['grafik_ortda']['grafik_summa'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['grafik_ortda']['fakt_summa'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($statistics['jami']['grafik_ortda']['fakt_summa'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    {{ number_format($statistics['jami']['grafik_ortda']['foiz'], 1) }}
+                                    <?php echo e(number_format($statistics['jami']['grafik_ortda']['foiz'], 1)); ?>
+
                                 </td>
                             </tr>
 
                             <!-- Tumanlar -->
-                            @foreach($statistics['tumanlar'] as $index => $tuman)
-                            <tr class="hover:bg-blue-50 transition-colors duration-150 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">
+                            <?php $__currentLoopData = $statistics['tumanlar']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $tuman): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <tr class="hover:bg-blue-50 transition-colors duration-150 <?php echo e($index % 2 == 0 ? 'bg-white' : 'bg-slate-50'); ?>">
                                 <td class="sticky-col border border-slate-300 px-2 py-2 text-center align-middle font-medium text-slate-700">
-                                    {{ $index + 1 }}
+                                    <?php echo e($index + 1); ?>
+
                                 </td>
                                 <td class="sticky-col-2 border border-slate-300 px-3 py-2 align-middle font-semibold text-slate-800">
-                                    {{ $tuman['tuman'] }}
+                                    <?php echo e($tuman['tuman']); ?>
+
                                 </td>
 
                                 <!-- Narhini bolib tolash - 5 columns -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    @if($tuman['narhini_bolib']['soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['narhini_bolib']['soni'] }}
+                                    <?php if($tuman['narhini_bolib']['soni'] > 0): ?>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                            <?php echo e($tuman['narhini_bolib']['soni']); ?>
+
                                         </a>
-                                    @else
+                                    <?php else: ?>
                                         <span class="text-slate-400">0</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format($tuman['narhini_bolib']['maydoni'], 2) }}
+                                    <?php echo e(number_format($tuman['narhini_bolib']['maydoni'], 2)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format($tuman['narhini_bolib']['boshlangich_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['narhini_bolib']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format($tuman['narhini_bolib']['sotilgan_narx'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['narhini_bolib']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format($tuman['narhini_bolib']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                    <?php echo e(number_format($tuman['narhini_bolib']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                 </td>
 
                                 <!-- Toliq tolanganlar - 5 columns -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    @if(($tuman['toliq_tolanganlar']['soni'] ?? 0) > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['toliq_tolanganlar']['soni'] }}
+                                    <?php if(($tuman['toliq_tolanganlar']['soni'] ?? 0) > 0): ?>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                            <?php echo e($tuman['toliq_tolanganlar']['soni']); ?>
+
                                         </a>
-                                    @else
-                                        <span class="text-slate-400">{{ $tuman['toliq_tolanganlar']['soni'] ?? 0 }}</span>
-                                    @endif
+                                    <?php else: ?>
+                                        <span class="text-slate-400"><?php echo e($tuman['toliq_tolanganlar']['soni'] ?? 0); ?></span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format($tuman['toliq_tolanganlar']['maydoni'] ?? 0, 2) }}
+                                    <?php echo e(number_format($tuman['toliq_tolanganlar']['maydoni'] ?? 0, 2)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format(($tuman['toliq_tolanganlar']['boshlangich_narx'] ?? 0) / 1000000000, 1) }}
+                                    <?php echo e(number_format(($tuman['toliq_tolanganlar']['boshlangich_narx'] ?? 0) / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format(($tuman['toliq_tolanganlar']['sotilgan_narx'] ?? 0) / 1000000000, 1) }}
+                                    <?php echo e(number_format(($tuman['toliq_tolanganlar']['sotilgan_narx'] ?? 0) / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    @php
+                                    <?php
                                         $tushganToliq = $tuman['toliq_tolanganlar']['tushgan_summa'] ?? 0;
-                                    @endphp
-                                    {{ $tushganToliq > 0 ? number_format($tushganToliq / 1000000000, 1) : '0.0' }}
+                                    ?>
+                                    <?php echo e($tushganToliq > 0 ? number_format($tushganToliq / 1000000000, 1) : '0.0'); ?>
+
                                 </td>
 
                                 <!-- Nazoratdagilar - 6 columns -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    @if(($tuman['nazoratdagilar']['soni'] ?? 0) > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'nazoratda' => 'true']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['nazoratdagilar']['soni'] }}
+                                    <?php if(($tuman['nazoratdagilar']['soni'] ?? 0) > 0): ?>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'nazoratda' => 'true'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                            <?php echo e($tuman['nazoratdagilar']['soni']); ?>
+
                                         </a>
-                                    @else
-                                        <span class="text-slate-400">{{ $tuman['nazoratdagilar']['soni'] ?? 0 }}</span>
-                                    @endif
+                                    <?php else: ?>
+                                        <span class="text-slate-400"><?php echo e($tuman['nazoratdagilar']['soni'] ?? 0); ?></span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format($tuman['nazoratdagilar']['maydoni'] ?? 0, 2) }}
+                                    <?php echo e(number_format($tuman['nazoratdagilar']['maydoni'] ?? 0, 2)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format(($tuman['nazoratdagilar']['boshlangich_narx'] ?? 0) / 1000000000, 1) }}
+                                    <?php echo e(number_format(($tuman['nazoratdagilar']['boshlangich_narx'] ?? 0) / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format(($tuman['nazoratdagilar']['sotilgan_narx'] ?? 0) / 1000000000, 1) }}
+                                    <?php echo e(number_format(($tuman['nazoratdagilar']['sotilgan_narx'] ?? 0) / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format(($tuman['nazoratdagilar']['tushadigan_mablagh'] ?? 0) / 1000000000, 1) }}
+                                    <?php echo e(number_format(($tuman['nazoratdagilar']['tushadigan_mablagh'] ?? 0) / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    @php
+                                    <?php
                                         $tushganNazorat = $tuman['nazoratdagilar']['tushgan_summa'] ?? 0;
-                                    @endphp
-                                    {{ $tushganNazorat > 0 ? number_format($tushganNazorat / 1000000000, 1) : '0.0' }}
+                                    ?>
+                                    <?php echo e($tushganNazorat > 0 ? number_format($tushganNazorat / 1000000000, 1) : '0.0'); ?>
+
                                 </td>
 
                                 <!-- Grafik ortda - 5 columns -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    @if(($tuman['grafik_ortda']['soni'] ?? 0) > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'grafik_ortda' => 'true']) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
-                                            {{ $tuman['grafik_ortda']['soni'] }}
+                                    <?php if(($tuman['grafik_ortda']['soni'] ?? 0) > 0): ?>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
+                                            <?php echo e($tuman['grafik_ortda']['soni']); ?>
+
                                         </a>
-                                    @else
-                                        <span class="text-slate-400">{{ $tuman['grafik_ortda']['soni'] ?? 0 }}</span>
-                                    @endif
+                                    <?php else: ?>
+                                        <span class="text-slate-400"><?php echo e($tuman['grafik_ortda']['soni'] ?? 0); ?></span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format($tuman['grafik_ortda']['maydoni'] ?? 0, 2) }}
+                                    <?php echo e(number_format($tuman['grafik_ortda']['maydoni'] ?? 0, 2)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format(($tuman['grafik_ortda']['grafik_summa'] ?? 0) / 1000000000, 1) }}
+                                    <?php echo e(number_format(($tuman['grafik_ortda']['grafik_summa'] ?? 0) / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format(($tuman['grafik_ortda']['fakt_summa'] ?? 0) / 1000000000, 1) }}
+                                    <?php echo e(number_format(($tuman['grafik_ortda']['fakt_summa'] ?? 0) / 1000000000, 1)); ?>
+
                                 </td>
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    {{ number_format($tuman['grafik_ortda']['foiz'] ?? 0, 1) }}
+                                    <?php echo e(number_format($tuman['grafik_ortda']['foiz'] ?? 0, 1)); ?>
+
                                 </td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
@@ -342,20 +384,20 @@
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-t-4 border-blue-600">
 
             <div class="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
-                <form method="GET" action="{{ route('yer-sotuvlar.svod3') }}">
+                <form method="GET" action="<?php echo e(route('yer-sotuvlar.svod3')); ?>">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 
 
                         <!-- Date From -->
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Бошланғич санаси:</label>
-                            <input type="date" name="auksion_sana_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ request('auksion_sana_from') }}">
+                            <input type="date" name="auksion_sana_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="<?php echo e(request('auksion_sana_from')); ?>">
                         </div>
 
                         <!-- Date To -->
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Тугаш санаси:</label>
-                            <input type="date" name="auksion_sana_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ request('auksion_sana_to') }}">
+                            <input type="date" name="auksion_sana_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="<?php echo e(request('auksion_sana_to')); ?>">
                         </div>
 
   <!-- Action Buttons -->
@@ -366,7 +408,7 @@
                             </svg>
                             Қидириш
                         </button>
-                        <a href="{{ route('yer-sotuvlar.index') }}" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
+                        <a href="<?php echo e(route('yer-sotuvlar.index')); ?>" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
@@ -428,4 +470,6 @@
         }
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/svod3.blade.php ENDPATH**/ ?>
