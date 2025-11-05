@@ -108,14 +108,27 @@ class YerSotuvController extends Controller
     /**
      * Update yer sotuv data
      */
-    public function update(Request $request, $lot_raqami)
-    {
-        $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
-        $yer->update($request->all());
 
-        return redirect()->route('yer-sotuvlar.show', $lot_raqami)
+
+public function update(Request $request, $lot_raqami)
+{
+    $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
+
+    $oldLot = $yer->lot_raqami;   // eski lot raqami
+    $yer->update($request->all());
+    $newLot = $yer->lot_raqami;   // yangilangan lot raqami
+
+    // Agar lot raqami o'zgarsa, listga qaytar
+    if ($oldLot !== $newLot) {
+        return redirect()->route('yer-sotuvlar.list')
             ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
     }
+
+    // Aks holda show pagega redirect
+    return redirect()->route('yer-sotuvlar.show', $newLot)
+        ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
+}
+
 
     /**
      * Display monitoring and analytics page

@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Ер Участка Маълумотларини Таҳрирлаш - ' . $yer->lot_raqami); ?>
 
-@section('title', 'Ер Участка Маълумотларини Таҳрирлаш - ' . $yer->lot_raqami)
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="max-w-7xl mx-auto">
     <!-- Header -->
     <div class="mb-8">
@@ -11,9 +9,9 @@
                 <h1 class="text-3xl font-bold text-slate-800 mb-2">
                     Ер Участка Маълумотларини Таҳрирлаш
                 </h1>
-                <p class="text-slate-600">Лот рақами: <span class="font-semibold text-blue-600">{{ $yer->lot_raqami }}</span></p>
+                <p class="text-slate-600">Лот рақами: <span class="font-semibold text-blue-600"><?php echo e($yer->lot_raqami); ?></span></p>
             </div>
-            <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}"
+            <a href="<?php echo e(route('yer-sotuvlar.show', $yer->lot_raqami)); ?>"
                class="flex items-center space-x-2 px-5 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -24,9 +22,9 @@
     </div>
 
     <!-- Form -->
-    <form action="{{ route('yer-sotuvlar.update', $yer->lot_raqami) }}" method="POST" class="space-y-6">
-        @csrf
-        @method('PUT')
+    <form action="<?php echo e(route('yer-sotuvlar.update', $yer->lot_raqami)); ?>" method="POST" class="space-y-6">
+        <?php echo csrf_field(); ?>
+        <?php echo method_field('PUT'); ?>
 
         <!-- Асосий маълумотлар -->
         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
@@ -41,7 +39,7 @@
                 <!-- Lot Raqami -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Лот рақами *</label>
-                    <input type="text" name="lot_raqami" value="{{ old('lot_raqami', $yer->lot_raqami) }}"
+                    <input type="text" name="lot_raqami" value="<?php echo e(old('lot_raqami', $yer->lot_raqami)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all"
                            required>
                 </div>
@@ -49,63 +47,63 @@
                 <!-- Tuman -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Туман</label>
-                    <input type="text" name="tuman" value="{{ old('tuman', $yer->tuman) }}"
+                    <input type="text" name="tuman" value="<?php echo e(old('tuman', $yer->tuman)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- MFY -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">МФЙ</label>
-                    <input type="text" name="mfy" value="{{ old('mfy', $yer->mfy) }}"
+                    <input type="text" name="mfy" value="<?php echo e(old('mfy', $yer->mfy)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Manzil -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Манзил</label>
-                    <input type="text" name="manzil" value="{{ old('manzil', $yer->manzil) }}"
+                    <input type="text" name="manzil" value="<?php echo e(old('manzil', $yer->manzil)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Unikal Raqam -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Уникал рақам</label>
-                    <input type="text" name="unikal_raqam" value="{{ old('unikal_raqam', $yer->unikal_raqam) }}"
+                    <input type="text" name="unikal_raqam" value="<?php echo e(old('unikal_raqam', $yer->unikal_raqam)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Zona -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Зона</label>
-                    <input type="text" name="zona" value="{{ old('zona', $yer->zona) }}"
+                    <input type="text" name="zona" value="<?php echo e(old('zona', $yer->zona)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Bosh Reja Zona -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Бош режа зонаси</label>
-                    <input type="text" name="bosh_reja_zona" value="{{ old('bosh_reja_zona', $yer->bosh_reja_zona) }}"
+                    <input type="text" name="bosh_reja_zona" value="<?php echo e(old('bosh_reja_zona', $yer->bosh_reja_zona)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Yangi Ozbekiston -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Янги Ўзбекистон</label>
-                    <input type="text" name="yangi_ozbekiston" value="{{ old('yangi_ozbekiston', $yer->yangi_ozbekiston) }}"
+                    <input type="text" name="yangi_ozbekiston" value="<?php echo e(old('yangi_ozbekiston', $yer->yangi_ozbekiston)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Maydoni -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Майдони (га)</label>
-                    <input type="number" step="0.0001" name="maydoni" value="{{ old('maydoni', $yer->maydoni) }}"
+                    <input type="number" step="0.0001" name="maydoni" value="<?php echo e(old('maydoni', $yer->maydoni)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Yil -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Йил</label>
-                    <input type="number" name="yil" value="{{ old('yil', $yer->yil) }}"
+                    <input type="number" name="yil" value="<?php echo e(old('yil', $yer->yil)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
@@ -113,7 +111,7 @@
                 <div class="md:col-span-2 lg:col-span-3">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Локация (Google Maps link)</label>
                     <textarea name="lokatsiya" rows="2"
-                              class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">{{ old('lokatsiya', $yer->lokatsiya) }}</textarea>
+                              class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all"><?php echo e(old('lokatsiya', $yer->lokatsiya)); ?></textarea>
                 </div>
             </div>
         </div>
@@ -131,28 +129,28 @@
                 <!-- Qurilish Turi 1 -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Қурилиш тури 1</label>
-                    <input type="text" name="qurilish_turi_1" value="{{ old('qurilish_turi_1', $yer->qurilish_turi_1) }}"
+                    <input type="text" name="qurilish_turi_1" value="<?php echo e(old('qurilish_turi_1', $yer->qurilish_turi_1)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Qurilish Turi 2 -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Қурилиш тури 2</label>
-                    <input type="text" name="qurilish_turi_2" value="{{ old('qurilish_turi_2', $yer->qurilish_turi_2) }}"
+                    <input type="text" name="qurilish_turi_2" value="<?php echo e(old('qurilish_turi_2', $yer->qurilish_turi_2)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Qurilish Maydoni -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Қурилиш майдони (кв.м)</label>
-                    <input type="number" step="0.01" name="qurilish_maydoni" value="{{ old('qurilish_maydoni', $yer->qurilish_maydoni) }}"
+                    <input type="number" step="0.01" name="qurilish_maydoni" value="<?php echo e(old('qurilish_maydoni', $yer->qurilish_maydoni)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Investitsiya -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Инвестиция (АҚШ долл)</label>
-                    <input type="number" step="0.01" name="investitsiya" value="{{ old('investitsiya', $yer->investitsiya) }}"
+                    <input type="number" step="0.01" name="investitsiya" value="<?php echo e(old('investitsiya', $yer->investitsiya)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
             </div>
@@ -171,28 +169,28 @@
                 <!-- Boshlangich Narx -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Бошланғич нарх</label>
-                    <input type="number" step="0.01" name="boshlangich_narx" value="{{ old('boshlangich_narx', $yer->boshlangich_narx) }}"
+                    <input type="number" step="0.01" name="boshlangich_narx" value="<?php echo e(old('boshlangich_narx', $yer->boshlangich_narx)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Auksion Sana -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Аукцион санаси</label>
-                    <input type="date" name="auksion_sana" value="{{ old('auksion_sana', $yer->auksion_sana?->format('Y-m-d')) }}"
+                    <input type="date" name="auksion_sana" value="<?php echo e(old('auksion_sana', $yer->auksion_sana?->format('Y-m-d'))); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Sotilgan Narx -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Сотилган нарх</label>
-                    <input type="number" step="0.01" name="sotilgan_narx" value="{{ old('sotilgan_narx', $yer->sotilgan_narx) }}"
+                    <input type="number" step="0.01" name="sotilgan_narx" value="<?php echo e(old('sotilgan_narx', $yer->sotilgan_narx)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Auksion Golibi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Аукцион ғолиби</label>
-                    <input type="text" name="auksion_golibi" value="{{ old('auksion_golibi', $yer->auksion_golibi) }}"
+                    <input type="text" name="auksion_golibi" value="<?php echo e(old('auksion_golibi', $yer->auksion_golibi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
@@ -202,22 +200,22 @@
                     <select name="golib_turi"
                             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                         <option value="">Танланг</option>
-                        <option value="юр лицо" {{ old('golib_turi', $yer->golib_turi) == 'юр лицо' ? 'selected' : '' }}>юр лицо</option>
-                        <option value="физ лицо" {{ old('golib_turi', $yer->golib_turi) == 'физ лицо' ? 'selected' : '' }}>физ лицо</option>
+                        <option value="юр лицо" <?php echo e(old('golib_turi', $yer->golib_turi) == 'юр лицо' ? 'selected' : ''); ?>>юр лицо</option>
+                        <option value="физ лицо" <?php echo e(old('golib_turi', $yer->golib_turi) == 'физ лицо' ? 'selected' : ''); ?>>физ лицо</option>
                     </select>
                 </div>
 
                 <!-- Golib Nomi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ғолиб номи</label>
-                    <input type="text" name="golib_nomi" value="{{ old('golib_nomi', $yer->golib_nomi) }}"
+                    <input type="text" name="golib_nomi" value="<?php echo e(old('golib_nomi', $yer->golib_nomi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Telefon -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Телефон</label>
-                    <input type="text" name="telefon" value="{{ old('telefon', $yer->telefon) }}"
+                    <input type="text" name="telefon" value="<?php echo e(old('telefon', $yer->telefon)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
@@ -227,15 +225,15 @@
                     <select name="tolov_turi"
                             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                         <option value="">Танланг</option>
-                        <option value="муддатли" {{ old('tolov_turi', $yer->tolov_turi) == 'муддатли' ? 'selected' : '' }}>муддатли</option>
-                        <option value="муддатли эмас" {{ old('tolov_turi', $yer->tolov_turi) == 'муддатли эмас' ? 'selected' : '' }}>муддатли эмас</option>
+                        <option value="муддатли" <?php echo e(old('tolov_turi', $yer->tolov_turi) == 'муддатли' ? 'selected' : ''); ?>>муддатли</option>
+                        <option value="муддатли эмас" <?php echo e(old('tolov_turi', $yer->tolov_turi) == 'муддатли эмас' ? 'selected' : ''); ?>>муддатли эмас</option>
                     </select>
                 </div>
 
                 <!-- Asos -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Асос</label>
-                    <input type="text" name="asos" value="{{ old('asos', $yer->asos) }}"
+                    <input type="text" name="asos" value="<?php echo e(old('asos', $yer->asos)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
@@ -245,15 +243,15 @@
                     <select name="auksion_turi"
                             class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                         <option value="">Танланг</option>
-                        <option value="Очиқ" {{ old('auksion_turi', $yer->auksion_turi) == 'Очиқ аукцион' ? 'selected' : '' }}>Очиқ</option>
-                    <option value="Ёпиқ" {{ old('auksion_turi', $yer->auksion_turi) == 'Ёпиқ аукцион' ? 'selected' : '' }}>Ёпиқ</option>
+                        <option value="Очиқ" <?php echo e(old('auksion_turi', $yer->auksion_turi) == 'Очиқ аукцион' ? 'selected' : ''); ?>>Очиқ</option>
+                    <option value="Ёпиқ" <?php echo e(old('auksion_turi', $yer->auksion_turi) == 'Ёпиқ аукцион' ? 'selected' : ''); ?>>Ёпиқ</option>
                     </select>
                 </div>
 
                 <!-- Holat -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ҳолат</label>
-                    <input type="text" name="holat" value="{{ old('holat', $yer->holat) }}"
+                    <input type="text" name="holat" value="<?php echo e(old('holat', $yer->holat)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
             </div>
@@ -272,21 +270,21 @@
                 <!-- Shartnoma Holati -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома ҳолати</label>
-                    <input type="text" name="shartnoma_holati" value="{{ old('shartnoma_holati', $yer->shartnoma_holati) }}"
+                    <input type="text" name="shartnoma_holati" value="<?php echo e(old('shartnoma_holati', $yer->shartnoma_holati)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Shartnoma Sana -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома санаси</label>
-                    <input type="date" name="shartnoma_sana" value="{{ old('shartnoma_sana', $yer->shartnoma_sana?->format('Y-m-d')) }}"
+                    <input type="date" name="shartnoma_sana" value="<?php echo e(old('shartnoma_sana', $yer->shartnoma_sana?->format('Y-m-d'))); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Shartnoma Raqam -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома рақами</label>
-                    <input type="text" name="shartnoma_raqam" value="{{ old('shartnoma_raqam', $yer->shartnoma_raqam) }}"
+                    <input type="text" name="shartnoma_raqam" value="<?php echo e(old('shartnoma_raqam', $yer->shartnoma_raqam)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
             </div>
@@ -305,77 +303,77 @@
                 <!-- Golib Tolagan -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ғолиб тўлаган</label>
-                    <input type="number" step="0.01" name="golib_tolagan" value="{{ old('golib_tolagan', $yer->golib_tolagan) }}"
+                    <input type="number" step="0.01" name="golib_tolagan" value="<?php echo e(old('golib_tolagan', $yer->golib_tolagan)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Buyurtmachiga Otkazilgan -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Буюртмачига ўтказилган</label>
-                    <input type="number" step="0.01" name="buyurtmachiga_otkazilgan" value="{{ old('buyurtmachiga_otkazilgan', $yer->buyurtmachiga_otkazilgan) }}"
+                    <input type="number" step="0.01" name="buyurtmachiga_otkazilgan" value="<?php echo e(old('buyurtmachiga_otkazilgan', $yer->buyurtmachiga_otkazilgan)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Chegirma -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Чегирма</label>
-                    <input type="number" step="0.01" name="chegirma" value="{{ old('chegirma', $yer->chegirma) }}"
+                    <input type="number" step="0.01" name="chegirma" value="<?php echo e(old('chegirma', $yer->chegirma)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Auksion Harajati -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Аукцион ҳаражати (1%)</label>
-                    <input type="number" step="0.01" name="auksion_harajati" value="{{ old('auksion_harajati', $yer->auksion_harajati) }}"
+                    <input type="number" step="0.01" name="auksion_harajati" value="<?php echo e(old('auksion_harajati', $yer->auksion_harajati)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Tushadigan Mablagh -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Тушадиган маблағ</label>
-                    <input type="number" step="0.01" name="tushadigan_mablagh" value="{{ old('tushadigan_mablagh', $yer->tushadigan_mablagh) }}"
+                    <input type="number" step="0.01" name="tushadigan_mablagh" value="<?php echo e(old('tushadigan_mablagh', $yer->tushadigan_mablagh)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Davaktiv Jamgarmasi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Давактив жамғармаси</label>
-                    <input type="number" step="0.01" name="davaktiv_jamgarmasi" value="{{ old('davaktiv_jamgarmasi', $yer->davaktiv_jamgarmasi) }}"
+                    <input type="number" step="0.01" name="davaktiv_jamgarmasi" value="<?php echo e(old('davaktiv_jamgarmasi', $yer->davaktiv_jamgarmasi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Shartnoma Tushgan -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома бўйича тушган</label>
-                    <input type="number" step="0.01" name="shartnoma_tushgan" value="{{ old('shartnoma_tushgan', $yer->shartnoma_tushgan) }}"
+                    <input type="number" step="0.01" name="shartnoma_tushgan" value="<?php echo e(old('shartnoma_tushgan', $yer->shartnoma_tushgan)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Davaktivda Turgan -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Давактивда турган</label>
-                    <input type="number" step="0.01" name="davaktivda_turgan" value="{{ old('davaktivda_turgan', $yer->davaktivda_turgan) }}"
+                    <input type="number" step="0.01" name="davaktivda_turgan" value="<?php echo e(old('davaktivda_turgan', $yer->davaktivda_turgan)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Yer Auksion Harajat -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Ер аукцион ҳаражат</label>
-                    <input type="number" step="0.01" name="yer_auksion_harajat" value="{{ old('yer_auksion_harajat', $yer->yer_auksion_harajat) }}"
+                    <input type="number" step="0.01" name="yer_auksion_harajat" value="<?php echo e(old('yer_auksion_harajat', $yer->yer_auksion_harajat)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Shartnoma Summasi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Шартнома суммаси</label>
-                    <input type="number" step="0.01" name="shartnoma_summasi" value="{{ old('shartnoma_summasi', $yer->shartnoma_summasi) }}"
+                    <input type="number" step="0.01" name="shartnoma_summasi" value="<?php echo e(old('shartnoma_summasi', $yer->shartnoma_summasi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
 
                 <!-- Farqi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Фарқи</label>
-                    <input type="number" step="0.01" name="farqi" value="{{ old('farqi', $yer->farqi) }}"
+                    <input type="number" step="0.01" name="farqi" value="<?php echo e(old('farqi', $yer->farqi)); ?>"
                            class="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all">
                 </div>
             </div>
@@ -384,7 +382,7 @@
 
         <!-- Form Actions -->
         <div class="flex items-center justify-between bg-slate-50 rounded-xl p-6 border-2 border-slate-200">
-            <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}"
+            <a href="<?php echo e(route('yer-sotuvlar.show', $yer->lot_raqami)); ?>"
                class="flex items-center space-x-2 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg transition-all duration-300 font-semibold">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -404,29 +402,29 @@
 </div>
 
 <!-- Success/Error Messages -->
-@if(session('success'))
+<?php if(session('success')): ?>
 <div class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-2xl animate-fadeIn z-50">
     <div class="flex items-center space-x-3">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        <span class="font-semibold">{{ session('success') }}</span>
+        <span class="font-semibold"><?php echo e(session('success')); ?></span>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
-@if(session('error'))
+<?php if(session('error')): ?>
 <div class="fixed bottom-8 right-8 bg-red-500 text-white px-6 py-4 rounded-lg shadow-2xl animate-fadeIn z-50">
     <div class="flex items-center space-x-3">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        <span class="font-semibold">{{ session('error') }}</span>
+        <span class="font-semibold"><?php echo e(session('error')); ?></span>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
-@if($errors->any())
+<?php if($errors->any()): ?>
 <div class="fixed bottom-8 right-8 bg-red-500 text-white px-6 py-4 rounded-lg shadow-2xl animate-fadeIn z-50 max-w-md">
     <div class="flex items-start space-x-3">
         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -435,14 +433,14 @@
         <div>
             <p class="font-bold mb-2">Хатолар:</p>
             <ul class="list-disc list-inside space-y-1 text-sm">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
+                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li><?php echo e($error); ?></li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
         </div>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
 <!-- <script>
     // Auto-hide success/error messages after 5 seconds
@@ -457,4 +455,6 @@
         });
     }, 5000);
 </script> -->
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/edit.blade.php ENDPATH**/ ?>
