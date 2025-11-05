@@ -191,7 +191,7 @@
                             <span>Рўйхат</span>
                         </div>
                     </a>
-        <a href="{{ route('yer-sotuvlar.index') }}"
+                    <a href="{{ route('yer-sotuvlar.index') }}"
                         class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 {{ request()->routeIs('yer-sotuvlar.index') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
                         <div class="flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
