@@ -181,7 +181,7 @@
                             <div class="text-xs text-gray-600 mb-1">Сотилган ер тўлови бўйича тушадиган қиймат</div>
                             <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
                                 @php
-                                    $tushadigan = ($statistics['shartnoma_summasi'] ?? 0) + ($statistics['golib_tolagan'] ?? 0);
+                                    $tushadigan = ($statistics['shartnoma_summasi'] ?? 0) + ($statistics['golib_tolagan'] ?? 0) - $auksion_harajati ?? 0;
                                 @endphp
                                 {{ number_format($tushadigan, 2) }} сўм
                             </div>
