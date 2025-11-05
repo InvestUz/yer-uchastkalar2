@@ -143,62 +143,59 @@
                     <!-- Basic Stats Row -->
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-3">
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Жами лотлар</div>
+                            <div class="text-xs text-gray-600 mb-1">Жами лотлар сони</div>
                             <div class="text-2xl font-bold" style="color: rgb(185, 28, 28);">{{ number_format($statistics['total_lots']) }}</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Майдон (га)</div>
-                            <div class="text-2xl font-bold text-gray-900">{{ number_format($statistics['total_area'], 2) }}</div>
+                            <div class="text-xs text-gray-600 mb-1">Ер майдон </div>
+                            <div class="text-2xl font-bold text-gray-900">{{ number_format($statistics['total_area'], 2) }} га</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Бошланғич (млрд)</div>
-                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($statistics['boshlangich_narx'] / 1000000000, 2) }}</div>
+                            <div class="text-xs text-gray-600 mb-1">Бошланғич нархи</div>
+                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($statistics['boshlangich_narx'], 2) }} сўм</div>
                         </div>
  <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Сотилган (млрд)</div>
-                            <div class="text-2xl font-bold text-green-600">{{ number_format($statistics['total_price'] / 1000000000, 2) }}</div>
+                            <div class="text-xs text-gray-600 mb-1">Сотилган нархи</div>
+                            <div class="text-2xl font-bold text-green-600">{{ number_format($statistics['total_price'], 2) }} сўм</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Чегирма (млрд)</div>
-                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($statistics['chegirma'] / 1000000000, 2) }}</div>
+                            <div class="text-xs text-gray-600 mb-1">Чегирма қиймати</div>
+                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($statistics['chegirma'], 2) }} сўм</div>
                         </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Ғолиб тўлаган (млрд)</div>
-                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($statistics['golib_tolagan'] / 1000000000, 2) }}</div>
-                        </div>
+
 
                     </div>
 
                     <!-- Detailed Financial Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Аукцион хизмат ҳақи 1% (млрд)</div>
+                            <div class="text-xs text-gray-600 mb-1">Аукцион хизмат ҳақи 1%</div>
                             <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
                                 @php
                                     $auksion_harajati = $statistics['auksion_harajati'] ?? 0;
                                 @endphp
-                                {{ number_format($auksion_harajati / 1000000000, 2) }}
+                                {{ number_format($auksion_harajati, 2) }}
                             </div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Тушадиган қиймат (млрд)</div>
+                            <div class="text-xs text-gray-600 mb-1">Сотилган ер тўлови бўйича тушадиган қиймат</div>
                             <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
                                 @php
                                     $tushadigan = ($statistics['shartnoma_summasi'] ?? 0) + ($statistics['golib_tolagan'] ?? 0);
                                 @endphp
-                                {{ number_format($tushadigan / 1000000000, 2) }}
+                                {{ number_format($tushadigan, 2) }} сўм
                             </div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Шартнома графиги (млрд)</div>
+                            <div class="text-xs text-gray-600 mb-1">Шартнома графиги</div>
                             <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
-                                {{ number_format(($statistics['shartnoma_summasi'] ?? 0) / 1000000000, 2) }}
+                                {{ number_format(($statistics['shartnoma_summasi'] ?? 0), 2) }}
                             </div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Амалда тўланган (млрд)</div>
+                            <div class="text-xs text-gray-600 mb-1">Амалда тўланган</div>
                             <div class="text-lg font-bold text-green-600">
-                                {{ number_format(($statistics['fakt_tolangan'] ?? 0) / 1000000000, 2) }}
+                                {{ number_format(($statistics['fakt_tolangan'] ?? 0), 2) }}
                             </div>
                         </div>
                     </div>
