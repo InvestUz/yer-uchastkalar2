@@ -22,11 +22,11 @@
 
         
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-4">
+            <div class="bg-white px-6 py-4">
                 <div class="flex flex-col md:flex-row md:justify-between md:items-center">
                     <div>
-                        <h1 class="text-xl font-bold text-white">Лот № <?php echo e($yer->lot_raqami); ?></h1>
-                        <p class="text-gray-300 text-sm mt-1"><?php echo e($yer->tuman); ?> • <?php echo e($yer->mfy); ?> •
+                        <h1 class="text-xl font-bold text-gray-600">Лот № <?php echo e($yer->lot_raqami); ?></h1>
+                        <p class="text-gray-600 text-sm mt-1"><?php echo e($yer->tuman); ?> • <?php echo e($yer->mfy); ?> •
                             <?php echo e($yer->unikal_raqam); ?></p>
                     </div>
 
@@ -53,21 +53,21 @@
                         сўм</div>
                 </div>
 
-                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Аукцион хизмат ҳақи 1 фоиз</div>
                     <?php echo e(number_format($yer->auksion_harajati, 2)); ?> сўм
                 </div>
-                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
                     <?php echo e(number_format($yer->shartnoma_summasi + $yer->golib_tolagan, 2)); ?> сўм
                 </div>
-                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Шартнома графиги б-ча тўлов</div>
                     <div class="text-lg font-bold"><?php echo e(number_format($yer->shartnoma_summasi, 2)); ?> сўм
                     </div>
                 </div>
 
-                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Амалда тўланган қиймат</div>
                     <div class="text-lg font-bold">
                         <?php echo e(number_format($yer->faktTolovlar->sum('tolov_summa'), 2)); ?>
@@ -75,7 +75,7 @@
                         сўм</div>
                 </div>
 
-                <div class="text-center p-3 bg-gray-700 text-white rounded border border-gray-600">
+                <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
 
                     <div class="text-xs">Тўланиши лозим бўлган қолдик қиймат</div>
                     <?php echo e(number_format($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2)); ?>
@@ -212,10 +212,17 @@
                                 <td class="py-2 text-gray-600">Ғолиб</td>
                                 <td class="py-2 font-medium text-gray-900"><?php echo e($yer->golib_nomi ?? '-'); ?></td>
                             </tr>
-   <tr>
-                                <td class="py-2 text-gray-600">Ғолиб рақами</td>
-                                <td class="py-2 font-medium text-gray-900"><?php echo e($yer->telefon ?? '-'); ?></td>
-                            </tr>
+  <?php if($yer->telefon): ?>
+                                <tr>
+                                    <td class="py-2 text-gray-600">Телефон</td>
+                                    <td class="py-2 text-gray-900">
+                                        <a href="tel:<?php echo e($yer->telefon); ?>" class="text-blue-600 hover:text-blue-800">
+                                            <?php echo e($yer->telefon); ?>
+
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
                             <tr>
                                 <td class="py-2 text-gray-600">Субъект тури</td>
                                 <td class="py-2 text-gray-900">
@@ -227,17 +234,7 @@
 
                                 </td>
                             </tr>
-                            <?php if($yer->telefon): ?>
-                                <tr>
-                                    <td class="py-2 text-gray-600">Телефон</td>
-                                    <td class="py-2 text-gray-900">
-                                        <a href="tel:<?php echo e($yer->telefon); ?>" class="text-blue-600 hover:text-blue-800">
-                                            <?php echo e($yer->telefon); ?>
 
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
                             <tr>
                                 <td class="py-2 text-gray-600">Тўлов тури</td>
                                 <td class="py-2">

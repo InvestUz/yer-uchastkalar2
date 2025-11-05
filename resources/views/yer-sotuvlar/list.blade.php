@@ -5,21 +5,24 @@
 @section('content')
     <div class="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
 
-        <!-- Header Section -->
+        <!-- Header Section with Search -->
         <div class="mx-auto mb-6">
             <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
                 <!-- Header -->
-                <div class="bg-gray-700 px-6 py-4">
-                    <div class="flex justify-between items-center">
-                        <h1 class="text-xl font-semibold text-white flex items-center">
-                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
-                            Филтрланган маълумотлар
-                        </h1>
+                <div class="bg-white px-6 py-4 border-b border-gray-200">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-600 flex items-center">
+                                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                                Филтрланган маълумотлар
+                            </h1>
+                            <p class="text-gray-600 text-sm mt-1">Барча ер участкалари рўйхати</p>
+                        </div>
                         <a href="{{ route('yer-sotuvlar.index') }}"
-                            class="bg-white text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors flex items-center">
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -29,146 +32,173 @@
                     </div>
                 </div>
 
-                <!-- Active Filters Display -->
-                @if(request()->hasAny(['search', 'tuman', 'yil', 'tolov_turi', 'holat', 'asos', 'auksion_sana_from', 'auksion_sana_to', 'narx_from', 'narx_to', 'maydoni_from', 'maydoni_to']))
-                <div class="bg-white px-6 py-4 border-b border-gray-200">
-                    <div class="flex flex-wrap gap-3">
-                        @if (request('search'))
-                            <div class="inline-flex items-center bg-blue-100 border border-blue-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Global Search Bar -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <form method="GET" action="{{ route('yer-sotuvlar.list') }}" class="w-full">
+                        <!-- Preserve existing filters -->
+                        @foreach(request()->except(['search', 'page']) as $key => $value)
+                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        @endforeach
+
+                        <div class="flex gap-3">
+                            <div class="flex-1 relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <input type="text" name="search"
+                                    class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    value="{{ request('search') }}"
+                                    placeholder="Лот рақами, туман, манзил, ғолиб номи ёки бошқа маълумот қидириш...">
+                            </div>
+                            <button type="submit"
+                                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
-                                <span class="text-blue-600">Қидирув:</span>
-                                <span class="ml-1 font-semibold text-blue-900">{{ request('search') }}</span>
-                            </div>
-                        @endif
+                            </button>
+                            @if(request('search'))
+                            <a href="{{ route('yer-sotuvlar.list', request()->except(['search', 'page'])) }}"
+                                class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors">
+                                Тозалаш
+                            </a>
+                            @endif
+                        </div>
+                    </form>
+                </div>
 
+                <!-- Active Filters Display -->
+                @if(request()->hasAny(['tuman', 'yil', 'tolov_turi', 'holat', 'asos', 'auksion_sana_from', 'auksion_sana_to', 'narx_from', 'narx_to', 'maydoni_from', 'maydoni_to']))
+                <div class="bg-white px-6 py-4 border-b border-gray-200">
+                    <div class="flex flex-wrap gap-2">
                         @if (request('tuman'))
-                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 </svg>
-                                <span class="text-gray-600">Туман:</span>
-                                <span class="ml-1 font-semibold text-gray-900">{{ request('tuman') }}</span>
-                            </div>
+                                {{ request('tuman') }}
+                            </span>
                         @endif
 
                         @if (request('yil'))
-                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span class="text-gray-600">Йил:</span>
-                                <span class="ml-1 font-semibold text-gray-900">{{ request('yil') }}</span>
-                            </div>
+                                {{ request('yil') }}
+                            </span>
                         @endif
 
                         @if (request('tolov_turi'))
-                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                 </svg>
-                                <span class="text-gray-600">Тўлов:</span>
-                                <span class="ml-1 font-semibold text-gray-900">{{ request('tolov_turi') }}</span>
-                            </div>
+                                {{ request('tolov_turi') }}
+                            </span>
                         @endif
 
                         @if (request('holat'))
-                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span class="text-gray-600">Ҳолат:</span>
-                                <span class="ml-1 font-semibold text-gray-900">{{ Str::limit(request('holat'), 40) }}</span>
-                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                Ҳолат: {{ Str::limit(request('holat'), 30) }}
+                            </span>
                         @endif
 
                         @if (request('asos'))
-                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <span class="text-gray-600">Асос:</span>
-                                <span class="ml-1 font-semibold text-gray-900">{{ request('asos') }}</span>
-                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                                Асос: {{ request('asos') }}
+                            </span>
                         @endif
 
                         @if (request('auksion_sana_from') || request('auksion_sana_to'))
-                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span class="text-gray-600">Санаси:</span>
-                                <span class="ml-1 font-semibold text-gray-900">
-                                    {{ request('auksion_sana_from') ?? '...' }} -
-                                    {{ request('auksion_sana_to') ?? '...' }}
-                                </span>
-                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-pink-100 text-pink-800">
+                                📅 {{ request('auksion_sana_from') ?? '...' }} - {{ request('auksion_sana_to') ?? '...' }}
+                            </span>
                         @endif
 
                         @if (request('narx_from') || request('narx_to'))
-                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                                </svg>
-                                <span class="text-gray-600">Нарх:</span>
-                                <span class="ml-1 font-semibold text-gray-900">
-                                    {{ request('narx_from') ? number_format(request('narx_from')) : '0' }} -
-                                    {{ request('narx_to') ? number_format(request('narx_to')) : '∞' }}
-                                </span>
-                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                                💰 {{ request('narx_from') ? number_format(request('narx_from')) : '0' }} -
+                                {{ request('narx_to') ? number_format(request('narx_to')) : '∞' }}
+                            </span>
                         @endif
 
                         @if (request('maydoni_from') || request('maydoni_to'))
-                            <div class="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                                </svg>
-                                <span class="text-gray-600">Майдон:</span>
-                                <span class="ml-1 font-semibold text-gray-900">
-                                    {{ request('maydoni_from') ?? '0' }} - {{ request('maydoni_to') ?? '∞' }} га
-                                </span>
-                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
+                                📏 {{ request('maydoni_from') ?? '0' }} - {{ request('maydoni_to') ?? '∞' }} га
+                            </span>
                         @endif
                     </div>
                 </div>
                 @endif
 
                 <!-- Statistics Summary -->
-                <div class="bg-white px-6 py-5">
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['total_lots']) }}</div>
-                            <div class="text-xs text-gray-600 mt-1">Жами лотлар</div>
+                <div class="bg-gray-50 px-6 py-5">
+                    <!-- Basic Stats Row -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-3">
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Жами лотлар</div>
+                            <div class="text-2xl font-bold" style="color: rgb(185, 28, 28);">{{ number_format($statistics['total_lots']) }}</div>
                         </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['total_area'], 2) }}</div>
-                            <div class="text-xs text-gray-600 mt-1">Майдон (га)</div>
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Майдон (га)</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ number_format($statistics['total_area'], 2) }}</div>
                         </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['boshlangich_narx'] / 1000000000, 1) }}</div>
-                            <div class="text-xs text-gray-600 mt-1">Бошланғич (млрд)</div>
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Бошланғич (млрд)</div>
+                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($statistics['boshlangich_narx'] / 1000000000, 2) }}</div>
                         </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['chegirma'] / 1000000000, 1) }}</div>
-                            <div class="text-xs text-gray-600 mt-1">Чегирма (млрд)</div>
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Чегирма (млрд)</div>
+                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($statistics['chegirma'] / 1000000000, 2) }}</div>
                         </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-2xl font-bold text-gray-800">{{ number_format($statistics['golib_tolagan'] / 1000000000, 1) }}</div>
-                            <div class="text-xs text-gray-600 mt-1">Ғолиб тўлаган (млрд)</div>
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Ғолиб тўлаган (млрд)</div>
+                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($statistics['golib_tolagan'] / 1000000000, 2) }}</div>
                         </div>
-                        <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <div class="text-2xl font-bold text-green-600">{{ number_format($statistics['total_price'] / 1000000000, 1) }}</div>
-                            <div class="text-xs text-gray-600 mt-1">Сотилган (млрд)</div>
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Сотилган (млрд)</div>
+                            <div class="text-2xl font-bold text-green-600">{{ number_format($statistics['total_price'] / 1000000000, 2) }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Financial Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Аукцион хизмат ҳақи 1% (млрд)</div>
+                            <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
+                                @php
+                                    $auksion_harajati = $statistics['auksion_harajati'] ?? 0;
+                                @endphp
+                                {{ number_format($auksion_harajati / 1000000000, 2) }}
+                            </div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Тушадиган қиймат (млрд)</div>
+                            <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
+                                @php
+                                    $tushadigan = ($statistics['shartnoma_summasi'] ?? 0) + ($statistics['golib_tolagan'] ?? 0);
+                                @endphp
+                                {{ number_format($tushadigan / 1000000000, 2) }}
+                            </div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Шартнома графиги (млрд)</div>
+                            <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
+                                {{ number_format(($statistics['shartnoma_summasi'] ?? 0) / 1000000000, 2) }}
+                            </div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Амалда тўланган (млрд)</div>
+                            <div class="text-lg font-bold text-green-600">
+                                {{ number_format(($statistics['fakt_tolangan'] ?? 0) / 1000000000, 2) }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -336,26 +366,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                         </svg>
-                        Филтрлаш ва Қидириш
+                        Қўшимча филтрлар
                     </h2>
                 </div>
 
                 <form method="GET" action="{{ route('yer-sotuvlar.list') }}" class="bg-gray-50 px-6 py-5">
-
-                    <!-- Global Search -->
-                    <div class="mb-5">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            Умумий қидирув
-                        </label>
-                        <input type="text" name="search"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                            value="{{ request('search') }}"
-                            placeholder="Лот рақами, туман, манзил, ғолиб номи ёки бошқа маълумот...">
-                    </div>
 
                     <!-- Advanced Filters Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">

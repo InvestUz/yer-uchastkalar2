@@ -112,9 +112,9 @@ class YerSotuvController extends Controller
     {
         $yer = YerSotuv::where('lot_raqami', $lot_raqami)->firstOrFail();
         $yer->update($request->all());
-        
+
         return redirect()->route('yer-sotuvlar.show', $lot_raqami)
-                         ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
+            ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
     }
 
     /**
@@ -151,7 +151,7 @@ class YerSotuvController extends Controller
         foreach ($tumanlar as $tuman) {
             $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
             $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters);
-            
+
             if ($stats['lots'] > 0) {
                 $tumanStats[] = [
                     'tuman' => $tuman,
@@ -176,7 +176,7 @@ class YerSotuvController extends Controller
     private function calculateMonitoringSummary(array $dateFilters): array
     {
         $query = YerSotuv::query();
-        
+
         $query->where('tolov_turi', 'муддатли');
         $this->yerSotuvService->applyDateFilters($query, $dateFilters);
 
@@ -196,12 +196,16 @@ class YerSotuvController extends Controller
 
         // Calculate received amount
         $receivedAmount = 0;
-        
+
         if (!empty($lotRaqamlari)) {
-            $receivedAmount = DB::table('fakt_tolovlar')
+            $statistics['fakt_tolangan'] = DB::table('fakt_tolovlar')
                 ->whereIn('lot_raqami', $lotRaqamlari)
                 ->sum('tolov_summa');
+        } else {
+            $statistics['fakt_tolangan'] = 0;
         }
+        $statistics['qoldiq'] = ($statistics['shartnoma_summasi'] + $statistics['golib_tolagan'])
+            - ($statistics['fakt_tolangan'] + $statistics['auksion_harajati']);
 
         $paymentPercentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
 
@@ -219,7 +223,7 @@ class YerSotuvController extends Controller
     private function calculateTumanMonitoring(?array $tumanPatterns, array $dateFilters): array
     {
         $query = YerSotuv::query();
-        
+
         $this->yerSotuvService->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли');
         $this->yerSotuvService->applyDateFilters($query, $dateFilters);
@@ -240,7 +244,7 @@ class YerSotuvController extends Controller
 
         // Get grafik summa (up to last month)
         $bugun = $this->yerSotuvService->getGrafikCutoffDate();
-        
+
         $grafikSumma = DB::table('grafik_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
@@ -279,8 +283,12 @@ class YerSotuvController extends Controller
 
         // Tuman comparison data
         $tumanLabels = array_column($tumanStats, 'tuman');
-        $tumanGrafik = array_map(function($val) { return $val / 1000000000; }, array_column($tumanStats, 'grafik'));
-        $tumanFakt = array_map(function($val) { return $val / 1000000000; }, array_column($tumanStats, 'fakt'));
+        $tumanGrafik = array_map(function ($val) {
+            return $val / 1000000000;
+        }, array_column($tumanStats, 'grafik'));
+        $tumanFakt = array_map(function ($val) {
+            return $val / 1000000000;
+        }, array_column($tumanStats, 'fakt'));
 
         // Overdue amounts by tuman
         $overdueLabels = [];
@@ -340,7 +348,7 @@ class YerSotuvController extends Controller
             $date = now()->subMonths($i);
             $year = $date->year;
             $month = $date->month;
-            
+
             $monthLabel = $date->locale('uz')->translatedFormat('M Y');
             $months[] = $monthLabel;
 
@@ -448,8 +456,7 @@ class YerSotuvController extends Controller
                     ->where('tolov_turi', '!=', 'муддатли эмас')
                     ->orWhereNull('tolov_turi');
             });
-        }
-        elseif (!empty($filters['toliq_tolangan']) && $filters['toliq_tolangan'] === 'true') {
+        } elseif (!empty($filters['toliq_tolangan']) && $filters['toliq_tolangan'] === 'true') {
             $query->where('tolov_turi', 'муддатли');
             $query->whereRaw('(
                 (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
@@ -459,8 +466,7 @@ class YerSotuvController extends Controller
                 )
             ) <= 0
             AND (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) > 0');
-        }
-        elseif (!empty($filters['nazoratda']) && $filters['nazoratda'] === 'true') {
+        } elseif (!empty($filters['nazoratda']) && $filters['nazoratda'] === 'true') {
             $query->where('tolov_turi', 'муддатли');
             $query->whereRaw('(
                 (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
@@ -469,8 +475,7 @@ class YerSotuvController extends Controller
                     + COALESCE(auksion_harajati, 0)
                 )
             ) > 0');
-        }
-        elseif (!empty($filters['grafik_ortda']) && $filters['grafik_ortda'] === 'true') {
+        } elseif (!empty($filters['grafik_ortda']) && $filters['grafik_ortda'] === 'true') {
             $bugun = $this->yerSotuvService->getGrafikCutoffDate();
 
             $query->where('tolov_turi', 'муддатли');
@@ -497,8 +502,7 @@ class YerSotuvController extends Controller
                 AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
                 AND COALESCE(g.jami_grafik, 0) > 0
             )', [$bugun]);
-        }
-        elseif (!empty($filters['tolov_turi'])) {
+        } elseif (!empty($filters['tolov_turi'])) {
             $query->where('tolov_turi', $filters['tolov_turi']);
         }
 
@@ -523,16 +527,30 @@ class YerSotuvController extends Controller
             'boshlangich_narx' => $query->sum('boshlangich_narx'),
             'chegirma' => $query->sum('chegirma'),
             'golib_tolagan' => $query->sum('golib_tolagan'),
+            'shartnoma_summasi' => $query->sum('shartnoma_summasi'),
+            'auksion_harajati' => $query->sum('auksion_harajati'),
         ];
+
 
         // Sorting
         $sortField = $request->get('sort', 'auksion_sana');
         $sortDirection = $request->get('direction', 'desc');
 
         $allowedSortFields = [
-            'auksion_sana', 'shartnoma_sana', 'sotilgan_narx', 'boshlangich_narx',
-            'maydoni', 'tuman', 'lot_raqami', 'yil', 'manzil', 'golib_nomi',
-            'telefon', 'tolov_turi', 'holat', 'asos'
+            'auksion_sana',
+            'shartnoma_sana',
+            'sotilgan_narx',
+            'boshlangich_narx',
+            'maydoni',
+            'tuman',
+            'lot_raqami',
+            'yil',
+            'manzil',
+            'golib_nomi',
+            'telefon',
+            'tolov_turi',
+            'holat',
+            'asos'
         ];
 
         if (in_array($sortField, $allowedSortFields)) {
