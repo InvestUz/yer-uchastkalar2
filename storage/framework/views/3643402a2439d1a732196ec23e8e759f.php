@@ -159,6 +159,10 @@
                             <div class="text-xs text-gray-600 mb-1">Бошланғич (млрд)</div>
                             <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);"><?php echo e(number_format($statistics['boshlangich_narx'] / 1000000000, 2)); ?></div>
                         </div>
+ <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Сотилган (млрд)</div>
+                            <div class="text-2xl font-bold text-green-600"><?php echo e(number_format($statistics['total_price'] / 1000000000, 2)); ?></div>
+                        </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
                             <div class="text-xs text-gray-600 mb-1">Чегирма (млрд)</div>
                             <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);"><?php echo e(number_format($statistics['chegirma'] / 1000000000, 2)); ?></div>
@@ -167,10 +171,7 @@
                             <div class="text-xs text-gray-600 mb-1">Ғолиб тўлаган (млрд)</div>
                             <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);"><?php echo e(number_format($statistics['golib_tolagan'] / 1000000000, 2)); ?></div>
                         </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Сотилган (млрд)</div>
-                            <div class="text-2xl font-bold text-green-600"><?php echo e(number_format($statistics['total_price'] / 1000000000, 2)); ?></div>
-                        </div>
+
                     </div>
 
                     <!-- Detailed Financial Cards -->
