@@ -187,20 +187,20 @@
                             <div class="text-xs text-gray-600 mb-1">Сотилган ер тўлови бўйича тушадиган қиймат</div>
                             <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
                                 <?php
-                                    $tushadigan = ($statistics['shartnoma_summasi'] ?? 0) + ($statistics['golib_tolagan'] ?? 0);
+                                    $tushadigan = ($statistics['shartnoma_summasi'] ?? 0) + ($statistics['golib_tolagan'] ?? 0) - $auksion_harajati ?? 0;
                                 ?>
                                 <?php echo e(number_format($tushadigan, 2)); ?> сўм
                             </div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Шартнома графиги</div>
+                            <div class="text-xs text-gray-600 mb-1">Шартнома графиги б-ча тўлов</div>
                             <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
                                 <?php echo e(number_format(($statistics['shartnoma_summasi'] ?? 0), 2)); ?>
 
                             </div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Амалда тўланган</div>
+                            <div class="text-xs text-gray-600 mb-1">Амалда тўланган қиймат</div>
                             <div class="text-lg font-bold text-green-600">
                                 <?php echo e(number_format(($statistics['fakt_tolangan'] ?? 0), 2)); ?>
 

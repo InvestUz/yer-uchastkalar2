@@ -187,17 +187,17 @@
                             </div>
                         </div>
                         <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Шартнома графиги</div>
+                            <div class="text-xs text-gray-600 mb-1">Шартнома графиги б-ча тўлов</div>
                             <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
                                 {{ number_format(($statistics['shartnoma_summasi'] ?? 0), 2) }}
                             </div>
                         </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Амалда тўланган</div>
+                        {{-- <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="text-xs text-gray-600 mb-1">Амалда тўланган қиймат</div>
                             <div class="text-lg font-bold text-green-600">
                                 {{ number_format(($statistics['fakt_tolangan'] ?? 0), 2) }}
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
