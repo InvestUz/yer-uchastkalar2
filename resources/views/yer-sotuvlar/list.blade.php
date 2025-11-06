@@ -231,7 +231,7 @@
 
                         <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                             <div class="text-xs">Тўланиши лозим бўлган қолдик қиймат</div>
-                            {{ number_format(($statistics['shartnoma_summasi'] + $statistics['golib_tolagan'] - ($statistics['fakt_tolangan'] + $statistics['auksion_harajati'])) / 1000000000, 2) }}
+                            {{ number_format(($statistics['shartnoma_summasi'] + $statistics['golib_tolagan'] - ($statistics['fakt_tolangan'] + $statistics['auksion_harajati'])), 2) }}
                             сўм
                         </div>
                     </div>
