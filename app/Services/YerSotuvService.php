@@ -111,7 +111,7 @@ class YerSotuvService
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
             'chegirma' => $data->chegirma ?? 0,
-            'tushadigan_mablagh' => $tushadiganMablagh
+            'tushadigan_mablagh' => $tushadiganMablagh 
         ];
     }
 
@@ -246,7 +246,7 @@ public function getListStatistics($query): array
         $birYola = $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters);
         $mulkQabul = $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters);
 
-        return $birYola['tushadigan_mablagh'] - $mulkQabul['auksion_mablagh'];
+        return $birYola['tushadigan_mablagh'] - $mulkQabul['auksion_mablagh'] ;
     }
 
     /**
@@ -313,7 +313,7 @@ public function getListStatistics($query): array
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $tushadiganMablagh
+            'tushadigan_mablagh' => $tushadiganMablagh 
         ];
     }
 
@@ -362,7 +362,7 @@ public function getListStatistics($query): array
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $tushadiganMablagh,
+            'tushadigan_mablagh' => $tushadiganMablagh ,
             'tushgan_summa' => $tushadiganMablagh // For completed payments, tushgan = tushadigan
         ];
     }
@@ -423,7 +423,7 @@ public function getListStatistics($query): array
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $tushadiganMablagh,
+            'tushadigan_mablagh' => $tushadiganMablagh ,
             'tushgan_summa' => $tushganSumma
         ];
     }
@@ -506,66 +506,81 @@ public function getListStatistics($query): array
     }
 
     /**
-     * Get complete statistics for main page (SVOD1)
-     */
-    public function getDetailedStatistics(array $dateFilters = []): array
-    {
-        $tumanlar = [
-            'Бектемир тумани',
-            'Мирзо Улуғбек тумани',
-            'Миробод тумани',
-            'Олмазор тумани',
-            'Сирғали тумани',
-            'Учтепа тумани',
-            'Чилонзор тумани',
-            'Шайхонтоҳур тумани',
-            'Юнусобод тумани',
-            'Яккасарой тумани',
-            'Янги ҳаёт тумани',
-            'Яшнобод тумани'
+ * Get complete statistics for main page (SVOD1)
+ */
+/**
+ * Get complete statistics for main page (SVOD1)
+ */
+public function getDetailedStatistics(array $dateFilters = []): array
+{
+    $tumanlar = [
+        'Бектемир тумани',
+        'Мирзо Улуғбек тумани',
+        'Миробод тумани',
+        'Олмазор тумани',
+        'Сирғали тумани',
+        'Учтепа тумани',
+        'Чилонзор тумани',
+        'Шайхонтоҳур тумани',
+        'Юнусобод тумани',
+        'Яккасарой тумани',
+        'Янги ҳаёт тумани',
+        'Яшнобод тумани'
+    ];
+
+    $statistics = [];
+
+    foreach ($tumanlar as $tuman) {
+        $tumanPatterns = $this->getTumanPatterns($tuman);
+
+        $stat = [
+            'tuman' => $tuman,
+            'jami' => $this->getTumanData($tumanPatterns, null, $dateFilters),
+            'bir_yola' => $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters),
+            'bolib' => $this->getTumanData($tumanPatterns, 'муддатли', $dateFilters),
+            'auksonda' => $this->getAuksondaTurgan($tumanPatterns, $dateFilters),
+            'mulk_qabul' => $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters),
+            'biryola_fakt' => $this->calculateBiryolaFakt($tumanPatterns, $dateFilters),
+            'bolib_tushgan' => $this->calculateBolibTushgan($tumanPatterns, $dateFilters),
+            'bolib_tushadigan' => $this->calculateBolibTushadigan($tumanPatterns, $dateFilters),
         ];
 
-        $statistics = [];
+        // RECALCULATE JAMI TUSHADIGAN: xx + yy + vv
+        $stat['jami']['tushadigan_mablagh'] = 
+            $stat['bir_yola']['tushadigan_mablagh'] +  // xx
+            $stat['bolib_tushadigan'] +                 // yy
+            $stat['mulk_qabul']['auksion_mablagh'];    // vv
+        
+        $stat['jami_tushgan_yigindi'] = $stat['biryola_fakt'] + $stat['bolib_tushgan'];
 
-        foreach ($tumanlar as $tuman) {
-            $tumanPatterns = $this->getTumanPatterns($tuman);
-
-            $stat = [
-                'tuman' => $tuman,
-                'jami' => $this->getTumanData($tumanPatterns, null, $dateFilters),
-                'bir_yola' => $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters),
-                'bolib' => $this->getTumanData($tumanPatterns, 'муддатли', $dateFilters),
-                'auksonda' => $this->getAuksondaTurgan($tumanPatterns, $dateFilters),
-                'mulk_qabul' => $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters),
-                'biryola_fakt' => $this->calculateBiryolaFakt($tumanPatterns, $dateFilters),
-                'bolib_tushgan' => $this->calculateBolibTushgan($tumanPatterns, $dateFilters),
-                'bolib_tushadigan' => $this->calculateBolibTushadigan($tumanPatterns, $dateFilters),
-            ];
-
-            $stat['jami_tushgan_yigindi'] = $stat['biryola_fakt'] + $stat['bolib_tushgan'];
-
-            $statistics[] = $stat;
-        }
-
-        // Calculate JAMI totals
-        $jami = [
-            'jami' => $this->getTumanData(null, null, $dateFilters),
-            'bir_yola' => $this->getTumanData(null, 'муддатли эмас', $dateFilters),
-            'bolib' => $this->getTumanData(null, 'муддатли', $dateFilters),
-            'auksonda' => $this->getAuksondaTurgan(null, $dateFilters),
-            'mulk_qabul' => $this->getMulkQabulQilmagan(null, $dateFilters),
-            'biryola_fakt' => $this->calculateBiryolaFakt(null, $dateFilters),
-            'bolib_tushgan' => $this->calculateBolibTushgan(null, $dateFilters),
-            'bolib_tushadigan' => $this->calculateBolibTushadigan(null, $dateFilters),
-        ];
-
-        $jami['jami_tushgan_yigindi'] = $jami['biryola_fakt'] + $jami['bolib_tushgan'];
-
-        return [
-            'tumanlar' => $statistics,
-            'jami' => $jami
-        ];
+        $statistics[] = $stat;
     }
+
+    // Calculate JAMI totals
+    $jami = [
+        'jami' => $this->getTumanData(null, null, $dateFilters),
+        'bir_yola' => $this->getTumanData(null, 'муддатли эмас', $dateFilters),
+        'bolib' => $this->getTumanData(null, 'муддатли', $dateFilters),
+        'auksonda' => $this->getAuksondaTurgan(null, $dateFilters),
+        'mulk_qabul' => $this->getMulkQabulQilmagan(null, $dateFilters),
+        'biryola_fakt' => $this->calculateBiryolaFakt(null, $dateFilters),
+        'bolib_tushgan' => $this->calculateBolibTushgan(null, $dateFilters),
+        'bolib_tushadigan' => $this->calculateBolibTushadigan(null, $dateFilters),
+    ];
+
+    // RECALCULATE JAMI TUSHADIGAN: xx + yy + vv
+    $jami['jami']['tushadigan_mablagh'] = 
+        $jami['bir_yola']['tushadigan_mablagh'] +  // xx
+        $jami['bolib_tushadigan'] +                 // yy
+        $jami['mulk_qabul']['auksion_mablagh'];    // vv
+
+    $jami['jami_tushgan_yigindi'] = $jami['biryola_fakt'] + $jami['bolib_tushgan'];
+
+    return [
+        'tumanlar' => $statistics,
+        'jami' => $jami
+    ];
+}
 
     /**
      * Get complete statistics for SVOD3 page
