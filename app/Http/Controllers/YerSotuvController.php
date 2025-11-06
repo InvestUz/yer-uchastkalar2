@@ -200,24 +200,20 @@ class YerSotuvController extends Controller
 
         // Calculate expected amount
         $data = $query->selectRaw('
-            SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
-            SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
-            SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
-        ')->first();
+        SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+        SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+        SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+    ')->first();
 
         $expectedAmount = ($data->golib_tolagan + $data->shartnoma_summasi) - $data->auksion_harajati;
 
         // Calculate received amount
         $receivedAmount = 0;
-
         if (!empty($lotRaqamlari)) {
-            $statistics['fakt_tolangan'] = DB::table('fakt_tolovlar')
+            $receivedAmount = DB::table('fakt_tolovlar')
                 ->whereIn('lot_raqami', $lotRaqamlari)
                 ->sum('tolov_summa');
-        } else {
-            $statistics['fakt_tolangan'] = 0;
         }
-
 
         $paymentPercentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
 
@@ -228,7 +224,6 @@ class YerSotuvController extends Controller
             'payment_percentage' => $paymentPercentage
         ];
     }
-
     /**
      * Calculate tuman monitoring statistics
      */
@@ -393,85 +388,85 @@ class YerSotuvController extends Controller
      * Show filtered data with pagination
      */
 
-private function showFilteredData(Request $request, array $filters)
-{
-    $query = YerSotuv::query();
+    private function showFilteredData(Request $request, array $filters)
+    {
+        $query = YerSotuv::query();
 
-    // Search filter
-    if (!empty($filters['search'])) {
-        $searchTerm = $filters['search'];
-        $query->where(function ($q) use ($searchTerm) {
-            $q->where('lot_raqami', 'like', '%' . $searchTerm . '%')
-                ->orWhere('tuman', 'like', '%' . $searchTerm . '%')
-                ->orWhere('mfy', 'like', '%' . $searchTerm . '%')
-                ->orWhere('manzil', 'like', '%' . $searchTerm . '%')
-                ->orWhere('unikal_raqam', 'like', '%' . $searchTerm . '%')
-                ->orWhere('zona', 'like', '%' . $searchTerm . '%')
-                ->orWhere('golib_nomi', 'like', '%' . $searchTerm . '%')
-                ->orWhere('auksion_golibi', 'like', '%' . $searchTerm . '%')
-                ->orWhere('telefon', 'like', '%' . $searchTerm . '%')
-                ->orWhere('holat', 'like', '%' . $searchTerm . '%')
-                ->orWhere('asos', 'like', '%' . $searchTerm . '%')
-                ->orWhere('shartnoma_raqam', 'like', '%' . $searchTerm . '%')
-                ->orWhere('tolov_turi', 'like', '%' . $searchTerm . '%');
-        });
-    }
+        // Search filter
+        if (!empty($filters['search'])) {
+            $searchTerm = $filters['search'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('lot_raqami', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('tuman', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('mfy', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('manzil', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('unikal_raqam', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('zona', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('golib_nomi', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('auksion_golibi', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('telefon', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('holat', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('asos', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('shartnoma_raqam', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('tolov_turi', 'like', '%' . $searchTerm . '%');
+            });
+        }
 
-    // Tuman filter
-    if (!empty($filters['tuman'])) {
-        $tumanPatterns = $this->yerSotuvService->getTumanPatterns($filters['tuman']);
-        $query->where(function ($q) use ($tumanPatterns) {
-            foreach ($tumanPatterns as $pattern) {
-                $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-            }
-        });
-    }
+        // Tuman filter
+        if (!empty($filters['tuman'])) {
+            $tumanPatterns = $this->yerSotuvService->getTumanPatterns($filters['tuman']);
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        }
 
-    // Year filter
-    if (!empty($filters['yil'])) {
-        $query->where('yil', $filters['yil']);
-    }
+        // Year filter
+        if (!empty($filters['yil'])) {
+            $query->where('yil', $filters['yil']);
+        }
 
-    // Date filters
-    if (!empty($filters['auksion_sana_from'])) {
-        $query->whereDate('auksion_sana', '>=', $filters['auksion_sana_from']);
-    }
-    if (!empty($filters['auksion_sana_to'])) {
-        $query->whereDate('auksion_sana', '<=', $filters['auksion_sana_to']);
-    }
-    if (!empty($filters['shartnoma_sana_from'])) {
-        $query->whereDate('shartnoma_sana', '>=', $filters['shartnoma_sana_from']);
-    }
-    if (!empty($filters['shartnoma_sana_to'])) {
-        $query->whereDate('shartnoma_sana', '<=', $filters['shartnoma_sana_to']);
-    }
+        // Date filters
+        if (!empty($filters['auksion_sana_from'])) {
+            $query->whereDate('auksion_sana', '>=', $filters['auksion_sana_from']);
+        }
+        if (!empty($filters['auksion_sana_to'])) {
+            $query->whereDate('auksion_sana', '<=', $filters['auksion_sana_to']);
+        }
+        if (!empty($filters['shartnoma_sana_from'])) {
+            $query->whereDate('shartnoma_sana', '>=', $filters['shartnoma_sana_from']);
+        }
+        if (!empty($filters['shartnoma_sana_to'])) {
+            $query->whereDate('shartnoma_sana', '<=', $filters['shartnoma_sana_to']);
+        }
 
-    // Price range filter
-    if (!empty($filters['narx_from'])) {
-        $query->where('sotilgan_narx', '>=', $filters['narx_from']);
-    }
-    if (!empty($filters['narx_to'])) {
-        $query->where('sotilgan_narx', '<=', $filters['narx_to']);
-    }
+        // Price range filter
+        if (!empty($filters['narx_from'])) {
+            $query->where('sotilgan_narx', '>=', $filters['narx_from']);
+        }
+        if (!empty($filters['narx_to'])) {
+            $query->where('sotilgan_narx', '<=', $filters['narx_to']);
+        }
 
-    // Area range filter
-    if (!empty($filters['maydoni_from'])) {
-        $query->where('maydoni', '>=', $filters['maydoni_from']);
-    }
-    if (!empty($filters['maydoni_to'])) {
-        $query->where('maydoni', '<=', $filters['maydoni_to']);
-    }
+        // Area range filter
+        if (!empty($filters['maydoni_from'])) {
+            $query->where('maydoni', '>=', $filters['maydoni_from']);
+        }
+        if (!empty($filters['maydoni_to'])) {
+            $query->where('maydoni', '<=', $filters['maydoni_to']);
+        }
 
-    // Special status filters
-    if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
-        $query->where(function ($q) {
-            $q->where('tolov_turi', '!=', 'муддатли')
-                ->where('tolov_turi', '!=', 'муддатли эмас')
-                ->orWhereNull('tolov_turi');
-        });
-    } elseif (!empty($filters['toliq_tolangan']) && $filters['toliq_tolangan'] === 'true') {
-        $query->where('tolov_turi', 'муддатли');
-        $query->whereRaw('(
+        // Special status filters
+        if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
+            $query->where(function ($q) {
+                $q->where('tolov_turi', '!=', 'муддатли')
+                    ->where('tolov_turi', '!=', 'муддатли эмас')
+                    ->orWhereNull('tolov_turi');
+            });
+        } elseif (!empty($filters['toliq_tolangan']) && $filters['toliq_tolangan'] === 'true') {
+            $query->where('tolov_turi', 'муддатли');
+            $query->whereRaw('(
             (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
             - (
                 COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
@@ -479,20 +474,20 @@ private function showFilteredData(Request $request, array $filters)
             )
         ) <= 0
         AND (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) > 0');
-    } elseif (!empty($filters['nazoratda']) && $filters['nazoratda'] === 'true') {
-        $query->where('tolov_turi', 'муддатли');
-        $query->whereRaw('(
+        } elseif (!empty($filters['nazoratda']) && $filters['nazoratda'] === 'true') {
+            $query->where('tolov_turi', 'муддатли');
+            $query->whereRaw('(
             (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
             - (
                 COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
                 + COALESCE(auksion_harajati, 0)
             )
         ) > 0');
-    } elseif (!empty($filters['grafik_ortda']) && $filters['grafik_ortda'] === 'true') {
-        $bugun = $this->yerSotuvService->getGrafikCutoffDate();
+        } elseif (!empty($filters['grafik_ortda']) && $filters['grafik_ortda'] === 'true') {
+            $bugun = $this->yerSotuvService->getGrafikCutoffDate();
 
-        $query->where('tolov_turi', 'муддатли');
-        $query->whereRaw('lot_raqami IN (
+            $query->where('tolov_turi', 'муддатли');
+            $query->whereRaw('lot_raqami IN (
             SELECT ys.lot_raqami
             FROM yer_sotuvlar ys
             LEFT JOIN (
@@ -515,72 +510,72 @@ private function showFilteredData(Request $request, array $filters)
             AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
             AND COALESCE(g.jami_grafik, 0) > 0
         )', [$bugun]);
-    } elseif (!empty($filters['tolov_turi'])) {
-        $query->where('tolov_turi', $filters['tolov_turi']);
-    }
-
-    // Holat filter
-    if (!empty($filters['holat'])) {
-        $query->where('holat', 'like', '%' . $filters['holat'] . '%');
-        if (strpos($filters['holat'], '(34)') !== false) {
-            $query->where('asos', 'ПФ-135');
+        } elseif (!empty($filters['tolov_turi'])) {
+            $query->where('tolov_turi', $filters['tolov_turi']);
         }
-    }
 
-    // Asos filter
-    if (!empty($filters['asos'])) {
-        $query->where('asos', 'like', '%' . $filters['asos'] . '%');
-    }
-
-    // Calculate statistics using service
-    $statistics = $this->yerSotuvService->getListStatistics(clone $query);
-
-    // Sorting
-    $sortField = $request->get('sort', 'auksion_sana');
-    $sortDirection = $request->get('direction', 'desc');
-
-    $allowedSortFields = [
-        'auksion_sana',
-        'shartnoma_sana',
-        'sotilgan_narx',
-        'boshlangich_narx',
-        'maydoni',
-        'tuman',
-        'lot_raqami',
-        'yil',
-        'manzil',
-        'golib_nomi',
-        'telefon',
-        'tolov_turi',
-        'holat',
-        'asos'
-    ];
-
-    if (in_array($sortField, $allowedSortFields)) {
-        if (in_array($sortField, ['auksion_sana', 'shartnoma_sana', 'sotilgan_narx', 'boshlangich_narx', 'maydoni'])) {
-            $query->orderByRaw("CASE WHEN {$sortField} IS NULL THEN 1 ELSE 0 END");
-            $query->orderBy($sortField, $sortDirection);
-        } else {
-            $query->orderBy($sortField, $sortDirection);
+        // Holat filter
+        if (!empty($filters['holat'])) {
+            $query->where('holat', 'like', '%' . $filters['holat'] . '%');
+            if (strpos($filters['holat'], '(34)') !== false) {
+                $query->where('asos', 'ПФ-135');
+            }
         }
+
+        // Asos filter
+        if (!empty($filters['asos'])) {
+            $query->where('asos', 'like', '%' . $filters['asos'] . '%');
+        }
+
+        // Calculate statistics using service
+        $statistics = $this->yerSotuvService->getListStatistics(clone $query);
+
+        // Sorting
+        $sortField = $request->get('sort', 'auksion_sana');
+        $sortDirection = $request->get('direction', 'desc');
+
+        $allowedSortFields = [
+            'auksion_sana',
+            'shartnoma_sana',
+            'sotilgan_narx',
+            'boshlangich_narx',
+            'maydoni',
+            'tuman',
+            'lot_raqami',
+            'yil',
+            'manzil',
+            'golib_nomi',
+            'telefon',
+            'tolov_turi',
+            'holat',
+            'asos'
+        ];
+
+        if (in_array($sortField, $allowedSortFields)) {
+            if (in_array($sortField, ['auksion_sana', 'shartnoma_sana', 'sotilgan_narx', 'boshlangich_narx', 'maydoni'])) {
+                $query->orderByRaw("CASE WHEN {$sortField} IS NULL THEN 1 ELSE 0 END");
+                $query->orderBy($sortField, $sortDirection);
+            } else {
+                $query->orderBy($sortField, $sortDirection);
+            }
+        }
+
+        // Paginate results
+        $yerlar = $query->paginate(50)->withQueryString();
+
+        // Get dropdown options
+        $tumanlar = YerSotuv::select('tuman')
+            ->distinct()
+            ->whereNotNull('tuman')
+            ->orderBy('tuman')
+            ->pluck('tuman');
+
+        $yillar = YerSotuv::select('yil')
+            ->distinct()
+            ->whereNotNull('yil')
+            ->orderBy('yil', 'desc')
+            ->pluck('yil');
+
+        return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
     }
-
-    // Paginate results
-    $yerlar = $query->paginate(50)->withQueryString();
-
-    // Get dropdown options
-    $tumanlar = YerSotuv::select('tuman')
-        ->distinct()
-        ->whereNotNull('tuman')
-        ->orderBy('tuman')
-        ->pluck('tuman');
-
-    $yillar = YerSotuv::select('yil')
-        ->distinct()
-        ->whereNotNull('yil')
-        ->orderBy('yil', 'desc')
-        ->pluck('yil');
-
-    return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
-}
 }
