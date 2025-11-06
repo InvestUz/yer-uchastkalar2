@@ -195,6 +195,49 @@ class YerSotuvService
         return $query->pluck('lot_raqami')->toArray();
     }
 
+/**
+ * Get statistics for filtered list
+ */
+public function getListStatistics($query): array
+{
+    // Clone query to avoid modifying the original
+    $statsQuery = clone $query;
+
+    // Get lot numbers for fakt_tolangan calculation
+    $lotRaqamlari = (clone $statsQuery)->pluck('lot_raqami')->toArray();
+
+    // Calculate fakt_tolangan
+    $faktTolangan = 0;
+    if (!empty($lotRaqamlari)) {
+        $faktTolangan = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->sum('tolov_summa');
+    }
+
+    // Calculate aggregate statistics
+    $data = $statsQuery->selectRaw('
+        COUNT(*) as total_lots,
+        SUM(maydoni) as total_area,
+        SUM(sotilgan_narx) as total_price,
+        SUM(boshlangich_narx) as boshlangich_narx,
+        SUM(chegirma) as chegirma,
+        SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+        SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+        SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+    ')->first();
+
+    return [
+        'total_lots' => $data->total_lots ?? 0,
+        'total_area' => $data->total_area ?? 0,
+        'total_price' => $data->total_price ?? 0,
+        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+        'chegirma' => $data->chegirma ?? 0,
+        'golib_tolagan' => $data->golib_tolagan ?? 0,
+        'shartnoma_summasi' => $data->shartnoma_summasi ?? 0,
+        'auksion_harajati' => $data->auksion_harajati ?? 0,
+        'fakt_tolangan' => $faktTolangan,
+    ];
+}
     /**
      * Calculate biryola_fakt: actual payments received for bir yo'la minus mulk qabul
      */
