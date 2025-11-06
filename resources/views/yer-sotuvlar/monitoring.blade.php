@@ -7,9 +7,8 @@
     <!-- Header -->
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-slate-800 mb-2">
-            Мониторинг ва Аналитика
+           Инфографика ва Аналитика
         </h1>
-        <p class="text-slate-600">График ва факт тўловларнинг таққослаш ва умумий статистика</p>
     </div>
 
     <!-- Date Filter -->
@@ -41,15 +40,15 @@
         <!-- Total Lots -->
         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="text-sm font-semibold text-slate-700">Жами лотлар (боьлиб)</h3>
+                <h3 class="text-sm font-semibold text-slate-700">Жами лотлар (бўлиб тўлаш б-ча) сони</h3>
                 <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                     </svg>
                 </div>
             </div>
-            <p class="text-3xl font-bold" style="color: rgb(185, 28, 28);">{{ number_format($summary['total_lots']) }}</p>
-            <p class="text-xs text-slate-500 mt-1">Бўлиб тўлов қисм</p>
+            <p class="text-3xl font-bold" style="color: rgb(185, 28, 28);">{{ number_format($summary['total_lots']) }} та</p>
+            <p class="text-xs text-slate-500 mt-1"></p>
         </div>
 
         <!-- Expected Amount -->
@@ -62,8 +61,8 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-3xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($summary['expected_amount'] / 1000000000, 2) }}</p>
-            <p class="text-xs text-slate-500 mt-1">млрд сўм</p>
+            <p class="text-3xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($summary['expected_amount'] / 1000000000, 2) }} млрд сўм </p>
+            <p class="text-xs text-slate-500 mt-1"></p>
         </div>
 
         <!-- Received Amount -->
@@ -76,14 +75,14 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-3xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($summary['received_amount'] / 1000000000, 2) }}</p>
-            <p class="text-xs text-slate-500 mt-1">млрд сўм</p>
+            <p class="text-3xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($summary['received_amount'] / 1000000000, 2) }} млрд сўм</p>
+            <p class="text-xs text-slate-500 mt-1"></p>
         </div>
 
         <!-- Payment Percentage -->
         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="text-sm font-semibold text-slate-700">Тўлов фоизи</h3>
+                <h3 class="text-sm font-semibold text-slate-700">Фоизда</h3>
                 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
@@ -91,7 +90,7 @@
                 </div>
             </div>
             <p class="text-3xl font-bold" style="color: rgb(29, 78, 216);">{{ number_format($summary['payment_percentage'], 1) }}%</p>
-            <p class="text-xs text-slate-500 mt-1">Умумий тўлов даражаси</p>
+            <p class="text-xs text-slate-500 mt-1"></p>
         </div>
     </div>
 
@@ -117,7 +116,7 @@
                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
                 </svg>
-                Ойлик график vs факт тўловлар
+                Тўловлар динамикаси (ойлар кесимида)
             </h3>
             <div class="h-72">
                 <canvas id="monthlyComparisonChart"></canvas>
@@ -133,7 +132,8 @@
                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
-                Туманлар бўйича график ва факт тўловлар таққослаш
+              Тўловлар динамикаси (туманлар кесимида)
+
             </h3>
             <div class="h-[32rem]">
                 <canvas id="tumanComparisonChart"></canvas>
@@ -142,7 +142,7 @@
     </div>
 
 
-    <!-- Top Performers and Needs Attention -->
+    {{-- <!-- Top Performers and Needs Attention -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <!-- Top Performers -->
         <div class="bg-white rounded-xl shadow-lg p-6">
@@ -150,7 +150,7 @@
                 <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                 </svg>
-                Энг яхши натижа (топ 6)
+                Режадан юқори туман кўрсаткичлари
             </h3>
             <div class="space-y-2.5">
                 @foreach(collect($tumanStats)->sortByDesc('percentage')->take(6) as $index => $stat)
@@ -178,7 +178,8 @@
                 <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
-                Диққат талаб қилади (топ 6)
+                         Режадан паст туман кўрсаткичлари
+
             </h3>
             <div class="space-y-2.5">
                 @foreach(collect($tumanStats)->sortBy('percentage')->take(6) as $index => $stat)
@@ -199,7 +200,7 @@
                 @endforeach
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Detailed Statistics Table -->
     <div class="bg-white rounded-xl shadow-lg p-6">
@@ -208,13 +209,12 @@
             <table class="w-full">
                 <thead>
                     <tr class="bg-slate-100">
-                        <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">Туман</th>
-                        <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Лотлар</th>
-                        <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">График (млрд)</th>
-                        <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Факт (млрд)</th>
-                        <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Фарқ (млрд)</th>
-                        <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Фоиз</th>
-                        <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Ҳолат</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">Ҳудуд номи</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Лотлар сони</th>
+                        <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">График б-ча тўлов</th>
+                        <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Амалдаги тўлов</th>
+                        <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Фарқи</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Фоизда</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
@@ -222,29 +222,21 @@
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-4 py-3 text-sm font-semibold text-slate-800">{{ $stat['tuman'] }}</td>
                         <td class="px-4 py-3 text-center text-sm font-bold" style="color: rgb(185, 28, 28);">{{ number_format($stat['lots']) }}</td>
-                        <td class="px-4 py-3 text-right text-sm font-semibold" style="color: rgb(29, 78, 216);">{{ number_format($stat['grafik'] / 1000000000, 2) }}</td>
-                        <td class="px-4 py-3 text-right text-sm font-semibold" style="color: rgb(29, 78, 216);">{{ number_format($stat['fakt'] / 1000000000, 2) }}</td>
+                        <td class="px-4 py-3 text-right text-sm font-semibold" style="color: rgb(29, 78, 216);">{{ number_format($stat['grafik'] , 2) }}</td>
+                        <td class="px-4 py-3 text-right text-sm font-semibold" style="color: rgb(29, 78, 216);">{{ number_format($stat['fakt'] , 2) }}</td>
                         <td class="px-4 py-3 text-right text-sm font-semibold {{ $stat['difference'] > 0 ? 'text-red-600' : 'text-green-600' }}">
                             {{ number_format($stat['difference'] / 1000000000, 2) }}
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <div class="w-24 bg-slate-200 rounded-full h-2">
-                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500" 
+                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
                                          style="width: {{ min($stat['percentage'], 100) }}%"></div>
                                 </div>
                                 <span class="text-sm font-bold" style="color: rgb(29, 78, 216);">{{ number_format($stat['percentage'], 1) }}%</span>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-center">
-                            @if($stat['percentage'] >= 90)
-                                <span class="px-3 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-full">Яхши</span>
-                            @elseif($stat['percentage'] >= 70)
-                                <span class="px-3 py-1 text-xs font-bold text-yellow-700 bg-yellow-100 rounded-full">Ўртача</span>
-                            @else
-                                <span class="px-3 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full">Паст</span>
-                            @endif
-                        </td>
+
                     </tr>
                     @endforeach
                 </tbody>
@@ -260,7 +252,6 @@
                         <td class="px-4 py-3 text-center text-sm" style="color: rgb(29, 78, 216);">
                             {{ number_format(collect($tumanStats)->sum('fakt') / collect($tumanStats)->sum('grafik') * 100, 1) }}%
                         </td>
-                        <td class="px-4 py-3 text-center text-sm">-</td>
                     </tr>
                 </tfoot>
             </table>

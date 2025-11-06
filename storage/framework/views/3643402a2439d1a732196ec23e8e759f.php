@@ -143,71 +143,214 @@
                 </div>
                 <?php endif; ?>
 
-                <!-- Statistics Summary -->
-                <div class="bg-gray-50 px-6 py-5">
-                    <!-- Basic Stats Row -->
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-3">
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Жами лотлар сони</div>
-                            <div class="text-2xl font-bold" style="color: rgb(185, 28, 28);"><?php echo e(number_format($statistics['total_lots'])); ?></div>
-                        </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Ер майдон </div>
-                            <div class="text-2xl font-bold text-gray-900"><?php echo e(number_format($statistics['total_area'], 2)); ?> га</div>
-                        </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Бошланғич нархи</div>
-                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);"><?php echo e(number_format($statistics['boshlangich_narx'], 2)); ?> сўм</div>
-                        </div>
- <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Сотилган нархи</div>
-                            <div class="text-2xl font-bold text-green-600"><?php echo e(number_format($statistics['total_price'], 2)); ?> сўм</div>
-                        </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Чегирма қиймати</div>
-                            <div class="text-2xl font-bold" style="color: rgb(29, 78, 216);"><?php echo e(number_format($statistics['chegirma'], 2)); ?> сўм</div>
-                        </div>
+            <!-- Statistics Summary -->
+<div class="bg-gray-50 px-6 py-5">
+    <?php
+        // Calculate all values upfront for clarity
+        $totalLots = $statistics['total_lots'] ?? 0;
+        $totalArea = $statistics['total_area'] ?? 0;
+        $boshlangichNarx = $statistics['boshlangich_narx'] ?? 0;
+        $sotilganNarx = $statistics['total_price'] ?? 0;
+        $chegirma = $statistics['chegirma'] ?? 0;
+        
+        // Financial calculations
+        $golibTolagan = $statistics['golib_tolagan'] ?? 0;
+        $shartnomaSummasi = $statistics['shartnoma_summasi'] ?? 0;
+        $auksionHarajati = $statistics['auksion_harajati'] ?? 0;
+        $faktTolangan = $statistics['fakt_tolangan'] ?? 0;
+        
+        // Derived calculations
+        $jamiTushishi = $golibTolagan + $shartnomaSummasi; // Total amount that should come in
+        $jamiTushgan = $faktTolangan + $auksionHarajati; // Total amount received
+        $qoldiqTolash = $jamiTushishi - $jamiTushgan; // Remaining to be paid
+        $tushadigan = $jamiTushishi - $auksionHarajati; // Amount to be received (excluding service fee)
+    ?>
 
-
-                    </div>
-
-                    <!-- Detailed Financial Cards -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Аукцион хизмат ҳақи 1%</div>
-                            <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
-                                <?php
-                                    $auksion_harajati = $statistics['auksion_harajati'] ?? 0;
-                                ?>
-                                <?php echo e(number_format($auksion_harajati, 2)); ?>
-
-                            </div>
-                        </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Сотилган ер тўлови бўйича тушадиган қиймат</div>
-                            <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
-                                <?php
-                                    $tushadigan = ($statistics['shartnoma_summasi'] ?? 0) + ($statistics['golib_tolagan'] ?? 0) - $auksion_harajati ?? 0;
-                                ?>
-                                <?php echo e(number_format($tushadigan, 2)); ?> сўм
-                            </div>
-                        </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Шартнома графиги б-ча тўлов</div>
-                            <div class="text-lg font-bold" style="color: rgb(29, 78, 216);">
-                                <?php echo e(number_format(($statistics['shartnoma_summasi'] ?? 0), 2)); ?>
-
-                            </div>
-                        </div>
-                        <div class="text-center p-3 bg-white rounded-lg border border-gray-200">
-                            <div class="text-xs text-gray-600 mb-1">Амалда тўланган қиймат</div>
-                            <div class="text-lg font-bold text-green-600">
-                                <?php echo e(number_format(($statistics['fakt_tolangan'] ?? 0), 2)); ?>
-
-                            </div>
-                        </div>
-                    </div>
+    <!-- Primary Statistics: 4 columns on large screens -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <!-- Total Lots -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Жами лотлар</div>
+                    <svg class="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
                 </div>
+                <div class="text-3xl font-bold text-red-700"><?php echo e(number_format($totalLots)); ?></div>
+                <div class="text-xs text-gray-500 mt-1">сони</div>
+            </div>
+        </div>
+
+        <!-- Total Area -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Ер майдони</div>
+                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold text-gray-900"><?php echo e(number_format($totalArea, 2)); ?></div>
+                <div class="text-xs text-gray-500 mt-1">гектар</div>
+            </div>
+        </div>
+
+        <!-- Initial Price -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Бошланғич нархи</div>
+                    <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="text-2xl font-bold text-blue-700"><?php echo e(number_format($boshlangichNarx, 0)); ?></div>
+                <div class="text-xs text-gray-500 mt-1">сўм</div>
+            </div>
+        </div>
+
+        <!-- Sold Price -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Сотилган нархи</div>
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="text-2xl font-bold text-green-600"><?php echo e(number_format($sotilganNarx, 0)); ?></div>
+                <div class="text-xs text-gray-500 mt-1">сўм</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Statistics: Discount -->
+    <div class="grid grid-cols-1 mb-4">
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Чегирма қиймати</div>
+                        <div class="text-2xl font-bold text-blue-700"><?php echo e(number_format($chegirma, 0)); ?> <span class="text-sm text-gray-500">сўм</span></div>
+                    </div>
+                    <?php if($boshlangichNarx > 0): ?>
+                    <div class="text-right">
+                        <div class="text-xs text-gray-500 mb-1">Фоиз</div>
+                        <div class="text-xl font-semibold text-blue-600">
+                            <?php echo e(number_format(($chegirma / $boshlangichNarx) * 100, 1)); ?>%
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Details: 4 columns -->
+    <div class="bg-white rounded-lg border-2 border-blue-100 shadow-sm p-5">
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            Молиявий кўрсаткичлар
+        </h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Auction Service Fee (1%) -->
+            <div class="bg-gradient-to-br from-blue-50 to-white p-4 rounded-lg border border-blue-200">
+                <div class="text-xs font-medium text-gray-600 mb-2">Аукцион хизмат ҳақи (1%)</div>
+                <div class="text-xl font-bold text-blue-700"><?php echo e(number_format($auksionHarajati, 0)); ?></div>
+                <div class="text-xs text-gray-500 mt-1">сўм</div>
+            </div>
+
+            <!-- Expected Amount (excluding service fee) -->
+            <div class="bg-gradient-to-br from-purple-50 to-white p-4 rounded-lg border border-purple-200">
+                <div class="text-xs font-medium text-gray-600 mb-2">Тушадиган қиймат</div>
+                <div class="text-xl font-bold text-purple-700"><?php echo e(number_format($tushadigan, 0)); ?></div>
+                <div class="text-xs text-gray-500 mt-1">сўм (хизмат ҳақисиз)</div>
+            </div>
+
+            <!-- Contract Payment Amount -->
+            <div class="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-lg border border-indigo-200">
+                <div class="text-xs font-medium text-gray-600 mb-2">Шартнома бўйича тўлов</div>
+                <div class="text-xl font-bold text-indigo-700"><?php echo e(number_format($shartnomaSummasi, 0)); ?></div>
+                <div class="text-xs text-gray-500 mt-1">сўм</div>
+            </div>
+
+            <!-- Winner's Initial Payment -->
+            <div class="bg-gradient-to-br from-teal-50 to-white p-4 rounded-lg border border-teal-200">
+                <div class="text-xs font-medium text-gray-600 mb-2">Ғолиб тўлаган</div>
+                <div class="text-xl font-bold text-teal-700"><?php echo e(number_format($golibTolagan, 0)); ?></div>
+                <div class="text-xs text-gray-500 mt-1">сўм</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Summary: 3 columns with emphasis -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+        <!-- Total Expected -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-lg p-5">
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-xs font-medium uppercase tracking-wider opacity-90">Жами тушиши керак</div>
+                <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+                </svg>
+            </div>
+            <div class="text-3xl font-bold"><?php echo e(number_format($jamiTushishi, 0)); ?></div>
+            <div class="text-xs opacity-75 mt-1">сўм</div>
+        </div>
+
+        <!-- Total Received -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-5">
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-xs font-medium uppercase tracking-wider opacity-90">Жами тушган</div>
+                <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <div class="text-3xl font-bold"><?php echo e(number_format($jamiTushgan, 0)); ?></div>
+            <div class="text-xs opacity-75 mt-1">сўм (факт + хизмат ҳақи)</div>
+        </div>
+
+        <!-- Remaining Balance -->
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg shadow-lg p-5">
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-xs font-medium uppercase tracking-wider opacity-90">Қолдиқ тўлаш</div>
+                <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="text-3xl font-bold"><?php echo e(number_format($qoldiqTolash, 0)); ?></div>
+            <div class="text-xs opacity-75 mt-1">сўм</div>
+        </div>
+    </div>
+
+    <!-- Formula Explanation (Optional - can be hidden) -->
+    <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <details class="cursor-pointer">
+            <summary class="text-sm font-medium text-blue-900 select-none">Ҳисоблаш формуласи</summary>
+            <div class="mt-3 text-xs text-gray-700 space-y-2">
+                <div class="flex items-center">
+                    <span class="font-semibold min-w-[200px]">Жами тушиши керак:</span>
+                    <span class="font-mono bg-white px-2 py-1 rounded">Ғолиб тўлаган + Шартнома суммаси</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="font-semibold min-w-[200px]">Жами тушган:</span>
+                    <span class="font-mono bg-white px-2 py-1 rounded">Факт тўлов + Аукцион ҳаражати</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="font-semibold min-w-[200px]">Қолдиқ:</span>
+                    <span class="font-mono bg-white px-2 py-1 rounded">Жами тушиши керак - Жами тушган</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="font-semibold min-w-[200px]">Тушадиган қиймат:</span>
+                    <span class="font-mono bg-white px-2 py-1 rounded">Жами тушиши керак - Аукцион ҳаражати</span>
+                </div>
+            </div>
+        </details>
+    </div>
+</div>
             </div>
         </div>
 
