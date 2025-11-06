@@ -531,17 +531,24 @@ class YerSotuvController extends Controller
             $query->where('asos', 'like', '%' . $filters['asos'] . '%');
         }
 
-        // Calculate statistics for filtered data
-        $statistics = [
-            'total_lots' => $query->count(),
-            'total_area' => $query->sum('maydoni'),
-            'total_price' => $query->sum('sotilgan_narx'),
-            'boshlangich_narx' => $query->sum('boshlangich_narx'),
-            'chegirma' => $query->sum('chegirma'),
-            'golib_tolagan' => $query->sum('golib_tolagan'),
-            'shartnoma_summasi' => $query->sum('shartnoma_summasi'),
-            'auksion_harajati' => $query->sum('auksion_harajati'),
-        ];
+   $lotRaqamlari = (clone $query)->pluck('lot_raqami');
+
+
+        $faktTolangan = DB::table('fakt_tolovlar')
+    ->whereIn('lot_raqami', $lotRaqamlari)
+    ->sum('tolov_summa');
+
+$statistics = [
+    'total_lots' => $query->count(),
+    'total_area' => $query->sum('maydoni'),
+    'total_price' => $query->sum('sotilgan_narx'),
+    'boshlangich_narx' => $query->sum('boshlangich_narx'),
+    'chegirma' => $query->sum('chegirma'),
+    'golib_tolagan' => $query->sum('golib_tolagan'),
+    'shartnoma_summasi' => $query->sum('shartnoma_summasi'),
+    'auksion_harajati' => $query->sum('auksion_harajati'),
+    'fakt_tolangan' => $faktTolangan,
+];
 
 
         // Sorting
