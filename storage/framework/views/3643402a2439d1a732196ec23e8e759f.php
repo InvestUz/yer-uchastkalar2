@@ -208,41 +208,15 @@
                         <div class="text-center p-3 bg-white rounded border border-gray-200">
                             <div class="text-xs text-gray-600">Бошланғич нархи</div>
                             <div class="text-lg font-bold text-gray-900">
-                                <?php echo e(number_format($statistics['boshlangich_narx'], 2)); ?> млрд</div>
+                                <?php echo e(number_format($statistics['boshlangich_narx'], 2)); ?> сўм</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded border border-gray-200">
                             <div class="text-xs text-gray-600">Сотилган нархи</div>
                             <div class="text-lg font-bold text-gray-900">
-                                <?php echo e(number_format($statistics['total_price'], 2)); ?> млрд</div>
+                                <?php echo e(number_format($statistics['total_price'], 2)); ?> сўм</div>
                         </div>
 
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Аукцион хизмат ҳақи 1 фоиз</div>
-                            <?php echo e(number_format($statistics['auksion_harajati'], 2)); ?> млрд
-                        </div>
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
-                            <?php echo e(number_format($statistics['shartnoma_summasi'] + $statistics['golib_tolagan'] - $statistics['auksion_harajati'], 2)); ?>
-
-                            млрд
-                        </div>
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Шартнома графиги б-ча тўлов</div>
-                            <div class="text-lg font-bold"><?php echo e(number_format($statistics['shartnoma_summasi'], 2)); ?> млрд
-                            </div>
-                        </div>
-
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Амалда тўланган қиймат</div>
-                            <div class="text-lg font-bold"><?php echo e(number_format($statistics['fakt_tolangan'], 2)); ?> млрд</div>
-                        </div>
-
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Тўланиши лозим бўлган қолдик қиймат</div>
-                            <?php echo e(number_format(($statistics['shartnoma_summasi'] + $statistics['golib_tolagan'] - ($statistics['fakt_tolangan'] + $statistics['auksion_harajati'])) / 1000000000, 2)); ?>
-
-                            млрд
-                        </div>
+                        
                     </div>
                 </div>
 
@@ -292,7 +266,7 @@
                                                 'auksion_sana' => 'Аукцион',
                                                 'sotilgan_narx' => 'Сотил. нарх',
                                                 'chegirma' => 'Чегирма',
-                                                'golib_tolagan' => 'Ғолиб тўлаган',
+                                                'golib_tolagan' => 'Ғолиб аукционга тўлаган сумма',
                                                 'golib' => 'Ғолиб',
                                             ];
                                         ?>
@@ -340,11 +314,11 @@
                                                 <?php echo e(Str::limit($yer->manzil, 40)); ?>
 
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
                                                 <?php echo e(number_format($yer->maydoni, 4)); ?>
 
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
                                                 <?php echo e(number_format($yer->boshlangich_narx / 1000000, 1)); ?> млн
                                             </td>
                                             <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
@@ -352,14 +326,14 @@
 
                                             </td>
                                             <td
-                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-right">
+                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center">
                                                 <?php echo e(number_format($yer->sotilgan_narx / 1000000, 1)); ?> млн
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
                                                 <?php echo e(number_format($yer->chegirma / 1000000, 1)); ?> млн
                                             </td>
                                             <td
-                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-right">
+                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center">
                                                 <?php
                                                     $total_tolov = $yer->faktTolovlar->sum('tolov_summa');
                                                     $golib_total = $yer->golib_tolagan + $total_tolov;

@@ -327,24 +327,24 @@
                                                 title="{{ $yer->manzil }}">
                                                 {{ Str::limit($yer->manzil, 40) }}
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-left">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
                                                 {{ number_format($yer->maydoni, 4) }}
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-left">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
                                                 {{ number_format($yer->boshlangich_narx / 1000000, 1) }} млн
                                             </td>
                                             <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '-' }}
                                             </td>
                                             <td
-                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-left">
+                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center">
                                                 {{ number_format($yer->sotilgan_narx / 1000000, 1) }} млн
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-left">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
                                                 {{ number_format($yer->chegirma / 1000000, 1) }} млн
                                             </td>
                                             <td
-                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-left">
+                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center">
                                                 @php
                                                     $total_tolov = $yer->faktTolovlar->sum('tolov_summa');
                                                     $golib_total = $yer->golib_tolagan + $total_tolov;
