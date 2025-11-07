@@ -283,7 +283,7 @@
                                                 'auksion_sana' => 'Аукцион',
                                                 'sotilgan_narx' => 'Сотил. нарх',
                                                 'chegirma' => 'Чегирма',
-                                                'golib_tolagan' => 'Ғолиб тўлаган',
+                                                'golib_tolagan' => 'Ғолиб аукционга тўлаган сумма',
                                                 'golib' => 'Ғолиб',
                                             ];
                                         @endphp
@@ -327,24 +327,24 @@
                                                 title="{{ $yer->manzil }}">
                                                 {{ Str::limit($yer->manzil, 40) }}
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-left">
                                                 {{ number_format($yer->maydoni, 4) }}
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-left">
                                                 {{ number_format($yer->boshlangich_narx / 1000000, 1) }} млн
                                             </td>
                                             <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '-' }}
                                             </td>
                                             <td
-                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-right">
+                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-left">
                                                 {{ number_format($yer->sotilgan_narx / 1000000, 1) }} млн
                                             </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-right">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-left">
                                                 {{ number_format($yer->chegirma / 1000000, 1) }} млн
                                             </td>
                                             <td
-                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-right">
+                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-left">
                                                 @php
                                                     $total_tolov = $yer->faktTolovlar->sum('tolov_summa');
                                                     $golib_total = $yer->golib_tolagan + $total_tolov;
