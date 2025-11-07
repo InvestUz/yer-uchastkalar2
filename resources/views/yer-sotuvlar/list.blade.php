@@ -290,10 +290,10 @@
 
                                         @foreach ($columns as $field => $label)
                                             @php $col = sortableColumn($field, $label); @endphp
-                                            <th scope="col"
-                                                class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
+                                            <th scope="col"style="text-align: center !important;"
+                                                class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
                                                 <a href="{{ $col['url'] }}"
-                                                    class="flex items-center justify-between group">
+                                                    class="">
                                                     <span>{{ $col['label'] }}</span>
                                                     <span
                                                         class="ml-2 {{ $col['isActive'] ? 'text-yellow-300' : 'text-gray-400 group-hover:text-gray-300' }}">

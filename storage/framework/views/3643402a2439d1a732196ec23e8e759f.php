@@ -273,10 +273,10 @@
 
                                         <?php $__currentLoopData = $columns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <?php $col = sortableColumn($field, $label); ?>
-                                            <th scope="col"
-                                                class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
+                                            <th scope="col"style="text-align: center !important;"
+                                                class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
                                                 <a href="<?php echo e($col['url']); ?>"
-                                                    class="flex items-center justify-between group">
+                                                    class="">
                                                     <span><?php echo e($col['label']); ?></span>
                                                     <span
                                                         class="ml-2 <?php echo e($col['isActive'] ? 'text-yellow-300' : 'text-gray-400 group-hover:text-gray-300'); ?>">
