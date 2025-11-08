@@ -111,6 +111,7 @@ class YerSotuvService
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
             'chegirma' => $data->chegirma ?? 0,
+            'auksion_harajati' => $data->auksion_harajati ?? 0,
             'tushadigan_mablagh' => $tushadiganMablagh 
         ];
     }
@@ -506,9 +507,6 @@ public function getListStatistics($query): array
     }
 
     /**
- * Get complete statistics for main page (SVOD1)
- */
-/**
  * Get complete statistics for main page (SVOD1)
  */
 public function getDetailedStatistics(array $dateFilters = []): array
