@@ -25,120 +25,142 @@
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse statistics-table">
                         <thead>
-                            <!-- HEADER ROW 1: Main Sections (Excel Row 3) -->
+                            <!-- HEADER ROW 1: Excel Row 3 (EMPTY ROW) - Only T/p and Hududlar -->
                             <tr style="background: #eff6ff !important;">
-                                <!-- Cols 0-1: Fixed headers -->
-                                <th rowspan="5" class="sticky-col border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-800" style="min-width: 60px;">Т/р</th>
-                                <th rowspan="5" class="sticky-col-2 border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-800" style="min-width: 200px;">Ҳудудлар</th>
-
-                                <!-- Cols 2-11: Main "Сотилган ер участкалари" section -->
-                                <th colspan="10" class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">Сотилган ер участкалари</th>
-
-                                <!-- Cols 12-31: Main "шундан" section -->
-                                <th colspan="20" class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">шундан</th>
-
-                                <!-- Cols 32-35: Auction pending section -->
-                                <th colspan="4" class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">Аукционда сотилган ва савдо натижасини расмийлаштишда турган ерлар</th>
-
-                                <!-- Cols 36-37: Property not accepted section -->
-                                <th colspan="2" class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">Мулкни қабул қилиб олиш тугмаси босилмаган ерлар</th>
+                                <th rowspan="6" class="sticky-col border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-800" style="min-width: 60px;">Т/р</th>
+                                <th rowspan="6" class="sticky-col-2 border border-slate-400 px-4 py-4 text-center align-middle font-bold text-slate-800" style="min-width: 200px;">Ҳудудлар</th>
                             </tr>
 
-                            <!-- HEADER ROW 2: Subsections (Excel Row 4) -->
+                            <!-- HEADER ROW 2: Excel Row 4 - Top level section headers -->
                             <tr style="background: #eff6ff !important;">
-                                <!-- Cols 2-5: Basic metrics (rowspan 4) -->
+                                <!-- Cols 2-11: Main section -->
+                                <th colspan="10" class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">Сотилган ер участкалари</th>
+                                
+                                <!-- Cols 12-31: "шундан" section -->
+                                <th colspan="20" class="border border-slate-400 px-4 py-3 text-center font-bold text-slate-800">шундан</th>
+                                
+                                <!-- Cols 32-35: Auction pending -->
+                                <th colspan="4" rowspan="3" class="border border-slate-400 px-4 py-3 text-center align-middle font-bold text-slate-800">Аукционда сотилган ва савдо натижасини расмийлаштишда турган ерлар</th>
+                                
+                                <!-- Cols 36-37: Property not accepted -->
+                                <th colspan="2" rowspan="3" class="border border-slate-400 px-4 py-3 text-center align-middle font-bold text-slate-800">Мулкни қабул қилиб олиш тугмаси босилмаган ерлар</th>
+                            </tr>
+
+                            <!-- HEADER ROW 3: Excel Row 5 - Second level -->
+                            <tr style="background: #eff6ff !important;">
+                                <!-- Cols 2-5: Basic metrics -->
                                 <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 70px;">Сони</th>
                                 <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 90px;">Майдони<br>(га)</th>
                                 <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 110px;">Бошланғич<br>нархи<br>(млрд сўм)</th>
                                 <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 110px;">Сотилган<br>нархи<br>(млрд сўм)</th>
 
-                                <!-- Cols 6-7: First "шундан" (colspan 2, rowspan 2) -->
-                                <th colspan="2" rowspan="2" class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">шундан</th>
+                                <!-- Cols 6-7: "шундан" (NO rowspan, continues to next row) -->
+                                <th colspan="2" class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">шундан</th>
 
-                                <!-- Col 8: Main "тушадиган маблағ" (rowspan 4) -->
+                                <!-- Col 8: Tushadigan mablagh -->
                                 <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 130px;">Сотилган ер<br>нархи бўйича<br>тушадиган<br>маблағ<br>(млрд сўм)</th>
 
-                                <!-- Cols 9-11: Second "шундан" (colspan 3, rowspan 2) -->
-                                <th colspan="3" rowspan="2" class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">шундан</th>
+                                <!-- Cols 9-11: "шундан" for payments (NO rowspan, continues to next row) -->
+                                <th colspan="3" class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">шундан</th>
 
-                                <!-- Cols 12-21: "Бир йўла тўлаш" section -->
-                                <th colspan="10" class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">Бир йўла тўлаш шарти билан сотилган</th>
+                                <!-- Cols 12-21: Bir yola section -->
+                                <th colspan="10" rowspan="2" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm">Бир йўла тўлаш шарти билан сотилган</th>
 
-                                <!-- Cols 22-31: "Бўлиб тўлаш" section -->
-                                <th colspan="10" class="border border-slate-400 px-3 py-3 text-center font-semibold text-slate-700 text-sm">Нархини бўлиб тўлаш шарти билан сотилган</th>
-
-                                <!-- Cols 32-37: Bottom sections (all rowspan 4) -->
-                                <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 70px;">сони</th>
-                                <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 90px;">майдони<br>(га)</th>
-                                <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 110px;">бошланғич<br>нархи<br>(млрд сўм)</th>
-                                <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 110px;">сотилган<br>нархи<br>(млрд сўм)</th>
-                                <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 70px;">сони</th>
-                                <th rowspan="4" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm" style="min-width: 130px;">аукционда турган маблағ<br>(млрд сўм)</th>
+                                <!-- Cols 22-31: Bolib section -->
+                                <th colspan="10" rowspan="2" class="border border-slate-400 px-3 py-3 text-center align-middle font-semibold text-slate-700 text-sm">Нархини бўлиб тўлаш шарти билан сотилган</th>
                             </tr>
 
-                            <!-- HEADER ROW 3: Third level (Excel Row 5) -->
+                            <!-- HEADER ROW 4: Excel Row 6 - Third level -->
                             <tr style="background: #eff6ff !important;">
-                                <!-- Cols 12-15: Biryola basic stats (rowspan 3) -->
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 60px;">Сони</th>
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 80px;">Майдони<br>(га)</th>
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Бошланғич<br>нархи<br>(млрд сўм)</th>
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Сотилган<br>нархи<br>(млрд сўм)</th>
+                                <!-- Col 6: Chegirma -->
+                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Чегирма<br>қиймати<br>(млрд сўм)</th>
+                                
+                                <!-- Col 7: Auksion harajat -->
+                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 110px;">Аукцион<br>(1 фоиз)<br>харажати<br>(млрд сўм)</th>
 
-                                <!-- Cols 16-17: Biryola "шундан" (colspan 2, rowspan 2) -->
-                                <th colspan="2" rowspan="2" class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
-
-                                <!-- Col 18: Biryola "тушадиган маблағ" (rowspan 3) -->
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 120px;">Сотилган ер<br>нархи бўйича<br>тушадиган<br>маблағ<br>(млрд сўм)</th>
-
-                                <!-- Cols 19-21: Biryola "тушган шундан" (colspan 3, rowspan 2) -->
-                                <th colspan="3" rowspan="2" class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
-
-                                <!-- Cols 22-25: Bolib basic stats (rowspan 3) -->
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 60px;">Сони</th>
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 80px;">Майдони<br>(га)</th>
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Бошланғич<br>нархи<br>(млрд сўм)</th>
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Сотилган<br>нархи<br>(млрд сўм)</th>
-
-                                <!-- Cols 26-27: Bolib "шундан" (colspan 2, rowspan 2) -->
-                                <th colspan="2" rowspan="2" class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
-
-                                <!-- Col 28: Bolib "тушадиган маблағ" (rowspan 3) -->
-                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 120px;">Сотилган ер<br>нархи бўйича<br>тушадиган<br>маблағ<br>(млрд сўм)</th>
-
-                                <!-- Cols 29-31: Bolib "тушган шундан" (colspan 3, rowspan 2) -->
-                                <th colspan="3" rowspan="2" class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
+                                <!-- Col 9: Jami tushgan -->
+                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">жами тушган<br>маблағ<br>(млрд сўм)</th>
+                                
+                                <!-- Col 10: Qoldiq -->
+                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">қолдиқ<br>маблағ<br>(млрд сўм)</th>
+                                
+                                <!-- Col 11: Foizda -->
+                                <th rowspan="3" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 80px;">фоизда</th>
                             </tr>
 
-                            <!-- HEADER ROW 4: Fourth level detail (Excel Row 6) -->
+                            <!-- HEADER ROW 5: Excel Row 7 - Fourth level (Biryola and Bolib sections) -->
                             <tr style="background: #eff6ff !important;">
-                                <!-- Cols 6-7: Main section "шундан" details -->
-                                <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 100px;">Чегирма<br>қиймати<br>(млрд сўм)</th>
-                                <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 110px;">Аукцион<br>(1 фоиз)<br>харажати<br>(млрд сўм)</th>
+                                <!-- Cols 12-15: Biryola basic -->
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 60px;">Сони</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 80px;">Майдони<br>(га)</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Бошланғич<br>нархи<br>(млрд сўм)</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Сотилган<br>нархи<br>(млрд сўм)</th>
 
-                                <!-- Cols 9-11: Main section "шундан" (тушган) details -->
-                                <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 100px;">жами тушган<br>маблағ<br>(млрд сўм)</th>
-                                <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 100px;">қолдиқ<br>маблағ<br>(млрд сўм)</th>
-                                <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 80px;">фоизда</th>
+                                <!-- Cols 16-17: Biryola "шундан" -->
+                                <th colspan="2" class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
+
+                                <!-- Col 18: Biryola tushadigan -->
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 120px;">Сотилган ер<br>нархи бўйича<br>тушадиган<br>маблағ<br>(млрд сўм)</th>
+
+                                <!-- Cols 19-21: Biryola "шундан" payments -->
+                                <th colspan="3" class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
+
+                                <!-- Cols 22-25: Bolib basic -->
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 60px;">Сони</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 80px;">Майдони<br>(га)</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Бошланғич<br>нархи<br>(млрд сўм)</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 100px;">Сотилган<br>нархи<br>(млрд сўм)</th>
+
+                                <!-- Cols 26-27: Bolib "шундан" -->
+                                <th colspan="2" class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
+
+                                <!-- Col 28: Bolib tushadigan -->
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 120px;">Сотилган ер<br>нархи бўйича<br>тушадиган<br>маблағ<br>(млрд сўм)</th>
+
+                                <!-- Cols 29-31: Bolib "шундан" payments -->
+                                <th colspan="3" class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
+
+                                <!-- Cols 32-35: Auksonda section details -->
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 70px;">Сони</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 90px;">Майдони<br>(га)</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 110px;">Бошланғич<br>нархи<br>(млрд сўм)</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 110px;">Сотилган<br>нархи<br>(млрд сўм)</th>
+
+                                <!-- Cols 36-37: Mulk qabul section details -->
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 70px;">Сони</th>
+                                <th rowspan="2" class="border border-slate-400 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="min-width: 130px;">Аукционда<br>турган маблағ<br>(млрд сўм)</th>
                             </tr>
 
-                            <!-- HEADER ROW 5: Fifth level detail (Excel Row 7) -->
+                            <!-- HEADER ROW 6: Excel Row 8 - Fifth level (Final details) -->
                             <tr style="background: #eff6ff !important;">
-                                <!-- Cols 16-17: Biryola "шундан" details -->
+                                <!-- Col 16: Biryola chegirma -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 90px;">чегирма<br>қиймати<br>(млрд сўм)</th>
+                                
+                                <!-- Col 17: Biryola auksion -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 100px;">аукцион<br>(1 фоиз)<br>харажати<br>(млрд сўм)</th>
 
-                                <!-- Cols 19-21: Biryola "тушган шундан" details -->
+                                <!-- Col 19: Biryola tushgan -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 100px;">тушган<br>маблағ<br>(млрд сўм)</th>
+                                
+                                <!-- Col 20: Biryola qoldiq -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 90px;">қолдиқ<br>маблағ<br>(млрд сўм)</th>
+                                
+                                <!-- Col 21: Biryola foiz -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 70px;">фоизда</th>
 
-                                <!-- Cols 26-27: Bolib "шундан" details -->
+                                <!-- Col 26: Bolib chegirma -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 90px;">чегирма<br>қиймати<br>(млрд сўм)</th>
+                                
+                                <!-- Col 27: Bolib auksion -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 100px;">аукцион<br>(1 фоиз)<br>харажати<br>(млрд сўм)</th>
 
-                                <!-- Cols 29-31: Bolib "тушган шундан" details -->
+                                <!-- Col 29: Bolib tushgan -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 100px;">тушган<br>маблағ<br>(млрд сўм)</th>
+                                
+                                <!-- Col 30: Bolib qoldiq -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 90px;">қолдиқ<br>маблағ<br>(млрд сўм)</th>
+                                
+                                <!-- Col 31: Bolib foiz -->
                                 <th class="border border-slate-400 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="min-width: 70px;">фоизда</th>
                             </tr>
                         </thead>
