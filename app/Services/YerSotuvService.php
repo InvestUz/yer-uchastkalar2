@@ -760,4 +760,180 @@ public function getDetailedStatistics(array $dateFilters = []): array
 
         return $taqqoslash;
     }
+
+     /**
+     * Get monthly comparative data for monitoring_mirzayev
+     */
+    public function getMonthlyComparativeData(array $filters = []): array
+    {
+        $tumanlar = [
+            'Бектемир тумани',
+            'Мирзо Улуғбек тумани',
+            'Миробод тумани',
+            'Олмазор тумани',
+            'Сирғали тумани',
+            'Учтепа тумани',
+            'Чилонзор тумани',
+            'Шайхонтоҳур тумани',
+            'Юнусобод тумани',
+            'Яккасарой тумани',
+            'Янги ҳаёт тумани',
+            'Яшнобод тумани'
+        ];
+
+        $currentYear = now()->year;
+        $currentMonth = now()->month;
+        
+        // Determine selected month (default to current month)
+        $selectedMonth = $filters['month'] ?? $currentMonth;
+        $selectedYear = $filters['year'] ?? $currentYear;
+
+        $result = [
+            'tumanlar' => [],
+            'jami' => [
+                'selected_month' => [
+                    'plan' => 0,
+                    'fakt' => 0,
+                    'percentage' => 0
+                ],
+                'year_to_date' => [
+                    'plan' => 0,
+                    'fakt' => 0,
+                    'percentage' => 0
+                ],
+                'full_year' => [
+                    'plan' => 0,
+                    'fakt' => 0,
+                    'percentage' => 0
+                ]
+            ]
+        ];
+
+        foreach ($tumanlar as $tuman) {
+            $tumanPatterns = $this->getTumanPatterns($tuman);
+            
+            // Get lots for this tuman (муддатли only)
+            $query = YerSotuv::query();
+            $this->applyTumanFilter($query, $tumanPatterns);
+            $query->where('tolov_turi', 'муддатли');
+            
+            $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+            if (empty($lotRaqamlari)) {
+                continue;
+            }
+
+            // SELECTED MONTH
+            $selectedMonthPlan = DB::table('grafik_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->where('yil', $selectedYear)
+                ->where('oy', $selectedMonth)
+                ->sum('grafik_summa');
+
+            $selectedMonthFakt = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->whereYear('tolov_sana', $selectedYear)
+                ->whereMonth('tolov_sana', $selectedMonth)
+                ->sum('tolov_summa');
+
+            $selectedMonthPercentage = $selectedMonthPlan > 0 
+                ? round(($selectedMonthFakt / $selectedMonthPlan) * 100) 
+                : 0;
+
+            // YEAR TO DATE (January to selected month)
+            $ytdPlan = DB::table('grafik_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->where('yil', $selectedYear)
+                ->where('oy', '<=', $selectedMonth)
+                ->sum('grafik_summa');
+
+            $ytdFakt = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->whereYear('tolov_sana', $selectedYear)
+                ->whereMonth('tolov_sana', '<=', $selectedMonth)
+                ->sum('tolov_summa');
+
+            $ytdPercentage = $ytdPlan > 0 
+                ? round(($ytdFakt / $ytdPlan) * 100) 
+                : 0;
+
+            // FULL YEAR (all 12 months)
+            $fullYearPlan = DB::table('grafik_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->where('yil', $selectedYear)
+                ->sum('grafik_summa');
+
+            $fullYearFakt = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->whereYear('tolov_sana', $selectedYear)
+                ->sum('tolov_summa');
+
+            $fullYearPercentage = $fullYearPlan > 0 
+                ? round(($fullYearFakt / $fullYearPlan) * 100) 
+                : 0;
+
+            // Add to result
+            $result['tumanlar'][] = [
+                'tuman' => $tuman,
+                'selected_month' => [
+                    'plan' => $selectedMonthPlan,
+                    'fakt' => $selectedMonthFakt,
+                    'percentage' => $selectedMonthPercentage
+                ],
+                'year_to_date' => [
+                    'plan' => $ytdPlan,
+                    'fakt' => $ytdFakt,
+                    'percentage' => $ytdPercentage
+                ],
+                'full_year' => [
+                    'plan' => $fullYearPlan,
+                    'fakt' => $fullYearFakt,
+                    'percentage' => $fullYearPercentage
+                ]
+            ];
+
+            // Add to totals
+            $result['jami']['selected_month']['plan'] += $selectedMonthPlan;
+            $result['jami']['selected_month']['fakt'] += $selectedMonthFakt;
+            
+            $result['jami']['year_to_date']['plan'] += $ytdPlan;
+            $result['jami']['year_to_date']['fakt'] += $ytdFakt;
+            
+            $result['jami']['full_year']['plan'] += $fullYearPlan;
+            $result['jami']['full_year']['fakt'] += $fullYearFakt;
+        }
+
+        // Calculate total percentages
+        $result['jami']['selected_month']['percentage'] = $result['jami']['selected_month']['plan'] > 0
+            ? round(($result['jami']['selected_month']['fakt'] / $result['jami']['selected_month']['plan']) * 100)
+            : 0;
+
+        $result['jami']['year_to_date']['percentage'] = $result['jami']['year_to_date']['plan'] > 0
+            ? round(($result['jami']['year_to_date']['fakt'] / $result['jami']['year_to_date']['plan']) * 100)
+            : 0;
+
+        $result['jami']['full_year']['percentage'] = $result['jami']['full_year']['plan'] > 0
+            ? round(($result['jami']['full_year']['fakt'] / $result['jami']['full_year']['plan']) * 100)
+            : 0;
+
+        // Add meta information
+        $result['meta'] = [
+            'selected_month' => $selectedMonth,
+            'selected_month_name' => $this->getMonthName($selectedMonth),
+            'selected_year' => $selectedYear,
+            'current_month' => $currentMonth,
+            'current_year' => $currentYear
+        ];
+
+        return $result;
+    }
+private function getMonthName(int $month): string
+{
+    $months = [
+        1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
+        5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
+        9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
+    ];
+    return $months[$month] ?? 'Unknown';
+}
 }

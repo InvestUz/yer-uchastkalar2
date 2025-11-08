@@ -838,4 +838,38 @@ private function createGrafikTolovlar(YerSotuv $yer, array $grafikData)
         ]);
     }
 }
+
+/**
+     * Display monthly comparative monitoring page
+     */
+    public function monitoring_mirzayev(Request $request)
+    {
+        $filters = [
+            'year' => $request->get('year', now()->year),
+            'month' => $request->get('month', now()->month),
+        ];
+
+        $comparativeData = $this->yerSotuvService->getMonthlyComparativeData($filters);
+
+        // Get available years and months
+        $availableYears = DB::table('grafik_tolovlar')
+            ->select('yil')
+            ->distinct()
+            ->orderBy('yil', 'desc')
+            ->pluck('yil');
+
+        $months = [
+            1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
+            5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
+            9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
+        ];
+
+        return view('yer-sotuvlar.monitoring_mirzayev', compact(
+            'comparativeData',
+            'availableYears',
+            'months',
+            'filters'
+        ));
+    }
+
 }

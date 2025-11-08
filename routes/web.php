@@ -8,6 +8,7 @@ Route::get('/', [YerSotuvController::class, 'index'])->name('yer-sotuvlar.index'
 Route::get('/svod3', [YerSotuvController::class, 'svod3'])->name('yer-sotuvlar.svod3');
 Route::get('/ruyxat', [YerSotuvController::class, 'list'])->name('yer-sotuvlar.list');
 Route::get('/monitoring', [YerSotuvController::class, 'monitoring'])->name('yer-sotuvlar.monitoring');
+Route::get('/monitoring_mirzayev', [YerSotuvController::class, 'monitoring_mirzayev'])->name('yer-sotuvlar.monitoring_mirzayev');
 
 // IMPORTANT: Put /create BEFORE /{lot_raqami} routes
 Route::get('/yer/create', [YerSotuvController::class, 'create'])->name('yer-sotuvlar.create');
