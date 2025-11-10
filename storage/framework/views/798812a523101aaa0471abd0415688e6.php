@@ -429,4 +429,4 @@
 </body>
 
 </html>
-<?php /**PATH C:\Users\Администратор\Desktop\yer-uchastkalar2\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/layouts/app.blade.php ENDPATH**/ ?>

@@ -843,33 +843,41 @@ private function createGrafikTolovlar(YerSotuv $yer, array $grafikData)
      * Display monthly comparative monitoring page
      */
     public function monitoring_mirzayev(Request $request)
-    {
-        $filters = [
-            'year' => $request->get('year', now()->year),
-            'month' => $request->get('month', now()->month),
-        ];
+{
+    // Get last month's last day
+    $lastMonth = now()->subMonth()->endOfMonth();
 
-        $comparativeData = $this->yerSotuvService->getMonthlyComparativeData($filters);
+    $filters = [
+        'year' => $lastMonth->year,
+        'month' => $lastMonth->month,
+    ];
 
-        // Get available years and months
-        $availableYears = DB::table('grafik_tolovlar')
-            ->select('yil')
-            ->distinct()
-            ->orderBy('yil', 'desc')
-            ->pluck('yil');
+    $comparativeData = $this->yerSotuvService->getMonthlyComparativeData($filters);
 
-        $months = [
-            1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
-            5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
-            9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
-        ];
+    // Get available years
+    $availableYears = DB::table('grafik_tolovlar')
+        ->select('yil')
+        ->distinct()
+        ->orderBy('yil', 'desc')
+        ->pluck('yil');
 
-        return view('yer-sotuvlar.monitoring_mirzayev', compact(
-            'comparativeData',
-            'availableYears',
-            'months',
-            'filters'
-        ));
-    }
+    // Only show the last completed month (single option)
+    $monthNames = [
+        1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
+        5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
+        9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
+    ];
+
+    $months = [
+        $lastMonth->month => $monthNames[$lastMonth->month]
+    ];
+
+    return view('yer-sotuvlar.monitoring_mirzayev', compact(
+        'comparativeData',
+        'availableYears',
+        'months',
+        'filters'
+    ));
+}
 
 }
