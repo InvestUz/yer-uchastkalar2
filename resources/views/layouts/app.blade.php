@@ -166,15 +166,12 @@
                 <div class="flex items-center space-x-4">
                     <div class="relative group">
                         <div
-                            class="w-16 h-16 rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                            class="w-24 h-24 rounded-xl flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                             <img src="https://toshkentinvest.uz/assets/frontend/tild6238-3031-4265-a564-343037346231/tic_logo_blue.png"
                                 alt="">
                         </div>
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold gradient-text tracking-tight">Ер Участкалари</h1>
-                        <p class="text-sm text-slate-600 font-semibold">Тошкент Инвест компанияси</p>
-                    </div>
+                   
                 </div>
 
                 <!-- Enhanced Center Navigation -->

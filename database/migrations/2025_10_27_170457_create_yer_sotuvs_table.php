@@ -24,8 +24,8 @@ return new class extends Migration
             $table->text('lokatsiya')->nullable(); // Google Maps link
 
             // Qurilish ma'lumotlari
-            $table->string('qurilish_turi_1')->nullable(); // Қурилишга рухсат берилган объект тури
-            $table->string('qurilish_turi_2')->nullable(); // Қурилишга рухсат берилган объект тури (2)
+            $table->text('qurilish_turi_1')->nullable(); // Қурилишга рухсат берилган объект тури
+            $table->text('qurilish_turi_2')->nullable(); // Қурилишга рухсат берилган объект тури (2)
             $table->decimal('qurilish_maydoni', 12, 2)->nullable(); // кв.м
             $table->decimal('investitsiya', 20, 2)->nullable(); // АҚШ долл
 
