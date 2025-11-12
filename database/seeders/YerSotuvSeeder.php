@@ -10,6 +10,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class YerSotuvSeeder extends Seeder
 {
@@ -29,9 +30,17 @@ class YerSotuvSeeder extends Seeder
     ];
 
     private $notFoundLots = [];
+    private $skippedRecords = [];
+    private $logFileName;
 
     public function run(): void
     {
+        // Initialize log file
+        $this->logFileName = 'seeder_logs/import_' . now()->format('Y-m-d_H-i-s') . '.log';
+        $this->writeLog("=== YER SOTUV IMPORT LOG ===");
+        $this->writeLog("Boshlandi: " . now()->format('Y-m-d H:i:s'));
+        $this->writeLog(str_repeat("=", 80));
+
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         FaktTolov::truncate();
@@ -41,9 +50,13 @@ class YerSotuvSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $this->command->info("Ma'lumotlar o'chirildi. Import boshlanmoqda...");
+        $this->writeLog("\nMa'lumotlar o'chirildi. Import boshlanmoqda...\n");
 
         $this->importAsosiyMalumot();
         $this->importFaktTolovlar();
+
+        // Write final summary to log
+        $this->writeFinalSummary();
 
         if (!empty($this->notFoundLots)) {
             $this->command->warn("\n=== OGOHLANTIRISH: Topilmagan LOT raqamlar ===");
@@ -54,6 +67,69 @@ class YerSotuvSeeder extends Seeder
         }
 
         $this->command->info("Import muvaffaqiyatli yakunlandi!");
+        $this->command->info("Log fayl saqlandi: storage/app/{$this->logFileName}");
+    }
+
+    private function writeLog($message): void
+    {
+        Storage::append($this->logFileName, $message);
+    }
+
+    private function writeFinalSummary(): void
+    {
+        $this->writeLog("\n" . str_repeat("=", 80));
+        $this->writeLog("=== YAKUNIY HISOBOT ===");
+        $this->writeLog(str_repeat("=", 80));
+
+        // Summary of not found LOTs
+        if (!empty($this->notFoundLots)) {
+            $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR ###");
+            $this->writeLog("Jami: " . count($this->notFoundLots) . " ta\n");
+
+            foreach ($this->notFoundLots as $lot) {
+                $this->writeLog("  - LOT {$lot}: Ma'lumotlar bazasida topilmadi");
+            }
+        }
+
+        // Summary of skipped records
+        if (!empty($this->skippedRecords)) {
+            $this->writeLog("\n### O'TKAZIB YUBORILGAN YOZUVLAR ###");
+            $this->writeLog("Jami: " . count($this->skippedRecords) . " ta\n");
+
+            // Group by reason
+            $groupedByReason = [];
+            foreach ($this->skippedRecords as $record) {
+                $reason = $record['sabab'];
+                if (!isset($groupedByReason[$reason])) {
+                    $groupedByReason[$reason] = [];
+                }
+                $groupedByReason[$reason][] = $record;
+            }
+
+            foreach ($groupedByReason as $reason => $records) {
+                $this->writeLog("\nSabab: {$reason}");
+                $this->writeLog("Soni: " . count($records) . " ta");
+
+                foreach ($records as $record) {
+                    $details = [];
+                    if (isset($record['lot_raqami'])) {
+                        $details[] = "LOT: {$record['lot_raqami']}";
+                    }
+                    if (isset($record['qator'])) {
+                        $details[] = "Qator: {$record['qator']}";
+                    }
+                    if (isset($record['qoshimcha'])) {
+                        $details[] = $record['qoshimcha'];
+                    }
+
+                    $this->writeLog("  - " . implode(" | ", $details));
+                }
+            }
+        }
+
+        $this->writeLog("\n" . str_repeat("=", 80));
+        $this->writeLog("Yakunlandi: " . now()->format('Y-m-d H:i:s'));
+        $this->writeLog(str_repeat("=", 80));
     }
 
     private function importAsosiyMalumot(): void
@@ -62,6 +138,7 @@ class YerSotuvSeeder extends Seeder
 
         if (!file_exists($file)) {
             $this->command->error("Fayl topilmadi: $file");
+            $this->writeLog("XATOLIK: Fayl topilmadi - $file");
             return;
         }
 
@@ -73,14 +150,27 @@ class YerSotuvSeeder extends Seeder
             array_shift($rows);
 
             $this->command->info("Asosiy ma'lumotlar yuklanmoqda...");
+            $this->writeLog("\n=== ASOSIY MA'LUMOTLAR IMPORT ===");
+            $this->writeLog("Fayl: Sotilgan_yerlar_11_11_2025_Bazaga++.xlsx");
 
             $count = 0;
             foreach ($rows as $rowIndex => $row) {
-                if (empty(array_filter($row))) continue;
+                if (empty(array_filter($row))) {
+                    $this->skippedRecords[] = [
+                        'sabab' => 'Bo\'sh qator',
+                        'qator' => $rowIndex + 2
+                    ];
+                    continue;
+                }
 
                 $lotRaqami = $this->parseLotNumber($row[1] ?? null);
 
                 if (!$lotRaqami) {
+                    $this->skippedRecords[] = [
+                        'sabab' => 'LOT raqami topilmadi',
+                        'qator' => $rowIndex + 2,
+                        'qoshimcha' => 'Ustun B: ' . ($row[1] ?? 'bo\'sh')
+                    ];
                     continue;
                 }
 
@@ -97,13 +187,21 @@ class YerSotuvSeeder extends Seeder
                     }
                 } catch (\Exception $e) {
                     $this->command->error("Qator " . ($rowIndex + 2) . " xatolik: " . $e->getMessage());
+                    $this->skippedRecords[] = [
+                        'sabab' => 'Exception xatolik',
+                        'lot_raqami' => $lotRaqami,
+                        'qator' => $rowIndex + 2,
+                        'qoshimcha' => $e->getMessage()
+                    ];
                     continue;
                 }
             }
 
             $this->command->info("Jami {$count} ta lot yuklandi!");
+            $this->writeLog("Muvaffaqiyatli yuklandi: {$count} ta lot");
         } catch (\Exception $e) {
             $this->command->error("Xatolik: " . $e->getMessage());
+            $this->writeLog("KRITIK XATOLIK: " . $e->getMessage());
         }
     }
 
@@ -289,12 +387,14 @@ class YerSotuvSeeder extends Seeder
         $this->command->info("  LOT {$yerSotuv->lot_raqami}: {$grafikCount} ta grafik to'lov ({$firstPaymentMonth->format('Y-m')} dan {$lastPaymentMonth->format('Y-m')} gacha)");
     }
 }
+
     private function importFaktTolovlar(): void
     {
-        $file = storage_path('app/excel/Yer_2025_2024_full.xlsx');
+        $file = storage_path('app/excel/Тушум 2024-2025.xlsx');
 
         if (!file_exists($file)) {
             $this->command->error("Fakt to'lovlar fayli topilmadi");
+            $this->writeLog("XATOLIK: Fakt to'lovlar fayli topilmadi - $file");
             return;
         }
 
@@ -307,17 +407,31 @@ class YerSotuvSeeder extends Seeder
             array_shift($rows);
 
             $this->command->info("Fakt to'lovlar yuklanmoqda...");
+            $this->writeLog("\n=== FAKT TO'LOVLAR IMPORT ===");
+            $this->writeLog("Fayl: Тушум 2024-2025.xlsx");
 
             $count = 0;
             $skipped = 0;
 
             foreach ($rows as $rowIndex => $row) {
-                if (empty(array_filter($row))) continue;
+                if (empty(array_filter($row))) {
+                    $this->skippedRecords[] = [
+                        'sabab' => 'Bo\'sh qator (Fakt to\'lovlar)',
+                        'qator' => $rowIndex + 2
+                    ];
+                    $skipped++;
+                    continue;
+                }
 
                 // Extract LOT number from column 7 (index 7)
                 $lotRaqami = $this->extractLotRaqami($row[7] ?? '');
 
                 if (!$lotRaqami) {
+                    $this->skippedRecords[] = [
+                        'sabab' => 'LOT raqami topilmadi (Fakt to\'lovlar)',
+                        'qator' => $rowIndex + 2,
+                        'qoshimcha' => 'Ustun H: ' . ($row[7] ?? 'bo\'sh')
+                    ];
                     $skipped++;
                     continue;
                 }
@@ -327,6 +441,11 @@ class YerSotuvSeeder extends Seeder
                     if (!in_array($lotRaqami, $this->notFoundLots)) {
                         $this->notFoundLots[] = $lotRaqami;
                     }
+                    $this->skippedRecords[] = [
+                        'sabab' => 'LOT bazada topilmadi (Fakt to\'lovlar)',
+                        'lot_raqami' => $lotRaqami,
+                        'qator' => $rowIndex + 2
+                    ];
                     $skipped++;
                     continue;
                 }
@@ -355,11 +474,15 @@ class YerSotuvSeeder extends Seeder
             }
 
             $this->command->info("Jami {$count} ta to'lov yuklandi!");
+            $this->writeLog("Muvaffaqiyatli yuklandi: {$count} ta to'lov");
+
             if ($skipped > 0) {
                 $this->command->warn("{$skipped} ta o'tkazib yuborildi");
+                $this->writeLog("O'tkazib yuborildi: {$skipped} ta");
             }
         } catch (\Exception $e) {
             $this->command->error("Xatolik: " . $e->getMessage());
+            $this->writeLog("KRITIK XATOLIK: " . $e->getMessage());
             $this->command->error("Stack trace: " . $e->getTraceAsString());
         }
     }
@@ -388,20 +511,42 @@ class YerSotuvSeeder extends Seeder
     {
         if (empty($text)) return null;
 
-        // Pattern: L[number]L
-        if (preg_match('/L(\d+)L/', $text, $matches)) {
+        $text = trim($text);
+
+        // First, remove commas and spaces from numbers (e.g., "3,808,404" → "3808404")
+        $cleanedText = preg_replace('/(\d+),(\d+)/', '$1$2', $text);
+        $cleanedText = preg_replace('/(\d+)\s+(\d+)/', '$1$2', $cleanedText);
+
+        // Pattern 1: L[number]L (e.g., L10889408L)
+        if (preg_match('/L(\d+)L/i', $cleanedText, $matches)) {
             return $matches[1];
         }
 
-        // Try to find any number in the text
-        if (preg_match('/\d{7,}/', $text, $matches)) {
-            return $matches[0];
+        // Pattern 2: L[number] (e.g., L10889408)
+        if (preg_match('/L(\d+)/i', $cleanedText, $matches)) {
+            return $matches[1];
         }
 
-        // If it's just a number
-        $text = trim($text);
-        if (is_numeric($text)) {
-            return (string)round($text);
+        // Pattern 3: [number]L (e.g., 10889408L)
+        if (preg_match('/(\d+)L/i', $cleanedText, $matches)) {
+            return $matches[1];
+        }
+
+        // Pattern 4: LOT [number] (e.g., LOT 10889408)
+        if (preg_match('/LOT\s*(\d+)/i', $cleanedText, $matches)) {
+            return $matches[1];
+        }
+
+        // Pattern 5: Find any 6+ digit number in text (lowered from 7 to catch shorter LOTs)
+        // This will catch: 3808404, 10889408, 13450799, etc.
+        if (preg_match('/\b(\d{6,})\b/', $cleanedText, $matches)) {
+            return $matches[1];
+        }
+
+        // Pattern 6: If it's just a number after cleaning (e.g., "10889408")
+        $cleanedText = str_replace([',', ' '], '', $cleanedText);
+        if (is_numeric($cleanedText) && strlen($cleanedText) >= 6) {
+            return (string)round($cleanedText);
         }
 
         return null;
@@ -457,6 +602,7 @@ class YerSotuvSeeder extends Seeder
             return null;
         } catch (\Exception $e) {
             $this->command->warn("Sanani parse qilishda xatolik: {$value}");
+            $this->writeLog("OGOHLANTIRISH: Sanani parse qilishda xatolik - {$value}");
             return null;
         }
     }
