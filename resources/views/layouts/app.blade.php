@@ -177,6 +177,37 @@
             <!-- Navigation -->
             <nav class="flex-1 overflow-y-auto p-3">
                 <div class="space-y-1">
+
+  <!-- Monitoring bo'limi -->
+                    <div class="px-3 py-2 mt-4">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider nav-text">Мониторинг</p>
+                    </div>
+
+                    <a href="{{ route('yer-sotuvlar.monitoring') }}"
+                        class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('yer-sotuvlar.monitoring') ? 'active' : '' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('yer-sotuvlar.monitoring') ? 'text-white' : 'text-gray-600' }}"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                        </svg>
+                        <span
+                            class="nav-text text-sm font-medium {{ request()->routeIs('yer-sotuvlar.monitoring') ? 'text-white' : 'text-gray-700' }}">Инфографика</span>
+                    </a>
+
+                    <a href="{{ route('yer-sotuvlar.monitoring_mirzayev') }}"
+                        class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'active' : '' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'text-white' : 'text-gray-600' }}"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span
+                            class="nav-text text-sm font-medium {{ request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'text-white' : 'text-gray-700' }}">Ойлик
+                            динамика</span>
+                    </a>
+
                     <!-- Asosiy bo'lim -->
                     <div class="px-3 py-2">
                         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider nav-text">Асосий</p>
@@ -217,35 +248,7 @@
                             class="nav-text text-sm font-medium {{ request()->routeIs('yer-sotuvlar.list') ? 'text-white' : 'text-gray-700' }}">Рўйхат</span>
                     </a>
 
-                    <!-- Monitoring bo'limi -->
-                    <div class="px-3 py-2 mt-4">
-                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider nav-text">Мониторинг</p>
-                    </div>
 
-                    <a href="{{ route('yer-sotuvlar.monitoring') }}"
-                        class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('yer-sotuvlar.monitoring') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 {{ request()->routeIs('yer-sotuvlar.monitoring') ? 'text-white' : 'text-gray-600' }}"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                        </svg>
-                        <span
-                            class="nav-text text-sm font-medium {{ request()->routeIs('yer-sotuvlar.monitoring') ? 'text-white' : 'text-gray-700' }}">Инфографика</span>
-                    </a>
-
-                    <a href="{{ route('yer-sotuvlar.monitoring_mirzayev') }}"
-                        class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 {{ request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'text-white' : 'text-gray-600' }}"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span
-                            class="nav-text text-sm font-medium {{ request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'text-white' : 'text-gray-700' }}">Ойлик
-                            динамика</span>
-                    </a>
 
                     <!-- Sozlamalar bo'limi -->
                     <div class="px-3 py-2 mt-4">
