@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Ер Участкалари Маълумотлар Тизими')</title>
+    <title><?php echo $__env->yieldContent('title', 'Ер Участкалари Маълумотлар Тизими'); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom Scrollbar */
@@ -179,8 +179,8 @@
 
 
 
-                    <a href="{{ route('yer-sotuvlar.index') }}"
-                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 {{ request()->routeIs('yer-sotuvlar.index') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
+                    <a href="<?php echo e(route('yer-sotuvlar.index')); ?>"
+                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 <?php echo e(request()->routeIs('yer-sotuvlar.index') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'); ?>">
                         <div class="flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -189,8 +189,8 @@
                             <span>Йиғма маълумотлар</span>
                         </div>
                     </a>
-                    <a href="{{ route('yer-sotuvlar.svod3') }}"
-                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 {{ request()->routeIs('yer-sotuvlar.svod3') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
+                    <a href="<?php echo e(route('yer-sotuvlar.svod3')); ?>"
+                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 <?php echo e(request()->routeIs('yer-sotuvlar.svod3') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'); ?>">
                         <div class="flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -199,8 +199,8 @@
                             <span>Бўлиб тўлаш маълуотлари</span>
                         </div>
                     </a>
-                    <a href="{{ route('yer-sotuvlar.list') }}"
-                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 {{ request()->routeIs('yer-sotuvlar.list') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
+                    <a href="<?php echo e(route('yer-sotuvlar.list')); ?>"
+                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 <?php echo e(request()->routeIs('yer-sotuvlar.list') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'); ?>">
                         <div class="flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -209,23 +209,23 @@
                             <span>Рўйхат</span>
                         </div>
                     </a>
-                    <a href="{{ route('yer-sotuvlar.monitoring') }}"
-                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 {{ request()->routeIs('yer-sotuvlar.monitoring') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
+                    <a href="<?php echo e(route('yer-sotuvlar.monitoring')); ?>"
+                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 <?php echo e(request()->routeIs('yer-sotuvlar.monitoring') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'); ?>">
                         <div class="flex items-center space-x-2">
 
                             <span>Инфографика ва Аналитика</span>
                         </div>
                     </a>
 
-   <a href="{{ route('yer-sotuvlar.monitoring_mirzayev') }}"
-                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 {{ request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
+   <a href="<?php echo e(route('yer-sotuvlar.monitoring_mirzayev')); ?>"
+                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 <?php echo e(request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'); ?>">
                         <div class="flex items-center space-x-2">
 
                             <span>Сотилган ерлардан тушумнинг 2025 йилдаги динамикаси</span>
                         </div>
                     </a>
-   <a href="{{ route('qoldiq.index') }}"
-                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 {{ request()->routeIs('qoldiq.index') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
+   <a href="<?php echo e(route('qoldiq.index')); ?>"
+                        class="nav-link px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 <?php echo e(request()->routeIs('qoldiq.index') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg nav-active' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'); ?>">
                         <div class="flex items-center space-x-2">
 
                             <span>Қолдиқ</span>
@@ -256,7 +256,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span class="text-blue-700 font-semibold">{{ now()->format('d.m.Y') }}</span>
+                            <span class="text-blue-700 font-semibold"><?php echo e(now()->format('d.m.Y')); ?></span>
                         </div>
                     </div>
                 </div>
@@ -273,24 +273,24 @@
 
             <!-- Mobile Navigation -->
             <div id="mobileMenu" class="hidden lg:hidden pb-4 space-y-2">
-                <a href="{{ route('yer-sotuvlar.index') }}"
-                    class="flex items-center space-x-3 px-4 py-3 rounded-lg {{ request()->routeIs('yer-sotuvlar.index') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
+                <a href="<?php echo e(route('yer-sotuvlar.index')); ?>"
+                    class="flex items-center space-x-3 px-4 py-3 rounded-lg <?php echo e(request()->routeIs('yer-sotuvlar.index') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' : 'text-slate-700 hover:bg-blue-50'); ?>">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     <span class="font-semibold">Статистика</span>
                 </a>
-                <a href="{{ route('yer-sotuvlar.svod3') }}"
-                    class="flex items-center space-x-3 px-4 py-3 rounded-lg {{ request()->routeIs('yer-sotuvlar.svod3') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
+                <a href="<?php echo e(route('yer-sotuvlar.svod3')); ?>"
+                    class="flex items-center space-x-3 px-4 py-3 rounded-lg <?php echo e(request()->routeIs('yer-sotuvlar.svod3') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' : 'text-slate-700 hover:bg-blue-50'); ?>">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                     </svg>
                     <span class="font-semibold">Свод 3</span>
                 </a>
-                <a href="{{ route('yer-sotuvlar.list') }}"
-                    class="flex items-center space-x-3 px-4 py-3 rounded-lg {{ request()->routeIs('yer-sotuvlar.list') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' : 'text-slate-700 hover:bg-blue-50' }}">
+                <a href="<?php echo e(route('yer-sotuvlar.list')); ?>"
+                    class="flex items-center space-x-3 px-4 py-3 rounded-lg <?php echo e(request()->routeIs('yer-sotuvlar.list') ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' : 'text-slate-700 hover:bg-blue-50'); ?>">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -303,7 +303,7 @@
 
     <!-- Main Content with Animation -->
     <main class="mx-auto px-6 lg:px-12 xl:px-16 py-8 lg:py-12 animate-fadeIn">
-        @yield('content')
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
 
     <!-- Premium Footer -->
@@ -321,7 +321,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-base font-bold text-white">© {{ date('Y') }} Тошкент шаҳар ҳокимлиги</p>
+                        <p class="text-base font-bold text-white">© <?php echo e(date('Y')); ?> Тошкент шаҳар ҳокимлиги</p>
                         <p class="text-sm text-blue-200 font-medium">Барча ҳуқуқлар ҳимояланган</p>
                     </div>
                 </div>
@@ -443,3 +443,4 @@
 </body>
 
 </html>
+<?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/layouts/app.blade.php ENDPATH**/ ?>

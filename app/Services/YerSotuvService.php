@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\YerSotuv;
+use App\Models\GlobalQoldiq;
 use Illuminate\Support\Facades\DB;
 
 class YerSotuvService
@@ -112,7 +113,7 @@ class YerSotuvService
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
             'chegirma' => $data->chegirma ?? 0,
             'auksion_harajati' => $data->auksion_harajati ?? 0,
-            'tushadigan_mablagh' => $tushadiganMablagh 
+            'tushadigan_mablagh' => $tushadiganMablagh
         ];
     }
 
@@ -196,49 +197,50 @@ class YerSotuvService
         return $query->pluck('lot_raqami')->toArray();
     }
 
-/**
- * Get statistics for filtered list
- */
-public function getListStatistics($query): array
-{
-    // Clone query to avoid modifying the original
-    $statsQuery = clone $query;
+    /**
+     * Get statistics for filtered list
+     */
+    public function getListStatistics($query): array
+    {
+        // Clone query to avoid modifying the original
+        $statsQuery = clone $query;
 
-    // Get lot numbers for fakt_tolangan calculation
-    $lotRaqamlari = (clone $statsQuery)->pluck('lot_raqami')->toArray();
+        // Get lot numbers for fakt_tolangan calculation
+        $lotRaqamlari = (clone $statsQuery)->pluck('lot_raqami')->toArray();
 
-    // Calculate fakt_tolangan
-    $faktTolangan = 0;
-    if (!empty($lotRaqamlari)) {
-        $faktTolangan = DB::table('fakt_tolovlar')
-            ->whereIn('lot_raqami', $lotRaqamlari)
-            ->sum('tolov_summa');
+        // Calculate fakt_tolangan
+        $faktTolangan = 0;
+        if (!empty($lotRaqamlari)) {
+            $faktTolangan = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari)
+                ->sum('tolov_summa');
+        }
+
+        // Calculate aggregate statistics
+        $data = $statsQuery->selectRaw('
+            COUNT(*) as total_lots,
+            SUM(maydoni) as total_area,
+            SUM(sotilgan_narx) as total_price,
+            SUM(boshlangich_narx) as boshlangich_narx,
+            SUM(chegirma) as chegirma,
+            SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+            SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+            SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+        ')->first();
+
+        return [
+            'total_lots' => $data->total_lots ?? 0,
+            'total_area' => $data->total_area ?? 0,
+            'total_price' => $data->total_price ?? 0,
+            'boshlangich_narx' => $data->boshlangich_narx ?? 0,
+            'chegirma' => $data->chegirma ?? 0,
+            'golib_tolagan' => $data->golib_tolagan ?? 0,
+            'shartnoma_summasi' => $data->shartnoma_summasi ?? 0,
+            'auksion_harajati' => $data->auksion_harajati ?? 0,
+            'fakt_tolangan' => $faktTolangan,
+        ];
     }
 
-    // Calculate aggregate statistics
-    $data = $statsQuery->selectRaw('
-        COUNT(*) as total_lots,
-        SUM(maydoni) as total_area,
-        SUM(sotilgan_narx) as total_price,
-        SUM(boshlangich_narx) as boshlangich_narx,
-        SUM(chegirma) as chegirma,
-        SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
-        SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
-        SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
-    ')->first();
-
-    return [
-        'total_lots' => $data->total_lots ?? 0,
-        'total_area' => $data->total_area ?? 0,
-        'total_price' => $data->total_price ?? 0,
-        'boshlangich_narx' => $data->boshlangich_narx ?? 0,
-        'chegirma' => $data->chegirma ?? 0,
-        'golib_tolagan' => $data->golib_tolagan ?? 0,
-        'shartnoma_summasi' => $data->shartnoma_summasi ?? 0,
-        'auksion_harajati' => $data->auksion_harajati ?? 0,
-        'fakt_tolangan' => $faktTolangan,
-    ];
-}
     /**
      * Calculate biryola_fakt: actual payments received for bir yo'la minus mulk qabul
      */
@@ -247,7 +249,7 @@ public function getListStatistics($query): array
         $birYola = $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters);
         $mulkQabul = $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters);
 
-        return $birYola['tushadigan_mablagh'] - $mulkQabul['auksion_mablagh'] ;
+        return $birYola['tushadigan_mablagh'] - $mulkQabul['auksion_mablagh'];
     }
 
     /**
@@ -314,7 +316,7 @@ public function getListStatistics($query): array
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $tushadiganMablagh 
+            'tushadigan_mablagh' => $tushadiganMablagh
         ];
     }
 
@@ -363,7 +365,7 @@ public function getListStatistics($query): array
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $tushadiganMablagh ,
+            'tushadigan_mablagh' => $tushadiganMablagh,
             'tushgan_summa' => $tushadiganMablagh // For completed payments, tushgan = tushadigan
         ];
     }
@@ -424,7 +426,7 @@ public function getListStatistics($query): array
             'maydoni' => $data->maydoni ?? 0,
             'boshlangich_narx' => $data->boshlangich_narx ?? 0,
             'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-            'tushadigan_mablagh' => $tushadiganMablagh ,
+            'tushadigan_mablagh' => $tushadiganMablagh,
             'tushgan_summa' => $tushganSumma
         ];
     }
@@ -507,78 +509,78 @@ public function getListStatistics($query): array
     }
 
     /**
- * Get complete statistics for main page (SVOD1)
- */
-public function getDetailedStatistics(array $dateFilters = []): array
-{
-    $tumanlar = [
-        'Бектемир тумани',
-        'Мирзо Улуғбек тумани',
-        'Миробод тумани',
-        'Олмазор тумани',
-        'Сирғали тумани',
-        'Учтепа тумани',
-        'Чилонзор тумани',
-        'Шайхонтоҳур тумани',
-        'Юнусобод тумани',
-        'Яккасарой тумани',
-        'Янги ҳаёт тумани',
-        'Яшнобод тумани'
-    ];
+     * Get complete statistics for main page (SVOD1)
+     */
+    public function getDetailedStatistics(array $dateFilters = []): array
+    {
+        $tumanlar = [
+            'Бектемир тумани',
+            'Мирзо Улуғбек тумани',
+            'Миробод тумани',
+            'Олмазор тумани',
+            'Сирғали тумани',
+            'Учтепа тумани',
+            'Чилонзор тумани',
+            'Шайхонтоҳур тумани',
+            'Юнусобод тумани',
+            'Яккасарой тумани',
+            'Янги ҳаёт тумани',
+            'Яшнобод тумани'
+        ];
 
-    $statistics = [];
+        $statistics = [];
 
-    foreach ($tumanlar as $tuman) {
-        $tumanPatterns = $this->getTumanPatterns($tuman);
+        foreach ($tumanlar as $tuman) {
+            $tumanPatterns = $this->getTumanPatterns($tuman);
 
-        $stat = [
-            'tuman' => $tuman,
-            'jami' => $this->getTumanData($tumanPatterns, null, $dateFilters),
-            'bir_yola' => $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters),
-            'bolib' => $this->getTumanData($tumanPatterns, 'муддатли', $dateFilters),
-            'auksonda' => $this->getAuksondaTurgan($tumanPatterns, $dateFilters),
-            'mulk_qabul' => $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters),
-            'biryola_fakt' => $this->calculateBiryolaFakt($tumanPatterns, $dateFilters),
-            'bolib_tushgan' => $this->calculateBolibTushgan($tumanPatterns, $dateFilters),
-            'bolib_tushadigan' => $this->calculateBolibTushadigan($tumanPatterns, $dateFilters),
+            $stat = [
+                'tuman' => $tuman,
+                'jami' => $this->getTumanData($tumanPatterns, null, $dateFilters),
+                'bir_yola' => $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters),
+                'bolib' => $this->getTumanData($tumanPatterns, 'муддатли', $dateFilters),
+                'auksonda' => $this->getAuksondaTurgan($tumanPatterns, $dateFilters),
+                'mulk_qabul' => $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters),
+                'biryola_fakt' => $this->calculateBiryolaFakt($tumanPatterns, $dateFilters),
+                'bolib_tushgan' => $this->calculateBolibTushgan($tumanPatterns, $dateFilters),
+                'bolib_tushadigan' => $this->calculateBolibTushadigan($tumanPatterns, $dateFilters),
+            ];
+
+            // RECALCULATE JAMI TUSHADIGAN: xx + yy + vv
+            $stat['jami']['tushadigan_mablagh'] =
+                $stat['bir_yola']['tushadigan_mablagh'] +  // xx
+                $stat['bolib_tushadigan'] +                 // yy
+                $stat['mulk_qabul']['auksion_mablagh'];    // vv
+
+            $stat['jami_tushgan_yigindi'] = $stat['biryola_fakt'] + $stat['bolib_tushgan'];
+
+            $statistics[] = $stat;
+        }
+
+        // Calculate JAMI totals
+        $jami = [
+            'jami' => $this->getTumanData(null, null, $dateFilters),
+            'bir_yola' => $this->getTumanData(null, 'муддатли эмас', $dateFilters),
+            'bolib' => $this->getTumanData(null, 'муддатли', $dateFilters),
+            'auksonda' => $this->getAuksondaTurgan(null, $dateFilters),
+            'mulk_qabul' => $this->getMulkQabulQilmagan(null, $dateFilters),
+            'biryola_fakt' => $this->calculateBiryolaFakt(null, $dateFilters),
+            'bolib_tushgan' => $this->calculateBolibTushgan(null, $dateFilters),
+            'bolib_tushadigan' => $this->calculateBolibTushadigan(null, $dateFilters),
         ];
 
         // RECALCULATE JAMI TUSHADIGAN: xx + yy + vv
-        $stat['jami']['tushadigan_mablagh'] = 
-            $stat['bir_yola']['tushadigan_mablagh'] +  // xx
-            $stat['bolib_tushadigan'] +                 // yy
-            $stat['mulk_qabul']['auksion_mablagh'];    // vv
-        
-        $stat['jami_tushgan_yigindi'] = $stat['biryola_fakt'] + $stat['bolib_tushgan'];
+        $jami['jami']['tushadigan_mablagh'] =
+            $jami['bir_yola']['tushadigan_mablagh'] +  // xx
+            $jami['bolib_tushadigan'] +                 // yy
+            $jami['mulk_qabul']['auksion_mablagh'];    // vv
 
-        $statistics[] = $stat;
+        $jami['jami_tushgan_yigindi'] = $jami['biryola_fakt'] + $jami['bolib_tushgan'];
+
+        return [
+            'tumanlar' => $statistics,
+            'jami' => $jami
+        ];
     }
-
-    // Calculate JAMI totals
-    $jami = [
-        'jami' => $this->getTumanData(null, null, $dateFilters),
-        'bir_yola' => $this->getTumanData(null, 'муддатли эмас', $dateFilters),
-        'bolib' => $this->getTumanData(null, 'муддатли', $dateFilters),
-        'auksonda' => $this->getAuksondaTurgan(null, $dateFilters),
-        'mulk_qabul' => $this->getMulkQabulQilmagan(null, $dateFilters),
-        'biryola_fakt' => $this->calculateBiryolaFakt(null, $dateFilters),
-        'bolib_tushgan' => $this->calculateBolibTushgan(null, $dateFilters),
-        'bolib_tushadigan' => $this->calculateBolibTushadigan(null, $dateFilters),
-    ];
-
-    // RECALCULATE JAMI TUSHADIGAN: xx + yy + vv
-    $jami['jami']['tushadigan_mablagh'] = 
-        $jami['bir_yola']['tushadigan_mablagh'] +  // xx
-        $jami['bolib_tushadigan'] +                 // yy
-        $jami['mulk_qabul']['auksion_mablagh'];    // vv
-
-    $jami['jami_tushgan_yigindi'] = $jami['biryola_fakt'] + $jami['bolib_tushgan'];
-
-    return [
-        'tumanlar' => $statistics,
-        'jami' => $jami
-    ];
-}
 
     /**
      * Get complete statistics for SVOD3 page
@@ -761,8 +763,9 @@ public function getDetailedStatistics(array $dateFilters = []): array
         return $taqqoslash;
     }
 
-     /**
+    /**
      * Get monthly comparative data for monitoring_mirzayev
+     * FIXED: Proper fakt calculation with date filtering
      */
     public function getMonthlyComparativeData(array $filters = []): array
     {
@@ -781,42 +784,28 @@ public function getDetailedStatistics(array $dateFilters = []): array
             'Яшнобод тумани'
         ];
 
-        $currentYear = now()->year;
-        $currentMonth = now()->month;
-        
-        // Determine selected month (default to current month)
-        $selectedMonth = $filters['month'] ?? $currentMonth;
-        $selectedYear = $filters['year'] ?? $currentYear;
+        // Use last completed month by default
+        $lastMonth = now()->subMonth()->endOfMonth();
+        $selectedMonth = $filters['month'] ?? $lastMonth->month;
+        $selectedYear = $filters['year'] ?? $lastMonth->year;
 
         $result = [
             'tumanlar' => [],
             'jami' => [
-                'selected_month' => [
-                    'plan' => 0,
-                    'fakt' => 0,
-                    'percentage' => 0
-                ],
-                'year_to_date' => [
-                    'plan' => 0,
-                    'fakt' => 0,
-                    'percentage' => 0
-                ],
-                'full_year' => [
-                    'plan' => 0,
-                    'fakt' => 0,
-                    'percentage' => 0
-                ]
+                'selected_month' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0],
+                'year_to_date' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0],
+                'full_year' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0]
             ]
         ];
 
         foreach ($tumanlar as $tuman) {
             $tumanPatterns = $this->getTumanPatterns($tuman);
-            
+
             // Get lots for this tuman (муддатли only)
             $query = YerSotuv::query();
             $this->applyTumanFilter($query, $tumanPatterns);
             $query->where('tolov_turi', 'муддатли');
-            
+
             $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
 
             if (empty($lotRaqamlari)) {
@@ -836,8 +825,8 @@ public function getDetailedStatistics(array $dateFilters = []): array
                 ->whereMonth('tolov_sana', $selectedMonth)
                 ->sum('tolov_summa');
 
-            $selectedMonthPercentage = $selectedMonthPlan > 0 
-                ? round(($selectedMonthFakt / $selectedMonthPlan) * 100) 
+            $selectedMonthPercentage = $selectedMonthPlan > 0
+                ? round(($selectedMonthFakt / $selectedMonthPlan) * 100)
                 : 0;
 
             // YEAR TO DATE (January to selected month)
@@ -853,8 +842,8 @@ public function getDetailedStatistics(array $dateFilters = []): array
                 ->whereMonth('tolov_sana', '<=', $selectedMonth)
                 ->sum('tolov_summa');
 
-            $ytdPercentage = $ytdPlan > 0 
-                ? round(($ytdFakt / $ytdPlan) * 100) 
+            $ytdPercentage = $ytdPlan > 0
+                ? round(($ytdFakt / $ytdPlan) * 100)
                 : 0;
 
             // FULL YEAR (all 12 months)
@@ -868,8 +857,8 @@ public function getDetailedStatistics(array $dateFilters = []): array
                 ->whereYear('tolov_sana', $selectedYear)
                 ->sum('tolov_summa');
 
-            $fullYearPercentage = $fullYearPlan > 0 
-                ? round(($fullYearFakt / $fullYearPlan) * 100) 
+            $fullYearPercentage = $fullYearPlan > 0
+                ? round(($fullYearFakt / $fullYearPlan) * 100)
                 : 0;
 
             // Add to result
@@ -895,10 +884,10 @@ public function getDetailedStatistics(array $dateFilters = []): array
             // Add to totals
             $result['jami']['selected_month']['plan'] += $selectedMonthPlan;
             $result['jami']['selected_month']['fakt'] += $selectedMonthFakt;
-            
+
             $result['jami']['year_to_date']['plan'] += $ytdPlan;
             $result['jami']['year_to_date']['fakt'] += $ytdFakt;
-            
+
             $result['jami']['full_year']['plan'] += $fullYearPlan;
             $result['jami']['full_year']['fakt'] += $fullYearFakt;
         }
@@ -916,24 +905,36 @@ public function getDetailedStatistics(array $dateFilters = []): array
             ? round(($result['jami']['full_year']['fakt'] / $result['jami']['full_year']['plan']) * 100)
             : 0;
 
+        // Apply global qoldiq adjustment if exists
+        $qoldiq = GlobalQoldiq::getQoldiqForDate("{$selectedYear}-{$selectedMonth}-01");
+        if ($qoldiq) {
+            $result['qoldiq_info'] = [
+                'sana' => $qoldiq->sana->format('d.m.Y'),
+                'summa' => $qoldiq->summa,
+                'tur' => $qoldiq->tur,
+                'izoh' => $qoldiq->izoh
+            ];
+        }
+
         // Add meta information
         $result['meta'] = [
             'selected_month' => $selectedMonth,
             'selected_month_name' => $this->getMonthName($selectedMonth),
             'selected_year' => $selectedYear,
-            'current_month' => $currentMonth,
-            'current_year' => $currentYear
+            'current_month' => now()->month,
+            'current_year' => now()->year
         ];
 
         return $result;
     }
-private function getMonthName(int $month): string
-{
-    $months = [
-        1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
-        5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
-        9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
-    ];
-    return $months[$month] ?? 'Unknown';
-}
+
+    private function getMonthName(int $month): string
+    {
+        $months = [
+            1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
+            5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
+            9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
+        ];
+        return $months[$month] ?? 'Unknown';
+    }
 }
