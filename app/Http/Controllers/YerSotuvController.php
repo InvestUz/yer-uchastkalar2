@@ -842,42 +842,71 @@ private function createGrafikTolovlar(YerSotuv $yer, array $grafikData)
 /**
      * Display monthly comparative monitoring page
      */
-    public function monitoring_mirzayev(Request $request)
-{
-    // Get last month's last day
-    $lastMonth = now()->subMonth()->endOfMonth();
+  public function monitoring_mirzayev(Request $request)
+    {
+        // Get last month's last day as default
+        $lastMonth = now()->subMonth()->endOfMonth();
 
-    $filters = [
-        'year' => $lastMonth->year,
-        'month' => $lastMonth->month,
-    ];
+        // Filters
+        $filters = [
+            'year' => $request->get('year', $lastMonth->year),
+            'month' => $request->get('month', $lastMonth->month),
+            'tolov_turi' => $request->get('tolov_turi', 'all'), // 'all', 'muddatli', 'muddatli_emas'
+        ];
 
-    $comparativeData = $this->yerSotuvService->getMonthlyComparativeData($filters);
+        // Get comparative data
+        $comparativeData = $this->yerSotuvService->getMonthlyComparativeData($filters);
 
-    // Get available years
-    $availableYears = DB::table('grafik_tolovlar')
-        ->select('yil')
-        ->distinct()
-        ->orderBy('yil', 'desc')
-        ->pluck('yil');
+        // Get available years from grafik_tolovlar
+        $availableYears = DB::table('grafik_tolovlar')
+            ->select('yil')
+            ->distinct()
+            ->orderBy('yil', 'desc')
+            ->pluck('yil');
 
-    // Only show the last completed month (single option)
-    $monthNames = [
-        1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
-        5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
-        9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
-    ];
+        // All months dictionary
+        $allMonths = [
+            1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
+            5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
+            9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
+        ];
 
-    $months = [
-        $lastMonth->month => $monthNames[$lastMonth->month]
-    ];
+        // Determine which months to show based on selected year
+        $selectedYear = $filters['year'];
+        $currentYear = now()->year;
+        $currentMonth = now()->month;
 
-    return view('yer-sotuvlar.monitoring_mirzayev', compact(
-        'comparativeData',
-        'availableYears',
-        'months',
-        'filters'
-    ));
-}
+        $months = [];
+
+        if ($selectedYear < $currentYear) {
+            // Past years - show all 12 months
+            $months = $allMonths;
+        } elseif ($selectedYear == $currentYear) {
+            // Current year - show only up to last completed month
+            $lastCompletedMonth = $currentMonth - 1;
+            if ($lastCompletedMonth < 1) {
+                $lastCompletedMonth = 12;
+            }
+
+            for ($i = 1; $i <= $lastCompletedMonth; $i++) {
+                $months[$i] = $allMonths[$i];
+            }
+        }
+
+        // Tolov turi options
+        $tolovTuriOptions = [
+            'all' => 'Барчаси',
+            'muddatli' => 'Муддатли (бўлиб тўлаш)',
+            'muddatli_emas' => 'Муддатли эмас (бир йўла)'
+        ];
+
+        return view('yer-sotuvlar.monitoring_mirzayev', compact(
+            'comparativeData',
+            'availableYears',
+            'months',
+            'filters',
+            'tolovTuriOptions'
+        ));
+    }
 
 }

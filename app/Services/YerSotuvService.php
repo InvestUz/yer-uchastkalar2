@@ -159,7 +159,7 @@ class YerSotuvService
         $this->applyTumanFilter($query, $tumanPatterns);
 
         $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%')
-              ->where('asos', 'ПФ-135');
+            ->where('asos', 'ПФ-135');
 
         $this->applyDateFilters($query, $dateFilters);
 
@@ -788,10 +788,22 @@ class YerSotuvService
         $lastMonth = now()->subMonth()->endOfMonth();
         $selectedMonth = $filters['month'] ?? $lastMonth->month;
         $selectedYear = $filters['year'] ?? $lastMonth->year;
+        $tolovTuriFilter = $filters['tolov_turi'] ?? 'all'; // 'all', 'muddatli', 'muddatli_emas'
 
         $result = [
-            'tumanlar' => [],
-            'jami' => [
+            'tumanlar_muddatli' => [],
+            'tumanlar_muddatli_emas' => [],
+            'jami_muddatli' => [
+                'selected_month' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0],
+                'year_to_date' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0],
+                'full_year' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0]
+            ],
+            'jami_muddatli_emas' => [
+                'selected_month' => ['fakt' => 0],
+                'year_to_date' => ['fakt' => 0],
+                'full_year' => ['fakt' => 0]
+            ],
+            'jami_umumiy' => [
                 'selected_month' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0],
                 'year_to_date' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0],
                 'full_year' => ['plan' => 0, 'fakt' => 0, 'percentage' => 0]
@@ -801,112 +813,75 @@ class YerSotuvService
         foreach ($tumanlar as $tuman) {
             $tumanPatterns = $this->getTumanPatterns($tuman);
 
-            // Get lots for this tuman (муддатли only)
-            $query = YerSotuv::query();
-            $this->applyTumanFilter($query, $tumanPatterns);
-            $query->where('tolov_turi', 'муддатли');
+            // ============ MUDDATLI (BO'LIB TO'LASH) ============
+            if ($tolovTuriFilter === 'all' || $tolovTuriFilter === 'muddatli') {
+                $muddatliData = $this->calculateMuddatliData(
+                    $tumanPatterns,
+                    $selectedYear,
+                    $selectedMonth
+                );
 
-            $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+                if ($muddatliData['has_data']) {
+                    $result['tumanlar_muddatli'][] = array_merge(
+                        ['tuman' => $tuman],
+                        $muddatliData['data']
+                    );
 
-            if (empty($lotRaqamlari)) {
-                continue;
+                    // Add to totals
+                    $this->addToMuddatliTotals($result['jami_muddatli'], $muddatliData['data']);
+                }
             }
 
-            // SELECTED MONTH
-            $selectedMonthPlan = DB::table('grafik_tolovlar')
-                ->whereIn('lot_raqami', $lotRaqamlari)
-                ->where('yil', $selectedYear)
-                ->where('oy', $selectedMonth)
-                ->sum('grafik_summa');
+            // ============ MUDDATLI EMAS (BIR YO'LA TO'LASH) ============
+            if ($tolovTuriFilter === 'all' || $tolovTuriFilter === 'muddatli_emas') {
+                $muddatliEmasData = $this->calculateMuddatliEmasData(
+                    $tumanPatterns,
+                    $selectedYear,
+                    $selectedMonth
+                );
 
-            $selectedMonthFakt = DB::table('fakt_tolovlar')
-                ->whereIn('lot_raqami', $lotRaqamlari)
-                ->whereYear('tolov_sana', $selectedYear)
-                ->whereMonth('tolov_sana', $selectedMonth)
-                ->sum('tolov_summa');
+                if ($muddatliEmasData['has_data']) {
+                    $result['tumanlar_muddatli_emas'][] = array_merge(
+                        ['tuman' => $tuman],
+                        $muddatliEmasData['data']
+                    );
 
-            $selectedMonthPercentage = $selectedMonthPlan > 0
-                ? round(($selectedMonthFakt / $selectedMonthPlan) * 100)
-                : 0;
-
-            // YEAR TO DATE (January to selected month)
-            $ytdPlan = DB::table('grafik_tolovlar')
-                ->whereIn('lot_raqami', $lotRaqamlari)
-                ->where('yil', $selectedYear)
-                ->where('oy', '<=', $selectedMonth)
-                ->sum('grafik_summa');
-
-            $ytdFakt = DB::table('fakt_tolovlar')
-                ->whereIn('lot_raqami', $lotRaqamlari)
-                ->whereYear('tolov_sana', $selectedYear)
-                ->whereMonth('tolov_sana', '<=', $selectedMonth)
-                ->sum('tolov_summa');
-
-            $ytdPercentage = $ytdPlan > 0
-                ? round(($ytdFakt / $ytdPlan) * 100)
-                : 0;
-
-            // FULL YEAR (all 12 months)
-            $fullYearPlan = DB::table('grafik_tolovlar')
-                ->whereIn('lot_raqami', $lotRaqamlari)
-                ->where('yil', $selectedYear)
-                ->sum('grafik_summa');
-
-            $fullYearFakt = DB::table('fakt_tolovlar')
-                ->whereIn('lot_raqami', $lotRaqamlari)
-                ->whereYear('tolov_sana', $selectedYear)
-                ->sum('tolov_summa');
-
-            $fullYearPercentage = $fullYearPlan > 0
-                ? round(($fullYearFakt / $fullYearPlan) * 100)
-                : 0;
-
-            // Add to result
-            $result['tumanlar'][] = [
-                'tuman' => $tuman,
-                'selected_month' => [
-                    'plan' => $selectedMonthPlan,
-                    'fakt' => $selectedMonthFakt,
-                    'percentage' => $selectedMonthPercentage
-                ],
-                'year_to_date' => [
-                    'plan' => $ytdPlan,
-                    'fakt' => $ytdFakt,
-                    'percentage' => $ytdPercentage
-                ],
-                'full_year' => [
-                    'plan' => $fullYearPlan,
-                    'fakt' => $fullYearFakt,
-                    'percentage' => $fullYearPercentage
-                ]
-            ];
-
-            // Add to totals
-            $result['jami']['selected_month']['plan'] += $selectedMonthPlan;
-            $result['jami']['selected_month']['fakt'] += $selectedMonthFakt;
-
-            $result['jami']['year_to_date']['plan'] += $ytdPlan;
-            $result['jami']['year_to_date']['fakt'] += $ytdFakt;
-
-            $result['jami']['full_year']['plan'] += $fullYearPlan;
-            $result['jami']['full_year']['fakt'] += $fullYearFakt;
+                    // Add to totals
+                    $this->addToMuddatliEmasTotals($result['jami_muddatli_emas'], $muddatliEmasData['data']);
+                }
+            }
         }
 
-        // Calculate total percentages
-        $result['jami']['selected_month']['percentage'] = $result['jami']['selected_month']['plan'] > 0
-            ? round(($result['jami']['selected_month']['fakt'] / $result['jami']['selected_month']['plan']) * 100)
-            : 0;
+        // Calculate percentages for muddatli
+        $this->calculatePercentages($result['jami_muddatli']);
 
-        $result['jami']['year_to_date']['percentage'] = $result['jami']['year_to_date']['plan'] > 0
-            ? round(($result['jami']['year_to_date']['fakt'] / $result['jami']['year_to_date']['plan']) * 100)
-            : 0;
+        // Calculate UMUMIY (combined totals)
+        $result['jami_umumiy'] = [
+            'selected_month' => [
+                'plan' => $result['jami_muddatli']['selected_month']['plan'],
+                'fakt' => $result['jami_muddatli']['selected_month']['fakt'] +
+                    $result['jami_muddatli_emas']['selected_month']['fakt'],
+                'percentage' => 0
+            ],
+            'year_to_date' => [
+                'plan' => $result['jami_muddatli']['year_to_date']['plan'],
+                'fakt' => $result['jami_muddatli']['year_to_date']['fakt'] +
+                    $result['jami_muddatli_emas']['year_to_date']['fakt'],
+                'percentage' => 0
+            ],
+            'full_year' => [
+                'plan' => $result['jami_muddatli']['full_year']['plan'],
+                'fakt' => $result['jami_muddatli']['full_year']['fakt'] +
+                    $result['jami_muddatli_emas']['full_year']['fakt'],
+                'percentage' => 0
+            ]
+        ];
 
-        $result['jami']['full_year']['percentage'] = $result['jami']['full_year']['plan'] > 0
-            ? round(($result['jami']['full_year']['fakt'] / $result['jami']['full_year']['plan']) * 100)
-            : 0;
+        // Calculate umumiy percentages (Plan faqat muddatli uchun)
+        $this->calculatePercentages($result['jami_umumiy']);
 
         // Apply global qoldiq adjustment if exists
-        $qoldiq = GlobalQoldiq::getQoldiqForDate("{$selectedYear}-{$selectedMonth}-01");
+        $qoldiq = \App\Models\GlobalQoldiq::getQoldiqForDate("{$selectedYear}-{$selectedMonth}-01");
         if ($qoldiq) {
             $result['qoldiq_info'] = [
                 'sana' => $qoldiq->sana->format('d.m.Y'),
@@ -922,18 +897,184 @@ class YerSotuvService
             'selected_month_name' => $this->getMonthName($selectedMonth),
             'selected_year' => $selectedYear,
             'current_month' => now()->month,
-            'current_year' => now()->year
+            'current_year' => now()->year,
+            'tolov_turi_filter' => $tolovTuriFilter
         ];
 
         return $result;
+    }
+ private function calculateMuddatliData(?array $tumanPatterns, int $year, int $month): array
+    {
+        $query = YerSotuv::query();
+        $this->applyTumanFilter($query, $tumanPatterns);
+        $query->where('tolov_turi', 'муддатли');
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        if (empty($lotRaqamlari)) {
+            return ['has_data' => false];
+        }
+
+        // Selected Month
+        $selectedMonthPlan = DB::table('grafik_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->where('yil', $year)
+            ->where('oy', $month)
+            ->sum('grafik_summa');
+
+        $selectedMonthFakt = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereYear('tolov_sana', $year)
+            ->whereMonth('tolov_sana', $month)
+            ->sum('tolov_summa');
+
+        // Year to Date
+        $ytdPlan = DB::table('grafik_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->where('yil', $year)
+            ->where('oy', '<=', $month)
+            ->sum('grafik_summa');
+
+        $ytdFakt = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereYear('tolov_sana', $year)
+            ->whereMonth('tolov_sana', '<=', $month)
+            ->sum('tolov_summa');
+
+        // Full Year
+        $fullYearPlan = DB::table('grafik_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->where('yil', $year)
+            ->sum('grafik_summa');
+
+        $fullYearFakt = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereYear('tolov_sana', $year)
+            ->sum('tolov_summa');
+
+        return [
+            'has_data' => true,
+            'data' => [
+                'selected_month' => [
+                    'plan' => $selectedMonthPlan,
+                    'fakt' => $selectedMonthFakt,
+                    'percentage' => $selectedMonthPlan > 0 ? round(($selectedMonthFakt / $selectedMonthPlan) * 100) : 0
+                ],
+                'year_to_date' => [
+                    'plan' => $ytdPlan,
+                    'fakt' => $ytdFakt,
+                    'percentage' => $ytdPlan > 0 ? round(($ytdFakt / $ytdPlan) * 100) : 0
+                ],
+                'full_year' => [
+                    'plan' => $fullYearPlan,
+                    'fakt' => $fullYearFakt,
+                    'percentage' => $fullYearPlan > 0 ? round(($fullYearFakt / $fullYearPlan) * 100) : 0
+                ]
+            ]
+        ];
+    }
+ /**
+     * Calculate data for MUDDATLI EMAS (one-time) payments
+     */
+    private function calculateMuddatliEmasData(?array $tumanPatterns, int $year, int $month): array
+    {
+        $query = YerSotuv::query();
+        $this->applyTumanFilter($query, $tumanPatterns);
+        $query->where('tolov_turi', 'муддатли эмас');
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        if (empty($lotRaqamlari)) {
+            return ['has_data' => false];
+        }
+
+        // Selected Month (faqat fakt)
+        $selectedMonthFakt = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereYear('tolov_sana', $year)
+            ->whereMonth('tolov_sana', $month)
+            ->sum('tolov_summa');
+
+        // Year to Date
+        $ytdFakt = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereYear('tolov_sana', $year)
+            ->whereMonth('tolov_sana', '<=', $month)
+            ->sum('tolov_summa');
+
+        // Full Year
+        $fullYearFakt = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereYear('tolov_sana', $year)
+            ->sum('tolov_summa');
+
+        return [
+            'has_data' => true,
+            'data' => [
+                'selected_month' => ['fakt' => $selectedMonthFakt],
+                'year_to_date' => ['fakt' => $ytdFakt],
+                'full_year' => ['fakt' => $fullYearFakt]
+            ]
+        ];
+    }
+/**
+     * Add tuman data to muddatli totals
+     */
+    private function addToMuddatliTotals(array &$totals, array $data): void
+    {
+        $totals['selected_month']['plan'] += $data['selected_month']['plan'];
+        $totals['selected_month']['fakt'] += $data['selected_month']['fakt'];
+
+        $totals['year_to_date']['plan'] += $data['year_to_date']['plan'];
+        $totals['year_to_date']['fakt'] += $data['year_to_date']['fakt'];
+
+        $totals['full_year']['plan'] += $data['full_year']['plan'];
+        $totals['full_year']['fakt'] += $data['full_year']['fakt'];
+    }
+
+    /**
+     * Add tuman data to muddatli emas totals
+     */
+    private function addToMuddatliEmasTotals(array &$totals, array $data): void
+    {
+        $totals['selected_month']['fakt'] += $data['selected_month']['fakt'];
+        $totals['year_to_date']['fakt'] += $data['year_to_date']['fakt'];
+        $totals['full_year']['fakt'] += $data['full_year']['fakt'];
+    }
+
+    /**
+     * Calculate percentages for totals
+     */
+    private function calculatePercentages(array &$totals): void
+    {
+        $totals['selected_month']['percentage'] = $totals['selected_month']['plan'] > 0
+            ? round(($totals['selected_month']['fakt'] / $totals['selected_month']['plan']) * 100)
+            : 0;
+
+        $totals['year_to_date']['percentage'] = $totals['year_to_date']['plan'] > 0
+            ? round(($totals['year_to_date']['fakt'] / $totals['year_to_date']['plan']) * 100)
+            : 0;
+
+        $totals['full_year']['percentage'] = $totals['full_year']['plan'] > 0
+            ? round(($totals['full_year']['fakt'] / $totals['full_year']['plan']) * 100)
+            : 0;
     }
 
     private function getMonthName(int $month): string
     {
         $months = [
-            1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
-            5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
-            9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
+            1 => 'Январь',
+            2 => 'Февраль',
+            3 => 'Март',
+            4 => 'Апрель',
+            5 => 'Май',
+            6 => 'Июнь',
+            7 => 'Июль',
+            8 => 'Август',
+            9 => 'Сентябрь',
+            10 => 'Октябрь',
+            11 => 'Ноябрь',
+            12 => 'Декабрь'
         ];
         return $months[$month] ?? 'Unknown';
     }
