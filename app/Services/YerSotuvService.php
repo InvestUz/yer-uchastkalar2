@@ -9,6 +9,16 @@ use Illuminate\Support\Facades\DB;
 class YerSotuvService
 {
     /**
+     * Apply base filters to exclude canceled records
+     * CRITICAL: Must be applied to ALL queries
+     */
+    public function applyBaseFilters($query)
+    {
+        return $query->where('holat', '!=', 'Бекор қилинган')
+                    ->whereNotNull('holat');
+    }
+
+    /**
      * Get the cutoff date for grafik calculations
      * Uses LAST day of PREVIOUS month
      */
@@ -84,6 +94,8 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
 
         if ($tolovTuri) {
@@ -124,6 +136,8 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
 
         $query->where(function ($q) {
@@ -156,6 +170,8 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
 
         $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%')
@@ -190,8 +206,35 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли');
+        $this->applyDateFilters($query, $dateFilters);
+
+        return $query->pluck('lot_raqami')->toArray();
+    }
+
+    /**
+     * Get lot numbers for bir yo'la to'lash by tuman (excluding mulk qabul)
+     */
+    public function getBiryolaLotlar(?array $tumanPatterns = null, array $dateFilters = []): array
+    {
+        $query = YerSotuv::query();
+
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
+        $this->applyTumanFilter($query, $tumanPatterns);
+        $query->where('tolov_turi', 'муддатли эмас');
+
+        // Exclude mulk qabul qilmagan
+        $query->where(function ($q) {
+            $q->where('holat', 'not like', '%Ishtirokchi roziligini kutish jarayonida (34)%')
+              ->orWhere('asos', '!=', 'ПФ-135')
+              ->orWhereNull('holat')
+              ->orWhereNull('asos');
+        });
+
         $this->applyDateFilters($query, $dateFilters);
 
         return $query->pluck('lot_raqami')->toArray();
@@ -208,7 +251,7 @@ class YerSotuvService
         // Get lot numbers for fakt_tolangan calculation
         $lotRaqamlari = (clone $statsQuery)->pluck('lot_raqami')->toArray();
 
-        // Calculate fakt_tolangan
+        // Calculate fakt_tolangan FROM fakt_tolovlar ONLY
         $faktTolangan = 0;
         if (!empty($lotRaqamlari)) {
             $faktTolangan = DB::table('fakt_tolovlar')
@@ -242,18 +285,26 @@ class YerSotuvService
     }
 
     /**
-     * Calculate biryola_fakt: actual payments received for bir yo'la minus mulk qabul
+     * Calculate biryola_fakt: ONLY actual payments from fakt_tolovlar for bir yo'la (excluding mulk qabul)
+     * CRITICAL: Must use fakt_tolovlar table ONLY
      */
     public function calculateBiryolaFakt(?array $tumanPatterns = null, array $dateFilters = []): float
     {
-        $birYola = $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters);
-        $mulkQabul = $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters);
+        $biryolaLots = $this->getBiryolaLotlar($tumanPatterns, $dateFilters);
 
-        return $birYola['tushadigan_mablagh'] - $mulkQabul['auksion_mablagh'];
+        if (empty($biryolaLots)) {
+            return 0;
+        }
+
+        // Get ONLY from fakt_tolovlar
+        return DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $biryolaLots)
+            ->sum('tolov_summa');
     }
 
     /**
-     * Calculate bolib_tushgan: actual payments received for bo'lib to'lash
+     * Calculate bolib_tushgan: ONLY actual payments from fakt_tolovlar for bo'lib to'lash
+     * CRITICAL: Must use fakt_tolovlar table ONLY
      */
     public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateFilters = []): float
     {
@@ -263,6 +314,7 @@ class YerSotuvService
             return 0;
         }
 
+        // Get ONLY from fakt_tolovlar
         return DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $bolibLots)
             ->sum('tolov_summa');
@@ -275,6 +327,8 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли');
         $this->applyDateFilters($query, $dateFilters);
@@ -295,6 +349,8 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли');
         $this->applyDateFilters($query, $dateFilters);
@@ -327,6 +383,8 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли');
         $this->applyDateFilters($query, $dateFilters);
@@ -341,6 +399,7 @@ class YerSotuvService
                 GROUP BY lot_raqami
             ) f ON f.lot_raqami = ys.lot_raqami
             WHERE ys.tolov_turi = "муддатли"
+            AND ys.holat != "Бекор қилинган"
             AND (
                 (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
                 - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
@@ -377,6 +436,8 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли');
         $this->applyDateFilters($query, $dateFilters);
@@ -391,6 +452,7 @@ class YerSotuvService
                 GROUP BY lot_raqami
             ) f ON f.lot_raqami = ys.lot_raqami
             WHERE ys.tolov_turi = "муддатли"
+            AND ys.holat != "Бекор қилинган"
             AND (
                 (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
                 - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
@@ -413,7 +475,7 @@ class YerSotuvService
 
         $tushadiganMablagh = ($data->golib_tolagan + $data->shartnoma_summasi) - $data->auksion_harajati;
 
-        // Calculate tushgan summa
+        // Calculate tushgan summa FROM fakt_tolovlar ONLY
         $tushganSumma = 0;
         if (!empty($lotRaqamlari)) {
             $tushganSumma = DB::table('fakt_tolovlar')
@@ -440,6 +502,8 @@ class YerSotuvService
 
         $query = YerSotuv::query();
 
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли');
         $this->applyDateFilters($query, $dateFilters);
@@ -461,6 +525,7 @@ class YerSotuvService
                 GROUP BY lot_raqami
             ) f ON f.lot_raqami = ys.lot_raqami
             WHERE ys.tolov_turi = "муддатли"
+            AND ys.holat != "Бекор қилинган"
             AND (
                 (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
                 - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
@@ -493,6 +558,7 @@ class YerSotuvService
             ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
             ->sum('grafik_summa');
 
+        // Get FROM fakt_tolovlar ONLY
         $faktSumma = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->sum('tolov_summa');
@@ -765,7 +831,7 @@ class YerSotuvService
 
     /**
      * Get monthly comparative data for monitoring_mirzayev
-     * FIXED: Proper fakt calculation with date filtering
+     * Uses fakt_tolovlar ONLY for actual payment calculations
      */
     public function getMonthlyComparativeData(array $filters = []): array
     {
@@ -903,9 +969,17 @@ class YerSotuvService
 
         return $result;
     }
- private function calculateMuddatliData(?array $tumanPatterns, int $year, int $month): array
+
+    /**
+     * Calculate data for MUDDATLI payments
+     * CRITICAL: Uses fakt_tolovlar ONLY for fakt calculations
+     */
+    private function calculateMuddatliData(?array $tumanPatterns, int $year, int $month): array
     {
         $query = YerSotuv::query();
+
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли');
 
@@ -922,6 +996,7 @@ class YerSotuvService
             ->where('oy', $month)
             ->sum('grafik_summa');
 
+        // FAKT from fakt_tolovlar ONLY
         $selectedMonthFakt = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->whereYear('tolov_sana', $year)
@@ -935,6 +1010,7 @@ class YerSotuvService
             ->where('oy', '<=', $month)
             ->sum('grafik_summa');
 
+        // FAKT from fakt_tolovlar ONLY
         $ytdFakt = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->whereYear('tolov_sana', $year)
@@ -947,6 +1023,7 @@ class YerSotuvService
             ->where('yil', $year)
             ->sum('grafik_summa');
 
+        // FAKT from fakt_tolovlar ONLY
         $fullYearFakt = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->whereYear('tolov_sana', $year)
@@ -973,12 +1050,17 @@ class YerSotuvService
             ]
         ];
     }
- /**
+
+    /**
      * Calculate data for MUDDATLI EMAS (one-time) payments
+     * CRITICAL: Uses fakt_tolovlar ONLY
      */
     private function calculateMuddatliEmasData(?array $tumanPatterns, int $year, int $month): array
     {
         $query = YerSotuv::query();
+
+        // CRITICAL: Exclude canceled records
+        $this->applyBaseFilters($query);
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('tolov_turi', 'муддатли эмас');
 
@@ -988,21 +1070,21 @@ class YerSotuvService
             return ['has_data' => false];
         }
 
-        // Selected Month (faqat fakt)
+        // Selected Month - FAKT from fakt_tolovlar ONLY
         $selectedMonthFakt = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->whereYear('tolov_sana', $year)
             ->whereMonth('tolov_sana', $month)
             ->sum('tolov_summa');
 
-        // Year to Date
+        // Year to Date - FAKT from fakt_tolovlar ONLY
         $ytdFakt = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->whereYear('tolov_sana', $year)
             ->whereMonth('tolov_sana', '<=', $month)
             ->sum('tolov_summa');
 
-        // Full Year
+        // Full Year - FAKT from fakt_tolovlar ONLY
         $fullYearFakt = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->whereYear('tolov_sana', $year)
@@ -1017,7 +1099,8 @@ class YerSotuvService
             ]
         ];
     }
-/**
+
+    /**
      * Add tuman data to muddatli totals
      */
     private function addToMuddatliTotals(array &$totals, array $data): void
