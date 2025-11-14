@@ -20,18 +20,18 @@ class YerSotuvController extends Controller
     /**
      * Display main statistics page (SVOD1)
      */
-    public function index(Request $request)
-    {
-        $dateFilters = [
-            'auksion_sana_from' => $request->auksion_sana_from,
-            'auksion_sana_to' => $request->auksion_sana_to,
-        ];
+public function index(Request $request)
+{
+    $dateFilters = [
+        'auksion_sana_from' => $request->auksion_sana_from,
+        'auksion_sana_to' => $request->auksion_sana_to,
+    ];
 
-        $statistics = $this->yerSotuvService->getDetailedStatistics($dateFilters);
+    $statistics = $this->yerSotuvService->getDetailedStatistics($dateFilters);
+    $this->yerSotuvService->logDetailedStatisticsToFile($statistics);
 
-        return view('yer-sotuvlar.statistics', compact('statistics', 'dateFilters'));
-    }
-
+    return view('yer-sotuvlar.statistics', compact('statistics', 'dateFilters'));
+}
     /**
      * Display SVOD3 statistics page (Bo'lib to'lash)
      */

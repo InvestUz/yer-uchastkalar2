@@ -81,50 +81,60 @@ class YerSotuvSeeder extends Seeder
         $this->writeLog("=== YAKUNIY HISOBOT ===");
         $this->writeLog(str_repeat("=", 80));
 
-        // Summary of not found LOTs
-        if (!empty($this->notFoundLots)) {
-            $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR ###");
-            $this->writeLog("Jami: " . count($this->notFoundLots) . " ta\n");
+        // Prepare summary statistics
+        $totalNotFound = count($this->notFoundLots);
+        $totalSkipped = count($this->skippedRecords);
 
-            foreach ($this->notFoundLots as $lot) {
-                $this->writeLog("  - LOT {$lot}: Ma'lumotlar bazasida topilmadi");
+        // Count successful imports
+        $totalYerSotuv = YerSotuv::count();
+        $totalGrafik = GrafikTolov::count();
+        $totalFakt = FaktTolov::count();
+
+        // Group skipped records by reason
+        $groupedByReason = [];
+        foreach ($this->skippedRecords as $record) {
+            $reason = $record['sabab'];
+            if (!isset($groupedByReason[$reason])) {
+                $groupedByReason[$reason] = 0;
             }
+            $groupedByReason[$reason]++;
         }
 
-        // Summary of skipped records
-        if (!empty($this->skippedRecords)) {
-            $this->writeLog("\n### O'TKAZIB YUBORILGAN YOZUVLAR ###");
-            $this->writeLog("Jami: " . count($this->skippedRecords) . " ta\n");
+        // Create summary table
+        $this->writeLog("\n╔═══════════════════════════════════════════════════════════════════════════╗");
+        $this->writeLog("║                         IMPORT STATISTIKASI                               ║");
+        $this->writeLog("╠═══════════════════════════════════════════════════════════════════════════╣");
+        $this->writeLog(sprintf("║ %-50s │ %23s ║", "JAMI YUKLANGAN MA'LUMOTLAR", ""));
+        $this->writeLog("╟───────────────────────────────────────────────────────────────────────────╢");
+        $this->writeLog(sprintf("║ %-50s │ %23s ║", "  • Yer sotuv (LOT) yozuvlari", str_pad($totalYerSotuv . " ta", 23)));
+        $this->writeLog(sprintf("║ %-50s │ %23s ║", "  • Grafik to'lovlar", str_pad($totalGrafik . " ta", 23)));
+        $this->writeLog(sprintf("║ %-50s │ %23s ║", "  • Fakt to'lovlar", str_pad($totalFakt . " ta", 23)));
+        $this->writeLog("╠═══════════════════════════════════════════════════════════════════════════╣");
+        $this->writeLog(sprintf("║ %-50s │ %23s ║", "TOPILMAGAN LOT RAQAMLAR", str_pad($totalNotFound . " ta", 23)));
+        $this->writeLog("╠═══════════════════════════════════════════════════════════════════════════╣");
+        $this->writeLog(sprintf("║ %-50s │ %23s ║", "O'TKAZIB YUBORILGAN YOZUVLAR", str_pad($totalSkipped . " ta", 23)));
+        $this->writeLog("╟───────────────────────────────────────────────────────────────────────────╢");
 
-            // Group by reason
-            $groupedByReason = [];
-            foreach ($this->skippedRecords as $record) {
-                $reason = $record['sabab'];
-                if (!isset($groupedByReason[$reason])) {
-                    $groupedByReason[$reason] = [];
-                }
-                $groupedByReason[$reason][] = $record;
+        foreach ($groupedByReason as $reason => $count) {
+            $reasonShort = mb_substr($reason, 0, 47);
+            if (mb_strlen($reason) > 47) $reasonShort .= "...";
+            $this->writeLog(sprintf("║   %-48s │ %23s ║", $reasonShort, str_pad($count . " ta", 23)));
+        }
+
+        $this->writeLog("╚═══════════════════════════════════════════════════════════════════════════╝");
+
+        // Detailed lists if needed (can be commented out if only table is wanted)
+        if (!empty($this->notFoundLots) && $totalNotFound <= 20) {
+            $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR RO'YXATI ###");
+            foreach ($this->notFoundLots as $lot) {
+                $this->writeLog("  - LOT {$lot}");
             }
-
-            foreach ($groupedByReason as $reason => $records) {
-                $this->writeLog("\nSabab: {$reason}");
-                $this->writeLog("Soni: " . count($records) . " ta");
-
-                foreach ($records as $record) {
-                    $details = [];
-                    if (isset($record['lot_raqami'])) {
-                        $details[] = "LOT: {$record['lot_raqami']}";
-                    }
-                    if (isset($record['qator'])) {
-                        $details[] = "Qator: {$record['qator']}";
-                    }
-                    if (isset($record['qoshimcha'])) {
-                        $details[] = $record['qoshimcha'];
-                    }
-
-                    $this->writeLog("  - " . implode(" | ", $details));
-                }
+        } elseif ($totalNotFound > 20) {
+            $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR (Jami {$totalNotFound} ta - faqat birinchi 20 ta) ###");
+            foreach (array_slice($this->notFoundLots, 0, 20) as $lot) {
+                $this->writeLog("  - LOT {$lot}");
             }
+            $this->writeLog("  ... va yana " . ($totalNotFound - 20) . " ta");
         }
 
         $this->writeLog("\n" . str_repeat("=", 80));
@@ -132,9 +142,10 @@ class YerSotuvSeeder extends Seeder
         $this->writeLog(str_repeat("=", 80));
     }
 
+
     private function importAsosiyMalumot(): void
     {
-        $file = storage_path('app/excel/Sotilgan_yerlar_13_11_2025_Bazaga++.xlsx');
+        $file = storage_path('app/excel/Sotilgan_yerlar_13_11_2025_Bazaga+++.xlsx');
 
         if (!file_exists($file)) {
             $this->command->error("Fayl topilmadi: $file");
@@ -151,7 +162,7 @@ class YerSotuvSeeder extends Seeder
 
             $this->command->info("Asosiy ma'lumotlar yuklanmoqda...");
             $this->writeLog("\n=== ASOSIY MA'LUMOTLAR IMPORT ===");
-            $this->writeLog("Fayl: Sotilgan_yerlar_11_11_2025_Bazaga++.xlsx");
+            $this->writeLog("Fayl: Sotilgan_yerlar_13_11_2025_Bazaga+++.xlsx");
 
             $count = 0;
             foreach ($rows as $rowIndex => $row) {
@@ -277,120 +288,225 @@ class YerSotuvSeeder extends Seeder
             'qoldiq_shayxontohur' => $this->parseNumber($row[48] ?? null),
 
             'farqi' => $this->parseNumber($row[49] ?? null),
-            'shartnoma_summasi' => $this->parseNumber($row[50] ?? null),
+            'shartnoma_summasi' => 0, // Will be calculated from grafik_tolovlar
 
             'yil' => $auksionSana ? Carbon::parse($auksionSana)->year : date('Y')
         ];
 
-        return YerSotuv::create($data);
+        $yerSotuv = YerSotuv::create($data);
+
+        // Calculate shartnoma_summasi from grafik schedule
+        $shartnomaSummasi = $this->calculateShartnomaSummasiFromGrafik($row);
+        $yerSotuv->update(['shartnoma_summasi' => $shartnomaSummasi]);
+
+        return $yerSotuv;
     }
 
-   private function createGrafikTolovlar($row, $yerSotuv): void
-{
-    $grafikData = [
-        2024 => [
-            2 => 51, 3 => 52, 4 => 53, 5 => 54, 6 => 55, 7 => 56,
-            8 => 57, 9 => 58, 10 => 59, 11 => 60, 12 => 61
-        ],
-        2025 => [
-            1 => 62, 2 => 63, 3 => 64, 4 => 65, 5 => 66, 6 => 67,
-            7 => 68, 8 => 69, 9 => 70, 10 => 71, 11 => 72, 12 => 73
-        ],
-        2026 => [
-            1 => 74, 2 => 75, 3 => 76, 4 => 77, 5 => 78, 6 => 79,
-            7 => 80, 8 => 81, 9 => 82, 10 => 83, 11 => 84, 12 => 85
-        ],
-        2027 => [
-            1 => 86, 2 => 87, 3 => 88, 4 => 89, 5 => 90, 6 => 91,
-            7 => 92, 8 => 93, 9 => 94, 10 => 95, 11 => 96, 12 => 97
-        ],
-        2028 => [
-            1 => 98, 2 => 99, 3 => 100, 4 => 101, 5 => 102, 6 => 103,
-            7 => 104, 8 => 105, 9 => 106, 10 => 107, 11 => 108, 12 => 109
-        ],
-        2029 => [
-            1 => 110, 2 => 111, 3 => 112, 4 => 113, 5 => 114, 6 => 115,
-            7 => 116, 8 => 117, 9 => 118, 10 => 119, 11 => 120, 12 => 121
-        ]
-    ];
+    private function calculateShartnomaSummasiFromGrafik($row): float
+    {
+        $grafikData = [
+            2023 => [11 => 51, 12 => 52],
+            2024 => [1 => 53, 2 => 54, 3 => 55, 4 => 56, 5 => 57, 6 => 58, 7 => 59, 8 => 60, 9 => 61, 10 => 62, 11 => 63, 12 => 64],
+            2025 => [1 => 65, 2 => 66, 3 => 67, 4 => 68, 5 => 69, 6 => 70, 7 => 71, 8 => 72, 9 => 73, 10 => 74, 11 => 75, 12 => 76],
+            2026 => [1 => 77, 2 => 78, 3 => 79, 4 => 80, 5 => 81, 6 => 82, 7 => 83, 8 => 84, 9 => 85, 10 => 86, 11 => 87, 12 => 88],
+            2027 => [1 => 89, 2 => 90, 3 => 91, 4 => 92, 5 => 93, 6 => 94, 7 => 95, 8 => 96, 9 => 97, 10 => 98, 11 => 99, 12 => 100],
+            2028 => [1 => 101, 2 => 102, 3 => 103, 4 => 104, 5 => 105, 6 => 106, 7 => 107, 8 => 108, 9 => 109, 10 => 110, 11 => 111, 12 => 112],
+            2029 => [1 => 113, 2 => 114, 3 => 115, 4 => 116, 5 => 117, 6 => 118, 7 => 119, 8 => 120, 9 => 121, 10 => 122, 11 => 123, 12 => 124]
+        ];
 
-    // Step 1: Collect all months with data and find first/last payment month
-    $monthsWithData = [];
-    $firstPaymentMonth = null;
-    $lastPaymentMonth = null;
+        $totalSumma = 0;
 
-    foreach ($grafikData as $yil => $oylar) {
-        foreach ($oylar as $oy => $ustunIndex) {
-            if (!isset($row[$ustunIndex])) {
-                continue;
-            }
-
-            $summa = $this->parseNumber($row[$ustunIndex]);
-
-            if ($summa !== null && $summa > 0) {
-                $currentMonth = Carbon::create($yil, $oy, 1);
-                $monthsWithData[] = [
-                    'date' => $currentMonth,
-                    'yil' => $yil,
-                    'oy' => $oy,
-                    'summa' => $summa
-                ];
-
-                // Track first and last payment months
-                if ($firstPaymentMonth === null || $currentMonth->lt($firstPaymentMonth)) {
-                    $firstPaymentMonth = $currentMonth;
-                }
-                if ($lastPaymentMonth === null || $currentMonth->gt($lastPaymentMonth)) {
-                    $lastPaymentMonth = $currentMonth;
+        foreach ($grafikData as $yil => $oylar) {
+            foreach ($oylar as $oy => $ustunIndex) {
+                if (isset($row[$ustunIndex])) {
+                    $summa = $this->parseNumber($row[$ustunIndex]);
+                    if ($summa !== null && $summa > 0) {
+                        $totalSumma += $summa;
+                    }
                 }
             }
         }
+
+        return $totalSumma;
     }
 
-    // If no payment data found, skip
-    if (empty($monthsWithData)) {
-        return;
-    }
+    private function createGrafikTolovlar($row, $yerSotuv): void
+    {
+        // Excel file structure: columns start at index 50 (0-based)
+        // Column 51 (index 50) = shartnoma_summasi (handled in createYerSotuv)
+        // Column 52 (index 51) = 2023 noyabr
+        // Column 53 (index 52) = 2023 dekabr
+        // Column 54 (index 53) = 2024 yanvar
+        // ... and so on
 
-    // Step 2: Create records for ALL months between first and last payment
-    $grafikCount = 0;
-    $currentDate = $firstPaymentMonth->copy();
+        $grafikData = [
+            2023 => [
+                11 => 51,  // 2023 noyabr - Column 52 (index 51)
+                12 => 52   // 2023 dekabr - Column 53 (index 52)
+            ],
+            2024 => [
+                1 => 53,   // yanvar
+                2 => 54,   // fevral
+                3 => 55,   // mart
+                4 => 56,   // aprel
+                5 => 57,   // may
+                6 => 58,   // iyun
+                7 => 59,   // iyul
+                8 => 60,   // avgust
+                9 => 61,   // sentabr
+                10 => 62,  // oktabr
+                11 => 63,  // noyabr
+                12 => 64   // dekabr
+            ],
+            2025 => [
+                1 => 65,   // yanvar
+                2 => 66,   // fevral
+                3 => 67,   // mart
+                4 => 68,   // aprel
+                5 => 69,   // may
+                6 => 70,   // iyun
+                7 => 71,   // iyul
+                8 => 72,   // avgust
+                9 => 73,   // sentabr
+                10 => 74,  // oktabr
+                11 => 75,  // noyabr
+                12 => 76   // dekabr
+            ],
+            2026 => [
+                1 => 77,   // yanvar
+                2 => 78,   // fevral
+                3 => 79,   // mart
+                4 => 80,   // aprel
+                5 => 81,   // may
+                6 => 82,   // iyun
+                7 => 83,   // iyul
+                8 => 84,   // avgust
+                9 => 85,   // sentabr
+                10 => 86,  // oktabr
+                11 => 87,  // noyabr
+                12 => 88   // dekabr
+            ],
+            2027 => [
+                1 => 89,   // yanvar
+                2 => 90,   // fevral
+                3 => 91,   // mart
+                4 => 92,   // aprel
+                5 => 93,   // may
+                6 => 94,   // iyun
+                7 => 95,   // iyul
+                8 => 96,   // avgust
+                9 => 97,   // sentabr
+                10 => 98,  // oktabr
+                11 => 99,  // noyabr
+                12 => 100  // dekabr
+            ],
+            2028 => [
+                1 => 101,  // yanvar
+                2 => 102,  // fevral
+                3 => 103,  // mart
+                4 => 104,  // aprel
+                5 => 105,  // may
+                6 => 106,  // iyun
+                7 => 107,  // iyul
+                8 => 108,  // avgust
+                9 => 109,  // sentabr
+                10 => 110, // oktabr
+                11 => 111, // noyabr
+                12 => 112  // dekabr
+            ],
+            2029 => [
+                1 => 113,  // yanvar
+                2 => 114,  // fevral
+                3 => 115,  // mart
+                4 => 116,  // aprel
+                5 => 117,  // may
+                6 => 118,  // iyun
+                7 => 119,  // iyul
+                8 => 120,  // avgust
+                9 => 121,  // sentabr
+                10 => 122, // oktabr
+                11 => 123, // noyabr
+                12 => 124  // dekabr
+            ]
+        ];
 
-    while ($currentDate->lte($lastPaymentMonth)) {
-        $yil = $currentDate->year;
-        $oy = $currentDate->month;
+        // Step 1: Collect all months with data and find first/last payment month
+        $monthsWithData = [];
+        $firstPaymentMonth = null;
+        $lastPaymentMonth = null;
 
-        // Find if this month has payment data
-        $summa = 0;
-        foreach ($monthsWithData as $monthData) {
-            if ($monthData['yil'] == $yil && $monthData['oy'] == $oy) {
-                $summa = $monthData['summa'];
-                break;
+        foreach ($grafikData as $yil => $oylar) {
+            foreach ($oylar as $oy => $ustunIndex) {
+                if (!isset($row[$ustunIndex])) {
+                    continue;
+                }
+
+                $summa = $this->parseNumber($row[$ustunIndex]);
+
+                if ($summa !== null && $summa > 0) {
+                    $currentMonth = Carbon::create($yil, $oy, 1);
+                    $monthsWithData[] = [
+                        'date' => $currentMonth,
+                        'yil' => $yil,
+                        'oy' => $oy,
+                        'summa' => $summa
+                    ];
+
+                    // Track first and last payment months
+                    if ($firstPaymentMonth === null || $currentMonth->lt($firstPaymentMonth)) {
+                        $firstPaymentMonth = $currentMonth;
+                    }
+                    if ($lastPaymentMonth === null || $currentMonth->gt($lastPaymentMonth)) {
+                        $lastPaymentMonth = $currentMonth;
+                    }
+                }
             }
         }
 
-        // Create record for this month (with data or 0)
-        GrafikTolov::create([
-            'yer_sotuv_id' => $yerSotuv->id,
-            'lot_raqami' => $yerSotuv->lot_raqami,
-            'yil' => $yil,
-            'oy' => $oy,
-            'oy_nomi' => $this->oyNomlari[$oy],
-            'grafik_summa' => $summa
-        ]);
+        // If no payment data found, skip
+        if (empty($monthsWithData)) {
+            return;
+        }
 
-        $grafikCount++;
-        $currentDate->addMonth();
-    }
+        // Step 2: Create records for ALL months between first and last payment
+        $grafikCount = 0;
+        $currentDate = $firstPaymentMonth->copy();
 
-    if ($grafikCount > 0) {
-        $this->command->info("  LOT {$yerSotuv->lot_raqami}: {$grafikCount} ta grafik to'lov ({$firstPaymentMonth->format('Y-m')} dan {$lastPaymentMonth->format('Y-m')} gacha)");
+        while ($currentDate->lte($lastPaymentMonth)) {
+            $yil = $currentDate->year;
+            $oy = $currentDate->month;
+
+            // Find if this month has payment data
+            $summa = 0;
+            foreach ($monthsWithData as $monthData) {
+                if ($monthData['yil'] == $yil && $monthData['oy'] == $oy) {
+                    $summa = $monthData['summa'];
+                    break;
+                }
+            }
+
+            // Create record for this month (with data or 0)
+            GrafikTolov::create([
+                'yer_sotuv_id' => $yerSotuv->id,
+                'lot_raqami' => $yerSotuv->lot_raqami,
+                'yil' => $yil,
+                'oy' => $oy,
+                'oy_nomi' => $this->oyNomlari[$oy],
+                'grafik_summa' => $summa
+            ]);
+
+            $grafikCount++;
+            $currentDate->addMonth();
+        }
+
+        if ($grafikCount > 0) {
+            $this->command->info("  LOT {$yerSotuv->lot_raqami}: {$grafikCount} ta grafik to'lov ({$firstPaymentMonth->format('Y-m')} dan {$lastPaymentMonth->format('Y-m')} gacha)");
+        }
     }
-}
 
     private function importFaktTolovlar(): void
     {
-        $file = storage_path('app/excel/Тушум 2024-2025.xlsx');
+        $file = storage_path('app/excel/Тушум 2024-2025-13.11.2025.xlsx');
 
         if (!file_exists($file)) {
             $this->command->error("Fakt to'lovlar fayli topilmadi");
@@ -408,7 +524,7 @@ class YerSotuvSeeder extends Seeder
 
             $this->command->info("Fakt to'lovlar yuklanmoqda...");
             $this->writeLog("\n=== FAKT TO'LOVLAR IMPORT ===");
-            $this->writeLog("Fayl: Тушум 2024-2025.xlsx");
+            $this->writeLog("Fayl: Тушум 2024-2025-13.11.2025.xlsx");
 
             $count = 0;
             $skipped = 0;
