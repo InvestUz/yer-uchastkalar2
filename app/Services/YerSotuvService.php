@@ -629,6 +629,9 @@ class YerSotuvService
     /**
      * SVOD3: Get grafik ortda statistics
      */
+    /**
+     * SVOD3: Get grafik ortda statistics
+     */
     public function getGrafikOrtda(?array $tumanPatterns = null, array $dateFilters = []): array
     {
         $bugun = $this->getGrafikCutoffDate();
@@ -643,38 +646,38 @@ class YerSotuvService
 
         // Find lots where: outstanding balance AND grafik > fakt
         $query->whereRaw('lot_raqami IN (
-            SELECT ys.lot_raqami
-            FROM yer_sotuvlar ys
-            LEFT JOIN (
-                SELECT lot_raqami,
-                       SUM(grafik_summa) as jami_grafik
-                FROM grafik_tolovlar
-                WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
-                GROUP BY lot_raqami
-            ) g ON g.lot_raqami = ys.lot_raqami
-            LEFT JOIN (
-                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
-                FROM fakt_tolovlar
-                GROUP BY lot_raqami
-            ) f ON f.lot_raqami = ys.lot_raqami
-            WHERE ys.tolov_turi = "муддатли"
-            AND ys.holat != "Бекор қилинган"
-            AND (
-                (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
-                - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
-            ) > 0
-            AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
-            AND COALESCE(g.jami_grafik, 0) > 0
-        )', [$bugun]);
+        SELECT ys.lot_raqami
+        FROM yer_sotuvlar ys
+        LEFT JOIN (
+            SELECT lot_raqami,
+                   SUM(grafik_summa) as jami_grafik
+            FROM grafik_tolovlar
+            WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
+            GROUP BY lot_raqami
+        ) g ON g.lot_raqami = ys.lot_raqami
+        LEFT JOIN (
+            SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
+            FROM fakt_tolovlar
+            GROUP BY lot_raqami
+        ) f ON f.lot_raqami = ys.lot_raqami
+        WHERE ys.tolov_turi = "муддатли"
+        AND ys.holat != "Бекор қилинган"
+        AND (
+            (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+            - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+        ) > 0
+        AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
+        AND COALESCE(g.jami_grafik, 0) > 0
+    )', [$bugun]);
 
         // Get lot numbers BEFORE aggregation
         $lotRaqamlari = (clone $query)->pluck('lot_raqami')->toArray();
 
         // Now get aggregated data
         $data = $query->selectRaw('
-            COUNT(*) as soni,
-            SUM(maydoni) as maydoni
-        ')->first();
+        COUNT(*) as soni,
+        SUM(maydoni) as maydoni
+    ')->first();
 
         if (empty($lotRaqamlari)) {
             return [
@@ -682,7 +685,7 @@ class YerSotuvService
                 'maydoni' => 0,
                 'grafik_summa' => 0,
                 'fakt_summa' => 0,
-                'foiz' => 0
+                'muddati_utgan_qarz' => 0
             ];
         }
 
@@ -696,15 +699,40 @@ class YerSotuvService
             ->whereIn('lot_raqami', $lotRaqamlari)
             ->sum('tolov_summa');
 
-        $foiz = $grafikSumma > 0 ? round(($faktSumma / $grafikSumma) * 100, 1) : 0;
+        // Calculate overdue debt (график - факт)
+        $muddatiUtganQarz = $grafikSumma - $faktSumma;
+        // Ensure it's not negative
+        $muddatiUtganQarz = max(0, $muddatiUtganQarz);
 
         return [
             'soni' => $data->soni ?? 0,
             'maydoni' => $data->maydoni ?? 0,
             'grafik_summa' => $grafikSumma,
             'fakt_summa' => $faktSumma,
-            'foiz' => $foiz
+            'muddati_utgan_qarz' => $muddatiUtganQarz
         ];
+    }
+
+    /**
+     * Add tuman statistics to SVOD3 total
+     */
+    private function addToSvod3Total(array &$jami, array $stat): void
+    {
+        foreach (['soni', 'maydoni', 'boshlangich_narx', 'sotilgan_narx', 'tushadigan_mablagh'] as $field) {
+            $jami['narhini_bolib'][$field] += $stat['narhini_bolib'][$field];
+        }
+
+        foreach (['soni', 'maydoni', 'boshlangich_narx', 'sotilgan_narx', 'tushadigan_mablagh', 'tushgan_summa'] as $field) {
+            $jami['toliq_tolanganlar'][$field] += $stat['toliq_tolanganlar'][$field];
+        }
+
+        foreach (['soni', 'maydoni', 'boshlangich_narx', 'sotilgan_narx', 'tushadigan_mablagh', 'tushgan_summa'] as $field) {
+            $jami['nazoratdagilar'][$field] += $stat['nazoratdagilar'][$field];
+        }
+
+        foreach (['soni', 'maydoni', 'grafik_summa', 'fakt_summa', 'muddati_utgan_qarz'] as $field) {
+            $jami['grafik_ortda'][$field] += $stat['grafik_ortda'][$field];
+        }
     }
 
     /**
@@ -906,39 +934,11 @@ class YerSotuvService
                 'maydoni' => 0,
                 'grafik_summa' => 0,
                 'fakt_summa' => 0,
-                'foiz' => 0
+                'muddati_utgan_qarz' => 0
             ]
         ];
     }
 
-    /**
-     * Add tuman statistics to SVOD3 total
-     */
-    private function addToSvod3Total(array &$jami, array $stat): void
-    {
-        foreach (['soni', 'maydoni', 'boshlangich_narx', 'sotilgan_narx', 'tushadigan_mablagh'] as $field) {
-            $jami['narhini_bolib'][$field] += $stat['narhini_bolib'][$field];
-        }
-
-        foreach (['soni', 'maydoni', 'boshlangich_narx', 'sotilgan_narx', 'tushadigan_mablagh', 'tushgan_summa'] as $field) {
-            $jami['toliq_tolanganlar'][$field] += $stat['toliq_tolanganlar'][$field];
-        }
-
-        foreach (['soni', 'maydoni', 'boshlangich_narx', 'sotilgan_narx', 'tushadigan_mablagh', 'tushgan_summa'] as $field) {
-            $jami['nazoratdagilar'][$field] += $stat['nazoratdagilar'][$field];
-        }
-
-        foreach (['soni', 'maydoni', 'grafik_summa', 'fakt_summa'] as $field) {
-            $jami['grafik_ortda'][$field] += $stat['grafik_ortda'][$field];
-        }
-
-        if ($jami['grafik_ortda']['grafik_summa'] > 0) {
-            $jami['grafik_ortda']['foiz'] = round(
-                ($jami['grafik_ortda']['fakt_summa'] / $jami['grafik_ortda']['grafik_summa']) * 100,
-                1
-            );
-        }
-    }
 
     /**
      * Calculate payment comparison for detail page

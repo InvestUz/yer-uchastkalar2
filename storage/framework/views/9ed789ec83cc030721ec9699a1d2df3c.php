@@ -199,7 +199,7 @@
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-red-700"><?php echo e(number_format(($statistics['jami']['jami']['tushadigan_mablagh'] - $statistics['jami']['jami_tushgan_yigindi']) / 1000000000, 1)); ?></td>
 
                                 <!-- Col 11: Foizda -->
-                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e($statistics['jami']['jami']['tushadigan_mablagh'] > 0 ? number_format(($statistics['jami']['jami_tushgan_yigindi'] / $statistics['jami']['jami']['tushadigan_mablagh']) * 100, 1) : 0); ?>%</td>
+                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e($statistics['jami']['jami']['tushadigan_mablagh'] > 0 ? number_format(($statistics['jami']['jami_tushgan_yigindi'] / $statistics['jami']['jami']['tushadigan_mablagh']) * 100, 1) : 0); ?>%zzz</td>
 
                                 <!-- Col 12: Biryola soni -->
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
@@ -222,7 +222,7 @@
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bir_yola']['auksion_harajati'] / 1000000000, 1)); ?></td>
 
                                 <!-- Col 18: Biryola tushadigan -->
-                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>XXX</td>
+                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, decimals: 1)); ?></td>
 
                                 <!-- Col 19: Biryola tushgan -->
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900"><?php echo e(number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1)); ?></td>
@@ -254,7 +254,7 @@
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bolib']['auksion_harajati'] / 1000000000, 1)); ?></td>
 
                                 <!-- Col 28: Bolib tushadigan -->
-                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1)); ?>xxx</td>
+                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1)); ?></td>
 
                                 <!-- Col 29: Bolib tushgan -->
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900"><?php echo e(number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1)); ?></td>
@@ -321,7 +321,7 @@
                                 <td class="border border-slate-400 px-3 py-3 text-right text-slate-700"><?php echo e(number_format($tuman['jami']['tushadigan_mablagh'] / 1000000000, 1)); ?></td>
 
                                 <!-- Col 9: Jami tushgan -->
-                                <td class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium"><?php echo e(number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1)); ?></td>
+                                <td class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium"><?php echo e(number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1)); ?>zzz</td>
 
                                 <!-- Col 10: Jami qoldiq -->
                                 <td class="border border-slate-400 px-3 py-3 text-right text-red-700 font-medium"><?php echo e(number_format(($tuman['jami']['tushadigan_mablagh'] - $tuman['jami_tushgan_yigindi']) / 1000000000, 1)); ?></td>

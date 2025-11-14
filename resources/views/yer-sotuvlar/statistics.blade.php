@@ -224,7 +224,7 @@
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bir_yola']['auksion_harajati'] / 1000000000, 1) }}</td>
 
                                 <!-- Col 18: Biryola tushadigan -->
-                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, 1) }}XXX</td>
+                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, decimals: 1) }}</td>
 
                                 <!-- Col 19: Biryola tushgan -->
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900">{{ number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1) }}</td>
@@ -256,7 +256,7 @@
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bolib']['auksion_harajati'] / 1000000000, 1) }}</td>
 
                                 <!-- Col 28: Bolib tushadigan -->
-                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1) }}xxx</td>
+                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1) }}</td>
 
                                 <!-- Col 29: Bolib tushgan -->
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900">{{ number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1) }}</td>
