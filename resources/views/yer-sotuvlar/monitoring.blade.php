@@ -3,1108 +3,1300 @@
 @section('title', 'Мониторинг ва Аналитика')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 py-8">
-    <div class=" mx-auto px-6">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 py-8">
+        <div class=" mx-auto px-6">
 
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-4xl font-bold mb-2" style="color: rgb(30, 41, 59);">
-                Тўловлар мониторинги ва аналитика
-            </h1>
-            <p class="text-slate-600 text-lg">
-                Ер сотув аукционлари бўйича тўловларни кузатиш ва таҳлил қилиш
-            </p>
-        </div>
-
-        <!-- Period Filter Buttons -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-slate-800">Давр танлаш</h2>
-                <span class="text-sm text-slate-500 bg-slate-100 px-4 py-2 rounded-lg font-semibold">
-                    @if(request('period') === 'month')
-                        {{ \Carbon\Carbon::create(request('year', now()->year), request('month', now()->month), 1)->locale('uz')->translatedFormat('F Y') }} ойи ҳолатига
-                    @elseif(request('period') === 'quarter')
-                        {{ request('quarter', ceil(now()->month / 3)) }}-чорак ҳолатига {{ request('year', now()->year) }} й
-                    @elseif(request('period') === 'year')
-                        {{ request('year', now()->year) }} йил ҳолатига
-                    @else
-                        Барча давр
-                    @endif
-                </span>
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold mb-2" style="color: rgb(30, 41, 59);">
+                    Тўловлар мониторинги ва аналитика
+                </h1>
+                <p class="text-slate-600 text-lg">
+                    Ер сотув аукционлари бўйича тўловларни кузатиш ва таҳлил қилиш
+                </p>
             </div>
 
-            <!-- Main Period Filter -->
-            <div class="flex gap-0 border border-gray-300 rounded-lg overflow-hidden mb-6">
-                <button
-                    onclick="changePeriod('month')"
-                    class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ request('period') === 'month' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
-                    id="btn-month">
-                    Ой бўйича
-                </button>
-                <button
-                    onclick="changePeriod('quarter')"
-                    class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ request('period') === 'quarter' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
-                    id="btn-quarter">
-                    Чорак бўйича
-                </button>
-                <button
-                    onclick="changePeriod('year')"
-                    class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ request('period') === 'year' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
-                    id="btn-year">
-                    Йил бўйича
-                </button>
-                <button
-                    onclick="changePeriod('all')"
-                    class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all {{ !request('period') || request('period') === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
-                    id="btn-all">
-                    Барча давр
-                </button>
-            </div>
-
-            <!-- Detailed Filters -->
-            <form method="GET" action="{{ route('yer-sotuvlar.monitoring') }}" id="filterForm">
-                <input type="hidden" name="period" id="periodInput" value="{{ request('period', 'all') }}">
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="detailFilters" style="display: {{ request('period') && request('period') !== 'all' ? 'grid' : 'none' }};">
-
-                    <!-- Year Filter -->
-                    @if(request('period') === 'month' || request('period') === 'quarter' || request('period') === 'year')
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Йил</label>
-                        <select name="year" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" onchange="this.form.submit()">
-                            @for($y = now()->year; $y >= 2024; $y--)
-                                <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>
-                                    {{ $y }} йил
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
-                    @endif
-
-                    <!-- Month Filter -->
-                    @if(request('period') === 'month')
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Ой</label>
-                        <select name="month" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" onchange="this.form.submit()">
-                            @php
-                                $months = [
-                                    1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
-                                    5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
-                                    9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
-                                ];
-                            @endphp
-                            @foreach($months as $monthNum => $monthName)
-                                <option value="{{ $monthNum }}" {{ request('month', now()->month) == $monthNum ? 'selected' : '' }}>
-                                    {{ $monthName }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
-
-                    <!-- Quarter Filter -->
-                    @if(request('period') === 'quarter')
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Чорак</label>
-                        <select name="quarter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" onchange="this.form.submit()">
-                            @for($q = 1; $q <= 4; $q++)
-                                <option value="{{ $q }}" {{ request('quarter', ceil(now()->month / 3)) == $q ? 'selected' : '' }}>
-                                    {{ $q }}-чорак
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
-                    @endif
-
-                </div>
-            </form>
-        </div>
-
-        <!-- Payment Type Tabs -->
-        <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
-            <div class="flex border-b border-gray-200">
-                <button
-                    onclick="switchTab('muddatli')"
-                    class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
-                    id="tab-muddatli"
-                    style="background: linear-gradient(to right, rgb(37, 99, 235), rgb(29, 78, 216)); color: white;">
-                    Муддатли тўлов (Бўлиб тўлаш)
-                </button>
-                <button
-                    onclick="switchTab('muddatli-emas')"
-                    class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
-                    id="tab-muddatli-emas"
-                    style="background: white; color: rgb(71, 85, 105);">
-                    Муддатли эмас тўлов (Бир йўла тўлаш)
-                </button>
-            </div>
-        </div>
-
-        <!-- Муддатли Content -->
-        <div id="content-muddatli" class="tab-content">
-            <!-- Statistics Cards - Муддатли (5 cards) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-                <!-- 1. Soni -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
-                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-bold text-red-700 mb-1">{{ number_format($summaryMuddatli['total_lots']) }} та</p>
-                    <p class="text-xs text-slate-500">Бўлиб тўлаш</p>
-                </div>
-
-                <!-- 2. Tushadigan mablag' -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-bold text-blue-700 mb-1">{{ number_format($summaryMuddatli['expected_amount'] / 1000000000, 2) }} млрд</p>
-                    <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
-                </div>
-
-                <!-- 3. Grafik bo'yicha tushadigan (NEW) -->
-                @php
-                    // Calculate grafik tushadigan for muddatli
-                    $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
-                    $lotRaqamlari = \App\Models\YerSotuv::where('tolov_turi', 'муддатли')->pluck('lot_raqami')->toArray();
-                    $grafikTushadiganMuddatli = !empty($lotRaqamlari) ?
-                        \DB::table('grafik_tolovlar')
-                            ->whereIn('lot_raqami', $lotRaqamlari)
-                            ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$cutoffDate])
-                            ->sum('grafik_summa') : 0;
-                @endphp
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Графикда тушадиган</h3>
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-bold text-purple-700 mb-1">{{ number_format($grafikTushadiganMuddatli / 1000000000, 2) }} млрд</p>
-                    <p class="text-xs text-slate-500">Тўлов графиги бўйича</p>
-                </div>
-
-                <!-- 4. Amalda to'langan -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Амалда тўланган</h3>
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-bold text-green-700 mb-2">{{ number_format($summaryMuddatli['received_amount'] / 1000000000, 2) }} млрд</p>
-                    @php
-                        $tolovFoiziMuddatli = $grafikTushadiganMuddatli > 0 ? ($summaryMuddatli['received_amount'] / $grafikTushadiganMuddatli) * 100 : 0;
-                    @endphp
-                    <div class="flex items-center">
-                        <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
-                            <div class="bg-green-600 h-2.5 rounded-full transition-all duration-500" style="width: {{ min(100, $tolovFoiziMuddatli) }}%"></div>
-                        </div>
-                        <span class="text-sm font-bold text-green-600">{{ number_format($tolovFoiziMuddatli, 1) }}%</span>
-                    </div>
-                </div>
-
-                <!-- 5. Muddati o'tgan (NEW) -->
-                @php
-                    $muddatiOtganMuddatli = max(0, $grafikTushadiganMuddatli - $summaryMuddatli['received_amount']);
-                @endphp
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган</h3>
-                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-bold text-orange-700 mb-1">{{ number_format($muddatiOtganMuddatli / 1000000000, 2) }} млрд</p>
-                    <p class="text-xs text-slate-500">Графикдан ортда қолган</p>
-                </div>
-            </div>
-
-            <!-- Charts - Муддатли -->
-            <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
-                <!-- Payment Status Distribution -->
-                <div class="xl:col-span-4 bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
-                        </svg>
-                        Тўлов ҳолати бўйича тақсимот
-                    </h3>
-                    <div class="h-72">
-                        <canvas id="paymentStatusChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Monthly Payment Comparison -->
-                <div class="xl:col-span-8 bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
-                        </svg>
-                        Тўловлар динамикаси (ойлар кесимида)
-                    </h3>
-                    <div class="h-72">
-                        <canvas id="monthlyComparisonChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tuman Analysis - Муддатли -->
+            <!-- Period Filter Buttons -->
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                    Тўловлар динамикаси (туманлар кесимида)
-                </h3>
-                <div class="h-[32rem]">
-                    <canvas id="tumanComparisonChart"></canvas>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Давр танлаш</h2>
+                    <span class="text-sm text-slate-500 bg-slate-100 px-4 py-2 rounded-lg font-semibold">
+                        @if ($periodInfo['period'] === 'month')
+                            {{ \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y') }}
+                            ойи ҳолатига
+                        @elseif($periodInfo['period'] === 'quarter')
+                            {{ $periodInfo['quarter'] }}-чорак ҳолатига {{ $periodInfo['year'] }} й
+                        @elseif($periodInfo['period'] === 'year')
+                            {{ $periodInfo['year'] }} йил ҳолатига
+                        @else
+                            Барча давр
+                        @endif
+                    </span>
+                </div>
+
+                <!-- Main Period Filter -->
+                <div class="flex gap-0 border border-gray-300 rounded-lg overflow-hidden mb-6">
+                    <button onclick="changePeriod('month')"
+                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ $periodInfo['period'] === 'month' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
+                        id="btn-month">
+                        Ой бўйича
+                    </button>
+                    <button onclick="changePeriod('quarter')"
+                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ $periodInfo['period'] === 'quarter' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
+                        id="btn-quarter">
+                        Чорак бўйича
+                    </button>
+                    <button onclick="changePeriod('year')"
+                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ $periodInfo['period'] === 'year' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
+                        id="btn-year">
+                        Йил бўйича
+                    </button>
+                    <button onclick="changePeriod('all')"
+                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all {{ $periodInfo['period'] === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
+                        id="btn-all">
+                        Барча давр
+                    </button>
+                </div>
+
+                <!-- Detailed Filters -->
+                <form method="GET" action="{{ route('yer-sotuvlar.monitoring') }}" id="filterForm">
+                    <input type="hidden" name="period" id="periodInput" value="{{ $periodInfo['period'] }}">
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="detailFilters"
+                        style="display: {{ $periodInfo['period'] !== 'all' ? 'grid' : 'none' }};">
+
+                        <!-- Year Filter -->
+                        @if ($periodInfo['period'] === 'month' || $periodInfo['period'] === 'quarter' || $periodInfo['period'] === 'year')
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Йил</label>
+                                <select name="year"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    onchange="this.form.submit()">
+                                    @for ($y = now()->year; $y >= 2024; $y--)
+                                        <option value="{{ $y }}"
+                                            {{ $periodInfo['year'] == $y ? 'selected' : '' }}>
+                                            {{ $y }} йил
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                        @endif
+
+                        <!-- Month Filter -->
+                        @if ($periodInfo['period'] === 'month')
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Ой</label>
+                                <select name="month"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    onchange="this.form.submit()">
+                                    @php
+                                        $months = [
+                                            1 => 'Январь',
+                                            2 => 'Февраль',
+                                            3 => 'Март',
+                                            4 => 'Апрель',
+                                            5 => 'Май',
+                                            6 => 'Июнь',
+                                            7 => 'Июль',
+                                            8 => 'Август',
+                                            9 => 'Сентябрь',
+                                            10 => 'Октябрь',
+                                            11 => 'Ноябрь',
+                                            12 => 'Декабрь',
+                                        ];
+                                    @endphp
+                                    @foreach ($months as $monthNum => $monthName)
+                                        <option value="{{ $monthNum }}"
+                                            {{ $periodInfo['month'] == $monthNum ? 'selected' : '' }}>
+                                            {{ $monthName }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
+                        <!-- Quarter Filter -->
+                        @if ($periodInfo['period'] === 'quarter')
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Чорак</label>
+                                <select name="quarter"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    onchange="this.form.submit()">
+                                    @for ($q = 1; $q <= 4; $q++)
+                                        <option value="{{ $q }}"
+                                            {{ $periodInfo['quarter'] == $q ? 'selected' : '' }}>
+                                            {{ $q }}-чорак
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                        @endif
+
+                    </div>
+                </form>
+            </div>
+
+
+
+            <!-- Payment Type Tabs -->
+            <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
+                <div class="flex border-b border-gray-200">
+                    <button onclick="switchTab('muddatli')"
+                        class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
+                        id="tab-muddatli"
+                        style="background: linear-gradient(to right, rgb(37, 99, 235), rgb(29, 78, 216)); color: white;">
+                        Муддатли тўлов (Бўлиб тўлаш)
+                    </button>
+                    <button onclick="switchTab('muddatli-emas')"
+                        class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
+                        id="tab-muddatli-emas" style="background: white; color: rgb(71, 85, 105);">
+                        Муддатли эмас тўлов (Бир йўла тўлаш)
+                    </button>
                 </div>
             </div>
 
-            <!-- Detailed Statistics Table - Муддатли -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-bold text-slate-800 mb-6">Туманлар бўйича батафсил статистика</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="bg-blue-50 border-b-2 border-blue-200">
-                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">Ҳудуд номи</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Лотлар сони</th>
-                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">График б-ча тўлов</th>
-                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Амалдаги тўлов</th>
-                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Фарқи</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Фоизда</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            @foreach($tumanStatsMuddatli as $stat)
-                            <tr class="hover:bg-blue-50 transition-colors">
-                                <td class="px-4 py-3 text-sm font-semibold text-slate-800">{{ $stat['tuman'] }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                                        {{ number_format($stat['lots']) }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold text-blue-600">{{ number_format($stat['grafik'] / 1000000000, 2) }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold text-green-600">{{ number_format($stat['fakt'] / 1000000000, 2) }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold {{ $stat['difference'] > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                    {{ number_format($stat['difference'] / 1000000000, 2) }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <div class="w-24 bg-slate-200 rounded-full h-2">
-                                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
-                                                 style="width: {{ min($stat['percentage'], 100) }}%"></div>
-                                        </div>
-                                        <span class="text-sm font-bold text-blue-600">{{ number_format($stat['percentage'], 1) }}%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot class="bg-gradient-to-r from-yellow-50 to-yellow-100 border-t-2 border-yellow-300 font-bold">
-                            <tr>
-                                <td class="px-4 py-3 text-sm text-slate-800">ЖАМИ</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-200 text-red-900">
-                                        {{ number_format(collect($tumanStatsMuddatli)->sum('lots')) }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-right text-sm text-blue-700">{{ number_format(collect($tumanStatsMuddatli)->sum('grafik') / 1000000000, 2) }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-green-700">{{ number_format(collect($tumanStatsMuddatli)->sum('fakt') / 1000000000, 2) }}</td>
-                                <td class="px-4 py-3 text-right text-sm {{ collect($tumanStatsMuddatli)->sum('difference') > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                    {{ number_format(collect($tumanStatsMuddatli)->sum('difference') / 1000000000, 2) }}
-                                </td>
-                                <td class="px-4 py-3 text-center text-sm text-blue-700">
-                                    {{ number_format(collect($tumanStatsMuddatli)->sum('fakt') / collect($tumanStatsMuddatli)->sum('grafik') * 100, 1) }}%
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
+            <!-- Муддатли Content -->
+            <div id="content-muddatli" class="tab-content">
+                <!-- Statistics Cards - Муддатли (5 cards) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                    <!-- 1. Soni -->
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-red-700 mb-1">{{ number_format($summaryMuddatli['total_lots']) }}
+                            та</p>
+                        <p class="text-xs text-slate-500">Бўлиб тўлаш</p>
+                    </div>
 
-        <!-- Муддатли эмас Content -->
-        <div id="content-muddatli-emas" class="tab-content" style="display: none;">
-            <!-- Statistics Cards - Муддатли эмас (5 cards) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-                <!-- 1. Soni -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
-                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    <!-- 2. Tushadigan mablag' -->
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-blue-700 mb-1">
+                            {{ number_format($summaryMuddatli['expected_amount'] / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
+                    </div>
+
+                    <!-- 3. Grafik bo'yicha tushadigan (NEW) -->
+                    @php
+                        // Calculate grafik tushadigan for muddatli
+                        $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
+                        $lotRaqamlari = \App\Models\YerSotuv::where('tolov_turi', 'муддатли')
+                            ->pluck('lot_raqami')
+                            ->toArray();
+                        $grafikTushadiganMuddatli = !empty($lotRaqamlari)
+                            ? \DB::table('grafik_tolovlar')
+                                ->whereIn('lot_raqami', $lotRaqamlari)
+                                ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$cutoffDate])
+                                ->sum('grafik_summa')
+                            : 0;
+                    @endphp
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Графикда тушадиган</h3>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-purple-700 mb-1">
+                            {{ number_format($grafikTushadiganMuddatli / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500">Тўлов графиги бўйича</p>
+                    </div>
+
+                    <!-- 4. Amalda to'langan -->
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Амалда тўланган</h3>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-green-700 mb-2">
+                            {{ number_format($summaryMuddatli['received_amount'] / 1000000000, 2) }} млрд</p>
+                        @php
+                            $tolovFoiziMuddatli =
+                                $grafikTushadiganMuddatli > 0
+                                    ? ($summaryMuddatli['received_amount'] / $grafikTushadiganMuddatli) * 100
+                                    : 0;
+                        @endphp
+                        <div class="flex items-center">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
+                                <div class="bg-green-600 h-2.5 rounded-full transition-all duration-500"
+                                    style="width: {{ min(100, $tolovFoiziMuddatli) }}%"></div>
+                            </div>
+                            <span
+                                class="text-sm font-bold text-green-600">{{ number_format($tolovFoiziMuddatli, 1) }}%</span>
+                        </div>
+                    </div>
+
+                    <!-- 5. Muddati o'tgan (NEW) -->
+                    @php
+                        $muddatiOtganMuddatli = max(0, $grafikTushadiganMuddatli - $summaryMuddatli['received_amount']);
+                    @endphp
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган</h3>
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-orange-700 mb-1">
+                            {{ number_format($muddatiOtganMuddatli / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500">Графикдан ортда қолган</p>
+                    </div>
+                </div>
+
+                <!-- Charts - Муддатли -->
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+                    <!-- Payment Status Distribution -->
+                    <div class="xl:col-span-4 bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                             </svg>
+                            Тўлов ҳолати бўйича тақсимот
+                        </h3>
+                        <div class="h-72">
+                            <canvas id="paymentStatusChart"></canvas>
                         </div>
                     </div>
-                    <p class="text-3xl font-bold text-red-700 mb-1">{{ number_format($summaryMuddatliEmas['total_lots']) }} та</p>
-                    <p class="text-xs text-slate-500">Бир йўла тўлаш</p>
-                </div>
 
-                <!-- 2-5: Show same 5 metrics for muddatli emas -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <!-- Monthly Payment Comparison -->
+                    <div class="xl:col-span-8 bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                             </svg>
+                            Тўловлар динамикаси (ойлар кесимида)
+                        </h3>
+                        <div class="h-72">
+                            <canvas id="monthlyComparisonChart"></canvas>
                         </div>
-                    </div>
-                    <p class="text-3xl font-bold text-blue-700 mb-1">{{ number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2) }} млрд</p>
-                    <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
-                </div>
-
-                <!-- For muddatli emas: Grafik = Expected (no schedule) -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Графикда тушадиган</h3>
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-bold text-purple-700 mb-1">{{ number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2) }} млрд</p>
-                    <p class="text-xs text-slate-500">Бир йўла тўлов (график йўқ)</p>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Амалда тўланган</h3>
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-bold text-green-700 mb-2">{{ number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2) }} млрд</p>
-                    <div class="flex items-center">
-                        <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
-                            <div class="bg-green-600 h-2.5 rounded-full transition-all duration-500" style="width: {{ min(100, $summaryMuddatliEmas['payment_percentage']) }}%"></div>
-                        </div>
-                        <span class="text-sm font-bold text-green-600">{{ number_format($summaryMuddatliEmas['payment_percentage'], 1) }}%</span>
                     </div>
                 </div>
 
-                @php
-                    $muddatiOtganMuddatliEmas = max(0, $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount']);
-                @endphp
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган</h3>
-                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-3xl font-bold text-orange-700 mb-1">{{ number_format($muddatiOtganMuddatliEmas / 1000000000, 2) }} млрд</p>
-                    <p class="text-xs text-slate-500">Тўланмаган маблағ</p>
-                </div>
-            </div>
-
-            <!-- Charts - Муддатли эмас -->
-            <div class="grid grid-cols-1 gap-6 mb-8">
-                <!-- Monthly Payment Trend -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <!-- Tuman Analysis - Муддатли -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
                     <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
-                        </svg>
-                        Тўловлар динамикаси (ойлар кесимида)
-                    </h3>
-                    <div class="h-72">
-                        <canvas id="monthlyMuddatliEmasChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Tuman Comparison -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                         Тўловлар динамикаси (туманлар кесимида)
                     </h3>
                     <div class="h-[32rem]">
-                        <canvas id="tumanMuddatliEmasChart"></canvas>
+                        <canvas id="tumanComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Detailed Statistics Table - Муддатли -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-6">Туманлар бўйича батафсил статистика</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-blue-50 border-b-2 border-blue-200">
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">Ҳудуд номи
+                                    </th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Лотлар
+                                        сони</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">График б-ча
+                                        тўлов</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Амалдаги
+                                        тўлов</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Фарқи</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Фоизда
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                @foreach ($tumanStatsMuddatli as $stat)
+                                    <tr class="hover:bg-blue-50 transition-colors">
+                                        <td class="px-4 py-3 text-sm font-semibold text-slate-800">{{ $stat['tuman'] }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
+                                                {{ number_format($stat['lots']) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-right text-sm font-semibold text-blue-600">
+                                            {{ number_format($stat['grafik'] / 1000000000, 2) }}</td>
+                                        <td class="px-4 py-3 text-right text-sm font-semibold text-green-600">
+                                            {{ number_format($stat['fakt'] / 1000000000, 2) }}</td>
+                                        <td
+                                            class="px-4 py-3 text-right text-sm font-semibold {{ $stat['difference'] > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                            {{ number_format($stat['difference'] / 1000000000, 2) }}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <div class="w-24 bg-slate-200 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
+                                                        style="width: {{ min($stat['percentage'], 100) }}%"></div>
+                                                </div>
+                                                <span
+                                                    class="text-sm font-bold text-blue-600">{{ number_format($stat['percentage'], 1) }}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot
+                                class="bg-gradient-to-r from-yellow-50 to-yellow-100 border-t-2 border-yellow-300 font-bold">
+                                <tr>
+                                    <td class="px-4 py-3 text-sm text-slate-800">ЖАМИ</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-200 text-red-900">
+                                            {{ number_format(collect($tumanStatsMuddatli)->sum('lots')) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-sm text-blue-700">
+                                        {{ number_format(collect($tumanStatsMuddatli)->sum('grafik') / 1000000000, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-sm text-green-700">
+                                        {{ number_format(collect($tumanStatsMuddatli)->sum('fakt') / 1000000000, 2) }}</td>
+                                    <td
+                                        class="px-4 py-3 text-right text-sm {{ collect($tumanStatsMuddatli)->sum('difference') > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                        {{ number_format(collect($tumanStatsMuddatli)->sum('difference') / 1000000000, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-sm text-blue-700">
+                                        @php
+                                            $totalGrafik = collect($tumanStatsMuddatli)->sum('grafik');
+                                            $totalFakt = collect($tumanStatsMuddatli)->sum('fakt');
+                                            $percentage = $totalGrafik > 0 ? ($totalFakt / $totalGrafik) * 100 : 0;
+                                        @endphp
+                                        {{ number_format($percentage, 1) }}%
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Detailed Statistics Table - Муддатли эмас -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-bold text-slate-800 mb-6">Туманлар бўйича батафсил статистика</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="bg-green-50 border-b-2 border-green-200">
-                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">Ҳудуд номи</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Лотлар сони</th>
-                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Тушадиган маблағ</th>
-                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Тушган маблағ</th>
-                                <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Фарқи</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Фоизда</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            @foreach($tumanStatsMuddatliEmas as $stat)
-                            <tr class="hover:bg-green-50 transition-colors">
-                                <td class="px-4 py-3 text-sm font-semibold text-slate-800">{{ $stat['tuman'] }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                                        {{ number_format($stat['lots']) }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold text-blue-600">{{ number_format($stat['expected'] / 1000000000, 2) }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold text-green-600">{{ number_format($stat['received'] / 1000000000, 2) }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold {{ $stat['difference'] > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                    {{ number_format($stat['difference'] / 1000000000, 2) }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <div class="w-24 bg-slate-200 rounded-full h-2">
-                                            <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
-                                                 style="width: {{ min($stat['percentage'], 100) }}%"></div>
-                                        </div>
-                                        <span class="text-sm font-bold text-green-600">{{ number_format($stat['percentage'], 1) }}%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot class="bg-gradient-to-r from-yellow-50 to-yellow-100 border-t-2 border-yellow-300 font-bold">
-                            <tr>
-                                <td class="px-4 py-3 text-sm text-slate-800">ЖАМИ</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-200 text-red-900">
-                                        {{ number_format(collect($tumanStatsMuddatliEmas)->sum('lots')) }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-right text-sm text-blue-700">{{ number_format(collect($tumanStatsMuddatliEmas)->sum('expected') / 1000000000, 2) }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-green-700">{{ number_format(collect($tumanStatsMuddatliEmas)->sum('received') / 1000000000, 2) }}</td>
-                                <td class="px-4 py-3 text-right text-sm {{ collect($tumanStatsMuddatliEmas)->sum('difference') > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                    {{ number_format(collect($tumanStatsMuddatliEmas)->sum('difference') / 1000000000, 2) }}
-                                </td>
-                                <td class="px-4 py-3 text-center text-sm text-green-700">
-                                    {{ number_format(collect($tumanStatsMuddatliEmas)->sum('received') / collect($tumanStatsMuddatliEmas)->sum('expected') * 100, 1) }}%
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+            <!-- Муддатли эмас Content -->
+            <div id="content-muddatli-emas" class="tab-content" style="display: none;">
+                <!-- Statistics Cards - Муддатли эмас (5 cards) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                    <!-- 1. Soni -->
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-red-700 mb-1">
+                            {{ number_format($summaryMuddatliEmas['total_lots']) }} та</p>
+                        <p class="text-xs text-slate-500">Бир йўла тўлаш</p>
+                    </div>
+
+                    <!-- 2-5: Show same 5 metrics for muddatli emas -->
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-blue-700 mb-1">
+                            {{ number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
+                    </div>
+
+                    <!-- For muddatli emas: Grafik = Expected (no schedule) -->
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Графикда тушадиган</h3>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-purple-700 mb-1">
+                            {{ number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500">Бир йўла тўлов (график йўқ)</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Амалда тўланган</h3>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-green-700 mb-2">
+                            {{ number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2) }} млрд</p>
+                        <div class="flex items-center">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
+                                <div class="bg-green-600 h-2.5 rounded-full transition-all duration-500"
+                                    style="width: {{ min(100, $summaryMuddatliEmas['payment_percentage']) }}%"></div>
+                            </div>
+                            <span
+                                class="text-sm font-bold text-green-600">{{ number_format($summaryMuddatliEmas['payment_percentage'], 1) }}%</span>
+                        </div>
+                    </div>
+
+                    @php
+                        $muddatiOtganMuddatliEmas = max(
+                            0,
+                            $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
+                        );
+                    @endphp
+                    <div
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган</h3>
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-orange-700 mb-1">
+                            {{ number_format($muddatiOtganMuddatliEmas / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500">Тўланмаган маблағ</p>
+                    </div>
+                </div>
+
+                <!-- Charts - Муддатли эмас -->
+                <div class="grid grid-cols-1 gap-6 mb-8">
+                    <!-- Monthly Payment Trend -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                            </svg>
+                            Тўловлар динамикаси (ойлар кесимида)
+                        </h3>
+                        <div class="h-72">
+                            <canvas id="monthlyMuddatliEmasChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Tuman Comparison -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Тўловлар динамикаси (туманлар кесимида)
+                        </h3>
+                        <div class="h-[32rem]">
+                            <canvas id="tumanMuddatliEmasChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Statistics Table - Муддатли эмас -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-6">Туманлар бўйича батафсил статистика</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-green-50 border-b-2 border-green-200">
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">Ҳудуд номи
+                                    </th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Лотлар
+                                        сони</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Тушадиган
+                                        маблағ</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Тушган
+                                        маблағ</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Фарқи</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Фоизда
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                @foreach ($tumanStatsMuddatliEmas as $stat)
+                                    <tr class="hover:bg-green-50 transition-colors">
+                                        <td class="px-4 py-3 text-sm font-semibold text-slate-800">{{ $stat['tuman'] }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
+                                                {{ number_format($stat['lots']) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-right text-sm font-semibold text-blue-600">
+                                            {{ number_format($stat['expected'] / 1000000000, 2) }}</td>
+                                        <td class="px-4 py-3 text-right text-sm font-semibold text-green-600">
+                                            {{ number_format($stat['received'] / 1000000000, 2) }}</td>
+                                        <td
+                                            class="px-4 py-3 text-right text-sm font-semibold {{ $stat['difference'] > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                            {{ number_format($stat['difference'] / 1000000000, 2) }}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <div class="w-24 bg-slate-200 rounded-full h-2">
+                                                    <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
+                                                        style="width: {{ min($stat['percentage'], 100) }}%"></div>
+                                                </div>
+                                                <span
+                                                    class="text-sm font-bold text-green-600">{{ number_format($stat['percentage'], 1) }}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot
+                                class="bg-gradient-to-r from-yellow-50 to-yellow-100 border-t-2 border-yellow-300 font-bold">
+                                <tr>
+                                    <td class="px-4 py-3 text-sm text-slate-800">ЖАМИ</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-200 text-red-900">
+                                            {{ number_format(collect($tumanStatsMuddatliEmas)->sum('lots')) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-sm text-blue-700">
+                                        {{ number_format(collect($tumanStatsMuddatliEmas)->sum('expected') / 1000000000, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-sm text-green-700">
+                                        @php
+                                            $totalExpected = collect($tumanStatsMuddatliEmas)->sum('expected');
+                                            $totalReceived = collect($tumanStatsMuddatliEmas)->sum('received');
+                                            $percentageEmas =
+                                                $totalExpected > 0 ? ($totalReceived / $totalExpected) * 100 : 0;
+                                        @endphp
+                                        {{ number_format($percentageEmas, 1) }}%
+                                    </td>
+                                    <td
+                                        class="px-4 py-3 text-right text-sm {{ collect($tumanStatsMuddatliEmas)->sum('difference') > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                        {{ number_format(collect($tumanStatsMuddatliEmas)->sum('difference') / 1000000000, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-sm text-green-700">
+                                        {{ number_format((collect($tumanStatsMuddatliEmas)->sum('received') / collect($tumanStatsMuddatliEmas)->sum('expected')) * 100, 1) }}%
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             </div>
+
         </div>
-
     </div>
-</div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js">
+    </script>
 
-<script>
-// Period filter functions
-function changePeriod(period) {
-    document.getElementById('periodInput').value = period;
+    <script>
+        // Period filter functions
+        function changePeriod(period) {
+            document.getElementById('periodInput').value = period;
 
-    const detailFilters = document.getElementById('detailFilters');
-    if (period === 'all') {
-        detailFilters.style.display = 'none';
-        document.getElementById('filterForm').submit();
-    } else {
-        detailFilters.style.display = 'grid';
-        document.getElementById('filterForm').submit();
-    }
-}
-
-// Tab switching functions
-function switchTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.style.display = 'none';
-    });
-
-    // Show selected tab content
-    document.getElementById('content-' + tabName).style.display = 'block';
-
-    // Update tab button styles
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.style.background = 'white';
-        button.style.color = 'rgb(71, 85, 105)';
-    });
-
-    const activeTab = document.getElementById('tab-' + tabName);
-    if (tabName === 'muddatli') {
-        activeTab.style.background = 'linear-gradient(to right, rgb(37, 99, 235), rgb(29, 78, 216))';
-    } else {
-        activeTab.style.background = 'linear-gradient(to right, rgb(34, 197, 94), rgb(22, 163, 74))';
-    }
-    activeTab.style.color = 'white';
-}
-
-// Register datalabels plugin globally
-Chart.register(ChartDataLabels);
-
-// Disable datalabels by default
-Chart.defaults.set('plugins.datalabels', {
-    display: false
-});
-
-// Payment Status Distribution Chart (Муддатли only)
-const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
-new Chart(paymentStatusCtx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Тўлиқ тўланган', 'Назоратда', 'График ортда', 'Аукционда'],
-        datasets: [{
-            data: [
-                {{ $chartData['status']['completed'] }},
-                {{ $chartData['status']['under_control'] }},
-                {{ $chartData['status']['overdue'] }},
-                {{ $chartData['status']['auction'] }}
-            ],
-            backgroundColor: [
-                'rgb(34, 197, 94)',
-                'rgb(59, 130, 246)',
-                'rgb(239, 68, 68)',
-                'rgb(156, 163, 175)'
-            ],
-            borderWidth: 3,
-            borderColor: '#fff',
-            hoverOffset: 8
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            datalabels: {
-                display: true,
-                color: '#fff',
-                font: {
-                    weight: 'bold',
-                    size: 14
-                },
-                formatter: function(value, context) {
-                    return value;
-                }
-            },
-            legend: {
-                position: 'bottom',
-                labels: {
-                    font: { size: 11, weight: 'bold' },
-                    color: '#000',
-                    padding: 12,
-                    usePointStyle: true,
-                    pointStyle: 'circle'
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                padding: 12,
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 },
-                callbacks: {
-                    label: function(context) {
-                        let label = context.label || '';
-                        let value = context.parsed || 0;
-                        let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        let percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                        return label + ': ' + value + ' дона (' + percentage + '%)';
-                    }
-                }
-            }
-        },
-        cutout: '65%'
-    }
-});
-
-// Monthly Comparison Chart - Муддатли
-const monthlyCtx = document.getElementById('monthlyComparisonChart').getContext('2d');
-new Chart(monthlyCtx, {
-    type: 'line',
-    data: {
-        labels: {!! json_encode($chartData['monthly_muddatli']['labels']) !!},
-        datasets: [{
-            label: 'График',
-            data: {!! json_encode($chartData['monthly_muddatli']['grafik']) !!},
-            borderColor: 'rgb(239, 68, 68)',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            tension: 0.4,
-            fill: true,
-            borderWidth: 3,
-            pointRadius: 4,
-            pointHoverRadius: 6
-        }, {
-            label: 'Факт',
-            data: {!! json_encode($chartData['monthly_muddatli']['fakt']) !!},
-            borderColor: 'rgb(29, 78, 216)',
-            backgroundColor: 'rgba(29, 78, 216, 0.1)',
-            tension: 0.4,
-            fill: true,
-            borderWidth: 3,
-            pointRadius: 4,
-            pointHoverRadius: 6
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-            mode: 'index',
-            intersect: false
-        },
-        plugins: {
-            datalabels: {
-                display: true,
-                align: 'top',
-                color: function(context) {
-                    return context.datasetIndex === 0 ? 'rgb(239, 68, 68)' : 'rgb(29, 78, 216)';
-                },
-                font: {
-                    weight: 'bold',
-                    size: 10
-                },
-                formatter: function(value) {
-                    return value.toFixed(2);
-                }
-            },
-            legend: {
-                labels: {
-                    font: { size: 13, weight: 'bold' },
-                    color: '#000',
-                    padding: 15,
-                    usePointStyle: true
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                padding: 12,
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 },
-                callbacks: {
-                    label: function(context) {
-                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
-                    }
-                }
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return value.toFixed(1) + ' млрд';
-                    },
-                    font: { weight: 'bold', size: 11 },
-                    color: '#000'
-                },
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                }
-            },
-            x: {
-                ticks: {
-                    font: { weight: 'bold', size: 10 },
-                    color: '#000',
-                    maxRotation: 45,
-                    minRotation: 45
-                },
-                grid: {
-                    display: false
-                }
+            const detailFilters = document.getElementById('detailFilters');
+            if (period === 'all') {
+                detailFilters.style.display = 'none';
+                document.getElementById('filterForm').submit();
+            } else {
+                detailFilters.style.display = 'grid';
+                document.getElementById('filterForm').submit();
             }
         }
-    }
-});
 
-// Tuman Comparison Chart - Муддатли
-const tumanCtx = document.getElementById('tumanComparisonChart').getContext('2d');
-new Chart(tumanCtx, {
-    type: 'bar',
-    data: {
-        labels: {!! json_encode($chartData['tuman_muddatli']['labels']) !!},
-        datasets: [{
-            label: 'График',
-            data: {!! json_encode($chartData['tuman_muddatli']['grafik']) !!},
-            backgroundColor: 'rgba(239, 68, 68, 0.8)',
-            borderColor: 'rgb(239, 68, 68)',
-            borderWidth: 2,
-            borderRadius: 6,
-            borderSkipped: false
-        }, {
-            label: 'Факт',
-            data: {!! json_encode($chartData['tuman_muddatli']['fakt']) !!},
-            backgroundColor: 'rgba(29, 78, 216, 0.8)',
-            borderColor: 'rgb(29, 78, 216)',
-            borderWidth: 2,
-            borderRadius: 6,
-            borderSkipped: false
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-            mode: 'index',
-            intersect: false
-        },
-        plugins: {
-            datalabels: {
-                display: true,
-                align: 'end',
-                anchor: 'end',
-                color: function(context) {
-                    return context.datasetIndex === 0 ? 'rgb(239, 68, 68)' : 'rgb(29, 78, 216)';
-                },
-                font: {
-                    weight: 'bold',
-                    size: 9
-                },
-                formatter: function(value) {
-                    return value.toFixed(2);
-                }
+        // Tab switching functions
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            // Show selected tab content
+            document.getElementById('content-' + tabName).style.display = 'block';
+
+            // Update tab button styles
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.style.background = 'white';
+                button.style.color = 'rgb(71, 85, 105)';
+            });
+
+            const activeTab = document.getElementById('tab-' + tabName);
+            if (tabName === 'muddatli') {
+                activeTab.style.background = 'linear-gradient(to right, rgb(37, 99, 235), rgb(29, 78, 216))';
+            } else {
+                activeTab.style.background = 'linear-gradient(to right, rgb(34, 197, 94), rgb(22, 163, 74))';
+            }
+            activeTab.style.color = 'white';
+        }
+
+        // Register datalabels plugin globally
+        Chart.register(ChartDataLabels);
+
+        // Disable datalabels by default
+        Chart.defaults.set('plugins.datalabels', {
+            display: false
+        });
+
+        // Payment Status Distribution Chart (Муддатли only)
+        const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
+        new Chart(paymentStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Тўлиқ тўланган', 'Назоратда', 'График ортда', 'Аукционда'],
+                datasets: [{
+                    data: [
+                        {{ $chartData['status']['completed'] }},
+                        {{ $chartData['status']['under_control'] }},
+                        {{ $chartData['status']['overdue'] }},
+                        {{ $chartData['status']['auction'] }}
+                    ],
+                    backgroundColor: [
+                        'rgb(34, 197, 94)',
+                        'rgb(59, 130, 246)',
+                        'rgb(239, 68, 68)',
+                        'rgb(156, 163, 175)'
+                    ],
+                    borderWidth: 3,
+                    borderColor: '#fff',
+                    hoverOffset: 8
+                }]
             },
-            legend: {
-                labels: {
-                    font: { size: 13, weight: 'bold' },
-                    color: '#000',
-                    padding: 15,
-                    usePointStyle: true
-                }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: function(value, context) {
+                            return value;
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 11,
+                                weight: 'bold'
+                            },
+                            color: '#000',
+                            padding: 12,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.parsed || 0;
+                                let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return label + ': ' + value + ' дона (' + percentage + '%)';
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+
+        // Monthly Comparison Chart - Муддатли
+        const monthlyCtx = document.getElementById('monthlyComparisonChart').getContext('2d');
+        new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartData['monthly_muddatli']['labels']) !!},
+                datasets: [{
+                    label: 'График',
+                    data: {!! json_encode($chartData['monthly_muddatli']['grafik']) !!},
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Факт',
+                    data: {!! json_encode($chartData['monthly_muddatli']['fakt']) !!},
+                    borderColor: 'rgb(29, 78, 216)',
+                    backgroundColor: 'rgba(29, 78, 216, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
             },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                padding: 12,
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 },
-                callbacks: {
-                    label: function(context) {
-                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        align: 'top',
+                        color: function(context) {
+                            return context.datasetIndex === 0 ? 'rgb(239, 68, 68)' : 'rgb(29, 78, 216)';
+                        },
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: function(value) {
+                            return value.toFixed(2);
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            },
+                            color: '#000',
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + ' млрд';
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
+                            color: '#000'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                weight: 'bold',
+                                size: 10
+                            },
+                            color: '#000',
+                            maxRotation: 45,
+                            minRotation: 45
+                        },
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return value.toFixed(1) + ' млрд';
-                    },
-                    font: { weight: 'bold', size: 11 },
-                    color: '#000'
-                },
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                }
-            },
-            x: {
-                ticks: {
-                    font: { weight: 'bold', size: 9 },
-                    color: '#000',
-                    maxRotation: 45,
-                    minRotation: 45
-                },
-                grid: {
-                    display: false
-                }
-            }
-        }
-    }
-});
+        });
 
-// Monthly Chart - Муддатли эмас
-const monthlyMuddatliEmasCtx = document.getElementById('monthlyMuddatliEmasChart').getContext('2d');
-new Chart(monthlyMuddatliEmasCtx, {
-    type: 'line',
-    data: {
-        labels: {!! json_encode($chartData['monthly_muddatli_emas']['labels']) !!},
-        datasets: [{
-            label: 'Тушган маблағ',
-            data: {!! json_encode($chartData['monthly_muddatli_emas']['received']) !!},
-            borderColor: 'rgb(34, 197, 94)',
-            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-            tension: 0.4,
-            fill: true,
-            borderWidth: 3,
-            pointRadius: 4,
-            pointHoverRadius: 6
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-            mode: 'index',
-            intersect: false
-        },
-        plugins: {
-            datalabels: {
-                display: true,
-                align: 'top',
-                color: 'rgb(34, 197, 94)',
-                font: {
-                    weight: 'bold',
-                    size: 10
+        // Tuman Comparison Chart - Муддатли
+        const tumanCtx = document.getElementById('tumanComparisonChart').getContext('2d');
+        new Chart(tumanCtx, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($chartData['tuman_muddatli']['labels']) !!},
+                datasets: [{
+                    label: 'График',
+                    data: {!! json_encode($chartData['tuman_muddatli']['grafik']) !!},
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    borderColor: 'rgb(239, 68, 68)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }, {
+                    label: 'Факт',
+                    data: {!! json_encode($chartData['tuman_muddatli']['fakt']) !!},
+                    backgroundColor: 'rgba(29, 78, 216, 0.8)',
+                    borderColor: 'rgb(29, 78, 216)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
                 },
-                formatter: function(value) {
-                    return value.toFixed(2);
-                }
-            },
-            legend: {
-                labels: {
-                    font: { size: 13, weight: 'bold' },
-                    color: '#000',
-                    padding: 15,
-                    usePointStyle: true
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                padding: 12,
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 },
-                callbacks: {
-                    label: function(context) {
-                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        align: 'end',
+                        anchor: 'end',
+                        color: function(context) {
+                            return context.datasetIndex === 0 ? 'rgb(239, 68, 68)' : 'rgb(29, 78, 216)';
+                        },
+                        font: {
+                            weight: 'bold',
+                            size: 9
+                        },
+                        formatter: function(value) {
+                            return value.toFixed(2);
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            },
+                            color: '#000',
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + ' млрд';
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
+                            color: '#000'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                weight: 'bold',
+                                size: 9
+                            },
+                            color: '#000',
+                            maxRotation: 45,
+                            minRotation: 45
+                        },
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return value.toFixed(1) + ' млрд';
-                    },
-                    font: { weight: 'bold', size: 11 },
-                    color: '#000'
-                },
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                }
-            },
-            x: {
-                ticks: {
-                    font: { weight: 'bold', size: 10 },
-                    color: '#000',
-                    maxRotation: 45,
-                    minRotation: 45
-                },
-                grid: {
-                    display: false
-                }
-            }
-        }
-    }
-});
+        });
 
-// Tuman Comparison Chart - Муддатли эмас
-const tumanMuddatliEmasCtx = document.getElementById('tumanMuddatliEmasChart').getContext('2d');
-new Chart(tumanMuddatliEmasCtx, {
-    type: 'bar',
-    data: {
-        labels: {!! json_encode($chartData['tuman_muddatli_emas']['labels']) !!},
-        datasets: [{
-            label: 'Тушадиган',
-            data: {!! json_encode($chartData['tuman_muddatli_emas']['expected']) !!},
-            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-            borderColor: 'rgb(59, 130, 246)',
-            borderWidth: 2,
-            borderRadius: 6,
-            borderSkipped: false
-        }, {
-            label: 'Тушган',
-            data: {!! json_encode($chartData['tuman_muddatli_emas']['received']) !!},
-            backgroundColor: 'rgba(34, 197, 94, 0.8)',
-            borderColor: 'rgb(34, 197, 94)',
-            borderWidth: 2,
-            borderRadius: 6,
-            borderSkipped: false
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-            mode: 'index',
-            intersect: false
-        },
-        plugins: {
-            datalabels: {
-                display: true,
-                align: 'end',
-                anchor: 'end',
-                color: function(context) {
-                    return context.datasetIndex === 0 ? 'rgb(59, 130, 246)' : 'rgb(34, 197, 94)';
-                },
-                font: {
-                    weight: 'bold',
-                    size: 9
-                },
-                formatter: function(value) {
-                    return value.toFixed(2);
-                }
+        // Monthly Chart - Муддатли эмас
+        const monthlyMuddatliEmasCtx = document.getElementById('monthlyMuddatliEmasChart').getContext('2d');
+        new Chart(monthlyMuddatliEmasCtx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartData['monthly_muddatli_emas']['labels']) !!},
+                datasets: [{
+                    label: 'Тушган маблағ',
+                    data: {!! json_encode($chartData['monthly_muddatli_emas']['received']) !!},
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
             },
-            legend: {
-                labels: {
-                    font: { size: 13, weight: 'bold' },
-                    color: '#000',
-                    padding: 15,
-                    usePointStyle: true
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                padding: 12,
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 },
-                callbacks: {
-                    label: function(context) {
-                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        align: 'top',
+                        color: 'rgb(34, 197, 94)',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: function(value) {
+                            return value.toFixed(2);
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            },
+                            color: '#000',
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + ' млрд';
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
+                            color: '#000'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                weight: 'bold',
+                                size: 10
+                            },
+                            color: '#000',
+                            maxRotation: 45,
+                            minRotation: 45
+                        },
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return value.toFixed(1) + ' млрд';
-                    },
-                    font: { weight: 'bold', size: 11 },
-                    color: '#000'
-                },
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                }
+        });
+
+        // Tuman Comparison Chart - Муддатли эмас
+        const tumanMuddatliEmasCtx = document.getElementById('tumanMuddatliEmasChart').getContext('2d');
+        new Chart(tumanMuddatliEmasCtx, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($chartData['tuman_muddatli_emas']['labels']) !!},
+                datasets: [{
+                    label: 'Тушадиган',
+                    data: {!! json_encode($chartData['tuman_muddatli_emas']['expected']) !!},
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }, {
+                    label: 'Тушган',
+                    data: {!! json_encode($chartData['tuman_muddatli_emas']['received']) !!},
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
             },
-            x: {
-                ticks: {
-                    font: { weight: 'bold', size: 9 },
-                    color: '#000',
-                    maxRotation: 45,
-                    minRotation: 45
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
                 },
-                grid: {
-                    display: false
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        align: 'end',
+                        anchor: 'end',
+                        color: function(context) {
+                            return context.datasetIndex === 0 ? 'rgb(59, 130, 246)' : 'rgb(34, 197, 94)';
+                        },
+                        font: {
+                            weight: 'bold',
+                            size: 9
+                        },
+                        formatter: function(value) {
+                            return value.toFixed(2);
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            },
+                            color: '#000',
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' млрд';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + ' млрд';
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
+                            color: '#000'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                weight: 'bold',
+                                size: 9
+                            },
+                            color: '#000',
+                            maxRotation: 45,
+                            minRotation: 45
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
                 }
             }
+        });
+
+        // Animate progress bars on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('[style*="width:"]');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+    </script>
+
+    <style>
+        /* Tab button hover effects */
+        .tab-button {
+            position: relative;
+            overflow: hidden;
         }
-    }
-});
 
-// Animate progress bars on load
-document.addEventListener('DOMContentLoaded', function() {
-    const progressBars = document.querySelectorAll('[style*="width:"]');
-    progressBars.forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0%';
-        setTimeout(() => {
-            bar.style.width = width;
-        }, 100);
-    });
-});
-</script>
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
 
-<style>
-/* Tab button hover effects */
-.tab-button {
-    position: relative;
-    overflow: hidden;
-}
+        .tab-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
 
-.tab-button::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
+        /* Period filter button effects */
+        .period-filter-btn {
+            position: relative;
+            overflow: hidden;
+        }
 
-.tab-button:hover::before {
-    width: 300px;
-    height: 300px;
-}
+        .period-filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
 
-/* Period filter button effects */
-.period-filter-btn {
-    position: relative;
-    overflow: hidden;
-}
+        .period-filter-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
 
-.period-filter-btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(59, 130, 246, 0.1);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
+        /* Smooth transitions for cards */
+        .bg-white {
+            transition: all 0.3s ease;
+        }
 
-.period-filter-btn:hover::before {
-    width: 300px;
-    height: 300px;
-}
+        .hover\:shadow-xl:hover {
+            transform: translateY(-2px);
+        }
 
-/* Smooth transitions for cards */
-.bg-white {
-    transition: all 0.3s ease;
-}
+        /* Table row animation */
+        @keyframes fadeInRow {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-.hover\:shadow-xl:hover {
-    transform: translateY(-2px);
-}
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-/* Table row animation */
-@keyframes fadeInRow {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-tbody tr {
-    animation: fadeInRow 0.3s ease-in-out;
-}
-</style>
+        tbody tr {
+            animation: fadeInRow 0.3s ease-in-out;
+        }
+    </style>
 
 @endsection

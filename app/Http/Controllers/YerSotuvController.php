@@ -20,18 +20,18 @@ class YerSotuvController extends Controller
     /**
      * Display main statistics page (SVOD1)
      */
-public function index(Request $request)
-{
-    $dateFilters = [
-        'auksion_sana_from' => $request->auksion_sana_from,
-        'auksion_sana_to' => $request->auksion_sana_to,
-    ];
+    public function index(Request $request)
+    {
+        $dateFilters = [
+            'auksion_sana_from' => $request->auksion_sana_from,
+            'auksion_sana_to' => $request->auksion_sana_to,
+        ];
 
-    $statistics = $this->yerSotuvService->getDetailedStatistics($dateFilters);
-    $this->yerSotuvService->logDetailedStatisticsToFile($statistics);
+        $statistics = $this->yerSotuvService->getDetailedStatistics($dateFilters);
+        $this->yerSotuvService->logDetailedStatisticsToFile($statistics);
 
-    return view('yer-sotuvlar.statistics', compact('statistics', 'dateFilters'));
-}
+        return view('yer-sotuvlar.statistics', compact('statistics', 'dateFilters'));
+    }
     /**
      * Display SVOD3 statistics page (Bo'lib to'lash)
      */
@@ -130,16 +130,77 @@ public function index(Request $request)
             ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
     }
 
+    /**
+     * Process period filter into date range
+     */
+    private function processPeriodFilter(Request $request): array
+    {
+        $period = $request->period ?? 'all';
+        $year = $request->year ?? now()->year;
+        $month = $request->month ?? now()->month;
+        $quarter = $request->quarter ?? ceil(now()->month / 3);
+
+        $dateFilters = [
+            'auksion_sana_from' => null,
+            'auksion_sana_to' => null,
+        ];
+
+        switch ($period) {
+            case 'month':
+                // Filter by specific month
+                $dateFilters['auksion_sana_from'] = date('Y-m-01', strtotime("{$year}-{$month}-01"));
+                $dateFilters['auksion_sana_to'] = date('Y-m-t', strtotime("{$year}-{$month}-01"));
+                break;
+
+            case 'quarter':
+                // Filter by quarter
+                $quarterMonths = [
+                    1 => [1, 3],
+                    2 => [4, 6],
+                    3 => [7, 9],
+                    4 => [10, 12]
+                ];
+
+                $startMonth = $quarterMonths[$quarter][0];
+                $endMonth = $quarterMonths[$quarter][1];
+
+                $dateFilters['auksion_sana_from'] = date('Y-m-01', strtotime("{$year}-{$startMonth}-01"));
+                $dateFilters['auksion_sana_to'] = date('Y-m-t', strtotime("{$year}-{$endMonth}-01"));
+                break;
+
+            case 'year':
+                // Filter by year
+                $dateFilters['auksion_sana_from'] = "{$year}-01-01";
+                $dateFilters['auksion_sana_to'] = "{$year}-12-31";
+                break;
+
+            case 'all':
+            default:
+                // No date filter - show all data
+                $dateFilters['auksion_sana_from'] = null;
+                $dateFilters['auksion_sana_to'] = null;
+                break;
+        }
+
+        \Log::info('Period Filter Processed', [
+            'period' => $period,
+            'year' => $year,
+            'month' => $month,
+            'quarter' => $quarter,
+            'date_filters' => $dateFilters
+        ]);
+
+        return $dateFilters;
+    }
 
     /**
      * Display monitoring and analytics page
+     * UPDATED VERSION with period filter support
      */
     public function monitoring(Request $request)
     {
-        $dateFilters = [
-            'auksion_sana_from' => $request->auksion_sana_from,
-            'auksion_sana_to' => $request->auksion_sana_to,
-        ];
+        // Process period filter to convert to date range
+        $dateFilters = $this->processPeriodFilter($request);
 
         // Get all tumanlar
         $tumanlar = [
@@ -200,16 +261,24 @@ public function index(Request $request)
         // Prepare chart data
         $chartData = $this->prepareChartData($tumanStatsMuddatli, $tumanStatsMuddatliEmas, $dateFilters);
 
+        // Pass period info to view
+        $periodInfo = [
+            'period' => $request->period ?? 'all',
+            'year' => $request->year ?? now()->year,
+            'month' => $request->month ?? now()->month,
+            'quarter' => $request->quarter ?? ceil(now()->month / 3)
+        ];
+
         return view('yer-sotuvlar.monitoring', compact(
             'summaryMuddatli',
             'summaryMuddatliEmas',
             'tumanStatsMuddatli',
             'tumanStatsMuddatliEmas',
             'chartData',
-            'dateFilters'
+            'dateFilters',
+            'periodInfo'
         ));
     }
-
 
     /**
      * Calculate monitoring summary
@@ -660,189 +729,197 @@ public function index(Request $request)
         return view('yer-sotuvlar.list', compact('yerlar', 'tumanlar', 'yillar', 'filters', 'statistics'));
     }
 
-/**
- * Show create form
- */
-public function create()
-{
-    // Get distinct values for select options
-    $tumanlar = YerSotuv::select('tuman')
-        ->distinct()
-        ->whereNotNull('tuman')
-        ->orderBy('tuman')
-        ->pluck('tuman');
+    /**
+     * Show create form
+     */
+    public function create()
+    {
+        // Get distinct values for select options
+        $tumanlar = YerSotuv::select('tuman')
+            ->distinct()
+            ->whereNotNull('tuman')
+            ->orderBy('tuman')
+            ->pluck('tuman');
 
-    $mfylar = YerSotuv::select('mfy')
-        ->distinct()
-        ->whereNotNull('mfy')
-        ->orderBy('mfy')
-        ->pluck('mfy');
+        $mfylar = YerSotuv::select('mfy')
+            ->distinct()
+            ->whereNotNull('mfy')
+            ->orderBy('mfy')
+            ->pluck('mfy');
 
-    $zonalar = YerSotuv::select('zona')
-        ->distinct()
-        ->whereNotNull('zona')
-        ->orderBy('zona')
-        ->pluck('zona');
+        $zonalar = YerSotuv::select('zona')
+            ->distinct()
+            ->whereNotNull('zona')
+            ->orderBy('zona')
+            ->pluck('zona');
 
-    $boshRejaZonalari = YerSotuv::select('bosh_reja_zona')
-        ->distinct()
-        ->whereNotNull('bosh_reja_zona')
-        ->orderBy('bosh_reja_zona')
-        ->pluck('bosh_reja_zona');
+        $boshRejaZonalari = YerSotuv::select('bosh_reja_zona')
+            ->distinct()
+            ->whereNotNull('bosh_reja_zona')
+            ->orderBy('bosh_reja_zona')
+            ->pluck('bosh_reja_zona');
 
-    $yangiOzbekiston = YerSotuv::select('yangi_ozbekiston')
-        ->distinct()
-        ->whereNotNull('yangi_ozbekiston')
-        ->orderBy('yangi_ozbekiston')
-        ->pluck('yangi_ozbekiston');
+        $yangiOzbekiston = YerSotuv::select('yangi_ozbekiston')
+            ->distinct()
+            ->whereNotNull('yangi_ozbekiston')
+            ->orderBy('yangi_ozbekiston')
+            ->pluck('yangi_ozbekiston');
 
-    $qurilishTurlari1 = YerSotuv::select('qurilish_turi_1')
-        ->distinct()
-        ->whereNotNull('qurilish_turi_1')
-        ->orderBy('qurilish_turi_1')
-        ->pluck('qurilish_turi_1');
+        $qurilishTurlari1 = YerSotuv::select('qurilish_turi_1')
+            ->distinct()
+            ->whereNotNull('qurilish_turi_1')
+            ->orderBy('qurilish_turi_1')
+            ->pluck('qurilish_turi_1');
 
-    $qurilishTurlari2 = YerSotuv::select('qurilish_turi_2')
-        ->distinct()
-        ->whereNotNull('qurilish_turi_2')
-        ->orderBy('qurilish_turi_2')
-        ->pluck('qurilish_turi_2');
+        $qurilishTurlari2 = YerSotuv::select('qurilish_turi_2')
+            ->distinct()
+            ->whereNotNull('qurilish_turi_2')
+            ->orderBy('qurilish_turi_2')
+            ->pluck('qurilish_turi_2');
 
-    $asoslar = YerSotuv::select('asos')
-        ->distinct()
-        ->whereNotNull('asos')
-        ->orderBy('asos')
-        ->pluck('asos');
+        $asoslar = YerSotuv::select('asos')
+            ->distinct()
+            ->whereNotNull('asos')
+            ->orderBy('asos')
+            ->pluck('asos');
 
-    $holatlar = YerSotuv::select('holat')
-        ->distinct()
-        ->whereNotNull('holat')
-        ->orderBy('holat')
-        ->pluck('holat');
+        $holatlar = YerSotuv::select('holat')
+            ->distinct()
+            ->whereNotNull('holat')
+            ->orderBy('holat')
+            ->pluck('holat');
 
-    return view('yer-sotuvlar.create', compact(
-        'tumanlar',
-        'mfylar',
-        'zonalar',
-        'boshRejaZonalari',
-        'yangiOzbekiston',
-        'qurilishTurlari1',
-        'qurilishTurlari2',
-        'asoslar',
-        'holatlar'
-    ));
-}
-
-/**
- * Store new yer sotuv
- */
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'lot_raqami' => 'required|string|unique:yer_sotuvlar,lot_raqami',
-        'tuman' => 'nullable|string',
-        'mfy' => 'nullable|string',
-        'manzil' => 'nullable|string',
-        'unikal_raqam' => 'nullable|string',
-        'zona' => 'nullable|string',
-        'bosh_reja_zona' => 'nullable|string',
-        'yangi_ozbekiston' => 'nullable|string',
-        'maydoni' => 'nullable|numeric',
-        'yil' => 'nullable|integer',
-        'lokatsiya' => 'nullable|string',
-        'qurilish_turi_1' => 'nullable|string',
-        'qurilish_turi_2' => 'nullable|string',
-        'qurilish_maydoni' => 'nullable|numeric',
-        'investitsiya' => 'nullable|numeric',
-        'boshlangich_narx' => 'nullable|numeric',
-        'auksion_sana' => 'nullable|date',
-        'sotilgan_narx' => 'nullable|numeric',
-        'auksion_golibi' => 'nullable|string',
-        'golib_turi' => 'nullable|string',
-        'golib_nomi' => 'nullable|string',
-        'telefon' => 'nullable|string',
-        'tolov_turi' => 'nullable|string',
-        'asos' => 'nullable|string',
-        'auksion_turi' => 'nullable|string',
-        'holat' => 'nullable|string',
-        'shartnoma_holati' => 'nullable|string',
-        'shartnoma_sana' => 'nullable|date',
-        'shartnoma_raqam' => 'nullable|string',
-        'golib_tolagan' => 'nullable|numeric',
-        'buyurtmachiga_otkazilgan' => 'nullable|numeric',
-        'chegirma' => 'nullable|numeric',
-        'auksion_harajati' => 'nullable|numeric',
-        'tushadigan_mablagh' => 'nullable|numeric',
-        'davaktiv_jamgarmasi' => 'nullable|numeric',
-        'shartnoma_tushgan' => 'nullable|numeric',
-        'davaktivda_turgan' => 'nullable|numeric',
-        'yer_auksion_harajat' => 'nullable|numeric',
-        'shartnoma_summasi' => 'nullable|numeric',
-        'farqi' => 'nullable|numeric',
-        'grafik_data' => 'nullable|array',
-        'grafik_data.*.yil' => 'nullable|integer',
-        'grafik_data.*.oy' => 'nullable|integer|min:1|max:12',
-        'grafik_data.*.summa' => 'nullable|numeric',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        // Create yer sotuv record
-        $yer = YerSotuv::create($validated);
-
-        // If tolov_turi is "муддатли" AND grafik_data exists, create grafik tolovlar
-        if ($request->tolov_turi === 'муддатли' && $request->has('grafik_data') && is_array($request->grafik_data)) {
-            $this->createGrafikTolovlar($yer, $request->grafik_data);
-        }
-
-        DB::commit();
-
-        return redirect()->route('yer-sotuvlar.show', $yer->lot_raqami)
-            ->with('success', 'Ер участка муваффақиятли қўшилди!');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('Error creating yer sotuv: ' . $e->getMessage());
-
-        return redirect()->back()
-            ->withInput()
-            ->with('error', 'Хатолик юз берди: ' . $e->getMessage());
+        return view('yer-sotuvlar.create', compact(
+            'tumanlar',
+            'mfylar',
+            'zonalar',
+            'boshRejaZonalari',
+            'yangiOzbekiston',
+            'qurilishTurlari1',
+            'qurilishTurlari2',
+            'asoslar',
+            'holatlar'
+        ));
     }
-}
 
-/**
- * Create grafik tolovlar for a yer sotuv
- */
-private function createGrafikTolovlar(YerSotuv $yer, array $grafikData)
-{
-    $oyNomlari = [
-        1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
-        5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
-        9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
-    ];
-
-    foreach ($grafikData as $item) {
-        // Skip empty rows
-        if (empty($item['yil']) || empty($item['oy']) || empty($item['summa'])) {
-            continue;
-        }
-
-        GrafikTolov::create([
-            'yer_sotuv_id' => $yer->id,
-            'lot_raqami' => $yer->lot_raqami,
-            'yil' => $item['yil'],
-            'oy' => $item['oy'],
-            'oy_nomi' => $oyNomlari[$item['oy']] ?? '',
-            'grafik_summa' => $item['summa'],
+    /**
+     * Store new yer sotuv
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'lot_raqami' => 'required|string|unique:yer_sotuvlar,lot_raqami',
+            'tuman' => 'nullable|string',
+            'mfy' => 'nullable|string',
+            'manzil' => 'nullable|string',
+            'unikal_raqam' => 'nullable|string',
+            'zona' => 'nullable|string',
+            'bosh_reja_zona' => 'nullable|string',
+            'yangi_ozbekiston' => 'nullable|string',
+            'maydoni' => 'nullable|numeric',
+            'yil' => 'nullable|integer',
+            'lokatsiya' => 'nullable|string',
+            'qurilish_turi_1' => 'nullable|string',
+            'qurilish_turi_2' => 'nullable|string',
+            'qurilish_maydoni' => 'nullable|numeric',
+            'investitsiya' => 'nullable|numeric',
+            'boshlangich_narx' => 'nullable|numeric',
+            'auksion_sana' => 'nullable|date',
+            'sotilgan_narx' => 'nullable|numeric',
+            'auksion_golibi' => 'nullable|string',
+            'golib_turi' => 'nullable|string',
+            'golib_nomi' => 'nullable|string',
+            'telefon' => 'nullable|string',
+            'tolov_turi' => 'nullable|string',
+            'asos' => 'nullable|string',
+            'auksion_turi' => 'nullable|string',
+            'holat' => 'nullable|string',
+            'shartnoma_holati' => 'nullable|string',
+            'shartnoma_sana' => 'nullable|date',
+            'shartnoma_raqam' => 'nullable|string',
+            'golib_tolagan' => 'nullable|numeric',
+            'buyurtmachiga_otkazilgan' => 'nullable|numeric',
+            'chegirma' => 'nullable|numeric',
+            'auksion_harajati' => 'nullable|numeric',
+            'tushadigan_mablagh' => 'nullable|numeric',
+            'davaktiv_jamgarmasi' => 'nullable|numeric',
+            'shartnoma_tushgan' => 'nullable|numeric',
+            'davaktivda_turgan' => 'nullable|numeric',
+            'yer_auksion_harajat' => 'nullable|numeric',
+            'shartnoma_summasi' => 'nullable|numeric',
+            'farqi' => 'nullable|numeric',
+            'grafik_data' => 'nullable|array',
+            'grafik_data.*.yil' => 'nullable|integer',
+            'grafik_data.*.oy' => 'nullable|integer|min:1|max:12',
+            'grafik_data.*.summa' => 'nullable|numeric',
         ]);
-    }
-}
 
-/**
+        DB::beginTransaction();
+
+        try {
+            // Create yer sotuv record
+            $yer = YerSotuv::create($validated);
+
+            // If tolov_turi is "муддатли" AND grafik_data exists, create grafik tolovlar
+            if ($request->tolov_turi === 'муддатли' && $request->has('grafik_data') && is_array($request->grafik_data)) {
+                $this->createGrafikTolovlar($yer, $request->grafik_data);
+            }
+
+            DB::commit();
+
+            return redirect()->route('yer-sotuvlar.show', $yer->lot_raqami)
+                ->with('success', 'Ер участка муваффақиятли қўшилди!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error creating yer sotuv: ' . $e->getMessage());
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Хатолик юз берди: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Create grafik tolovlar for a yer sotuv
+     */
+    private function createGrafikTolovlar(YerSotuv $yer, array $grafikData)
+    {
+        $oyNomlari = [
+            1 => 'Январь',
+            2 => 'Февраль',
+            3 => 'Март',
+            4 => 'Апрель',
+            5 => 'Май',
+            6 => 'Июнь',
+            7 => 'Июль',
+            8 => 'Август',
+            9 => 'Сентябрь',
+            10 => 'Октябрь',
+            11 => 'Ноябрь',
+            12 => 'Декабрь'
+        ];
+
+        foreach ($grafikData as $item) {
+            // Skip empty rows
+            if (empty($item['yil']) || empty($item['oy']) || empty($item['summa'])) {
+                continue;
+            }
+
+            GrafikTolov::create([
+                'yer_sotuv_id' => $yer->id,
+                'lot_raqami' => $yer->lot_raqami,
+                'yil' => $item['yil'],
+                'oy' => $item['oy'],
+                'oy_nomi' => $oyNomlari[$item['oy']] ?? '',
+                'grafik_summa' => $item['summa'],
+            ]);
+        }
+    }
+
+    /**
      * Display monthly comparative monitoring page
      */
-  public function monitoring_mirzayev(Request $request)
+    public function monitoring_mirzayev(Request $request)
     {
         // Get last month's last day as default
         $lastMonth = now()->subMonth()->endOfMonth();
@@ -866,9 +943,18 @@ private function createGrafikTolovlar(YerSotuv $yer, array $grafikData)
 
         // All months dictionary
         $allMonths = [
-            1 => 'Январь', 2 => 'Февраль', 3 => 'Март', 4 => 'Апрель',
-            5 => 'Май', 6 => 'Июнь', 7 => 'Июль', 8 => 'Август',
-            9 => 'Сентябрь', 10 => 'Октябрь', 11 => 'Ноябрь', 12 => 'Декабрь'
+            1 => 'Январь',
+            2 => 'Февраль',
+            3 => 'Март',
+            4 => 'Апрель',
+            5 => 'Май',
+            6 => 'Июнь',
+            7 => 'Июль',
+            8 => 'Август',
+            9 => 'Сентябрь',
+            10 => 'Октябрь',
+            11 => 'Ноябрь',
+            12 => 'Декабрь'
         ];
 
         // Determine which months to show based on selected year
@@ -908,5 +994,4 @@ private function createGrafikTolovlar(YerSotuv $yer, array $grafikData)
             'tolovTuriOptions'
         ));
     }
-
 }
