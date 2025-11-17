@@ -130,6 +130,44 @@ class YerSotuvController extends Controller
             ->with('success', 'Маълумотлар муваффақиятли янгиланди!');
     }
 
+
+    /**
+     * Calculate grafik tushadigan for muddatli with date filters
+     */
+    private function calculateGrafikTushadigan(array $dateFilters, string $tolovTuri): float
+    {
+        $query = YerSotuv::query();
+
+        // CRITICAL: Apply base filters and date filters
+        $this->yerSotuvService->applyBaseFilters($query);
+        $query->where('tolov_turi', $tolovTuri);
+        $this->yerSotuvService->applyDateFilters($query, $dateFilters);
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        if (empty($lotRaqamlari)) {
+            return 0;
+        }
+
+        // Use last month's end date as cutoff
+        $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
+
+        $grafikSumma = DB::table('grafik_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$cutoffDate])
+            ->sum('grafik_summa');
+
+        \Log::info('Grafik Tushadigan Calculation', [
+            'tolov_turi' => $tolovTuri,
+            'date_filters' => $dateFilters,
+            'lots_count' => count($lotRaqamlari),
+            'cutoff_date' => $cutoffDate,
+            'grafik_summa' => $grafikSumma
+        ]);
+
+        return $grafikSumma;
+    }
+
     /**
      * Process period filter into date range
      */
