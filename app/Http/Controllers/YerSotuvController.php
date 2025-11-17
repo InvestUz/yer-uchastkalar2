@@ -235,92 +235,100 @@ class YerSotuvController extends Controller
      * Display monitoring and analytics page
      * UPDATED VERSION with period filter support
      */
-    public function monitoring(Request $request)
-    {
-        // Process period filter to convert to date range
-        $dateFilters = $this->processPeriodFilter($request);
+    // In YerSotuvController.php - update the monitoring() method
 
-        // Get all tumanlar
-        $tumanlar = [
-            'Бектемир тумани',
-            'Мирзо Улуғбек тумани',
-            'Миробод тумани',
-            'Олмазор тумани',
-            'Сирғали тумани',
-            'Учтепа тумани',
-            'Чилонзор тумани',
-            'Шайхонтоҳур тумани',
-            'Юнусобод тумани',
-            'Яккасарой тумани',
-            'Янги ҳаёт тумани',
-            'Яшнобод тумани'
-        ];
+public function monitoring(Request $request)
+{
+    // Process period filter to convert to date range
+    $dateFilters = $this->processPeriodFilter($request);
 
-        // Calculate summary for both payment types
-        $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
-        $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
+    // Get all tumanlar
+    $tumanlar = [
+        'Бектемир тумани',
+        'Мирзо Улуғбек тумани',
+        'Миробод тумани',
+        'Олмазор тумани',
+        'Сирғали тумани',
+        'Учтепа тумани',
+        'Чилонзор тумани',
+        'Шайхонтоҳур тумани',
+        'Юнусобод тумани',
+        'Яккасарой тумани',
+        'Янги ҳаёт тумани',
+        'Яшнобод тумани'
+    ];
 
-        // CRITICAL: Calculate grafik tushadigan for muddatli (up to last month)
-        $grafikTushadiganMuddatli = $this->calculateGrafikTushadigan($dateFilters, 'муддатли');
+    // Calculate summary for both payment types
+    $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
+    $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
 
-        // Get tuman statistics for муддатли
-        $tumanStatsMuddatli = [];
-        foreach ($tumanlar as $tuman) {
-            $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
-            $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters, 'муддатли');
+    // CRITICAL: Calculate grafik tushadigan for muddatli (up to last month)
+    $grafikTushadiganMuddatli = $this->calculateGrafikTushadigan($dateFilters, 'муддатли');
 
-            if ($stats['lots'] > 0) {
-                $tumanStatsMuddatli[] = [
-                    'tuman' => $tuman,
-                    'lots' => $stats['lots'],
-                    'grafik' => $stats['grafik'],
-                    'fakt' => $stats['fakt'],
-                    'difference' => $stats['difference'],
-                    'percentage' => $stats['percentage']
-                ];
-            }
+    // NEW: Get detailed breakdown statistics from SVOD3 methods
+    $nazoratdagilar = $this->yerSotuvService->getNazoratdagilar(null, $dateFilters);
+    $grafikOrtda = $this->yerSotuvService->getGrafikOrtda(null, $dateFilters);
+
+    // Get tuman statistics for муддатли
+    $tumanStatsMuddatli = [];
+    foreach ($tumanlar as $tuman) {
+        $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
+        $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters, 'муддатли');
+
+        if ($stats['lots'] > 0) {
+            $tumanStatsMuddatli[] = [
+                'tuman' => $tuman,
+                'lots' => $stats['lots'],
+                'grafik' => $stats['grafik'],
+                'fakt' => $stats['fakt'],
+                'difference' => $stats['difference'],
+                'percentage' => $stats['percentage']
+            ];
         }
-
-        // Get tuman statistics for муддатли эмас
-        $tumanStatsMuddatliEmas = [];
-        foreach ($tumanlar as $tuman) {
-            $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
-            $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters, 'муддатли эмас');
-
-            if ($stats['lots'] > 0) {
-                $tumanStatsMuddatliEmas[] = [
-                    'tuman' => $tuman,
-                    'lots' => $stats['lots'],
-                    'expected' => $stats['expected'],
-                    'received' => $stats['received'],
-                    'difference' => $stats['difference'],
-                    'percentage' => $stats['percentage']
-                ];
-            }
-        }
-
-        // Prepare chart data
-        $chartData = $this->prepareChartData($tumanStatsMuddatli, $tumanStatsMuddatliEmas, $dateFilters);
-
-        // Pass period info to view
-        $periodInfo = [
-            'period' => $request->period ?? 'all',
-            'year' => $request->year ?? now()->year,
-            'month' => $request->month ?? now()->month,
-            'quarter' => $request->quarter ?? ceil(now()->month / 3)
-        ];
-
-        return view('yer-sotuvlar.monitoring', compact(
-            'summaryMuddatli',
-            'summaryMuddatliEmas',
-            'tumanStatsMuddatli',
-            'tumanStatsMuddatliEmas',
-            'chartData',
-            'dateFilters',
-            'periodInfo',
-            'grafikTushadiganMuddatli'  // CRITICAL: Pass this to view
-        ));
     }
+
+    // Get tuman statistics for муддатли эмас
+    $tumanStatsMuddatliEmas = [];
+    foreach ($tumanlar as $tuman) {
+        $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
+        $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters, 'муддатли эмас');
+
+        if ($stats['lots'] > 0) {
+            $tumanStatsMuddatliEmas[] = [
+                'tuman' => $tuman,
+                'lots' => $stats['lots'],
+                'expected' => $stats['expected'],
+                'received' => $stats['received'],
+                'difference' => $stats['difference'],
+                'percentage' => $stats['percentage']
+            ];
+        }
+    }
+
+    // Prepare chart data
+    $chartData = $this->prepareChartData($tumanStatsMuddatli, $tumanStatsMuddatliEmas, $dateFilters);
+
+    // Pass period info to view
+    $periodInfo = [
+        'period' => $request->period ?? 'all',
+        'year' => $request->year ?? now()->year,
+        'month' => $request->month ?? now()->month,
+        'quarter' => $request->quarter ?? ceil(now()->month / 3)
+    ];
+
+    return view('yer-sotuvlar.monitoring', compact(
+        'summaryMuddatli',
+        'summaryMuddatliEmas',
+        'tumanStatsMuddatli',
+        'tumanStatsMuddatliEmas',
+        'chartData',
+        'dateFilters',
+        'periodInfo',
+        'grafikTushadiganMuddatli',
+        'nazoratdagilar',  // NEW: Pass to view
+        'grafikOrtda'      // NEW: Pass to view
+    ));
+}
 
     /**
      * Calculate monitoring summary
