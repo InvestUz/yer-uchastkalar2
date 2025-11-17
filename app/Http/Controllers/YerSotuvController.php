@@ -260,6 +260,9 @@ class YerSotuvController extends Controller
         $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
         $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
 
+        // CRITICAL: Calculate grafik tushadigan for muddatli (up to last month)
+        $grafikTushadiganMuddatli = $this->calculateGrafikTushadigan($dateFilters, 'муддатли');
+
         // Get tuman statistics for муддатли
         $tumanStatsMuddatli = [];
         foreach ($tumanlar as $tuman) {
@@ -314,7 +317,8 @@ class YerSotuvController extends Controller
             'tumanStatsMuddatliEmas',
             'chartData',
             'dateFilters',
-            'periodInfo'
+            'periodInfo',
+            'grafikTushadiganMuddatli'  // CRITICAL: Pass this to view
         ));
     }
 

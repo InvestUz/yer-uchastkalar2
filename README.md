@@ -127,3 +127,4 @@ WHERE tolov_turi = 'муддатли'
 Формат отображения: `X.X` млрд сум (1 знак после запятой)
 SELECT * FROM `yer_sotuvlar` WHERE `holat` = 'Бекор қилинган'
 
+https://claude.ai/chat/3500f7df-ca2a-4569-bd75-4c3dd9c3e47f

@@ -187,6 +187,7 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold text-blue-700 mb-1">
+@dump($summaryMuddatli)
                             {{ number_format($summaryMuddatli['expected_amount'] / 1000000000, 2) }} млрд</p>
                         <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
                     </div>
