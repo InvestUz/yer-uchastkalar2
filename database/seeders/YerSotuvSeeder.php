@@ -144,7 +144,7 @@ class YerSotuvSeeder extends Seeder
 
     private function importAsosiyMalumot(): void
     {
-        $file = storage_path('app/excel/Sotilgan_yerlar_17_11_2025_Bazaga(Abdulazizga).xlsx');
+        $file = storage_path('app/excel/Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx');
 
         if (!file_exists($file)) {
             $this->command->error("Fayl topilmadi: $file");
@@ -161,7 +161,7 @@ class YerSotuvSeeder extends Seeder
 
             $this->command->info("Asosiy ma'lumotlar yuklanmoqda...");
             $this->writeLog("\n=== ASOSIY MA'LUMOTLAR IMPORT ===");
-            $this->writeLog("Fayl: Sotilgan_yerlar_17_11_2025_Bazaga(Abdulazizga).xlsx");
+            $this->writeLog("Fayl: Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx");
 
             $count = 0;
             foreach ($rows as $rowIndex => $row) {
