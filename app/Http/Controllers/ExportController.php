@@ -17,13 +17,12 @@ class ExportController extends Controller
 {
     /**
      * Export full data with all columns and monthly grafik payments
+     * Optimized with chunking to prevent memory exhaustion
      */
     public function exportToExcel(Request $request)
     {
-        // Get all yer_sotuv records with their relations
-        $yerSotuvlar = YerSotuv::with(['grafikTolovlar', 'faktTolovlar'])
-            ->orderBy('id')
-            ->get();
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -60,7 +59,7 @@ class ExportController extends Controller
             }
         }
 
-        // Write headers using fromArray
+        // Write headers
         $sheet->fromArray([$headers], null, 'A1');
 
         // Style header row
@@ -75,94 +74,41 @@ class ExportController extends Controller
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'E0E0E0']
-            ],
-            'borders' => [
-                'allBorders' => ['borderStyle' => Border::BORDER_THIN]
             ]
         ]);
         $sheet->getRowDimension(1)->setRowHeight(40);
 
-        // Prepare data rows
-        $dataRows = [];
-        foreach ($yerSotuvlar as $index => $lot) {
-            // Basic data columns (1-50)
-            $rowData = [
-                $index + 1, // №
-                $lot->lot_raqami,
-                $lot->tuman,
-                $lot->mfy,
-                $lot->unikal_raqam,
-                $lot->zona,
-                $lot->bosh_reja_zona,
-                $lot->yangi_ozbekiston,
-                $lot->maydoni,
-                $lot->lokatsiya,
-                $lot->qurilish_turi_1,
-                $lot->qurilish_turi_2,
-                $lot->qurilish_maydoni,
-                $lot->investitsiya,
-                $lot->boshlangich_narx,
-                $lot->auksion_sana ? $lot->auksion_sana->format('m/d/Y') : null,
-                $lot->sotilgan_narx,
-                $lot->auksion_golibi,
-                $lot->golib_turi,
-                $lot->golib_nomi,
-                $lot->telefon,
-                $lot->tolov_turi,
-                $lot->asos,
-                $lot->auksion_turi,
-                $lot->holat,
-                $lot->shartnoma_holati,
-                $lot->shartnoma_sana ? $lot->shartnoma_sana->format('m/d/Y') : null,
-                $lot->shartnoma_raqam,
-                $lot->golib_tolagan,
-                $lot->buyurtmachiga_otkazilgan,
-                $lot->chegirma,
-                $lot->auksion_harajati,
-                $lot->tushadigan_mablagh,
-                $lot->davaktiv_jamgarmasi,
-                $lot->shartnoma_tushgan,
-                $lot->davaktivda_turgan,
-                $lot->yer_auksion_harajat,
-                $lot->mahalliy_byudjet_tushadigan,
-                $lot->jamgarma_tushadigan,
-                $lot->yangi_oz_direksiya_tushadigan,
-                $lot->shayxontohur_tushadigan,
-                $lot->mahalliy_byudjet_taqsimlangan,
-                $lot->jamgarma_taqsimlangan,
-                $lot->yangi_oz_direksiya_taqsimlangan,
-                $lot->shayxontohur_taqsimlangan,
-                $lot->qoldiq_mahalliy_byudjet,
-                $lot->qoldiq_jamgarma,
-                $lot->qoldiq_yangi_oz_direksiya,
-                $lot->qoldiq_shayxontohur,
-                $lot->farqi,
-                $lot->shartnoma_summasi,
-            ];
+        // Process data in chunks to save memory
+        $currentRow = 2;
+        $index = 0;
 
-            // Add monthly grafik data (96 columns for 2022-2029)
-            $monthlyData = $this->getMonthlyGrafikData($lot);
-            $rowData = array_merge($rowData, $monthlyData);
+        YerSotuv::with(['grafikTolovlar', 'faktTolovlar'])
+            ->orderBy('id')
+            ->chunk(50, function ($lots) use ($sheet, &$currentRow, &$index) {
+                foreach ($lots as $lot) {
+                    $index++;
 
-            $dataRows[] = $rowData;
-        }
+                    // Build row data
+                    $rowData = $this->buildRowData($lot, $index);
 
-        // Write all data at once
-        if (!empty($dataRows)) {
-            $sheet->fromArray($dataRows, null, 'A2');
-        }
+                    // Write row
+                    $sheet->fromArray([$rowData], null, 'A' . $currentRow);
 
-        // Set column widths
-        for ($i = 1; $i <= count($headers); $i++) {
+                    $currentRow++;
+
+                    // Clear memory
+                    unset($rowData);
+                }
+
+                // Force garbage collection after each chunk
+                gc_collect_cycles();
+            });
+
+        // Set column widths (only for visible columns)
+        for ($i = 1; $i <= 50; $i++) {
             $columnLetter = Coordinate::stringFromColumnIndex($i);
             $sheet->getColumnDimension($columnLetter)->setWidth(15);
         }
-
-        // Set number format for numeric columns
-        $lastRow = count($dataRows) + 1;
-        $sheet->getStyle('A2:' . $lastColumn . $lastRow)
-            ->getNumberFormat()
-            ->setFormatCode('#,##0.00');
 
         // Generate filename
         $filename = 'Yer_Sotuvlar_Export_' . date('Y-m-d_H-i-s') . '.xlsx';
@@ -172,6 +118,10 @@ class ExportController extends Controller
         $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
         $writer->save($tempFile);
 
+        // Clear memory
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+
         // Return download response
         return response()->download($tempFile, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -179,26 +129,91 @@ class ExportController extends Controller
     }
 
     /**
-     * Get monthly grafik data for a lot organized by year and month
-     * Returns array with 96 elements (8 years × 12 months)
+     * Build row data for a single lot
      */
-    private function getMonthlyGrafikData($lot)
+    private function buildRowData($lot, $index)
     {
-        $monthlyData = [];
+        // Basic data columns (1-50)
+        $rowData = [
+            $index, // №
+            $lot->lot_raqami,
+            $lot->tuman,
+            $lot->mfy,
+            $lot->unikal_raqam,
+            $lot->zona,
+            $lot->bosh_reja_zona,
+            $lot->yangi_ozbekiston,
+            $lot->maydoni,
+            $lot->lokatsiya,
+            $lot->qurilish_turi_1,
+            $lot->qurilish_turi_2,
+            $lot->qurilish_maydoni,
+            $lot->investitsiya,
+            $lot->boshlangich_narx,
+            $lot->auksion_sana ? $lot->auksion_sana->format('m/d/Y') : null,
+            $lot->sotilgan_narx,
+            $lot->auksion_golibi,
+            $lot->golib_turi,
+            $lot->golib_nomi,
+            $lot->telefon,
+            $lot->tolov_turi,
+            $lot->asos,
+            $lot->auksion_turi,
+            $lot->holat,
+            $lot->shartnoma_holati,
+            $lot->shartnoma_sana ? $lot->shartnoma_sana->format('m/d/Y') : null,
+            $lot->shartnoma_raqam,
+            $lot->golib_tolagan,
+            $lot->buyurtmachiga_otkazilgan,
+            $lot->chegirma,
+            $lot->auksion_harajati,
+            $lot->tushadigan_mablagh,
+            $lot->davaktiv_jamgarmasi,
+            $lot->shartnoma_tushgan,
+            $lot->davaktivda_turgan,
+            $lot->yer_auksion_harajat,
+            $lot->mahalliy_byudjet_tushadigan,
+            $lot->jamgarma_tushadigan,
+            $lot->yangi_oz_direksiya_tushadigan,
+            $lot->shayxontohur_tushadigan,
+            $lot->mahalliy_byudjet_taqsimlangan,
+            $lot->jamgarma_taqsimlangan,
+            $lot->yangi_oz_direksiya_taqsimlangan,
+            $lot->shayxontohur_taqsimlangan,
+            $lot->qoldiq_mahalliy_byudjet,
+            $lot->qoldiq_jamgarma,
+            $lot->qoldiq_yangi_oz_direksiya,
+            $lot->qoldiq_shayxontohur,
+            $lot->farqi,
+            $lot->shartnoma_summasi,
+        ];
 
-        // Create a lookup array from grafik_tolovlar
-        $grafikLookup = [];
-        foreach ($lot->grafikTolovlar as $grafik) {
-            $key = $grafik->yil . '-' . $grafik->oy;
-            $grafikLookup[$key] = $grafik->grafik_summa;
-        }
+        // Add monthly grafik data efficiently
+        $monthlyData = $this->getMonthlyGrafikDataOptimized($lot);
+        $rowData = array_merge($rowData, $monthlyData);
 
-        // Generate data for 2022-2029
+        return $rowData;
+    }
+
+    /**
+     * Get monthly grafik data optimized for memory
+     */
+    private function getMonthlyGrafikDataOptimized($lot)
+    {
+        // Pre-allocate array with nulls
+        $monthlyData = array_fill(0, 96, null);
+
+        // Map year-month to array index
         $years = [2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029];
-        foreach ($years as $year) {
-            for ($month = 1; $month <= 12; $month++) {
-                $key = $year . '-' . $month;
-                $monthlyData[] = $grafikLookup[$key] ?? null;
+
+        // Fill in actual values
+        foreach ($lot->grafikTolovlar as $grafik) {
+            $yearIndex = array_search($grafik->yil, $years);
+            if ($yearIndex !== false) {
+                $arrayIndex = ($yearIndex * 12) + ($grafik->oy - 1);
+                if ($arrayIndex >= 0 && $arrayIndex < 96) {
+                    $monthlyData[$arrayIndex] = $grafik->grafik_summa;
+                }
             }
         }
 
@@ -206,19 +221,17 @@ class ExportController extends Controller
     }
 
     /**
-     * Export summary with calculated grafik and fakt totals
-     * Includes ALL important columns for analysis
+     * Export summary - optimized version
      */
     public function exportWithFaktSummary(Request $request)
     {
-        $yerSotuvlar = YerSotuv::with(['grafikTolovlar', 'faktTolovlar'])
-            ->orderBy('id')
-            ->get();
+        ini_set('memory_limit', '256M');
+        set_time_limit(180);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Headers - ALL important columns including calculated fields
+        // Headers
         $headers = [
             '№',
             'Лотрақами',
@@ -233,85 +246,81 @@ class ExportController extends Controller
             'Ғолиб тўлаган',
             'Аукцион ҳаражати',
             'Шартнома суммаси',
-            'Жами график (ҳисобланган)',
-            'Жами факт (ҳисобланган)',
+            'Жами график',
+            'Жами факт',
             'Қарздорлик',
             'Тўлов фоизи',
             'Аукцион санаси',
             'Шартнома санаси'
         ];
 
-        // Write headers using fromArray
+        // Write headers
         $sheet->fromArray([$headers], null, 'A1');
 
         // Style headers
         $sheet->getStyle('A1:S1')->applyFromArray([
             'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => 'FFFFFF']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => '4472C4']
-            ],
-            'borders' => [
-                'allBorders' => ['borderStyle' => Border::BORDER_THIN]
             ]
         ]);
 
-        // Prepare data
-        $dataRows = [];
-        foreach ($yerSotuvlar as $index => $lot) {
-            // Calculate grafik and fakt sums
-            $grafikSum = $lot->grafikTolovlar->sum('grafik_summa');
-            $faktSum = $lot->faktTolovlar->sum('tolov_summa');
-            $qarzlik = $grafikSum - $faktSum;
-            $foiz = $grafikSum > 0 ? round(($faktSum / $grafikSum) * 100, 1) : 0;
+        // Process in chunks
+        $currentRow = 2;
+        $index = 0;
 
-            $dataRows[] = [
-                $index + 1,
-                $lot->lot_raqami,
-                $lot->tuman,
-                $lot->mfy,
-                $lot->golib_nomi,
-                $lot->telefon,
-                $lot->tolov_turi,
-                $lot->holat,
-                $lot->maydoni,
-                $lot->sotilgan_narx,
-                $lot->golib_tolagan,
-                $lot->auksion_harajati,
-                $lot->shartnoma_summasi,
-                $grafikSum,  // Calculated from grafik_tolovlar
-                $faktSum,    // Calculated from fakt_tolovlar
-                $qarzlik,
-                $foiz,
-                $lot->auksion_sana ? $lot->auksion_sana->format('d.m.Y') : null,
-                $lot->shartnoma_sana ? $lot->shartnoma_sana->format('d.m.Y') : null,
-            ];
-        }
+        YerSotuv::chunk(100, function ($lots) use ($sheet, &$currentRow, &$index) {
+            foreach ($lots as $lot) {
+                $index++;
 
-        // Write data using fromArray
-        if (!empty($dataRows)) {
-            $sheet->fromArray($dataRows, null, 'A2');
-        }
+                // Calculate sums efficiently
+                $grafikSum = GrafikTolov::where('lot_raqami', $lot->lot_raqami)->sum('grafik_summa');
+                $faktSum = FaktTolov::where('lot_raqami', $lot->lot_raqami)->sum('tolov_summa');
+                $qarzlik = $grafikSum - $faktSum;
+                $foiz = $grafikSum > 0 ? round(($faktSum / $grafikSum) * 100, 1) : 0;
+
+                $rowData = [
+                    $index,
+                    $lot->lot_raqami,
+                    $lot->tuman,
+                    $lot->mfy,
+                    $lot->golib_nomi,
+                    $lot->telefon,
+                    $lot->tolov_turi,
+                    $lot->holat,
+                    $lot->maydoni,
+                    $lot->sotilgan_narx,
+                    $lot->golib_tolagan,
+                    $lot->auksion_harajati,
+                    $lot->shartnoma_summasi,
+                    $grafikSum,
+                    $faktSum,
+                    $qarzlik,
+                    $foiz,
+                    $lot->auksion_sana ? $lot->auksion_sana->format('d.m.Y') : null,
+                    $lot->shartnoma_sana ? $lot->shartnoma_sana->format('d.m.Y') : null,
+                ];
+
+                $sheet->fromArray([$rowData], null, 'A' . $currentRow);
+                $currentRow++;
+
+                unset($rowData);
+            }
+
+            gc_collect_cycles();
+        });
 
         // Auto-size columns
         foreach (range('A', 'S') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // Number format for numeric columns
-        $lastRow = count($dataRows) + 1;
-        $sheet->getStyle('I2:Q' . $lastRow)
-            ->getNumberFormat()
-            ->setFormatCode('#,##0.00');
-
-        // Percentage format for payment percentage column
-        $sheet->getStyle('Q2:Q' . $lastRow)
-            ->getNumberFormat()
-            ->setFormatCode('0.0"%"');
-
         // Add totals row
-        $totalsRow = $lastRow + 1;
+        $totalsRow = $currentRow;
+        $lastDataRow = $currentRow - 1;
+
         $sheet->setCellValue('A' . $totalsRow, 'ЖАМИ:');
         $sheet->getStyle('A' . $totalsRow . ':S' . $totalsRow)->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
@@ -321,15 +330,15 @@ class ExportController extends Controller
             ]
         ]);
 
-        // Add SUM formulas for numeric columns
-        $sheet->setCellValue('I' . $totalsRow, '=SUM(I2:I' . $lastRow . ')'); // Maydoni
-        $sheet->setCellValue('J' . $totalsRow, '=SUM(J2:J' . $lastRow . ')'); // Sotilgan narx
-        $sheet->setCellValue('K' . $totalsRow, '=SUM(K2:K' . $lastRow . ')'); // Golib tolagan
-        $sheet->setCellValue('L' . $totalsRow, '=SUM(L2:L' . $lastRow . ')'); // Auksion harajati
-        $sheet->setCellValue('M' . $totalsRow, '=SUM(M2:M' . $lastRow . ')'); // Shartnoma summasi
-        $sheet->setCellValue('N' . $totalsRow, '=SUM(N2:N' . $lastRow . ')'); // Jami grafik
-        $sheet->setCellValue('O' . $totalsRow, '=SUM(O2:O' . $lastRow . ')'); // Jami fakt
-        $sheet->setCellValue('P' . $totalsRow, '=SUM(P2:P' . $lastRow . ')'); // Qarzdorlik
+        // Add SUM formulas
+        $sheet->setCellValue('I' . $totalsRow, '=SUM(I2:I' . $lastDataRow . ')');
+        $sheet->setCellValue('J' . $totalsRow, '=SUM(J2:J' . $lastDataRow . ')');
+        $sheet->setCellValue('K' . $totalsRow, '=SUM(K2:K' . $lastDataRow . ')');
+        $sheet->setCellValue('L' . $totalsRow, '=SUM(L2:L' . $lastDataRow . ')');
+        $sheet->setCellValue('M' . $totalsRow, '=SUM(M2:M' . $lastDataRow . ')');
+        $sheet->setCellValue('N' . $totalsRow, '=SUM(N2:N' . $lastDataRow . ')');
+        $sheet->setCellValue('O' . $totalsRow, '=SUM(O2:O' . $lastDataRow . ')');
+        $sheet->setCellValue('P' . $totalsRow, '=SUM(P2:P' . $lastDataRow . ')');
 
         // Generate filename
         $filename = 'Yer_Sotuvlar_Summary_' . date('Y-m-d_H-i-s') . '.xlsx';
@@ -337,6 +346,10 @@ class ExportController extends Controller
         $writer = new Xlsx($spreadsheet);
         $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
         $writer->save($tempFile);
+
+        // Clear memory
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
 
         return response()->download($tempFile, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
