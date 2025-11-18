@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\YerSotuvController;
 use App\Http\Controllers\GlobalQoldiqController;
+use App\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
 
 // Main pages
@@ -10,6 +11,12 @@ Route::get('/svod3', [YerSotuvController::class, 'svod3'])->name('yer-sotuvlar.s
 Route::get('/ruyxat', [YerSotuvController::class, 'list'])->name('yer-sotuvlar.list');
 Route::get('/', [YerSotuvController::class, 'monitoring'])->name('yer-sotuvlar.monitoring');
 Route::get('/monitoring_mirzayev', [YerSotuvController::class, 'monitoring_mirzayev'])->name('yer-sotuvlar.monitoring_mirzayev');
+
+// Export routes
+Route::prefix('export')->name('export.')->group(function () {
+    Route::get('/full', [ExportController::class, 'exportToExcel'])->name('full');
+    Route::get('/summary', [ExportController::class, 'exportWithFaktSummary'])->name('summary');
+});
 
 // Qoldiq management
 Route::prefix('qoldiq')->name('qoldiq.')->group(function () {

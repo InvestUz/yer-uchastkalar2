@@ -58,6 +58,9 @@ class YerSotuvSeeder extends Seeder
         // Write final summary to log
         $this->writeFinalSummary();
 
+        // Show comprehensive verification statistics
+        $this->showVerificationStatistics();
+
         if (!empty($this->notFoundLots)) {
             $this->command->warn("\n=== OGOHLANTIRISH: Topilmagan LOT raqamlar ===");
             foreach ($this->notFoundLots as $lot) {
@@ -144,7 +147,7 @@ class YerSotuvSeeder extends Seeder
 
     private function importAsosiyMalumot(): void
     {
-        $file = storage_path('app/excel/Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx');
+        $file = storage_path('app/excel/Sotilgan_yerlar_17_11_2025_Bazaga(Abdulazizga).xlsx');
 
         if (!file_exists($file)) {
             $this->command->error("Fayl topilmadi: $file");
@@ -161,7 +164,7 @@ class YerSotuvSeeder extends Seeder
 
             $this->command->info("Asosiy ma'lumotlar yuklanmoqda...");
             $this->writeLog("\n=== ASOSIY MA'LUMOTLAR IMPORT ===");
-            $this->writeLog("Fayl: Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx");
+            $this->writeLog("Fayl: Sotilgan_yerlar_17_11_2025_Bazaga(Abdulazizga).xlsx");
 
             $count = 0;
             foreach ($rows as $rowIndex => $row) {
@@ -848,6 +851,238 @@ class YerSotuvSeeder extends Seeder
         }
 
         return is_numeric($value) ? (float)$value : null;
+    }
+
+    private function showVerificationStatistics(): void
+    {
+        $this->command->info("\n" . str_repeat("=", 100));
+        $this->command->info("MA'LUMOTLAR TEKSHIRUVI VA STATISTIKA");
+        $this->command->info(str_repeat("=", 100) . "\n");
+
+        // 1. BASIC COUNTS
+        $this->command->info("1. ASOSIY HISOBOTLAR:");
+        $this->command->info(str_repeat("-", 100));
+
+        $totalLots = YerSotuv::count();
+        $totalGrafik = GrafikTolov::count();
+        $totalFakt = FaktTolov::count();
+
+        $this->command->info(sprintf("   Jami LOTlar soni:              %s ta", number_format($totalLots, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami grafik to'lovlar:          %s ta", number_format($totalGrafik, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami fakt to'lovlar:            %s ta", number_format($totalFakt, 0, '.', ',')));
+
+        // 2. FINANCIAL TOTALS
+        $this->command->info("\n2. MOLIYAVIY HISOBOTLAR:");
+        $this->command->info(str_repeat("-", 100));
+
+        $financials = YerSotuv::selectRaw('
+            SUM(maydoni) as jami_maydon,
+            SUM(boshlangich_narx) as jami_boshlangich,
+            SUM(sotilgan_narx) as jami_sotilgan,
+            SUM(golib_tolagan) as jami_golib_tolagan,
+            SUM(shartnoma_summasi) as jami_shartnoma,
+            SUM(auksion_harajati) as jami_auksion_harajat,
+            SUM(tushadigan_mablagh) as jami_tushadigan,
+            COUNT(*) as count
+        ')->first();
+
+        $this->command->info(sprintf("   Jami er maydoni:                %s ga", number_format($financials->jami_maydon ?? 0, 2, '.', ',')));
+        $this->command->info(sprintf("   Jami boshlang'ich narx:         %s so'm", number_format($financials->jami_boshlangich ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami sotilgan narx:             %s so'm", number_format($financials->jami_sotilgan ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami g'olib to'lagan:           %s so'm", number_format($financials->jami_golib_tolagan ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami shartnoma summasi:         %s so'm", number_format($financials->jami_shartnoma ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami auksion harajatlari:       %s so'm", number_format($financials->jami_auksion_harajat ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami tushadigan mablag':        %s so'm", number_format($financials->jami_tushadigan ?? 0, 0, '.', ',')));
+
+        // 3. GRAFIK PAYMENTS TOTALS
+        $this->command->info("\n3. GRAFIK BO'YICHA TO'LOVLAR:");
+        $this->command->info(str_repeat("-", 100));
+
+        $grafikStats = GrafikTolov::selectRaw('
+            SUM(grafik_summa) as jami_grafik,
+            COUNT(*) as jami_oylar,
+            COUNT(CASE WHEN grafik_summa > 0 THEN 1 END) as tolovli_oylar,
+            COUNT(DISTINCT lot_raqami) as lot_count
+        ')->first();
+
+        $this->command->info(sprintf("   Jami grafik summasi:            %s so'm", number_format($grafikStats->jami_grafik ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami oylar soni:                %s ta", number_format($grafikStats->jami_oylar ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   To'lovli oylar:                 %s ta", number_format($grafikStats->tolovli_oylar ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Grafik bo'yicha LOTlar:         %s ta", number_format($grafikStats->lot_count ?? 0, 0, '.', ',')));
+
+        // 4. FAKT PAYMENTS TOTALS
+        $this->command->info("\n4. FAKT BO'YICHA TO'LOVLAR:");
+        $this->command->info(str_repeat("-", 100));
+
+        $faktStats = FaktTolov::selectRaw('
+            SUM(tolov_summa) as jami_fakt,
+            COUNT(*) as jami_tolovlar,
+            COUNT(DISTINCT lot_raqami) as lot_count,
+            MIN(tolov_sana) as birinchi_tolov,
+            MAX(tolov_sana) as oxirgi_tolov
+        ')->first();
+
+        $this->command->info(sprintf("   Jami fakt to'lovlar:            %s so'm", number_format($faktStats->jami_fakt ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Jami to'lovlar soni:            %s ta", number_format($faktStats->jami_tolovlar ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Fakt bo'yicha LOTlar:           %s ta", number_format($faktStats->lot_count ?? 0, 0, '.', ',')));
+        $this->command->info(sprintf("   Birinchi to'lov sanasi:         %s", $faktStats->birinchi_tolov ?? 'N/A'));
+        $this->command->info(sprintf("   Oxirgi to'lov sanasi:           %s", $faktStats->oxirgi_tolov ?? 'N/A'));
+
+        // 5. PAYMENT TYPE BREAKDOWN
+        $this->command->info("\n5. TO'LOV TURLARI BO'YICHA:");
+        $this->command->info(str_repeat("-", 100));
+
+        $paymentTypes = YerSotuv::selectRaw('
+            tolov_turi,
+            COUNT(*) as count,
+            SUM(sotilgan_narx) as jami_narx,
+            SUM(shartnoma_summasi) as jami_shartnoma
+        ')
+        ->groupBy('tolov_turi')
+        ->get();
+
+        foreach ($paymentTypes as $type) {
+            $this->command->info(sprintf(
+                "   %-20s: %5s ta | Sotilgan: %s | Shartnoma: %s",
+                $type->tolov_turi ?? 'N/A',
+                number_format($type->count, 0, '.', ','),
+                number_format($type->jami_narx, 0, '.', ','),
+                number_format($type->jami_shartnoma, 0, '.', ',')
+            ));
+        }
+
+        // 6. DISTRICT BREAKDOWN
+        $this->command->info("\n6. TUMANLAR BO'YICHA:");
+        $this->command->info(str_repeat("-", 100));
+
+        $districts = YerSotuv::selectRaw('
+            tuman,
+            COUNT(*) as count,
+            SUM(maydoni) as jami_maydon,
+            SUM(sotilgan_narx) as jami_narx
+        ')
+        ->groupBy('tuman')
+        ->orderByDesc('count')
+        ->get();
+
+        foreach ($districts as $district) {
+            $this->command->info(sprintf(
+                "   %-35s: %4s ta | Maydon: %8s ga | Narx: %s",
+                mb_substr($district->tuman ?? 'N/A', 0, 35),
+                number_format($district->count, 0),
+                number_format($district->jami_maydon, 2, '.', ','),
+                number_format($district->jami_narx, 0, '.', ',')
+            ));
+        }
+
+        // 7. YEAR BREAKDOWN
+        $this->command->info("\n7. YILLAR BO'YICHA:");
+        $this->command->info(str_repeat("-", 100));
+
+        $years = YerSotuv::selectRaw('
+            yil,
+            COUNT(*) as count,
+            SUM(sotilgan_narx) as jami_narx
+        ')
+        ->groupBy('yil')
+        ->orderBy('yil')
+        ->get();
+
+        foreach ($years as $year) {
+            $this->command->info(sprintf(
+                "   %s yil: %5s ta LOT | Jami: %s so'm",
+                $year->yil,
+                number_format($year->count, 0),
+                number_format($year->jami_narx, 0, '.', ',')
+            ));
+        }
+
+        // 8. SAMPLE LOTS (First 5)
+        $this->command->info("\n8. NAMUNAVIY LOT MA'LUMOTLARI (birinchi 5 ta):");
+        $this->command->info(str_repeat("-", 100));
+
+        $sampleLots = YerSotuv::with(['grafikTolovlar', 'faktTolovlar'])
+            ->orderBy('id')
+            ->limit(5)
+            ->get();
+
+        foreach ($sampleLots as $lot) {
+            $grafikSum = $lot->grafikTolovlar->sum('grafik_summa');
+            $faktSum = $lot->faktTolovlar->sum('tolov_summa');
+            $grafikCount = $lot->grafikTolovlar->count();
+            $faktCount = $lot->faktTolovlar->count();
+
+            $this->command->info(sprintf("\n   LOT: %s | %s", $lot->lot_raqami, $lot->tuman ?? 'N/A'));
+            $this->command->info(sprintf("      Maydon: %s ga | To'lov turi: %s",
+                number_format($lot->maydoni ?? 0, 2),
+                $lot->tolov_turi ?? 'N/A'
+            ));
+            $this->command->info(sprintf("      Sotilgan narx:      %s so'm", number_format($lot->sotilgan_narx ?? 0, 0, '.', ',')));
+            $this->command->info(sprintf("      G'olib to'lagan:    %s so'm", number_format($lot->golib_tolagan ?? 0, 0, '.', ',')));
+            $this->command->info(sprintf("      Shartnoma summasi:  %s so'm", number_format($lot->shartnoma_summasi ?? 0, 0, '.', ',')));
+            $this->command->info(sprintf("      Grafik: %s ta oy, jami %s so'm",
+                $grafikCount,
+                number_format($grafikSum, 0, '.', ',')
+            ));
+            $this->command->info(sprintf("      Fakt:   %s ta to'lov, jami %s so'm",
+                $faktCount,
+                number_format($faktSum, 0, '.', ',')
+            ));
+        }
+
+        // 9. DATA INTEGRITY CHECKS
+        $this->command->info("\n9. MA'LUMOTLAR INTEGRITETI TEKSHIRUVI:");
+        $this->command->info(str_repeat("-", 100));
+
+        // Check lots without grafik
+        $lotsWithoutGrafik = YerSotuv::whereDoesntHave('grafikTolovlar')
+            ->where('tolov_turi', 'муддатли')
+            ->count();
+
+        $status = $lotsWithoutGrafik == 0 ? '✓' : '✗';
+        $this->command->info(sprintf("   [%s] Muddatli to'lovli LOTlar grafik bilan:  %s ta muammoli",
+            $status,
+            $lotsWithoutGrafik
+        ));
+
+        // Check lots without fakt payments
+        $lotsWithoutFakt = YerSotuv::whereDoesntHave('faktTolovlar')->count();
+        $this->command->info(sprintf("   [ℹ] Fakt to'lovi bo'lmagan LOTlar:           %s ta",
+            $lotsWithoutFakt
+        ));
+
+        // Check grafik vs shartnoma_summasi mismatch
+        $mismatchCount = YerSotuv::whereHas('grafikTolovlar')
+            ->whereRaw('ABS(shartnoma_summasi - (
+                SELECT COALESCE(SUM(grafik_summa), 0)
+                FROM grafik_tolovlar
+                WHERE grafik_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami
+            )) > 1')
+            ->count();
+
+        $status = $mismatchCount == 0 ? '✓' : '✗';
+        $this->command->info(sprintf("   [%s] Grafik va shartnoma summasi mos keladi:  %s ta nomuvofiq",
+            $status,
+            $mismatchCount
+        ));
+
+        // Total calculated amounts match
+        $grafikTotal = GrafikTolov::sum('grafik_summa');
+        $shartnomaTotal = YerSotuv::sum('shartnoma_summasi');
+        $difference = abs($grafikTotal - $shartnomaTotal);
+        $status = $difference < 100 ? '✓' : '✗';
+
+        $this->command->info(sprintf("   [%s] Umumiy grafik va shartnoma farqi:        %s so'm",
+            $status,
+            number_format($difference, 0, '.', ',')
+        ));
+
+        $this->command->info("\n" . str_repeat("=", 100));
+        $this->writeLog("\n=== VERIFICATION STATISTICS ===");
+        $this->writeLog("Total LOTs: {$totalLots}");
+        $this->writeLog("Total Grafik: {$totalGrafik} records, Sum: " . number_format($grafikStats->jami_grafik ?? 0, 0));
+        $this->writeLog("Total Fakt: {$totalFakt} records, Sum: " . number_format($faktStats->jami_fakt ?? 0, 0));
+        $this->writeLog("Data integrity issues: Grafik missing: {$lotsWithoutGrafik}, Mismatch: {$mismatchCount}");
     }
 
     private function parseDate($value): ?string
