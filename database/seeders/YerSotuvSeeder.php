@@ -123,7 +123,7 @@ class YerSotuvSeeder extends Seeder
 
         $this->writeLog("╚═══════════════════════════════════════════════════════════════════════════╝");
 
-        // Detailed lists if needed (can be commented out if only table is wanted)
+        // Detailed lists if needed
         if (!empty($this->notFoundLots) && $totalNotFound <= 20) {
             $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR RO'YXATI ###");
             foreach ($this->notFoundLots as $lot) {
@@ -141,7 +141,6 @@ class YerSotuvSeeder extends Seeder
         $this->writeLog("Yakunlandi: " . now()->format('Y-m-d H:i:s'));
         $this->writeLog(str_repeat("=", 80));
     }
-
 
     private function importAsosiyMalumot(): void
     {
@@ -304,14 +303,123 @@ class YerSotuvSeeder extends Seeder
 
     private function calculateShartnomaSummasiFromGrafik($row): float
     {
+        // CORRECT column mapping based on actual Excel structure
+        // Column index 50 = "Шартнома бўйича тушадиган" (NOT a monthly payment)
+        // Monthly payments start from column index 51 (2022 January)
+
         $grafikData = [
-            2023 => [11 => 51, 12 => 52],
-            2024 => [1 => 53, 2 => 54, 3 => 55, 4 => 56, 5 => 57, 6 => 58, 7 => 59, 8 => 60, 9 => 61, 10 => 62, 11 => 63, 12 => 64],
-            2025 => [1 => 65, 2 => 66, 3 => 67, 4 => 68, 5 => 69, 6 => 70, 7 => 71, 8 => 72, 9 => 73, 10 => 74, 11 => 75, 12 => 76],
-            2026 => [1 => 77, 2 => 78, 3 => 79, 4 => 80, 5 => 81, 6 => 82, 7 => 83, 8 => 84, 9 => 85, 10 => 86, 11 => 87, 12 => 88],
-            2027 => [1 => 89, 2 => 90, 3 => 91, 4 => 92, 5 => 93, 6 => 94, 7 => 95, 8 => 96, 9 => 97, 10 => 98, 11 => 99, 12 => 100],
-            2028 => [1 => 101, 2 => 102, 3 => 103, 4 => 104, 5 => 105, 6 => 106, 7 => 107, 8 => 108, 9 => 109, 10 => 110, 11 => 111, 12 => 112],
-            2029 => [1 => 113, 2 => 114, 3 => 115, 4 => 116, 5 => 117, 6 => 118, 7 => 119, 8 => 120, 9 => 121, 10 => 122, 11 => 123, 12 => 124]
+            2022 => [
+                1 => 51,   // 2022 yanvar
+                2 => 52,   // 2022 fevral
+                3 => 53,   // 2022 mart
+                4 => 54,   // 2022 aprel
+                5 => 55,   // 2022 may
+                6 => 56,   // 2022 iyun
+                7 => 57,   // 2022 iyul
+                8 => 58,   // 2022 avgust
+                9 => 59,   // 2022 sentabr
+                10 => 60,  // 2022 oktabr
+                11 => 61,  // 2022 noyabr
+                12 => 62   // 2022 dekabr
+            ],
+            2023 => [
+                1 => 63,   // 2023 yanvar
+                2 => 64,   // 2023 fevral
+                3 => 65,   // 2023 mart
+                4 => 66,   // 2023 aprel
+                5 => 67,   // 2023 may
+                6 => 68,   // 2023 iyun
+                7 => 69,   // 2023 iyul
+                8 => 70,   // 2023 avgust
+                9 => 71,   // 2023 sentabr
+                10 => 72,  // 2023 oktabr
+                11 => 73,  // 2023 noyabr
+                12 => 74   // 2023 dekabr
+            ],
+            2024 => [
+                1 => 75,   // 2024 yanvar
+                2 => 76,   // 2024 fevral
+                3 => 77,   // 2024 mart
+                4 => 78,   // 2024 aprel
+                5 => 79,   // 2024 may
+                6 => 80,   // 2024 iyun
+                7 => 81,   // 2024 iyul
+                8 => 82,   // 2024 avgust
+                9 => 83,   // 2024 sentabr
+                10 => 84,  // 2024 oktabr
+                11 => 85,  // 2024 noyabr
+                12 => 86   // 2024 dekabr
+            ],
+            2025 => [
+                1 => 87,   // 2025 yanvar
+                2 => 88,   // 2025 fevral
+                3 => 89,   // 2025 mart
+                4 => 90,   // 2025 aprel
+                5 => 91,   // 2025 may
+                6 => 92,   // 2025 iyun
+                7 => 93,   // 2025 iyul
+                8 => 94,   // 2025 avgust
+                9 => 95,   // 2025 sentabr
+                10 => 96,  // 2025 oktabr
+                11 => 97,  // 2025 noyabr
+                12 => 98   // 2025 dekabr
+            ],
+            2026 => [
+                1 => 99,   // 2026 yanvar
+                2 => 100,  // 2026 fevral
+                3 => 101,  // 2026 mart
+                4 => 102,  // 2026 aprel
+                5 => 103,  // 2026 may
+                6 => 104,  // 2026 iyun
+                7 => 105,  // 2026 iyul
+                8 => 106,  // 2026 avgust
+                9 => 107,  // 2026 sentabr
+                10 => 108, // 2026 oktabr
+                11 => 109, // 2026 noyabr
+                12 => 110  // 2026 dekabr
+            ],
+            2027 => [
+                1 => 111,  // 2027 yanvar
+                2 => 112,  // 2027 fevral
+                3 => 113,  // 2027 mart
+                4 => 114,  // 2027 aprel
+                5 => 115,  // 2027 may
+                6 => 116,  // 2027 iyun
+                7 => 117,  // 2027 iyul
+                8 => 118,  // 2027 avgust
+                9 => 119,  // 2027 sentabr
+                10 => 120, // 2027 oktabr
+                11 => 121, // 2027 noyabr
+                12 => 122  // 2027 dekabr
+            ],
+            2028 => [
+                1 => 123,  // 2028 yanvar
+                2 => 124,  // 2028 fevral
+                3 => 125,  // 2028 mart
+                4 => 126,  // 2028 aprel
+                5 => 127,  // 2028 may
+                6 => 128,  // 2028 iyun
+                7 => 129,  // 2028 iyul
+                8 => 130,  // 2028 avgust
+                9 => 131,  // 2028 sentabr
+                10 => 132, // 2028 oktabr
+                11 => 133, // 2028 noyabr
+                12 => 134  // 2028 dekabr
+            ],
+            2029 => [
+                1 => 135,  // 2029 yanvar
+                2 => 136,  // 2029 fevral
+                3 => 137,  // 2029 mart
+                4 => 138,  // 2029 aprel
+                5 => 139,  // 2029 may
+                6 => 140,  // 2029 iyun
+                7 => 141,  // 2029 iyul
+                8 => 142,  // 2029 avgust
+                9 => 143,  // 2029 sentabr
+                10 => 144, // 2029 oktabr
+                11 => 145, // 2029 noyabr
+                12 => 146  // 2029 dekabr
+            ]
         ];
 
         $totalSumma = 0;
@@ -332,101 +440,119 @@ class YerSotuvSeeder extends Seeder
 
     private function createGrafikTolovlar($row, $yerSotuv): void
     {
-        // Excel file structure: columns start at index 50 (0-based)
-        // Column 51 (index 50) = shartnoma_summasi (handled in createYerSotuv)
-        // Column 52 (index 51) = 2023 noyabr
-        // Column 53 (index 52) = 2023 dekabr
-        // Column 54 (index 53) = 2024 yanvar
-        // ... and so on
-
+        // CORRECT column mapping - monthly payments start from index 51
         $grafikData = [
+            2022 => [
+                1 => 51,   // 2022 yanvar - Column AZ (index 51)
+                2 => 52,   // 2022 fevral
+                3 => 53,   // 2022 mart
+                4 => 54,   // 2022 aprel
+                5 => 55,   // 2022 may
+                6 => 56,   // 2022 iyun
+                7 => 57,   // 2022 iyul
+                8 => 58,   // 2022 avgust
+                9 => 59,   // 2022 sentabr
+                10 => 60,  // 2022 oktabr
+                11 => 61,  // 2022 noyabr
+                12 => 62   // 2022 dekabr
+            ],
             2023 => [
-                11 => 51,  // 2023 noyabr - Column 52 (index 51)
-                12 => 52   // 2023 dekabr - Column 53 (index 52)
+                1 => 63,   // 2023 yanvar
+                2 => 64,   // 2023 fevral
+                3 => 65,   // 2023 mart
+                4 => 66,   // 2023 aprel
+                5 => 67,   // 2023 may
+                6 => 68,   // 2023 iyun
+                7 => 69,   // 2023 iyul
+                8 => 70,   // 2023 avgust
+                9 => 71,   // 2023 sentabr
+                10 => 72,  // 2023 oktabr
+                11 => 73,  // 2023 noyabr
+                12 => 74   // 2023 dekabr
             ],
             2024 => [
-                1 => 53,   // yanvar
-                2 => 54,   // fevral
-                3 => 55,   // mart
-                4 => 56,   // aprel
-                5 => 57,   // may
-                6 => 58,   // iyun
-                7 => 59,   // iyul
-                8 => 60,   // avgust
-                9 => 61,   // sentabr
-                10 => 62,  // oktabr
-                11 => 63,  // noyabr
-                12 => 64   // dekabr
+                1 => 75,   // 2024 yanvar
+                2 => 76,   // 2024 fevral
+                3 => 77,   // 2024 mart
+                4 => 78,   // 2024 aprel
+                5 => 79,   // 2024 may
+                6 => 80,   // 2024 iyun
+                7 => 81,   // 2024 iyul
+                8 => 82,   // 2024 avgust
+                9 => 83,   // 2024 sentabr
+                10 => 84,  // 2024 oktabr
+                11 => 85,  // 2024 noyabr
+                12 => 86   // 2024 dekabr
             ],
             2025 => [
-                1 => 65,   // yanvar
-                2 => 66,   // fevral
-                3 => 67,   // mart
-                4 => 68,   // aprel
-                5 => 69,   // may
-                6 => 70,   // iyun
-                7 => 71,   // iyul
-                8 => 72,   // avgust
-                9 => 73,   // sentabr
-                10 => 74,  // oktabr
-                11 => 75,  // noyabr
-                12 => 76   // dekabr
+                1 => 87,   // 2025 yanvar
+                2 => 88,   // 2025 fevral
+                3 => 89,   // 2025 mart
+                4 => 90,   // 2025 aprel
+                5 => 91,   // 2025 may
+                6 => 92,   // 2025 iyun
+                7 => 93,   // 2025 iyul
+                8 => 94,   // 2025 avgust
+                9 => 95,   // 2025 sentabr
+                10 => 96,  // 2025 oktabr
+                11 => 97,  // 2025 noyabr
+                12 => 98   // 2025 dekabr
             ],
             2026 => [
-                1 => 77,   // yanvar
-                2 => 78,   // fevral
-                3 => 79,   // mart
-                4 => 80,   // aprel
-                5 => 81,   // may
-                6 => 82,   // iyun
-                7 => 83,   // iyul
-                8 => 84,   // avgust
-                9 => 85,   // sentabr
-                10 => 86,  // oktabr
-                11 => 87,  // noyabr
-                12 => 88   // dekabr
+                1 => 99,   // 2026 yanvar
+                2 => 100,  // 2026 fevral
+                3 => 101,  // 2026 mart
+                4 => 102,  // 2026 aprel
+                5 => 103,  // 2026 may
+                6 => 104,  // 2026 iyun
+                7 => 105,  // 2026 iyul
+                8 => 106,  // 2026 avgust
+                9 => 107,  // 2026 sentabr
+                10 => 108, // 2026 oktabr
+                11 => 109, // 2026 noyabr
+                12 => 110  // 2026 dekabr
             ],
             2027 => [
-                1 => 89,   // yanvar
-                2 => 90,   // fevral
-                3 => 91,   // mart
-                4 => 92,   // aprel
-                5 => 93,   // may
-                6 => 94,   // iyun
-                7 => 95,   // iyul
-                8 => 96,   // avgust
-                9 => 97,   // sentabr
-                10 => 98,  // oktabr
-                11 => 99,  // noyabr
-                12 => 100  // dekabr
+                1 => 111,  // 2027 yanvar
+                2 => 112,  // 2027 fevral
+                3 => 113,  // 2027 mart
+                4 => 114,  // 2027 aprel
+                5 => 115,  // 2027 may
+                6 => 116,  // 2027 iyun
+                7 => 117,  // 2027 iyul
+                8 => 118,  // 2027 avgust
+                9 => 119,  // 2027 sentabr
+                10 => 120, // 2027 oktabr
+                11 => 121, // 2027 noyabr
+                12 => 122  // 2027 dekabr
             ],
             2028 => [
-                1 => 101,  // yanvar
-                2 => 102,  // fevral
-                3 => 103,  // mart
-                4 => 104,  // aprel
-                5 => 105,  // may
-                6 => 106,  // iyun
-                7 => 107,  // iyul
-                8 => 108,  // avgust
-                9 => 109,  // sentabr
-                10 => 110, // oktabr
-                11 => 111, // noyabr
-                12 => 112  // dekabr
+                1 => 123,  // 2028 yanvar
+                2 => 124,  // 2028 fevral
+                3 => 125,  // 2028 mart
+                4 => 126,  // 2028 aprel
+                5 => 127,  // 2028 may
+                6 => 128,  // 2028 iyun
+                7 => 129,  // 2028 iyul
+                8 => 130,  // 2028 avgust
+                9 => 131,  // 2028 sentabr
+                10 => 132, // 2028 oktabr
+                11 => 133, // 2028 noyabr
+                12 => 134  // 2028 dekabr
             ],
             2029 => [
-                1 => 113,  // yanvar
-                2 => 114,  // fevral
-                3 => 115,  // mart
-                4 => 116,  // aprel
-                5 => 117,  // may
-                6 => 118,  // iyun
-                7 => 119,  // iyul
-                8 => 120,  // avgust
-                9 => 121,  // sentabr
-                10 => 122, // oktabr
-                11 => 123, // noyabr
-                12 => 124  // dekabr
+                1 => 135,  // 2029 yanvar
+                2 => 136,  // 2029 fevral
+                3 => 137,  // 2029 mart
+                4 => 138,  // 2029 aprel
+                5 => 139,  // 2029 may
+                6 => 140,  // 2029 iyun
+                7 => 141,  // 2029 iyul
+                8 => 142,  // 2029 avgust
+                9 => 143,  // 2029 sentabr
+                10 => 144, // 2029 oktabr
+                11 => 145, // 2029 noyabr
+                12 => 146  // 2029 dekabr
             ]
         ];
 
@@ -437,13 +563,17 @@ class YerSotuvSeeder extends Seeder
 
         foreach ($grafikData as $yil => $oylar) {
             foreach ($oylar as $oy => $ustunIndex) {
-                if (!isset($row[$ustunIndex])) {
-                    continue;
+                // Get the value, treating NULL as 0
+                $cellValue = $row[$ustunIndex] ?? null;
+                $summa = $this->parseNumber($cellValue);
+
+                // Convert NULL to 0 for consistency
+                if ($summa === null) {
+                    $summa = 0;
                 }
 
-                $summa = $this->parseNumber($row[$ustunIndex]);
-
-                if ($summa !== null && $summa > 0) {
+                // Only track months with actual payment data (> 0) for range detection
+                if ($summa > 0) {
                     $currentMonth = Carbon::create($yil, $oy, 1);
                     $monthsWithData[] = [
                         'date' => $currentMonth,
@@ -463,13 +593,35 @@ class YerSotuvSeeder extends Seeder
             }
         }
 
-        // If no payment data found, skip
+        // If no payment data found, skip this LOT
         if (empty($monthsWithData)) {
+            $this->writeLog("  LOT {$yerSotuv->lot_raqami}: Grafik to'lovlar topilmadi (barcha oylar bo'sh)");
             return;
+        }
+
+        // Log the payment schedule for verification
+        $this->writeLog("\n  LOT {$yerSotuv->lot_raqami} - To'lov grafigi:");
+        $this->writeLog("  Birinchi to'lov: {$firstPaymentMonth->format('Y-m')}");
+        $this->writeLog("  Oxirgi to'lov: {$lastPaymentMonth->format('Y-m')}");
+        $this->writeLog("  To'lovli oylar soni: " . count($monthsWithData));
+
+        // Show sample payments
+        $sampleCount = min(5, count($monthsWithData));
+        for ($i = 0; $i < $sampleCount; $i++) {
+            $month = $monthsWithData[$i];
+            $this->writeLog(sprintf("    %s: %s",
+                $month['date']->format('Y-m'),
+                number_format($month['summa'], 0, '.', ',')
+            ));
+        }
+        if (count($monthsWithData) > 5) {
+            $this->writeLog("    ... va yana " . (count($monthsWithData) - 5) . " ta oy");
         }
 
         // Step 2: Create records for ALL months between first and last payment
         $grafikCount = 0;
+        $monthsWithPayment = 0;
+        $totalScheduled = 0;
         $currentDate = $firstPaymentMonth->copy();
 
         while ($currentDate->lte($lastPaymentMonth)) {
@@ -485,7 +637,7 @@ class YerSotuvSeeder extends Seeder
                 }
             }
 
-            // Create record for this month (with data or 0)
+            // Create record for this month (with summa or 0)
             GrafikTolov::create([
                 'yer_sotuv_id' => $yerSotuv->id,
                 'lot_raqami' => $yerSotuv->lot_raqami,
@@ -496,11 +648,24 @@ class YerSotuvSeeder extends Seeder
             ]);
 
             $grafikCount++;
+            if ($summa > 0) {
+                $monthsWithPayment++;
+                $totalScheduled += $summa;
+            }
+
             $currentDate->addMonth();
         }
 
         if ($grafikCount > 0) {
-            $this->command->info("  LOT {$yerSotuv->lot_raqami}: {$grafikCount} ta grafik to'lov ({$firstPaymentMonth->format('Y-m')} dan {$lastPaymentMonth->format('Y-m')} gacha)");
+            $this->command->info(sprintf(
+                "  LOT %s: %d ta grafik (%s dan %s gacha, %d oyda to'lov, jami: %s)",
+                $yerSotuv->lot_raqami,
+                $grafikCount,
+                $firstPaymentMonth->format('Y-m'),
+                $lastPaymentMonth->format('Y-m'),
+                $monthsWithPayment,
+                number_format($totalScheduled, 0, '.', ',')
+            ));
         }
     }
 
@@ -653,13 +818,12 @@ class YerSotuvSeeder extends Seeder
             return $matches[1];
         }
 
-        // Pattern 5: Find any 6+ digit number in text (lowered from 7 to catch shorter LOTs)
-        // This will catch: 3808404, 10889408, 13450799, etc.
+        // Pattern 5: Find any 6+ digit number in text
         if (preg_match('/\b(\d{6,})\b/', $cleanedText, $matches)) {
             return $matches[1];
         }
 
-        // Pattern 6: If it's just a number after cleaning (e.g., "10889408")
+        // Pattern 6: If it's just a number after cleaning
         $cleanedText = str_replace([',', ' '], '', $cleanedText);
         if (is_numeric($cleanedText) && strlen($cleanedText) >= 6) {
             return (string)round($cleanedText);
