@@ -14,217 +14,208 @@ use Illuminate\Support\Facades\Storage;
 
 class YerSotuvSeeder extends Seeder
 {
+    private const BATCH_SIZE = 50;
+    private const MEMORY_LIMIT = '512M';
+
     private $oyNomlari = [
-        1 => 'yanvar',
-        2 => 'fevral',
-        3 => 'mart',
-        4 => 'aprel',
-        5 => 'may',
-        6 => 'iyun',
-        7 => 'iyul',
-        8 => 'avgust',
-        9 => 'sentabr',
-        10 => 'oktabr',
-        11 => 'noyabr',
-        12 => 'dekabr'
+        1 => 'yanvar', 2 => 'fevral', 3 => 'mart', 4 => 'aprel',
+        5 => 'may', 6 => 'iyun', 7 => 'iyul', 8 => 'avgust',
+        9 => 'sentabr', 10 => 'oktabr', 11 => 'noyabr', 12 => 'dekabr'
+    ];
+
+    // VERIFIED CORRECT column mapping based on actual Excel structure
+    private $grafikColumnMap = [
+        2022 => [1 => 51, 2 => 52, 3 => 53, 4 => 54, 5 => 55, 6 => 56, 7 => 57, 8 => 58, 9 => 59, 10 => 60, 11 => 61, 12 => 62],
+        2023 => [1 => 63, 2 => 64, 3 => 65, 4 => 66, 5 => 67, 6 => 68, 7 => 69, 8 => 70, 9 => 71, 10 => 72, 11 => 73, 12 => 74],
+        2024 => [1 => 75, 2 => 76, 3 => 77, 4 => 78, 5 => 79, 6 => 80, 7 => 81, 8 => 82, 9 => 83, 10 => 84, 11 => 85, 12 => 86],
+        2025 => [1 => 87, 2 => 88, 3 => 89, 4 => 90, 5 => 91, 6 => 92, 7 => 93, 8 => 94, 9 => 95, 10 => 96, 11 => 97, 12 => 98],
+        2026 => [1 => 99, 2 => 100, 3 => 101, 4 => 102, 5 => 103, 6 => 104, 7 => 105, 8 => 106, 9 => 107, 10 => 108, 11 => 109, 12 => 110],
+        2027 => [1 => 111, 2 => 112, 3 => 113, 4 => 114, 5 => 115, 6 => 116, 7 => 117, 8 => 118, 9 => 119, 10 => 120, 11 => 121, 12 => 122],
+        2028 => [1 => 123, 2 => 124, 3 => 125, 4 => 126, 5 => 127, 6 => 128, 7 => 129, 8 => 130, 9 => 131, 10 => 132, 11 => 133, 12 => 134],
+        2029 => [1 => 135, 2 => 136, 3 => 137, 4 => 138, 5 => 139, 6 => 140, 7 => 141, 8 => 142, 9 => 143, 10 => 144, 11 => 145, 12 => 146]
     ];
 
     private $notFoundLots = [];
     private $skippedRecords = [];
     private $logFileName;
+    private $grafikBatch = [];
+    private $faktBatch = [];
 
     public function run(): void
     {
-        // Initialize log file
+        ini_set('memory_limit', self::MEMORY_LIMIT);
+
         $this->logFileName = 'seeder_logs/import_' . now()->format('Y-m-d_H-i-s') . '.log';
-        $this->writeLog("=== YER SOTUV IMPORT LOG ===");
+        $this->writeLog("=== YER SOTUV IMPORT LOG (PRODUCTION MODE) ===");
         $this->writeLog("Boshlandi: " . now()->format('Y-m-d H:i:s'));
+        $this->writeLog("Memory Limit: " . self::MEMORY_LIMIT);
         $this->writeLog(str_repeat("=", 80));
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        FaktTolov::truncate();
-        GrafikTolov::truncate();
-        YerSotuv::truncate();
+        $this->command->info("Ma'lumotlar tozalanmoqda...");
+        FaktTolov::query()->delete();
+        GrafikTolov::query()->delete();
+        YerSotuv::query()->delete();
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $this->command->info("Ma'lumotlar o'chirildi. Import boshlanmoqda...");
-        $this->writeLog("\nMa'lumotlar o'chirildi. Import boshlanmoqda...\n");
+        $this->command->info("Import boshlanmoqda...");
 
-        $this->importAsosiyMalumot();
-        $this->importFaktTolovlar();
+        $startTime = microtime(true);
 
-        // Write final summary to log
-        $this->writeFinalSummary();
+        try {
+            $this->importAsosiyMalumot();
+            $this->flushGrafikBatch();
 
-        // Show comprehensive verification statistics
-        $this->showVerificationStatistics();
+            $this->importFaktTolovlar();
+            $this->flushFaktBatch();
 
-        if (!empty($this->notFoundLots)) {
-            $this->command->warn("\n=== OGOHLANTIRISH: Topilmagan LOT raqamlar ===");
-            foreach ($this->notFoundLots as $lot) {
-                $this->command->error("LOT {$lot} ma'lumotlar bazasida topilmadi!");
+            $duration = round(microtime(true) - $startTime, 2);
+
+            $this->writeFinalSummary($duration);
+            $this->showVerificationStatistics();
+
+            if (!empty($this->notFoundLots)) {
+                $this->command->warn("\n=== OGOHLANTIRISH: Topilmagan LOT raqamlar ===");
+                $count = min(10, count($this->notFoundLots));
+                for ($i = 0; $i < $count; $i++) {
+                    $this->command->error("LOT {$this->notFoundLots[$i]} ma'lumotlar bazasida topilmadi!");
+                }
+                if (count($this->notFoundLots) > 10) {
+                    $this->command->warn("... va yana " . (count($this->notFoundLots) - 10) . " ta");
+                }
+                $this->command->warn("Jami topilmagan: " . count($this->notFoundLots) . " ta\n");
             }
-            $this->command->warn("Jami topilmagan: " . count($this->notFoundLots) . " ta\n");
+
+            $this->command->info("\n✓ Import muvaffaqiyatli yakunlandi! ({$duration}s)");
+            $this->command->info("✓ Log fayl: storage/app/{$this->logFileName}");
+
+        } catch (\Exception $e) {
+            $this->command->error("\n✗ KRITIK XATOLIK: " . $e->getMessage());
+            $this->command->error("Stack: " . $e->getTraceAsString());
+            $this->writeLog("\nKRITIK XATOLIK: " . $e->getMessage());
+            $this->writeLog($e->getTraceAsString());
+            throw $e;
         }
-
-        $this->command->info("Import muvaffaqiyatli yakunlandi!");
-        $this->command->info("Log fayl saqlandi: storage/app/{$this->logFileName}");
-    }
-
-    private function writeLog($message): void
-    {
-        Storage::append($this->logFileName, $message);
-    }
-
-    private function writeFinalSummary(): void
-    {
-        $this->writeLog("\n" . str_repeat("=", 80));
-        $this->writeLog("=== YAKUNIY HISOBOT ===");
-        $this->writeLog(str_repeat("=", 80));
-
-        // Prepare summary statistics
-        $totalNotFound = count($this->notFoundLots);
-        $totalSkipped = count($this->skippedRecords);
-
-        // Count successful imports
-        $totalYerSotuv = YerSotuv::count();
-        $totalGrafik = GrafikTolov::count();
-        $totalFakt = FaktTolov::count();
-
-        // Group skipped records by reason
-        $groupedByReason = [];
-        foreach ($this->skippedRecords as $record) {
-            $reason = $record['sabab'];
-            if (!isset($groupedByReason[$reason])) {
-                $groupedByReason[$reason] = 0;
-            }
-            $groupedByReason[$reason]++;
-        }
-
-        // Create summary table
-        $this->writeLog("\n╔═══════════════════════════════════════════════════════════════════════════╗");
-        $this->writeLog("║                         IMPORT STATISTIKASI                               ║");
-        $this->writeLog("╠═══════════════════════════════════════════════════════════════════════════╣");
-        $this->writeLog(sprintf("║ %-50s │ %23s ║", "JAMI YUKLANGAN MA'LUMOTLAR", ""));
-        $this->writeLog("╟───────────────────────────────────────────────────────────────────────────╢");
-        $this->writeLog(sprintf("║ %-50s │ %23s ║", "  • Yer sotuv (LOT) yozuvlari", str_pad($totalYerSotuv . " ta", 23)));
-        $this->writeLog(sprintf("║ %-50s │ %23s ║", "  • Grafik to'lovlar", str_pad($totalGrafik . " ta", 23)));
-        $this->writeLog(sprintf("║ %-50s │ %23s ║", "  • Fakt to'lovlar", str_pad($totalFakt . " ta", 23)));
-        $this->writeLog("╠═══════════════════════════════════════════════════════════════════════════╣");
-        $this->writeLog(sprintf("║ %-50s │ %23s ║", "TOPILMAGAN LOT RAQAMLAR", str_pad($totalNotFound . " ta", 23)));
-        $this->writeLog("╠═══════════════════════════════════════════════════════════════════════════╣");
-        $this->writeLog(sprintf("║ %-50s │ %23s ║", "O'TKAZIB YUBORILGAN YOZUVLAR", str_pad($totalSkipped . " ta", 23)));
-        $this->writeLog("╟───────────────────────────────────────────────────────────────────────────╢");
-
-        foreach ($groupedByReason as $reason => $count) {
-            $reasonShort = mb_substr($reason, 0, 47);
-            if (mb_strlen($reason) > 47) $reasonShort .= "...";
-            $this->writeLog(sprintf("║   %-48s │ %23s ║", $reasonShort, str_pad($count . " ta", 23)));
-        }
-
-        $this->writeLog("╚═══════════════════════════════════════════════════════════════════════════╝");
-
-        // Detailed lists if needed
-        if (!empty($this->notFoundLots) && $totalNotFound <= 20) {
-            $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR RO'YXATI ###");
-            foreach ($this->notFoundLots as $lot) {
-                $this->writeLog("  - LOT {$lot}");
-            }
-        } elseif ($totalNotFound > 20) {
-            $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR (Jami {$totalNotFound} ta - faqat birinchi 20 ta) ###");
-            foreach (array_slice($this->notFoundLots, 0, 20) as $lot) {
-                $this->writeLog("  - LOT {$lot}");
-            }
-            $this->writeLog("  ... va yana " . ($totalNotFound - 20) . " ta");
-        }
-
-        $this->writeLog("\n" . str_repeat("=", 80));
-        $this->writeLog("Yakunlandi: " . now()->format('Y-m-d H:i:s'));
-        $this->writeLog(str_repeat("=", 80));
     }
 
     private function importAsosiyMalumot(): void
     {
-        $file = storage_path('app/excel/Sotilgan_yerlar_17_11_2025_Bazaga(Abdulazizga).xlsx');
+        // Try multiple possible file names
+        $possibleFiles = [
+            'Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx',
+        ];
+
+        $file = null;
+        foreach ($possibleFiles as $filename) {
+            $path = storage_path('app/excel/' . $filename);
+            if (file_exists($path)) {
+                $file = $path;
+                $this->command->info("Fayl topildi: {$filename}");
+                break;
+            }
+        }
+
+        if (!$file) {
+            $file = storage_path('app/excel/Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx');
+        }
 
         if (!file_exists($file)) {
-            $this->command->error("Fayl topilmadi: $file");
-            $this->writeLog("XATOLIK: Fayl topilmadi - $file");
-            return;
+            throw new \RuntimeException("Fayl topilmadi: $file");
         }
 
-        try {
-            $spreadsheet = IOFactory::load($file);
-            $worksheet = $spreadsheet->getActiveSheet();
-            $rows = $worksheet->toArray();
+        $this->command->info("Excel fayl yuklanmoqda...");
+        $spreadsheet = IOFactory::load($file);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $rows = $worksheet->toArray(null, true, true, true);
 
-            array_shift($rows);
+        // Remove header row
+        unset($rows[1]);
 
-            $this->command->info("Asosiy ma'lumotlar yuklanmoqda...");
-            $this->writeLog("\n=== ASOSIY MA'LUMOTLAR IMPORT ===");
-            $this->writeLog("Fayl: Sotilgan_yerlar_17_11_2025_Bazaga(Abdulazizga).xlsx");
+        $totalRows = count($rows);
+        $this->command->info("Jami {$totalRows} ta qator topildi.");
+        $this->writeLog("\n=== ASOSIY MA'LUMOTLAR IMPORT ===");
+        $this->writeLog("Fayl: Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx");
+        $this->writeLog("Jami qatorlar: {$totalRows}");
 
-            $count = 0;
-            foreach ($rows as $rowIndex => $row) {
-                if (empty(array_filter($row))) {
-                    $this->skippedRecords[] = [
-                        'sabab' => 'Bo\'sh qator',
-                        'qator' => $rowIndex + 2
-                    ];
-                    continue;
-                }
+        $bar = $this->command->getOutput()->createProgressBar($totalRows);
+        $bar->start();
 
-                $lotRaqami = $this->parseLotNumber($row[1] ?? null);
+        $count = 0;
+        $rowNumber = 1;
 
-                if (!$lotRaqami) {
-                    $this->skippedRecords[] = [
-                        'sabab' => 'LOT raqami topilmadi',
-                        'qator' => $rowIndex + 2,
-                        'qoshimcha' => 'Ustun B: ' . ($row[1] ?? 'bo\'sh')
-                    ];
-                    continue;
-                }
+        foreach ($rows as $rowIndex => $row) {
+            $rowNumber++;
 
-                try {
-                    $yerSotuv = $this->createYerSotuv($row, $lotRaqami);
+            // Convert associative array to indexed array
+            $rowData = array_values($row);
 
-                    if ($yerSotuv) {
-                        $this->createGrafikTolovlar($row, $yerSotuv);
-                        $count++;
-
-                        if ($count % 10 == 0) {
-                            $this->command->info("  Yuklandi: {$count} ta lot");
-                        }
-                    }
-                } catch (\Exception $e) {
-                    $this->command->error("Qator " . ($rowIndex + 2) . " xatolik: " . $e->getMessage());
-                    $this->skippedRecords[] = [
-                        'sabab' => 'Exception xatolik',
-                        'lot_raqami' => $lotRaqami,
-                        'qator' => $rowIndex + 2,
-                        'qoshimcha' => $e->getMessage()
-                    ];
-                    continue;
-                }
+            if (empty(array_filter($rowData))) {
+                $this->skippedRecords[] = [
+                    'sabab' => 'Bo\'sh qator',
+                    'qator' => $rowNumber
+                ];
+                $bar->advance();
+                continue;
             }
 
-            $this->command->info("Jami {$count} ta lot yuklandi!");
-            $this->writeLog("Muvaffaqiyatli yuklandi: {$count} ta lot");
-        } catch (\Exception $e) {
-            $this->command->error("Xatolik: " . $e->getMessage());
-            $this->writeLog("KRITIK XATOLIK: " . $e->getMessage());
+            // Column B (index 1) contains LOT number
+            $lotRaqami = $this->parseLotNumber($rowData[1] ?? null);
+
+            if (!$lotRaqami) {
+                $this->skippedRecords[] = [
+                    'sabab' => 'LOT raqami topilmadi',
+                    'qator' => $rowNumber,
+                    'qoshimcha' => 'Ustun B: ' . ($rowData[1] ?? 'bo\'sh')
+                ];
+                $bar->advance();
+                continue;
+            }
+
+            try {
+                DB::beginTransaction();
+
+                $yerSotuv = $this->createYerSotuv($rowData, $lotRaqami, $rowNumber);
+
+                if ($yerSotuv) {
+                    $this->createGrafikTolovlar($rowData, $yerSotuv);
+                    $count++;
+                }
+
+                DB::commit();
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $this->skippedRecords[] = [
+                    'sabab' => 'Exception xatolik',
+                    'lot_raqami' => $lotRaqami,
+                    'qator' => $rowNumber,
+                    'qoshimcha' => $e->getMessage()
+                ];
+                $this->writeLog("XATOLIK qator {$rowNumber}: " . $e->getMessage());
+            }
+
+            $bar->advance();
+
+            // Memory cleanup every 100 records
+            if ($count % 100 === 0) {
+                gc_collect_cycles();
+            }
         }
+
+        $bar->finish();
+        $this->command->newLine(2);
+        $this->command->info("✓ Jami {$count} ta lot yuklandi!");
+        $this->writeLog("Muvaffaqiyatli yuklandi: {$count} ta lot");
     }
 
-    private function createYerSotuv($row, $lotRaqami): ?YerSotuv
+    private function createYerSotuv($row, $lotRaqami, $rowNumber): ?YerSotuv
     {
         $auksionSana = $this->parseDate($row[15] ?? null);
         $shartnomaSana = $this->parseDate($row[26] ?? null);
 
         $data = [
-            // Asosiy ma'lumotlar
             'lot_raqami' => $lotRaqami,
             'tuman' => $this->cleanValue($row[2] ?? null),
             'mfy' => $this->cleanValue($row[3] ?? null),
@@ -235,14 +226,10 @@ class YerSotuvSeeder extends Seeder
             'yangi_ozbekiston' => $this->cleanValue($row[7] ?? null),
             'maydoni' => $this->parseNumber($row[8] ?? null),
             'lokatsiya' => $this->cleanValue($row[9] ?? null),
-
-            // Qurilish ma'lumotlari
             'qurilish_turi_1' => $this->cleanValue($row[10] ?? null),
             'qurilish_turi_2' => $this->cleanValue($row[11] ?? null),
             'qurilish_maydoni' => $this->parseNumber($row[12] ?? null),
             'investitsiya' => $this->parseNumber($row[13] ?? null),
-
-            // Auksion ma'lumotlari
             'boshlangich_narx' => $this->parseNumber($row[14] ?? null),
             'auksion_sana' => $auksionSana ? Carbon::parse($auksionSana) : null,
             'sotilgan_narx' => $this->parseNumber($row[16] ?? null),
@@ -254,13 +241,9 @@ class YerSotuvSeeder extends Seeder
             'asos' => $this->cleanValue($row[22] ?? null),
             'auksion_turi' => $this->cleanValue($row[23] ?? null),
             'holat' => $this->cleanValue($row[24] ?? null),
-
-            // Shartnoma ma'lumotlari
             'shartnoma_holati' => $this->cleanValue($row[25] ?? null),
             'shartnoma_sana' => $shartnomaSana,
             'shartnoma_raqam' => $this->cleanValue($row[27] ?? null),
-
-            // Moliyaviy ma'lumotlar
             'golib_tolagan' => $this->parseNumber($row[28] ?? null),
             'buyurtmachiga_otkazilgan' => $this->parseNumber($row[29] ?? null),
             'chegirma' => $this->parseNumber($row[30] ?? null),
@@ -270,28 +253,20 @@ class YerSotuvSeeder extends Seeder
             'shartnoma_tushgan' => $this->parseNumber($row[34] ?? null),
             'davaktivda_turgan' => $this->parseNumber($row[35] ?? null),
             'yer_auksion_harajat' => $this->parseNumber($row[36] ?? null),
-
-            // Taqsimot - tushadigan
             'mahalliy_byudjet_tushadigan' => $this->parseNumber($row[37] ?? null),
             'jamgarma_tushadigan' => $this->parseNumber($row[38] ?? null),
             'yangi_oz_direksiya_tushadigan' => $this->parseNumber($row[39] ?? null),
             'shayxontohur_tushadigan' => $this->parseNumber($row[40] ?? null),
-
-            // Taqsimot - taqsimlangan
             'mahalliy_byudjet_taqsimlangan' => $this->parseNumber($row[41] ?? null),
             'jamgarma_taqsimlangan' => $this->parseNumber($row[42] ?? null),
             'yangi_oz_direksiya_taqsimlangan' => $this->parseNumber($row[43] ?? null),
             'shayxontohur_taqsimlangan' => $this->parseNumber($row[44] ?? null),
-
-            // Qoldiq
             'qoldiq_mahalliy_byudjet' => $this->parseNumber($row[45] ?? null),
             'qoldiq_jamgarma' => $this->parseNumber($row[46] ?? null),
             'qoldiq_yangi_oz_direksiya' => $this->parseNumber($row[47] ?? null),
             'qoldiq_shayxontohur' => $this->parseNumber($row[48] ?? null),
-
             'farqi' => $this->parseNumber($row[49] ?? null),
-            'shartnoma_summasi' => 0, // Will be calculated from grafik_tolovlar
-
+            'shartnoma_summasi' => 0,
             'yil' => $auksionSana ? Carbon::parse($auksionSana)->year : date('Y')
         ];
 
@@ -306,128 +281,9 @@ class YerSotuvSeeder extends Seeder
 
     private function calculateShartnomaSummasiFromGrafik($row): float
     {
-        // CORRECT column mapping based on actual Excel structure
-        // Column index 50 = "Шартнома бўйича тушадиган" (NOT a monthly payment)
-        // Monthly payments start from column index 51 (2022 January)
-
-        $grafikData = [
-            2022 => [
-                1 => 51,   // 2022 yanvar
-                2 => 52,   // 2022 fevral
-                3 => 53,   // 2022 mart
-                4 => 54,   // 2022 aprel
-                5 => 55,   // 2022 may
-                6 => 56,   // 2022 iyun
-                7 => 57,   // 2022 iyul
-                8 => 58,   // 2022 avgust
-                9 => 59,   // 2022 sentabr
-                10 => 60,  // 2022 oktabr
-                11 => 61,  // 2022 noyabr
-                12 => 62   // 2022 dekabr
-            ],
-            2023 => [
-                1 => 63,   // 2023 yanvar
-                2 => 64,   // 2023 fevral
-                3 => 65,   // 2023 mart
-                4 => 66,   // 2023 aprel
-                5 => 67,   // 2023 may
-                6 => 68,   // 2023 iyun
-                7 => 69,   // 2023 iyul
-                8 => 70,   // 2023 avgust
-                9 => 71,   // 2023 sentabr
-                10 => 72,  // 2023 oktabr
-                11 => 73,  // 2023 noyabr
-                12 => 74   // 2023 dekabr
-            ],
-            2024 => [
-                1 => 75,   // 2024 yanvar
-                2 => 76,   // 2024 fevral
-                3 => 77,   // 2024 mart
-                4 => 78,   // 2024 aprel
-                5 => 79,   // 2024 may
-                6 => 80,   // 2024 iyun
-                7 => 81,   // 2024 iyul
-                8 => 82,   // 2024 avgust
-                9 => 83,   // 2024 sentabr
-                10 => 84,  // 2024 oktabr
-                11 => 85,  // 2024 noyabr
-                12 => 86   // 2024 dekabr
-            ],
-            2025 => [
-                1 => 87,   // 2025 yanvar
-                2 => 88,   // 2025 fevral
-                3 => 89,   // 2025 mart
-                4 => 90,   // 2025 aprel
-                5 => 91,   // 2025 may
-                6 => 92,   // 2025 iyun
-                7 => 93,   // 2025 iyul
-                8 => 94,   // 2025 avgust
-                9 => 95,   // 2025 sentabr
-                10 => 96,  // 2025 oktabr
-                11 => 97,  // 2025 noyabr
-                12 => 98   // 2025 dekabr
-            ],
-            2026 => [
-                1 => 99,   // 2026 yanvar
-                2 => 100,  // 2026 fevral
-                3 => 101,  // 2026 mart
-                4 => 102,  // 2026 aprel
-                5 => 103,  // 2026 may
-                6 => 104,  // 2026 iyun
-                7 => 105,  // 2026 iyul
-                8 => 106,  // 2026 avgust
-                9 => 107,  // 2026 sentabr
-                10 => 108, // 2026 oktabr
-                11 => 109, // 2026 noyabr
-                12 => 110  // 2026 dekabr
-            ],
-            2027 => [
-                1 => 111,  // 2027 yanvar
-                2 => 112,  // 2027 fevral
-                3 => 113,  // 2027 mart
-                4 => 114,  // 2027 aprel
-                5 => 115,  // 2027 may
-                6 => 116,  // 2027 iyun
-                7 => 117,  // 2027 iyul
-                8 => 118,  // 2027 avgust
-                9 => 119,  // 2027 sentabr
-                10 => 120, // 2027 oktabr
-                11 => 121, // 2027 noyabr
-                12 => 122  // 2027 dekabr
-            ],
-            2028 => [
-                1 => 123,  // 2028 yanvar
-                2 => 124,  // 2028 fevral
-                3 => 125,  // 2028 mart
-                4 => 126,  // 2028 aprel
-                5 => 127,  // 2028 may
-                6 => 128,  // 2028 iyun
-                7 => 129,  // 2028 iyul
-                8 => 130,  // 2028 avgust
-                9 => 131,  // 2028 sentabr
-                10 => 132, // 2028 oktabr
-                11 => 133, // 2028 noyabr
-                12 => 134  // 2028 dekabr
-            ],
-            2029 => [
-                1 => 135,  // 2029 yanvar
-                2 => 136,  // 2029 fevral
-                3 => 137,  // 2029 mart
-                4 => 138,  // 2029 aprel
-                5 => 139,  // 2029 may
-                6 => 140,  // 2029 iyun
-                7 => 141,  // 2029 iyul
-                8 => 142,  // 2029 avgust
-                9 => 143,  // 2029 sentabr
-                10 => 144, // 2029 oktabr
-                11 => 145, // 2029 noyabr
-                12 => 146  // 2029 dekabr
-            ]
-        ];
-
         $totalSumma = 0;
 
-        foreach ($grafikData as $yil => $oylar) {
+        foreach ($this->grafikColumnMap as $yil => $oylar) {
             foreach ($oylar as $oy => $ustunIndex) {
                 if (isset($row[$ustunIndex])) {
                     $summa = $this->parseNumber($row[$ustunIndex]);
@@ -443,149 +299,23 @@ class YerSotuvSeeder extends Seeder
 
     private function createGrafikTolovlar($row, $yerSotuv): void
     {
-        // CORRECT column mapping - monthly payments start from index 51
-        $grafikData = [
-            2022 => [
-                1 => 51,   // 2022 yanvar - Column AZ (index 51)
-                2 => 52,   // 2022 fevral
-                3 => 53,   // 2022 mart
-                4 => 54,   // 2022 aprel
-                5 => 55,   // 2022 may
-                6 => 56,   // 2022 iyun
-                7 => 57,   // 2022 iyul
-                8 => 58,   // 2022 avgust
-                9 => 59,   // 2022 sentabr
-                10 => 60,  // 2022 oktabr
-                11 => 61,  // 2022 noyabr
-                12 => 62   // 2022 dekabr
-            ],
-            2023 => [
-                1 => 63,   // 2023 yanvar
-                2 => 64,   // 2023 fevral
-                3 => 65,   // 2023 mart
-                4 => 66,   // 2023 aprel
-                5 => 67,   // 2023 may
-                6 => 68,   // 2023 iyun
-                7 => 69,   // 2023 iyul
-                8 => 70,   // 2023 avgust
-                9 => 71,   // 2023 sentabr
-                10 => 72,  // 2023 oktabr
-                11 => 73,  // 2023 noyabr
-                12 => 74   // 2023 dekabr
-            ],
-            2024 => [
-                1 => 75,   // 2024 yanvar
-                2 => 76,   // 2024 fevral
-                3 => 77,   // 2024 mart
-                4 => 78,   // 2024 aprel
-                5 => 79,   // 2024 may
-                6 => 80,   // 2024 iyun
-                7 => 81,   // 2024 iyul
-                8 => 82,   // 2024 avgust
-                9 => 83,   // 2024 sentabr
-                10 => 84,  // 2024 oktabr
-                11 => 85,  // 2024 noyabr
-                12 => 86   // 2024 dekabr
-            ],
-            2025 => [
-                1 => 87,   // 2025 yanvar
-                2 => 88,   // 2025 fevral
-                3 => 89,   // 2025 mart
-                4 => 90,   // 2025 aprel
-                5 => 91,   // 2025 may
-                6 => 92,   // 2025 iyun
-                7 => 93,   // 2025 iyul
-                8 => 94,   // 2025 avgust
-                9 => 95,   // 2025 sentabr
-                10 => 96,  // 2025 oktabr
-                11 => 97,  // 2025 noyabr
-                12 => 98   // 2025 dekabr
-            ],
-            2026 => [
-                1 => 99,   // 2026 yanvar
-                2 => 100,  // 2026 fevral
-                3 => 101,  // 2026 mart
-                4 => 102,  // 2026 aprel
-                5 => 103,  // 2026 may
-                6 => 104,  // 2026 iyun
-                7 => 105,  // 2026 iyul
-                8 => 106,  // 2026 avgust
-                9 => 107,  // 2026 sentabr
-                10 => 108, // 2026 oktabr
-                11 => 109, // 2026 noyabr
-                12 => 110  // 2026 dekabr
-            ],
-            2027 => [
-                1 => 111,  // 2027 yanvar
-                2 => 112,  // 2027 fevral
-                3 => 113,  // 2027 mart
-                4 => 114,  // 2027 aprel
-                5 => 115,  // 2027 may
-                6 => 116,  // 2027 iyun
-                7 => 117,  // 2027 iyul
-                8 => 118,  // 2027 avgust
-                9 => 119,  // 2027 sentabr
-                10 => 120, // 2027 oktabr
-                11 => 121, // 2027 noyabr
-                12 => 122  // 2027 dekabr
-            ],
-            2028 => [
-                1 => 123,  // 2028 yanvar
-                2 => 124,  // 2028 fevral
-                3 => 125,  // 2028 mart
-                4 => 126,  // 2028 aprel
-                5 => 127,  // 2028 may
-                6 => 128,  // 2028 iyun
-                7 => 129,  // 2028 iyul
-                8 => 130,  // 2028 avgust
-                9 => 131,  // 2028 sentabr
-                10 => 132, // 2028 oktabr
-                11 => 133, // 2028 noyabr
-                12 => 134  // 2028 dekabr
-            ],
-            2029 => [
-                1 => 135,  // 2029 yanvar
-                2 => 136,  // 2029 fevral
-                3 => 137,  // 2029 mart
-                4 => 138,  // 2029 aprel
-                5 => 139,  // 2029 may
-                6 => 140,  // 2029 iyun
-                7 => 141,  // 2029 iyul
-                8 => 142,  // 2029 avgust
-                9 => 143,  // 2029 sentabr
-                10 => 144, // 2029 oktabr
-                11 => 145, // 2029 noyabr
-                12 => 146  // 2029 dekabr
-            ]
-        ];
-
-        // Step 1: Collect all months with data and find first/last payment month
+        // Collect all months with payment data
         $monthsWithData = [];
         $firstPaymentMonth = null;
         $lastPaymentMonth = null;
 
-        foreach ($grafikData as $yil => $oylar) {
+        foreach ($this->grafikColumnMap as $yil => $oylar) {
             foreach ($oylar as $oy => $ustunIndex) {
-                // Get the value, treating NULL as 0
-                $cellValue = $row[$ustunIndex] ?? null;
-                $summa = $this->parseNumber($cellValue);
+                $summa = $this->parseNumber($row[$ustunIndex] ?? null);
 
-                // Convert NULL to 0 for consistency
-                if ($summa === null) {
-                    $summa = 0;
-                }
-
-                // Only track months with actual payment data (> 0) for range detection
-                if ($summa > 0) {
+                if ($summa !== null && $summa > 0) {
                     $currentMonth = Carbon::create($yil, $oy, 1);
                     $monthsWithData[] = [
-                        'date' => $currentMonth,
                         'yil' => $yil,
                         'oy' => $oy,
                         'summa' => $summa
                     ];
 
-                    // Track first and last payment months
                     if ($firstPaymentMonth === null || $currentMonth->lt($firstPaymentMonth)) {
                         $firstPaymentMonth = $currentMonth;
                     }
@@ -596,42 +326,18 @@ class YerSotuvSeeder extends Seeder
             }
         }
 
-        // If no payment data found, skip this LOT
         if (empty($monthsWithData)) {
-            $this->writeLog("  LOT {$yerSotuv->lot_raqami}: Grafik to'lovlar topilmadi (barcha oylar bo'sh)");
-            return;
+            return; // No payment schedule
         }
 
-        // Log the payment schedule for verification
-        $this->writeLog("\n  LOT {$yerSotuv->lot_raqami} - To'lov grafigi:");
-        $this->writeLog("  Birinchi to'lov: {$firstPaymentMonth->format('Y-m')}");
-        $this->writeLog("  Oxirgi to'lov: {$lastPaymentMonth->format('Y-m')}");
-        $this->writeLog("  To'lovli oylar soni: " . count($monthsWithData));
-
-        // Show sample payments
-        $sampleCount = min(5, count($monthsWithData));
-        for ($i = 0; $i < $sampleCount; $i++) {
-            $month = $monthsWithData[$i];
-            $this->writeLog(sprintf("    %s: %s",
-                $month['date']->format('Y-m'),
-                number_format($month['summa'], 0, '.', ',')
-            ));
-        }
-        if (count($monthsWithData) > 5) {
-            $this->writeLog("    ... va yana " . (count($monthsWithData) - 5) . " ta oy");
-        }
-
-        // Step 2: Create records for ALL months between first and last payment
-        $grafikCount = 0;
-        $monthsWithPayment = 0;
-        $totalScheduled = 0;
+        // Create records for all months between first and last payment
         $currentDate = $firstPaymentMonth->copy();
 
         while ($currentDate->lte($lastPaymentMonth)) {
             $yil = $currentDate->year;
             $oy = $currentDate->month;
 
-            // Find if this month has payment data
+            // Find payment for this month
             $summa = 0;
             foreach ($monthsWithData as $monthData) {
                 if ($monthData['yil'] == $yil && $monthData['oy'] == $oy) {
@@ -640,35 +346,30 @@ class YerSotuvSeeder extends Seeder
                 }
             }
 
-            // Create record for this month (with summa or 0)
-            GrafikTolov::create([
+            $this->grafikBatch[] = [
                 'yer_sotuv_id' => $yerSotuv->id,
                 'lot_raqami' => $yerSotuv->lot_raqami,
                 'yil' => $yil,
                 'oy' => $oy,
                 'oy_nomi' => $this->oyNomlari[$oy],
-                'grafik_summa' => $summa
-            ]);
+                'grafik_summa' => $summa,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
 
-            $grafikCount++;
-            if ($summa > 0) {
-                $monthsWithPayment++;
-                $totalScheduled += $summa;
+            if (count($this->grafikBatch) >= self::BATCH_SIZE) {
+                $this->flushGrafikBatch();
             }
 
             $currentDate->addMonth();
         }
+    }
 
-        if ($grafikCount > 0) {
-            $this->command->info(sprintf(
-                "  LOT %s: %d ta grafik (%s dan %s gacha, %d oyda to'lov, jami: %s)",
-                $yerSotuv->lot_raqami,
-                $grafikCount,
-                $firstPaymentMonth->format('Y-m'),
-                $lastPaymentMonth->format('Y-m'),
-                $monthsWithPayment,
-                number_format($totalScheduled, 0, '.', ',')
-            ));
+    private function flushGrafikBatch(): void
+    {
+        if (!empty($this->grafikBatch)) {
+            GrafikTolov::insert($this->grafikBatch);
+            $this->grafikBatch = [];
         }
     }
 
@@ -677,97 +378,108 @@ class YerSotuvSeeder extends Seeder
         $file = storage_path('app/excel/Тушум 2024-2025-13.11.2025.xlsx');
 
         if (!file_exists($file)) {
-            $this->command->error("Fakt to'lovlar fayli topilmadi");
-            $this->writeLog("XATOLIK: Fakt to'lovlar fayli topilmadi - $file");
+            $this->command->warn("Fakt to'lovlar fayli topilmadi, o'tkazib yuborilmoqda...");
+            $this->writeLog("OGOHLANTIRISH: Fakt to'lovlar fayli topilmadi");
             return;
         }
 
-        try {
-            $spreadsheet = IOFactory::load($file);
-            $worksheet = $spreadsheet->getActiveSheet();
-            $rows = $worksheet->toArray();
+        $this->command->info("\nFakt to'lovlar yuklanmoqda...");
+        $spreadsheet = IOFactory::load($file);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $rows = $worksheet->toArray(null, true, true, true);
 
-            // Skip header
-            array_shift($rows);
+        unset($rows[1]); // Remove header
 
-            $this->command->info("Fakt to'lovlar yuklanmoqda...");
-            $this->writeLog("\n=== FAKT TO'LOVLAR IMPORT ===");
-            $this->writeLog("Fayl: Тушум 2024-2025-13.11.2025.xlsx");
+        $totalRows = count($rows);
+        $this->writeLog("\n=== FAKT TO'LOVLAR IMPORT ===");
+        $this->writeLog("Fayl: Тушум 2024-2025-13.11.2025.xlsx");
+        $this->writeLog("Jami qatorlar: {$totalRows}");
 
-            $count = 0;
-            $skipped = 0;
+        $bar = $this->command->getOutput()->createProgressBar($totalRows);
+        $bar->start();
 
-            foreach ($rows as $rowIndex => $row) {
-                if (empty(array_filter($row))) {
-                    $this->skippedRecords[] = [
-                        'sabab' => 'Bo\'sh qator (Fakt to\'lovlar)',
-                        'qator' => $rowIndex + 2
-                    ];
-                    $skipped++;
-                    continue;
-                }
+        $count = 0;
+        $skipped = 0;
+        $rowNumber = 1;
 
-                // Extract LOT number from column 7 (index 7)
-                $lotRaqami = $this->extractLotRaqami($row[7] ?? '');
+        // Pre-load all LOT numbers for faster lookup
+        $existingLots = YerSotuv::pluck('lot_raqami')->flip();
 
-                if (!$lotRaqami) {
-                    $this->skippedRecords[] = [
-                        'sabab' => 'LOT raqami topilmadi (Fakt to\'lovlar)',
-                        'qator' => $rowIndex + 2,
-                        'qoshimcha' => 'Ustun H: ' . ($row[7] ?? 'bo\'sh')
-                    ];
-                    $skipped++;
-                    continue;
-                }
+        foreach ($rows as $rowIndex => $row) {
+            $rowNumber++;
+            $rowData = array_values($row);
 
-                // Check if LOT exists in yer_sotuv
-                if (!YerSotuv::where('lot_raqami', $lotRaqami)->exists()) {
-                    if (!in_array($lotRaqami, $this->notFoundLots)) {
-                        $this->notFoundLots[] = $lotRaqami;
-                    }
-                    $this->skippedRecords[] = [
-                        'sabab' => 'LOT bazada topilmadi (Fakt to\'lovlar)',
-                        'lot_raqami' => $lotRaqami,
-                        'qator' => $rowIndex + 2
-                    ];
-                    $skipped++;
-                    continue;
-                }
-
-                $tolovSana = $this->parseDate($row[0] ?? null);
-                if (!$tolovSana) {
-                    $tolovSana = Carbon::now()->format('Y-m-d');
-                }
-
-                FaktTolov::create([
-                    'lot_raqami' => $lotRaqami,
-                    'tolov_sana' => $tolovSana,
-                    'hujjat_raqam' => $this->cleanValue($row[1] ?? null),
-                    'tolash_nom' => $this->cleanValue($row[2] ?? null),
-                    'tolash_hisob' => $this->cleanValue($row[3] ?? null),
-                    'tolash_inn' => $this->cleanValue($row[4] ?? null),
-                    'tolov_summa' => $this->parseNumber($row[5] ?? null),
-                    'detali' => $this->cleanValue($row[6] ?? null)
-                ]);
-
-                $count++;
-
-                if ($count % 100 == 0) {
-                    $this->command->info("  Yuklandi: {$count} ta to'lov");
-                }
+            if (empty(array_filter($rowData))) {
+                $skipped++;
+                $bar->advance();
+                continue;
             }
 
-            $this->command->info("Jami {$count} ta to'lov yuklandi!");
-            $this->writeLog("Muvaffaqiyatli yuklandi: {$count} ta to'lov");
+            // Column H (index 7) contains LOT reference
+            $lotRaqami = $this->extractLotRaqami($rowData[7] ?? '');
 
-            if ($skipped > 0) {
-                $this->command->warn("{$skipped} ta o'tkazib yuborildi");
-                $this->writeLog("O'tkazib yuborildi: {$skipped} ta");
+            if (!$lotRaqami) {
+                $this->skippedRecords[] = [
+                    'sabab' => 'LOT raqami topilmadi (Fakt)',
+                    'qator' => $rowNumber
+                ];
+                $skipped++;
+                $bar->advance();
+                continue;
             }
-        } catch (\Exception $e) {
-            $this->command->error("Xatolik: " . $e->getMessage());
-            $this->writeLog("KRITIK XATOLIK: " . $e->getMessage());
-            $this->command->error("Stack trace: " . $e->getTraceAsString());
+
+            if (!isset($existingLots[$lotRaqami])) {
+                if (!in_array($lotRaqami, $this->notFoundLots)) {
+                    $this->notFoundLots[] = $lotRaqami;
+                }
+                $skipped++;
+                $bar->advance();
+                continue;
+            }
+
+            $tolovSana = $this->parseDate($rowData[0] ?? null);
+            if (!$tolovSana) {
+                $tolovSana = Carbon::now()->format('Y-m-d');
+            }
+
+            $this->faktBatch[] = [
+                'lot_raqami' => $lotRaqami,
+                'tolov_sana' => $tolovSana,
+                'hujjat_raqam' => $this->cleanValue($rowData[1] ?? null),
+                'tolash_nom' => $this->cleanValue($rowData[2] ?? null),
+                'tolash_hisob' => $this->cleanValue($rowData[3] ?? null),
+                'tolash_inn' => $this->cleanValue($rowData[4] ?? null),
+                'tolov_summa' => $this->parseNumber($rowData[5] ?? null) ?? 0,
+                'detali' => $this->cleanValue($rowData[6] ?? null),
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+            if (count($this->faktBatch) >= self::BATCH_SIZE) {
+                $this->flushFaktBatch();
+            }
+
+            $count++;
+            $bar->advance();
+        }
+
+        $bar->finish();
+        $this->command->newLine(2);
+        $this->command->info("✓ Jami {$count} ta fakt to'lov yuklandi!");
+
+        if ($skipped > 0) {
+            $this->command->warn("⚠ {$skipped} ta o'tkazib yuborildi");
+        }
+
+        $this->writeLog("Muvaffaqiyatli yuklandi: {$count} ta fakt to'lov");
+        $this->writeLog("O'tkazib yuborildi: {$skipped} ta");
+    }
+
+    private function flushFaktBatch(): void
+    {
+        if (!empty($this->faktBatch)) {
+            FaktTolov::insert($this->faktBatch);
+            $this->faktBatch = [];
         }
     }
 
@@ -775,7 +487,6 @@ class YerSotuvSeeder extends Seeder
     {
         if ($value === null || $value === '') return null;
 
-        // Remove commas, spaces, dots
         if (is_string($value)) {
             $cleaned = str_replace([',', ' ', '.'], '', trim($value));
             if (is_numeric($cleaned)) {
@@ -783,7 +494,6 @@ class YerSotuvSeeder extends Seeder
             }
         }
 
-        // If it's already numeric
         if (is_numeric($value)) {
             return (string)round($value);
         }
@@ -796,37 +506,23 @@ class YerSotuvSeeder extends Seeder
         if (empty($text)) return null;
 
         $text = trim($text);
+        $cleanedText = preg_replace('/(\d+)[,\s]+(\d+)/', '$1$2', $text);
 
-        // First, remove commas and spaces from numbers (e.g., "3,808,404" → "3808404")
-        $cleanedText = preg_replace('/(\d+),(\d+)/', '$1$2', $text);
-        $cleanedText = preg_replace('/(\d+)\s+(\d+)/', '$1$2', $cleanedText);
+        // Patterns in order of priority
+        $patterns = [
+            '/L(\d+)L/i',
+            '/L(\d+)/i',
+            '/(\d+)L/i',
+            '/LOT\s*(\d+)/i',
+            '/\b(\d{6,})\b/'
+        ];
 
-        // Pattern 1: L[number]L (e.g., L10889408L)
-        if (preg_match('/L(\d+)L/i', $cleanedText, $matches)) {
-            return $matches[1];
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $cleanedText, $matches)) {
+                return $matches[1];
+            }
         }
 
-        // Pattern 2: L[number] (e.g., L10889408)
-        if (preg_match('/L(\d+)/i', $cleanedText, $matches)) {
-            return $matches[1];
-        }
-
-        // Pattern 3: [number]L (e.g., 10889408L)
-        if (preg_match('/(\d+)L/i', $cleanedText, $matches)) {
-            return $matches[1];
-        }
-
-        // Pattern 4: LOT [number] (e.g., LOT 10889408)
-        if (preg_match('/LOT\s*(\d+)/i', $cleanedText, $matches)) {
-            return $matches[1];
-        }
-
-        // Pattern 5: Find any 6+ digit number in text
-        if (preg_match('/\b(\d{6,})\b/', $cleanedText, $matches)) {
-            return $matches[1];
-        }
-
-        // Pattern 6: If it's just a number after cleaning
         $cleanedText = str_replace([',', ' '], '', $cleanedText);
         if (is_numeric($cleanedText) && strlen($cleanedText) >= 6) {
             return (string)round($cleanedText);
@@ -841,248 +537,69 @@ class YerSotuvSeeder extends Seeder
         return trim($value);
     }
 
+    /**
+     * Parse number with support for BOTH comma and dot formats
+     * Examples:
+     *   1,658   -> 1.658 (comma as decimal separator)
+     *   1658    -> 1658
+     *   4.1865  -> 4.1865 (dot as decimal separator)
+     *   1,234,567.89 -> 1234567.89 (comma as thousands, dot as decimal)
+     */
     private function parseNumber($value): ?float
     {
         if ($value === null || $value === '') return null;
 
+        // Already a number
+        if (is_numeric($value)) {
+            return (float)$value;
+        }
+
         if (is_string($value)) {
-            // Remove formatting characters
-            $value = str_replace([',', ' ', "'"], '', trim($value));
+            $value = trim($value);
+
+            // Remove spaces and apostrophes (thousands separators)
+            $value = str_replace([' ', "'"], '', $value);
+
+            // Count commas and dots to determine format
+            $commaCount = substr_count($value, ',');
+            $dotCount = substr_count($value, '.');
+
+            // Case 1: "1,234,567.89" - comma as thousands, dot as decimal
+            if ($commaCount > 0 && $dotCount > 0) {
+                // Remove commas (thousands separator), keep dot (decimal)
+                $value = str_replace(',', '', $value);
+            }
+            // Case 2: "1,658" - single comma could be decimal OR thousands
+            // We need to check the position and context
+            elseif ($commaCount == 1 && $dotCount == 0) {
+                // If comma is followed by 3 digits at the end, it's likely a decimal
+                // e.g., "1,658" -> 1.658
+                // But if it's in the middle like "1,234" it could be thousands
+
+                // Get position of comma
+                $commaPos = strpos($value, ',');
+                $afterComma = substr($value, $commaPos + 1);
+
+                // If there are 1-4 digits after comma and no other commas, treat as decimal
+                if (strlen($afterComma) <= 4 && is_numeric($afterComma)) {
+                    $value = str_replace(',', '.', $value);
+                } else {
+                    // Treat as thousands separator
+                    $value = str_replace(',', '', $value);
+                }
+            }
+            // Case 3: Multiple commas, no dots - e.g., "1,234,567"
+            elseif ($commaCount > 1 && $dotCount == 0) {
+                // Commas are thousands separators
+                $value = str_replace(',', '', $value);
+            }
+            // Case 4: "4.1865" - dot as decimal separator
+            // No changes needed, PHP handles this natively
+
+            return is_numeric($value) ? (float)$value : null;
         }
 
-        return is_numeric($value) ? (float)$value : null;
-    }
-
-    private function showVerificationStatistics(): void
-    {
-        $this->command->info("\n" . str_repeat("=", 100));
-        $this->command->info("MA'LUMOTLAR TEKSHIRUVI VA STATISTIKA");
-        $this->command->info(str_repeat("=", 100) . "\n");
-
-        // 1. BASIC COUNTS
-        $this->command->info("1. ASOSIY HISOBOTLAR:");
-        $this->command->info(str_repeat("-", 100));
-
-        $totalLots = YerSotuv::count();
-        $totalGrafik = GrafikTolov::count();
-        $totalFakt = FaktTolov::count();
-
-        $this->command->info(sprintf("   Jami LOTlar soni:              %s ta", number_format($totalLots, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami grafik to'lovlar:          %s ta", number_format($totalGrafik, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami fakt to'lovlar:            %s ta", number_format($totalFakt, 0, '.', ',')));
-
-        // 2. FINANCIAL TOTALS
-        $this->command->info("\n2. MOLIYAVIY HISOBOTLAR:");
-        $this->command->info(str_repeat("-", 100));
-
-        $financials = YerSotuv::selectRaw('
-            SUM(maydoni) as jami_maydon,
-            SUM(boshlangich_narx) as jami_boshlangich,
-            SUM(sotilgan_narx) as jami_sotilgan,
-            SUM(golib_tolagan) as jami_golib_tolagan,
-            SUM(shartnoma_summasi) as jami_shartnoma,
-            SUM(auksion_harajati) as jami_auksion_harajat,
-            SUM(tushadigan_mablagh) as jami_tushadigan,
-            COUNT(*) as count
-        ')->first();
-
-        $this->command->info(sprintf("   Jami er maydoni:                %s ga", number_format($financials->jami_maydon ?? 0, 2, '.', ',')));
-        $this->command->info(sprintf("   Jami boshlang'ich narx:         %s so'm", number_format($financials->jami_boshlangich ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami sotilgan narx:             %s so'm", number_format($financials->jami_sotilgan ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami g'olib to'lagan:           %s so'm", number_format($financials->jami_golib_tolagan ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami shartnoma summasi:         %s so'm", number_format($financials->jami_shartnoma ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami auksion harajatlari:       %s so'm", number_format($financials->jami_auksion_harajat ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami tushadigan mablag':        %s so'm", number_format($financials->jami_tushadigan ?? 0, 0, '.', ',')));
-
-        // 3. GRAFIK PAYMENTS TOTALS
-        $this->command->info("\n3. GRAFIK BO'YICHA TO'LOVLAR:");
-        $this->command->info(str_repeat("-", 100));
-
-        $grafikStats = GrafikTolov::selectRaw('
-            SUM(grafik_summa) as jami_grafik,
-            COUNT(*) as jami_oylar,
-            COUNT(CASE WHEN grafik_summa > 0 THEN 1 END) as tolovli_oylar,
-            COUNT(DISTINCT lot_raqami) as lot_count
-        ')->first();
-
-        $this->command->info(sprintf("   Jami grafik summasi:            %s so'm", number_format($grafikStats->jami_grafik ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami oylar soni:                %s ta", number_format($grafikStats->jami_oylar ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   To'lovli oylar:                 %s ta", number_format($grafikStats->tolovli_oylar ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Grafik bo'yicha LOTlar:         %s ta", number_format($grafikStats->lot_count ?? 0, 0, '.', ',')));
-
-        // 4. FAKT PAYMENTS TOTALS
-        $this->command->info("\n4. FAKT BO'YICHA TO'LOVLAR:");
-        $this->command->info(str_repeat("-", 100));
-
-        $faktStats = FaktTolov::selectRaw('
-            SUM(tolov_summa) as jami_fakt,
-            COUNT(*) as jami_tolovlar,
-            COUNT(DISTINCT lot_raqami) as lot_count,
-            MIN(tolov_sana) as birinchi_tolov,
-            MAX(tolov_sana) as oxirgi_tolov
-        ')->first();
-
-        $this->command->info(sprintf("   Jami fakt to'lovlar:            %s so'm", number_format($faktStats->jami_fakt ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Jami to'lovlar soni:            %s ta", number_format($faktStats->jami_tolovlar ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Fakt bo'yicha LOTlar:           %s ta", number_format($faktStats->lot_count ?? 0, 0, '.', ',')));
-        $this->command->info(sprintf("   Birinchi to'lov sanasi:         %s", $faktStats->birinchi_tolov ?? 'N/A'));
-        $this->command->info(sprintf("   Oxirgi to'lov sanasi:           %s", $faktStats->oxirgi_tolov ?? 'N/A'));
-
-        // 5. PAYMENT TYPE BREAKDOWN
-        $this->command->info("\n5. TO'LOV TURLARI BO'YICHA:");
-        $this->command->info(str_repeat("-", 100));
-
-        $paymentTypes = YerSotuv::selectRaw('
-            tolov_turi,
-            COUNT(*) as count,
-            SUM(sotilgan_narx) as jami_narx,
-            SUM(shartnoma_summasi) as jami_shartnoma
-        ')
-        ->groupBy('tolov_turi')
-        ->get();
-
-        foreach ($paymentTypes as $type) {
-            $this->command->info(sprintf(
-                "   %-20s: %5s ta | Sotilgan: %s | Shartnoma: %s",
-                $type->tolov_turi ?? 'N/A',
-                number_format($type->count, 0, '.', ','),
-                number_format($type->jami_narx, 0, '.', ','),
-                number_format($type->jami_shartnoma, 0, '.', ',')
-            ));
-        }
-
-        // 6. DISTRICT BREAKDOWN
-        $this->command->info("\n6. TUMANLAR BO'YICHA:");
-        $this->command->info(str_repeat("-", 100));
-
-        $districts = YerSotuv::selectRaw('
-            tuman,
-            COUNT(*) as count,
-            SUM(maydoni) as jami_maydon,
-            SUM(sotilgan_narx) as jami_narx
-        ')
-        ->groupBy('tuman')
-        ->orderByDesc('count')
-        ->get();
-
-        foreach ($districts as $district) {
-            $this->command->info(sprintf(
-                "   %-35s: %4s ta | Maydon: %8s ga | Narx: %s",
-                mb_substr($district->tuman ?? 'N/A', 0, 35),
-                number_format($district->count, 0),
-                number_format($district->jami_maydon, 2, '.', ','),
-                number_format($district->jami_narx, 0, '.', ',')
-            ));
-        }
-
-        // 7. YEAR BREAKDOWN
-        $this->command->info("\n7. YILLAR BO'YICHA:");
-        $this->command->info(str_repeat("-", 100));
-
-        $years = YerSotuv::selectRaw('
-            yil,
-            COUNT(*) as count,
-            SUM(sotilgan_narx) as jami_narx
-        ')
-        ->groupBy('yil')
-        ->orderBy('yil')
-        ->get();
-
-        foreach ($years as $year) {
-            $this->command->info(sprintf(
-                "   %s yil: %5s ta LOT | Jami: %s so'm",
-                $year->yil,
-                number_format($year->count, 0),
-                number_format($year->jami_narx, 0, '.', ',')
-            ));
-        }
-
-        // 8. SAMPLE LOTS (First 5)
-        $this->command->info("\n8. NAMUNAVIY LOT MA'LUMOTLARI (birinchi 5 ta):");
-        $this->command->info(str_repeat("-", 100));
-
-        $sampleLots = YerSotuv::with(['grafikTolovlar', 'faktTolovlar'])
-            ->orderBy('id')
-            ->limit(5)
-            ->get();
-
-        foreach ($sampleLots as $lot) {
-            $grafikSum = $lot->grafikTolovlar->sum('grafik_summa');
-            $faktSum = $lot->faktTolovlar->sum('tolov_summa');
-            $grafikCount = $lot->grafikTolovlar->count();
-            $faktCount = $lot->faktTolovlar->count();
-
-            $this->command->info(sprintf("\n   LOT: %s | %s", $lot->lot_raqami, $lot->tuman ?? 'N/A'));
-            $this->command->info(sprintf("      Maydon: %s ga | To'lov turi: %s",
-                number_format($lot->maydoni ?? 0, 2),
-                $lot->tolov_turi ?? 'N/A'
-            ));
-            $this->command->info(sprintf("      Sotilgan narx:      %s so'm", number_format($lot->sotilgan_narx ?? 0, 0, '.', ',')));
-            $this->command->info(sprintf("      G'olib to'lagan:    %s so'm", number_format($lot->golib_tolagan ?? 0, 0, '.', ',')));
-            $this->command->info(sprintf("      Shartnoma summasi:  %s so'm", number_format($lot->shartnoma_summasi ?? 0, 0, '.', ',')));
-            $this->command->info(sprintf("      Grafik: %s ta oy, jami %s so'm",
-                $grafikCount,
-                number_format($grafikSum, 0, '.', ',')
-            ));
-            $this->command->info(sprintf("      Fakt:   %s ta to'lov, jami %s so'm",
-                $faktCount,
-                number_format($faktSum, 0, '.', ',')
-            ));
-        }
-
-        // 9. DATA INTEGRITY CHECKS
-        $this->command->info("\n9. MA'LUMOTLAR INTEGRITETI TEKSHIRUVI:");
-        $this->command->info(str_repeat("-", 100));
-
-        // Check lots without grafik
-        $lotsWithoutGrafik = YerSotuv::whereDoesntHave('grafikTolovlar')
-            ->where('tolov_turi', 'муддатли')
-            ->count();
-
-        $status = $lotsWithoutGrafik == 0 ? '✓' : '✗';
-        $this->command->info(sprintf("   [%s] Muddatli to'lovli LOTlar grafik bilan:  %s ta muammoli",
-            $status,
-            $lotsWithoutGrafik
-        ));
-
-        // Check lots without fakt payments
-        $lotsWithoutFakt = YerSotuv::whereDoesntHave('faktTolovlar')->count();
-        $this->command->info(sprintf("   [ℹ] Fakt to'lovi bo'lmagan LOTlar:           %s ta",
-            $lotsWithoutFakt
-        ));
-
-        // Check grafik vs shartnoma_summasi mismatch
-        $mismatchCount = YerSotuv::whereHas('grafikTolovlar')
-            ->whereRaw('ABS(shartnoma_summasi - (
-                SELECT COALESCE(SUM(grafik_summa), 0)
-                FROM grafik_tolovlar
-                WHERE grafik_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami
-            )) > 1')
-            ->count();
-
-        $status = $mismatchCount == 0 ? '✓' : '✗';
-        $this->command->info(sprintf("   [%s] Grafik va shartnoma summasi mos keladi:  %s ta nomuvofiq",
-            $status,
-            $mismatchCount
-        ));
-
-        // Total calculated amounts match
-        $grafikTotal = GrafikTolov::sum('grafik_summa');
-        $shartnomaTotal = YerSotuv::sum('shartnoma_summasi');
-        $difference = abs($grafikTotal - $shartnomaTotal);
-        $status = $difference < 100 ? '✓' : '✗';
-
-        $this->command->info(sprintf("   [%s] Umumiy grafik va shartnoma farqi:        %s so'm",
-            $status,
-            number_format($difference, 0, '.', ',')
-        ));
-
-        $this->command->info("\n" . str_repeat("=", 100));
-        $this->writeLog("\n=== VERIFICATION STATISTICS ===");
-        $this->writeLog("Total LOTs: {$totalLots}");
-        $this->writeLog("Total Grafik: {$totalGrafik} records, Sum: " . number_format($grafikStats->jami_grafik ?? 0, 0));
-        $this->writeLog("Total Fakt: {$totalFakt} records, Sum: " . number_format($faktStats->jami_fakt ?? 0, 0));
-        $this->writeLog("Data integrity issues: Grafik missing: {$lotsWithoutGrafik}, Mismatch: {$mismatchCount}");
+        return null;
     }
 
     private function parseDate($value): ?string
@@ -1096,7 +613,6 @@ class YerSotuvSeeder extends Seeder
                 return Carbon::createFromTimestamp($timestamp)->format('Y-m-d');
             }
 
-            // String date formats
             if (is_string($value)) {
                 $value = trim($value);
 
@@ -1116,9 +632,88 @@ class YerSotuvSeeder extends Seeder
 
             return null;
         } catch (\Exception $e) {
-            $this->command->warn("Sanani parse qilishda xatolik: {$value}");
-            $this->writeLog("OGOHLANTIRISH: Sanani parse qilishda xatolik - {$value}");
+            $this->writeLog("OGOHLANTIRISH: Sana parse xatolik - {$value}");
             return null;
         }
+    }
+
+    private function writeLog($message): void
+    {
+        Storage::append($this->logFileName, $message);
+    }
+
+    private function writeFinalSummary($duration): void
+    {
+        $this->writeLog("\n" . str_repeat("=", 80));
+        $this->writeLog("=== YAKUNIY HISOBOT ===");
+        $this->writeLog(str_repeat("=", 80));
+
+        $totalYerSotuv = YerSotuv::count();
+        $totalGrafik = GrafikTolov::count();
+        $totalFakt = FaktTolov::count();
+        $totalNotFound = count($this->notFoundLots);
+        $totalSkipped = count($this->skippedRecords);
+
+        $this->writeLog(sprintf("\n%-50s: %s", "Bajarilish vaqti", $duration . "s"));
+        $this->writeLog(sprintf("%-50s: %s ta", "Yuklangan LOTlar", number_format($totalYerSotuv, 0)));
+        $this->writeLog(sprintf("%-50s: %s ta", "Yuklangan grafik to'lovlar", number_format($totalGrafik, 0)));
+        $this->writeLog(sprintf("%-50s: %s ta", "Yuklangan fakt to'lovlar", number_format($totalFakt, 0)));
+        $this->writeLog(sprintf("%-50s: %s ta", "Topilmagan LOTlar", $totalNotFound));
+        $this->writeLog(sprintf("%-50s: %s ta", "O'tkazib yuborilgan qatorlar", $totalSkipped));
+
+        if ($totalNotFound > 0 && $totalNotFound <= 20) {
+            $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR ###");
+            foreach ($this->notFoundLots as $lot) {
+                $this->writeLog("  - LOT {$lot}");
+            }
+        }
+
+        $this->writeLog("\n" . str_repeat("=", 80));
+        $this->writeLog("Yakunlandi: " . now()->format('Y-m-d H:i:s'));
+        $this->writeLog(str_repeat("=", 80));
+    }
+
+    private function showVerificationStatistics(): void
+    {
+        $this->command->info("\n" . str_repeat("=", 80));
+        $this->command->info("TEKSHIRISH VA STATISTIKA");
+        $this->command->info(str_repeat("=", 80) . "\n");
+
+        $totalLots = YerSotuv::count();
+        $totalGrafik = GrafikTolov::count();
+        $totalFakt = FaktTolov::count();
+
+        $this->command->info(sprintf("Jami LOTlar:           %s ta", number_format($totalLots, 0)));
+        $this->command->info(sprintf("Jami grafik to'lovlar: %s ta", number_format($totalGrafik, 0)));
+        $this->command->info(sprintf("Jami fakt to'lovlar:   %s ta", number_format($totalFakt, 0)));
+
+        $financials = YerSotuv::selectRaw('
+            SUM(maydoni) as jami_maydon,
+            SUM(sotilgan_narx) as jami_sotilgan,
+            SUM(golib_tolagan) as jami_golib,
+            SUM(shartnoma_summasi) as jami_shartnoma
+        ')->first();
+
+        $this->command->info(sprintf("\nJami maydon:           %s ga", number_format($financials->jami_maydon ?? 0, 2)));
+        $this->command->info(sprintf("Jami sotilgan narx:    %s", number_format($financials->jami_sotilgan ?? 0, 0)));
+        $this->command->info(sprintf("Jami g'olib to'lagan:  %s", number_format($financials->jami_golib ?? 0, 0)));
+        $this->command->info(sprintf("Jami shartnoma:        %s", number_format($financials->jami_shartnoma ?? 0, 0)));
+
+        $grafikSum = GrafikTolov::sum('grafik_summa');
+        $this->command->info(sprintf("Jami grafik summa:     %s", number_format($grafikSum, 0)));
+
+        $faktSum = FaktTolov::sum('tolov_summa');
+        $this->command->info(sprintf("Jami fakt summa:       %s", number_format($faktSum, 0)));
+
+        $lotsWithoutGrafik = YerSotuv::whereDoesntHave('grafikTolovlar')
+            ->where('tolov_turi', 'муддатли')
+            ->count();
+
+        $this->command->info(sprintf("\n[%s] Muddatli LOTlar grafiksiz:  %s ta",
+            $lotsWithoutGrafik === 0 ? '✓' : '✗',
+            $lotsWithoutGrafik
+        ));
+
+        $this->command->info("\n" . str_repeat("=", 80));
     }
 }
