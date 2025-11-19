@@ -178,7 +178,7 @@
             <nav class="flex-1 overflow-y-auto p-3">
                 <div class="space-y-1">
 
-  <!-- Monitoring bo'limi -->
+                    <!-- Monitoring bo'limi -->
                     <div class="px-3 py-2 mt-4">
                         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider nav-text">Мониторинг</p>
                     </div>
@@ -265,23 +265,35 @@
                         <span
                             class="nav-text text-sm font-medium <?php echo e(request()->routeIs('qoldiq.index') ? 'text-white' : 'text-gray-700'); ?>">Қолдиқ</span>
                     </a>
+
+
                     <!-- Full Export Button (Complete Excel Structure) -->
+
                     <a href="<?php echo e(route('export.full')); ?>"
-                       class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
+                        class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg <?php echo e(request()->routeIs('export.full') ? 'active' : ''); ?>">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        To'liq eksport (Grafik bilan)
+                        <span
+                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('export.full') ? 'text-white' : 'text-gray-700'); ?>">To'liq
+                            eksport (Grafik bilan)</span>
                     </a>
 
-                    <!-- Summary Export Button -->
+
                     <a href="<?php echo e(route('export.summary')); ?>"
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
+                        class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg <?php echo e(request()->routeIs('export.summary') ? 'active' : ''); ?>">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        Qisqacha hisobot
+                        <span
+                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('export.summary') ? 'text-white' : 'text-gray-700'); ?>">Qisqacha
+                            hisobot</span>
                     </a>
+
+
+
                 </div>
 
 
