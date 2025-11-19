@@ -36,3 +36,5 @@ Route::post('/yer', [YerSotuvController::class, 'store'])->name('yer-sotuvlar.st
 Route::get('/yer/{lot_raqami}', [YerSotuvController::class, 'show'])->name('yer-sotuvlar.show');
 Route::get('/yer/{lot_raqami}/edit', [YerSotuvController::class, 'edit'])->name('yer-sotuvlar.edit');
 Route::put('/yer/{lot_raqami}', [YerSotuvController::class, 'update'])->name('yer-sotuvlar.update');
+
+Route::get('/yigma-malumot', [YerSotuvController::class, 'yigmaMalumot'])->name('yer-sotuvlar.yigma');
