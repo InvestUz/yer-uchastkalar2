@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Йиғма маълумот'); ?>
 
-@section('title', 'Йиғма маълумот')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
     <div class="max-w-[98%] mx-auto">
         <!-- Premium Government Header -->
@@ -108,8 +106,8 @@
                                 <!-- Col 12-13: Нархини бўлиб - шундан (colspan=2, was 3 before removing фоизда) -->
                                 <th colspan="2" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
 
-                                <!-- Col 14-16: {{ now()->format('d.m.Y') }} йил ҳолатига (colspan=3) -->
-                                <th colspan="3" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">{{ now()->format('d.m.Y') }} йил ҳолатига</th>
+                                <!-- Col 14-16: <?php echo e(now()->format('d.m.Y')); ?> йил ҳолатига (colspan=3) -->
+                                <th colspan="3" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs"><?php echo e(now()->format('d.m.Y')); ?> йил ҳолатига</th>
 
                                 <!-- Col 17-19: COVERED by rowspan -->
                             </tr>
@@ -156,153 +154,154 @@
                                 </td>
 
                                 <!-- Col 2: Сони -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ $jami['jami_soni'] }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e($jami['jami_soni']); ?></td>
 
                                 <!-- Col 3: Сотилган ер нархи бўйича тушадиган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['jami_tushadigan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['jami_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 4: жами тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['jami_tushgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['jami_tushgan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 5: қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['jami_qoldiq'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['jami_qoldiq'] / 1000000000, 2)); ?></td>
 
                                 <!-- BIR YOLA SECTION (4 columns: 6-9) -->
                                 <!-- Col 6: Бир йўла - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас']) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['biryola_soni'] }}</a>
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($jami['biryola_soni']); ?></a>
                                 </td>
 
                                 <!-- Col 7: Бир йўла - Сотилган ер нархи... -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['biryola_tushadigan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['biryola_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 8: Бир йўла - тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['biryola_tushgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['biryola_tushgan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 9: Бир йўла - қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['biryola_qoldiq'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['biryola_qoldiq'] / 1000000000, 2)); ?></td>
 
                                 <!-- BOLIB SECTION (7 columns: 10-16, was 10 columns before removing фоизда) -->
                                 <!-- Col 10: Нархини бўлиб - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли']) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['bolib_soni'] }}</a>
+                                    <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли'])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($jami['bolib_soni']); ?></a>
                                 </td>
 
                                 <!-- Col 11: Нархини бўлиб - Сотилган ер нархи... -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['bolib_tushadigan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['bolib_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 12: Нархини бўлиб - тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['bolib_tushgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['bolib_tushgan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 13: Нархини бўлиб - қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['bolib_qoldiq'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['bolib_qoldiq'] / 1000000000, 2)); ?></td>
 
                                 <!-- NOTE: фоизда column EXCLUDED -->
 
                                 <!-- Col 14 (was 15): График б-ча тушадиган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['grafik_tushadigan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['grafik_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 15 (was 16): Амалда график б-ча тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['grafik_tushgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['grafik_tushgan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 16 (was 17): Муддати ўтган қарздорлик -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['muddati_utgan_qarz'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['muddati_utgan_qarz'] / 1000000000, 2)); ?></td>
 
                                 <!-- BEKOR SECTION (3 columns: 17-19) -->
                                 <!-- Col 17: Бекор қилинганлар сони -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ $jami['bekor_soni'] }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e($jami['bekor_soni']); ?></td>
 
                                 <!-- Col 18: Тўланған маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['tolangan_mablagh'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['tolangan_mablagh'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 19: Қайтарилган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['qaytarilgan_mablagh'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['qaytarilgan_mablagh'] / 1000000000, 2)); ?></td>
                             </tr>
 
                             <!-- Tuman Rows -->
-                            @foreach($statistics as $index => $stat)
-                            <tr class="hover:bg-blue-50 transition-colors duration-150 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">
+                            <?php $__currentLoopData = $statistics; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <tr class="hover:bg-blue-50 transition-colors duration-150 <?php echo e($index % 2 == 0 ? 'bg-white' : 'bg-slate-50'); ?>">
                                 <!-- Col 0: Т/р -->
-                                <td class="sticky-col border border-slate-300 px-2 py-2 text-center align-middle font-medium text-slate-700 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">{{ $index + 1 }}</td>
+                                <td class="sticky-col border border-slate-300 px-2 py-2 text-center align-middle font-medium text-slate-700 <?php echo e($index % 2 == 0 ? 'bg-white' : 'bg-slate-50'); ?>"><?php echo e($index + 1); ?></td>
 
                                 <!-- Col 1: Ҳудудлар -->
-                                <td class="sticky-col-2 border border-slate-300 px-3 py-2 align-middle font-semibold text-slate-800 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">{{ $stat['tuman'] }}</td>
+                                <td class="sticky-col-2 border border-slate-300 px-3 py-2 align-middle font-semibold text-slate-800 <?php echo e($index % 2 == 0 ? 'bg-white' : 'bg-slate-50'); ?>"><?php echo e($stat['tuman']); ?></td>
 
                                 <!-- SOTILGAN YER SECTION (4 columns: 2-5) -->
                                 <!-- Col 2: Сони -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ $stat['jami_soni'] }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e($stat['jami_soni']); ?></td>
 
                                 <!-- Col 3: Сотилган ер нархи бўйича тушадиган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['jami_tushadigan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['jami_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 4: жами тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['jami_tushgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['jami_tushgan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 5: қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['jami_qoldiq'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['jami_qoldiq'] / 1000000000, 2)); ?></td>
 
                                 <!-- BIR YOLA SECTION (4 columns: 6-9) -->
                                 <!-- Col 6: Бир йўла - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    @if($stat['biryola_soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли эмас']) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['biryola_soni'] }}</a>
-                                    @else
+                                    <?php if($stat['biryola_soni'] > 0): ?>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли эмас'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline"><?php echo e($stat['biryola_soni']); ?></a>
+                                    <?php else: ?>
                                         <span class="text-slate-400">0</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Col 7: Бир йўла - Сотилган ер нархи... -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['biryola_tushadigan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['biryola_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 8: Бир йўла - тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['biryola_tushgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['biryola_tushgan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 9: Бир йўла - қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['biryola_qoldiq'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['biryola_qoldiq'] / 1000000000, 2)); ?></td>
 
                                 <!-- BOLIB SECTION (7 columns: 10-16) -->
                                 <!-- Col 10: Нархини бўлиб - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
-                                    @if($stat['bolib_soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли']) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['bolib_soni'] }}</a>
-                                    @else
+                                    <?php if($stat['bolib_soni'] > 0): ?>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли'])); ?>" class="text-blue-600 hover:text-blue-800 hover:underline"><?php echo e($stat['bolib_soni']); ?></a>
+                                    <?php else: ?>
                                         <span class="text-slate-400">0</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- Col 11: Нархини бўлиб - Сотилган ер нархи... -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['bolib_tushadigan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['bolib_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 12: Нархини бўлиб - тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['bolib_tushgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['bolib_tushgan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 13: Нархини бўлиб - қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['bolib_qoldiq'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['bolib_qoldiq'] / 1000000000, 2)); ?></td>
 
                                 <!-- NOTE: фоизда column EXCLUDED (was col 14) -->
 
                                 <!-- Col 14 (was 15): График б-ча тушадиган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['grafik_tushadigan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['grafik_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 15 (was 16): Амалда график б-ча тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['grafik_tushgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['grafik_tushgan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 16 (was 17): Муддати ўтган қарздорлик -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 {{ $stat['muddati_utgan_qarz'] > 0 ? 'bg-red-50 text-red-700 font-semibold' : '' }}">
-                                    {{ number_format($stat['muddati_utgan_qarz'] / 1000000000, 2) }}
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 <?php echo e($stat['muddati_utgan_qarz'] > 0 ? 'bg-red-50 text-red-700 font-semibold' : ''); ?>">
+                                    <?php echo e(number_format($stat['muddati_utgan_qarz'] / 1000000000, 2)); ?>
+
                                 </td>
 
                                 <!-- BEKOR SECTION (3 columns: 17-19) -->
                                 <!-- Col 17: Бекор қилинганлар сони -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ $stat['bekor_soni'] }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e($stat['bekor_soni']); ?></td>
 
                                 <!-- Col 18: Тўланған маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['tolangan_mablagh'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['tolangan_mablagh'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 19: Қайтарилган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['qaytarilgan_mablagh'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['qaytarilgan_mablagh'] / 1000000000, 2)); ?></td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
@@ -312,15 +311,15 @@
         <!-- Premium Filter Section -->
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-t-4 border-blue-600">
             <div class="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
-                <form method="GET" action="{{ route('yer-sotuvlar.yigma') }}">
+                <form method="GET" action="<?php echo e(route('yer-sotuvlar.yigma')); ?>">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Бошланғич санаси:</label>
-                            <input type="date" name="auksion_sana_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ $dateFilters['auksion_sana_from'] ?? '' }}">
+                            <input type="date" name="auksion_sana_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="<?php echo e($dateFilters['auksion_sana_from'] ?? ''); ?>">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Тугаш санаси:</label>
-                            <input type="date" name="auksion_sana_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ $dateFilters['auksion_sana_to'] ?? '' }}">
+                            <input type="date" name="auksion_sana_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="<?php echo e($dateFilters['auksion_sana_to'] ?? ''); ?>">
                         </div>
                     </div>
                     <div class="flex gap-4 mt-6">
@@ -330,7 +329,7 @@
                             </svg>
                             Қидириш
                         </button>
-                        <a href="{{ route('yer-sotuvlar.yigma') }}" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
+                        <a href="<?php echo e(route('yer-sotuvlar.yigma')); ?>" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
@@ -379,4 +378,6 @@
         }
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/yigma.blade.php ENDPATH**/ ?>
