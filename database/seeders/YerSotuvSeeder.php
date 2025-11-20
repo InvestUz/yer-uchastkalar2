@@ -3,12 +3,10 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\YerSotuv;
-use App\Models\GrafikTolov;
-use App\Models\FaktTolov;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,16 +21,20 @@ class YerSotuvSeeder extends Seeder
         9 => 'sentabr', 10 => 'oktabr', 11 => 'noyabr', 12 => 'dekabr'
     ];
 
-    // VERIFIED CORRECT column mapping based on actual Excel structure
+    /**
+     * CORRECTED PAYMENT SCHEDULE MAPPING
+     * Column 51 = Contract total reference (NOT stored in grafik)
+     * Columns 52-147 = Actual monthly payments
+     */
     private $grafikColumnMap = [
-        2022 => [1 => 51, 2 => 52, 3 => 53, 4 => 54, 5 => 55, 6 => 56, 7 => 57, 8 => 58, 9 => 59, 10 => 60, 11 => 61, 12 => 62],
-        2023 => [1 => 63, 2 => 64, 3 => 65, 4 => 66, 5 => 67, 6 => 68, 7 => 69, 8 => 70, 9 => 71, 10 => 72, 11 => 73, 12 => 74],
-        2024 => [1 => 75, 2 => 76, 3 => 77, 4 => 78, 5 => 79, 6 => 80, 7 => 81, 8 => 82, 9 => 83, 10 => 84, 11 => 85, 12 => 86],
-        2025 => [1 => 87, 2 => 88, 3 => 89, 4 => 90, 5 => 91, 6 => 92, 7 => 93, 8 => 94, 9 => 95, 10 => 96, 11 => 97, 12 => 98],
-        2026 => [1 => 99, 2 => 100, 3 => 101, 4 => 102, 5 => 103, 6 => 104, 7 => 105, 8 => 106, 9 => 107, 10 => 108, 11 => 109, 12 => 110],
-        2027 => [1 => 111, 2 => 112, 3 => 113, 4 => 114, 5 => 115, 6 => 116, 7 => 117, 8 => 118, 9 => 119, 10 => 120, 11 => 121, 12 => 122],
-        2028 => [1 => 123, 2 => 124, 3 => 125, 4 => 126, 5 => 127, 6 => 128, 7 => 129, 8 => 130, 9 => 131, 10 => 132, 11 => 133, 12 => 134],
-        2029 => [1 => 135, 2 => 136, 3 => 137, 4 => 138, 5 => 139, 6 => 140, 7 => 141, 8 => 142, 9 => 143, 10 => 144, 11 => 145, 12 => 146]
+        2022 => [1 => 52, 2 => 53, 3 => 54, 4 => 55, 5 => 56, 6 => 57, 7 => 58, 8 => 59, 9 => 60, 10 => 61, 11 => 62, 12 => 63],
+        2023 => [1 => 64, 2 => 65, 3 => 66, 4 => 67, 5 => 68, 6 => 69, 7 => 70, 8 => 71, 9 => 72, 10 => 73, 11 => 74, 12 => 75],
+        2024 => [1 => 76, 2 => 77, 3 => 78, 4 => 79, 5 => 80, 6 => 81, 7 => 82, 8 => 83, 9 => 84, 10 => 85, 11 => 86, 12 => 87],
+        2025 => [1 => 88, 2 => 89, 3 => 90, 4 => 91, 5 => 92, 6 => 93, 7 => 94, 8 => 95, 9 => 96, 10 => 97, 11 => 98, 12 => 99],
+        2026 => [1 => 100, 2 => 101, 3 => 102, 4 => 103, 5 => 104, 6 => 105, 7 => 106, 8 => 107, 9 => 108, 10 => 109, 11 => 110, 12 => 111],
+        2027 => [1 => 112, 2 => 113, 3 => 114, 4 => 115, 5 => 116, 6 => 117, 7 => 118, 8 => 119, 9 => 120, 10 => 121, 11 => 122, 12 => 123],
+        2028 => [1 => 124, 2 => 125, 3 => 126, 4 => 127, 5 => 128, 6 => 129, 7 => 130, 8 => 131, 9 => 132, 10 => 133, 11 => 134, 12 => 135],
+        2029 => [1 => 136, 2 => 137, 3 => 138, 4 => 139, 5 => 140, 6 => 141, 7 => 142, 8 => 143, 9 => 144, 10 => 145, 11 => 146, 12 => 147]
     ];
 
     private $notFoundLots = [];
@@ -40,23 +42,31 @@ class YerSotuvSeeder extends Seeder
     private $logFileName;
     private $grafikBatch = [];
     private $faktBatch = [];
+    private $importErrors = [];
+
+    // Table names (detect singular/plural)
+    private $yerSotuvTable = 'yer_sotuvlar';
+    private $grafikTable = 'grafik_tolov';
+    private $faktTable = 'fakt_tolov';
 
     public function run(): void
     {
         ini_set('memory_limit', self::MEMORY_LIMIT);
 
         $this->logFileName = 'seeder_logs/import_' . now()->format('Y-m-d_H-i-s') . '.log';
-        $this->writeLog("=== YER SOTUV IMPORT LOG (PRODUCTION MODE) ===");
+        $this->writeLog("=== YER SOTUV IMPORT - PRODUCTION MODE ===");
         $this->writeLog("Boshlandi: " . now()->format('Y-m-d H:i:s'));
-        $this->writeLog("Memory Limit: " . self::MEMORY_LIMIT);
         $this->writeLog(str_repeat("=", 80));
+
+        // Detect table names
+        $this->detectTableNames();
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         $this->command->info("Ma'lumotlar tozalanmoqda...");
-        FaktTolov::query()->delete();
-        GrafikTolov::query()->delete();
-        YerSotuv::query()->delete();
+        DB::table($this->faktTable)->truncate();
+        DB::table($this->grafikTable)->truncate();
+        DB::table($this->yerSotuvTable)->truncate();
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
@@ -77,66 +87,67 @@ class YerSotuvSeeder extends Seeder
             $this->showVerificationStatistics();
 
             if (!empty($this->notFoundLots)) {
-                $this->command->warn("\n=== OGOHLANTIRISH: Topilmagan LOT raqamlar ===");
+                $this->command->warn("\n=== Topilmagan LOT raqamlar ===");
                 $count = min(10, count($this->notFoundLots));
                 for ($i = 0; $i < $count; $i++) {
-                    $this->command->error("LOT {$this->notFoundLots[$i]} ma'lumotlar bazasida topilmadi!");
+                    $this->command->error("LOT {$this->notFoundLots[$i]}");
                 }
                 if (count($this->notFoundLots) > 10) {
                     $this->command->warn("... va yana " . (count($this->notFoundLots) - 10) . " ta");
                 }
-                $this->command->warn("Jami topilmagan: " . count($this->notFoundLots) . " ta\n");
             }
 
             $this->command->info("\n✓ Import muvaffaqiyatli yakunlandi! ({$duration}s)");
-            $this->command->info("✓ Log fayl: storage/app/{$this->logFileName}");
+            $this->command->info("✓ Log: storage/app/{$this->logFileName}");
 
         } catch (\Exception $e) {
-            $this->command->error("\n✗ KRITIK XATOLIK: " . $e->getMessage());
-            $this->command->error("Stack: " . $e->getTraceAsString());
-            $this->writeLog("\nKRITIK XATOLIK: " . $e->getMessage());
-            $this->writeLog($e->getTraceAsString());
+            $this->command->error("\n✗ XATOLIK: " . $e->getMessage());
+            $this->writeLog("\nXATOLIK: " . $e->getMessage());
             throw $e;
         }
     }
 
+    private function detectTableNames(): void
+    {
+        // Try to detect correct table names
+        if (Schema::hasTable('yer_sotuv')) {
+            $this->yerSotuvTable = 'yer_sotuv';
+        }
+
+        if (Schema::hasTable('grafik_tolovs')) {
+            $this->grafikTable = 'grafik_tolovs';
+        } elseif (Schema::hasTable('grafik_tolovlar')) {
+            $this->grafikTable = 'grafik_tolovlar';
+        }
+
+        if (Schema::hasTable('fakt_tolovs')) {
+            $this->faktTable = 'fakt_tolovs';
+        } elseif (Schema::hasTable('fakt_tolovlar')) {
+            $this->faktTable = 'fakt_tolovlar';
+        }
+
+        $this->writeLog("Table names: {$this->yerSotuvTable}, {$this->grafikTable}, {$this->faktTable}");
+    }
+
     private function importAsosiyMalumot(): void
     {
-        // Try multiple possible file names
-        $possibleFiles = [
-            'Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx',
-        ];
-
-        $file = null;
-        foreach ($possibleFiles as $filename) {
-            $path = storage_path('app/excel/' . $filename);
-            if (file_exists($path)) {
-                $file = $path;
-                $this->command->info("Fayl topildi: {$filename}");
-                break;
-            }
-        }
-
-        if (!$file) {
-            $file = storage_path('app/excel/Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx');
-        }
+        $file = storage_path('app/excel/new_data.xlsx');
 
         if (!file_exists($file)) {
             throw new \RuntimeException("Fayl topilmadi: $file");
         }
 
+        $this->command->info("Fayl topildi: new_data.xlsx");
         $this->command->info("Excel fayl yuklanmoqda...");
+
         $spreadsheet = IOFactory::load($file);
         $worksheet = $spreadsheet->getActiveSheet();
         $rows = $worksheet->toArray(null, true, true, true);
 
-        // Remove header row
-        unset($rows[1]);
+        unset($rows[1]); // Remove header
 
         $totalRows = count($rows);
         $this->command->info("Jami {$totalRows} ta qator topildi.");
-        $this->writeLog("\n=== ASOSIY MA'LUMOTLAR IMPORT ===");
-        $this->writeLog("Fayl: Sotilgan_yerlar_18_11_2025_Bazaga(Abdulazizga).xlsx");
         $this->writeLog("Jami qatorlar: {$totalRows}");
 
         $bar = $this->command->getOutput()->createProgressBar($totalRows);
@@ -145,30 +156,19 @@ class YerSotuvSeeder extends Seeder
         $count = 0;
         $rowNumber = 1;
 
-        foreach ($rows as $rowIndex => $row) {
+        foreach ($rows as $row) {
             $rowNumber++;
-
-            // Convert associative array to indexed array
             $rowData = array_values($row);
 
             if (empty(array_filter($rowData))) {
-                $this->skippedRecords[] = [
-                    'sabab' => 'Bo\'sh qator',
-                    'qator' => $rowNumber
-                ];
                 $bar->advance();
                 continue;
             }
 
-            // Column B (index 1) contains LOT number
             $lotRaqami = $this->parseLotNumber($rowData[1] ?? null);
 
             if (!$lotRaqami) {
-                $this->skippedRecords[] = [
-                    'sabab' => 'LOT raqami topilmadi',
-                    'qator' => $rowNumber,
-                    'qoshimcha' => 'Ustun B: ' . ($rowData[1] ?? 'bo\'sh')
-                ];
+                $this->skippedRecords[] = "Qator {$rowNumber}: LOT topilmadi";
                 $bar->advance();
                 continue;
             }
@@ -176,10 +176,10 @@ class YerSotuvSeeder extends Seeder
             try {
                 DB::beginTransaction();
 
-                $yerSotuv = $this->createYerSotuv($rowData, $lotRaqami, $rowNumber);
+                $yerSotuvId = $this->createYerSotuv($rowData, $lotRaqami, $rowNumber);
 
-                if ($yerSotuv) {
-                    $this->createGrafikTolovlar($rowData, $yerSotuv);
+                if ($yerSotuvId) {
+                    $this->createGrafikTolovlar($rowData, $yerSotuvId, $lotRaqami);
                     $count++;
                 }
 
@@ -187,18 +187,12 @@ class YerSotuvSeeder extends Seeder
 
             } catch (\Exception $e) {
                 DB::rollBack();
-                $this->skippedRecords[] = [
-                    'sabab' => 'Exception xatolik',
-                    'lot_raqami' => $lotRaqami,
-                    'qator' => $rowNumber,
-                    'qoshimcha' => $e->getMessage()
-                ];
+                $this->importErrors[] = "Qator {$rowNumber}, LOT {$lotRaqami}: " . $e->getMessage();
                 $this->writeLog("XATOLIK qator {$rowNumber}: " . $e->getMessage());
             }
 
             $bar->advance();
 
-            // Memory cleanup every 100 records
             if ($count % 100 === 0) {
                 gc_collect_cycles();
             }
@@ -207,14 +201,18 @@ class YerSotuvSeeder extends Seeder
         $bar->finish();
         $this->command->newLine(2);
         $this->command->info("✓ Jami {$count} ta lot yuklandi!");
-        $this->writeLog("Muvaffaqiyatli yuklandi: {$count} ta lot");
+        $this->writeLog("Yuklangan: {$count} ta lot");
     }
 
-    private function createYerSotuv($row, $lotRaqami, $rowNumber): ?YerSotuv
+    /**
+     * Store ALL columns from Excel - flexible approach
+     */
+    private function createYerSotuv($row, $lotRaqami, $rowNumber): ?int
     {
         $auksionSana = $this->parseDate($row[15] ?? null);
         $shartnomaSana = $this->parseDate($row[26] ?? null);
 
+        // Build data array with ALL Excel columns
         $data = [
             'lot_raqami' => $lotRaqami,
             'tuman' => $this->cleanValue($row[2] ?? null),
@@ -266,47 +264,73 @@ class YerSotuvSeeder extends Seeder
             'qoldiq_yangi_oz_direksiya' => $this->parseNumber($row[47] ?? null),
             'qoldiq_shayxontohur' => $this->parseNumber($row[48] ?? null),
             'farqi' => $this->parseNumber($row[49] ?? null),
-            'shartnoma_summasi' => 0,
             'yil' => $auksionSana ? Carbon::parse($auksionSana)->year : date('Y')
         ];
 
-        $yerSotuv = YerSotuv::create($data);
-
-        // Calculate shartnoma_summasi from grafik schedule
+        // Calculate shartnoma_summasi from grafik (columns 52-147)
         $shartnomaSummasi = $this->calculateShartnomaSummasiFromGrafik($row);
-        $yerSotuv->update(['shartnoma_summasi' => $shartnomaSummasi]);
+        $data['shartnoma_summasi'] = $shartnomaSummasi;
 
-        return $yerSotuv;
+        // Filter out only columns that exist in the table
+        $tableColumns = Schema::getColumnListing($this->yerSotuvTable);
+        $filteredData = array_filter($data, function($key) use ($tableColumns) {
+            return in_array($key, $tableColumns);
+        }, ARRAY_FILTER_USE_KEY);
+
+        // Add timestamps
+        $filteredData['created_at'] = now();
+        $filteredData['updated_at'] = now();
+
+        $id = DB::table($this->yerSotuvTable)->insertGetId($filteredData);
+
+        return $id;
     }
 
+    /**
+     * Calculate shartnoma_summasi using the correct formula:
+     * MAX(Column 51, SUM(Columns 52-147))
+     *
+     * This handles 3 cases:
+     * 1. LOTs with payment schedule → use schedule sum
+     * 2. LOTs without schedule but Column 51 has value → use Column 51
+     * 3. муддатли эмас LOTs with schedules → use schedule sum
+     */
     private function calculateShartnomaSummasiFromGrafik($row): float
     {
-        $totalSumma = 0;
+        // Get Column 51 value (Contract Total Reference)
+        $column51Value = $this->parseNumber($row[50] ?? null) ?? 0; // Column 51 = index 50
+
+        // Calculate sum from payment schedule (columns 52-147)
+        $paymentScheduleSum = 0;
 
         foreach ($this->grafikColumnMap as $yil => $oylar) {
             foreach ($oylar as $oy => $ustunIndex) {
-                if (isset($row[$ustunIndex])) {
-                    $summa = $this->parseNumber($row[$ustunIndex]);
+                $arrayIndex = $ustunIndex - 1;
+
+                if (isset($row[$arrayIndex])) {
+                    $summa = $this->parseNumber($row[$arrayIndex]);
                     if ($summa !== null && $summa > 0) {
-                        $totalSumma += $summa;
+                        $paymentScheduleSum += $summa;
                     }
                 }
             }
         }
 
-        return $totalSumma;
+        // Use the MAXIMUM of the two values
+        // This ensures we don't lose data from either source
+        return max($column51Value, $paymentScheduleSum);
     }
 
-    private function createGrafikTolovlar($row, $yerSotuv): void
+    private function createGrafikTolovlar($row, $yerSotuvId, $lotRaqami): void
     {
-        // Collect all months with payment data
         $monthsWithData = [];
         $firstPaymentMonth = null;
         $lastPaymentMonth = null;
 
         foreach ($this->grafikColumnMap as $yil => $oylar) {
             foreach ($oylar as $oy => $ustunIndex) {
-                $summa = $this->parseNumber($row[$ustunIndex] ?? null);
+                $arrayIndex = $ustunIndex - 1;
+                $summa = $this->parseNumber($row[$arrayIndex] ?? null);
 
                 if ($summa !== null && $summa > 0) {
                     $currentMonth = Carbon::create($yil, $oy, 1);
@@ -327,17 +351,15 @@ class YerSotuvSeeder extends Seeder
         }
 
         if (empty($monthsWithData)) {
-            return; // No payment schedule
+            return;
         }
 
-        // Create records for all months between first and last payment
         $currentDate = $firstPaymentMonth->copy();
 
         while ($currentDate->lte($lastPaymentMonth)) {
             $yil = $currentDate->year;
             $oy = $currentDate->month;
 
-            // Find payment for this month
             $summa = 0;
             foreach ($monthsWithData as $monthData) {
                 if ($monthData['yil'] == $yil && $monthData['oy'] == $oy) {
@@ -347,8 +369,8 @@ class YerSotuvSeeder extends Seeder
             }
 
             $this->grafikBatch[] = [
-                'yer_sotuv_id' => $yerSotuv->id,
-                'lot_raqami' => $yerSotuv->lot_raqami,
+                'yer_sotuv_id' => $yerSotuvId,
+                'lot_raqami' => $lotRaqami,
                 'yil' => $yil,
                 'oy' => $oy,
                 'oy_nomi' => $this->oyNomlari[$oy],
@@ -368,7 +390,7 @@ class YerSotuvSeeder extends Seeder
     private function flushGrafikBatch(): void
     {
         if (!empty($this->grafikBatch)) {
-            GrafikTolov::insert($this->grafikBatch);
+            DB::table($this->grafikTable)->insert($this->grafikBatch);
             $this->grafikBatch = [];
         }
     }
@@ -378,8 +400,7 @@ class YerSotuvSeeder extends Seeder
         $file = storage_path('app/excel/Тушум 2024-2025-13.11.2025.xlsx');
 
         if (!file_exists($file)) {
-            $this->command->warn("Fakt to'lovlar fayli topilmadi, o'tkazib yuborilmoqda...");
-            $this->writeLog("OGOHLANTIRISH: Fakt to'lovlar fayli topilmadi");
+            $this->command->warn("Fakt to'lovlar fayli topilmadi");
             return;
         }
 
@@ -388,25 +409,18 @@ class YerSotuvSeeder extends Seeder
         $worksheet = $spreadsheet->getActiveSheet();
         $rows = $worksheet->toArray(null, true, true, true);
 
-        unset($rows[1]); // Remove header
+        unset($rows[1]);
 
         $totalRows = count($rows);
-        $this->writeLog("\n=== FAKT TO'LOVLAR IMPORT ===");
-        $this->writeLog("Fayl: Тушум 2024-2025-13.11.2025.xlsx");
-        $this->writeLog("Jami qatorlar: {$totalRows}");
-
         $bar = $this->command->getOutput()->createProgressBar($totalRows);
         $bar->start();
 
         $count = 0;
         $skipped = 0;
-        $rowNumber = 1;
 
-        // Pre-load all LOT numbers for faster lookup
-        $existingLots = YerSotuv::pluck('lot_raqami')->flip();
+        $existingLots = DB::table($this->yerSotuvTable)->pluck('lot_raqami')->flip();
 
-        foreach ($rows as $rowIndex => $row) {
-            $rowNumber++;
+        foreach ($rows as $row) {
             $rowData = array_values($row);
 
             if (empty(array_filter($rowData))) {
@@ -415,21 +429,10 @@ class YerSotuvSeeder extends Seeder
                 continue;
             }
 
-            // Column H (index 7) contains LOT reference
             $lotRaqami = $this->extractLotRaqami($rowData[7] ?? '');
 
-            if (!$lotRaqami) {
-                $this->skippedRecords[] = [
-                    'sabab' => 'LOT raqami topilmadi (Fakt)',
-                    'qator' => $rowNumber
-                ];
-                $skipped++;
-                $bar->advance();
-                continue;
-            }
-
-            if (!isset($existingLots[$lotRaqami])) {
-                if (!in_array($lotRaqami, $this->notFoundLots)) {
+            if (!$lotRaqami || !isset($existingLots[$lotRaqami])) {
+                if ($lotRaqami && !in_array($lotRaqami, $this->notFoundLots)) {
                     $this->notFoundLots[] = $lotRaqami;
                 }
                 $skipped++;
@@ -466,19 +469,15 @@ class YerSotuvSeeder extends Seeder
         $bar->finish();
         $this->command->newLine(2);
         $this->command->info("✓ Jami {$count} ta fakt to'lov yuklandi!");
-
         if ($skipped > 0) {
             $this->command->warn("⚠ {$skipped} ta o'tkazib yuborildi");
         }
-
-        $this->writeLog("Muvaffaqiyatli yuklandi: {$count} ta fakt to'lov");
-        $this->writeLog("O'tkazib yuborildi: {$skipped} ta");
     }
 
     private function flushFaktBatch(): void
     {
         if (!empty($this->faktBatch)) {
-            FaktTolov::insert($this->faktBatch);
+            DB::table($this->faktTable)->insert($this->faktBatch);
             $this->faktBatch = [];
         }
     }
@@ -508,7 +507,6 @@ class YerSotuvSeeder extends Seeder
         $text = trim($text);
         $cleanedText = preg_replace('/(\d+)[,\s]+(\d+)/', '$1$2', $text);
 
-        // Patterns in order of priority
         $patterns = [
             '/L(\d+)L/i',
             '/L(\d+)/i',
@@ -537,64 +535,51 @@ class YerSotuvSeeder extends Seeder
         return trim($value);
     }
 
-    /**
-     * Parse number with support for BOTH comma and dot formats
-     * Examples:
-     *   1,658   -> 1.658 (comma as decimal separator)
-     *   1658    -> 1658
-     *   4.1865  -> 4.1865 (dot as decimal separator)
-     *   1,234,567.89 -> 1234567.89 (comma as thousands, dot as decimal)
-     */
     private function parseNumber($value): ?float
     {
         if ($value === null || $value === '') return null;
 
-        // Already a number
         if (is_numeric($value)) {
             return (float)$value;
         }
 
         if (is_string($value)) {
             $value = trim($value);
+            $value = str_replace([' ', "'", "\xC2\xA0"], '', $value);
 
-            // Remove spaces and apostrophes (thousands separators)
-            $value = str_replace([' ', "'"], '', $value);
-
-            // Count commas and dots to determine format
             $commaCount = substr_count($value, ',');
             $dotCount = substr_count($value, '.');
 
-            // Case 1: "1,234,567.89" - comma as thousands, dot as decimal
             if ($commaCount > 0 && $dotCount > 0) {
-                // Remove commas (thousands separator), keep dot (decimal)
-                $value = str_replace(',', '', $value);
-            }
-            // Case 2: "1,658" - single comma could be decimal OR thousands
-            // We need to check the position and context
-            elseif ($commaCount == 1 && $dotCount == 0) {
-                // If comma is followed by 3 digits at the end, it's likely a decimal
-                // e.g., "1,658" -> 1.658
-                // But if it's in the middle like "1,234" it could be thousands
-
-                // Get position of comma
                 $commaPos = strpos($value, ',');
-                $afterComma = substr($value, $commaPos + 1);
+                $dotPos = strpos($value, '.');
 
-                // If there are 1-4 digits after comma and no other commas, treat as decimal
-                if (strlen($afterComma) <= 4 && is_numeric($afterComma)) {
-                    $value = str_replace(',', '.', $value);
-                } else {
-                    // Treat as thousands separator
+                if ($dotPos > $commaPos) {
                     $value = str_replace(',', '', $value);
+                } else {
+                    $value = str_replace('.', '', $value);
+                    $value = str_replace(',', '.', $value);
                 }
             }
-            // Case 3: Multiple commas, no dots - e.g., "1,234,567"
-            elseif ($commaCount > 1 && $dotCount == 0) {
-                // Commas are thousands separators
-                $value = str_replace(',', '', $value);
+            elseif ($commaCount > 0 && $dotCount == 0) {
+                if ($commaCount > 1) {
+                    $value = str_replace(',', '', $value);
+                } else {
+                    $commaPos = strpos($value, ',');
+                    $afterComma = substr($value, $commaPos + 1);
+
+                    if (strlen($afterComma) <= 4 && is_numeric($afterComma)) {
+                        $value = str_replace(',', '.', $value);
+                    } else {
+                        $value = str_replace(',', '', $value);
+                    }
+                }
             }
-            // Case 4: "4.1865" - dot as decimal separator
-            // No changes needed, PHP handles this natively
+            elseif ($dotCount > 0 && $commaCount == 0) {
+                if ($dotCount > 1) {
+                    $value = str_replace('.', '', $value);
+                }
+            }
 
             return is_numeric($value) ? (float)$value : null;
         }
@@ -607,7 +592,6 @@ class YerSotuvSeeder extends Seeder
         if (!$value) return null;
 
         try {
-            // Excel numeric date
             if (is_numeric($value) && $value > 0) {
                 $timestamp = Date::excelToTimestamp($value);
                 return Carbon::createFromTimestamp($timestamp)->format('Y-m-d');
@@ -616,23 +600,19 @@ class YerSotuvSeeder extends Seeder
             if (is_string($value)) {
                 $value = trim($value);
 
-                // m/d/Y format
                 if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $value)) {
                     return Carbon::createFromFormat('m/d/Y', $value)->format('Y-m-d');
                 }
 
-                // d.m.Y format
                 if (preg_match('/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/', $value)) {
                     return Carbon::createFromFormat('d.m.Y', $value)->format('Y-m-d');
                 }
 
-                // Try general parsing
                 return Carbon::parse($value)->format('Y-m-d');
             }
 
             return null;
         } catch (\Exception $e) {
-            $this->writeLog("OGOHLANTIRISH: Sana parse xatolik - {$value}");
             return null;
         }
     }
@@ -646,30 +626,15 @@ class YerSotuvSeeder extends Seeder
     {
         $this->writeLog("\n" . str_repeat("=", 80));
         $this->writeLog("=== YAKUNIY HISOBOT ===");
-        $this->writeLog(str_repeat("=", 80));
 
-        $totalYerSotuv = YerSotuv::count();
-        $totalGrafik = GrafikTolov::count();
-        $totalFakt = FaktTolov::count();
-        $totalNotFound = count($this->notFoundLots);
-        $totalSkipped = count($this->skippedRecords);
+        $totalYerSotuv = DB::table($this->yerSotuvTable)->count();
+        $totalGrafik = DB::table($this->grafikTable)->count();
+        $totalFakt = DB::table($this->faktTable)->count();
 
-        $this->writeLog(sprintf("\n%-50s: %s", "Bajarilish vaqti", $duration . "s"));
-        $this->writeLog(sprintf("%-50s: %s ta", "Yuklangan LOTlar", number_format($totalYerSotuv, 0)));
-        $this->writeLog(sprintf("%-50s: %s ta", "Yuklangan grafik to'lovlar", number_format($totalGrafik, 0)));
-        $this->writeLog(sprintf("%-50s: %s ta", "Yuklangan fakt to'lovlar", number_format($totalFakt, 0)));
-        $this->writeLog(sprintf("%-50s: %s ta", "Topilmagan LOTlar", $totalNotFound));
-        $this->writeLog(sprintf("%-50s: %s ta", "O'tkazib yuborilgan qatorlar", $totalSkipped));
-
-        if ($totalNotFound > 0 && $totalNotFound <= 20) {
-            $this->writeLog("\n### TOPILMAGAN LOT RAQAMLAR ###");
-            foreach ($this->notFoundLots as $lot) {
-                $this->writeLog("  - LOT {$lot}");
-            }
-        }
-
-        $this->writeLog("\n" . str_repeat("=", 80));
-        $this->writeLog("Yakunlandi: " . now()->format('Y-m-d H:i:s'));
+        $this->writeLog(sprintf("%-40s: %s", "Vaqt", $duration . "s"));
+        $this->writeLog(sprintf("%-40s: %s ta", "LOTlar", number_format($totalYerSotuv, 0)));
+        $this->writeLog(sprintf("%-40s: %s ta", "Grafik", number_format($totalGrafik, 0)));
+        $this->writeLog(sprintf("%-40s: %s ta", "Fakt", number_format($totalFakt, 0)));
         $this->writeLog(str_repeat("=", 80));
     }
 
@@ -679,33 +644,41 @@ class YerSotuvSeeder extends Seeder
         $this->command->info("TEKSHIRISH VA STATISTIKA");
         $this->command->info(str_repeat("=", 80) . "\n");
 
-        $totalLots = YerSotuv::count();
-        $totalGrafik = GrafikTolov::count();
-        $totalFakt = FaktTolov::count();
+        $totalLots = DB::table($this->yerSotuvTable)->count();
+        $totalGrafik = DB::table($this->grafikTable)->count();
+        $totalFakt = DB::table($this->faktTable)->count();
 
         $this->command->info(sprintf("Jami LOTlar:           %s ta", number_format($totalLots, 0)));
         $this->command->info(sprintf("Jami grafik to'lovlar: %s ta", number_format($totalGrafik, 0)));
         $this->command->info(sprintf("Jami fakt to'lovlar:   %s ta", number_format($totalFakt, 0)));
 
-        $financials = YerSotuv::selectRaw('
+        $financials = DB::table($this->yerSotuvTable)->selectRaw('
             SUM(maydoni) as jami_maydon,
             SUM(sotilgan_narx) as jami_sotilgan,
             SUM(golib_tolagan) as jami_golib,
             SUM(shartnoma_summasi) as jami_shartnoma
         ')->first();
 
-        $this->command->info(sprintf("\nJami maydon:           %s ga", number_format($financials->jami_maydon ?? 0, 2)));
-        $this->command->info(sprintf("Jami sotilgan narx:    %s", number_format($financials->jami_sotilgan ?? 0, 0)));
-        $this->command->info(sprintf("Jami g'olib to'lagan:  %s", number_format($financials->jami_golib ?? 0, 0)));
-        $this->command->info(sprintf("Jami shartnoma:        %s", number_format($financials->jami_shartnoma ?? 0, 0)));
+        if ($financials) {
+            $this->command->info(sprintf("\nJami maydon:           %s ga", number_format($financials->jami_maydon ?? 0, 2)));
+            $this->command->info(sprintf("Jami sotilgan narx:    %s so'm", number_format($financials->jami_sotilgan ?? 0, 0)));
+            $this->command->info(sprintf("Jami g'olib to'lagan:  %s so'm", number_format($financials->jami_golib ?? 0, 0)));
+            $this->command->info(sprintf("Jami shartnoma:        %s so'm", number_format($financials->jami_shartnoma ?? 0, 0)));
+        }
 
-        $grafikSum = GrafikTolov::sum('grafik_summa');
-        $this->command->info(sprintf("Jami grafik summa:     %s", number_format($grafikSum, 0)));
+        $grafikSum = DB::table($this->grafikTable)->sum('grafik_summa');
+        $this->command->info(sprintf("Jami grafik summa:     %s so'm", number_format($grafikSum, 0)));
 
-        $faktSum = FaktTolov::sum('tolov_summa');
-        $this->command->info(sprintf("Jami fakt summa:       %s", number_format($faktSum, 0)));
+        $faktSum = DB::table($this->faktTable)->sum('tolov_summa');
+        $this->command->info(sprintf("Jami fakt summa:       %s so'm", number_format($faktSum, 0)));
 
-        $lotsWithoutGrafik = YerSotuv::whereDoesntHave('grafikTolovlar')
+        // Safe validation check
+        $lotsWithoutGrafik = DB::table($this->yerSotuvTable)
+            ->whereNotExists(function($query) {
+                $query->select(DB::raw(1))
+                      ->from($this->grafikTable)
+                      ->whereColumn("{$this->grafikTable}.yer_sotuv_id", "{$this->yerSotuvTable}.id");
+            })
             ->where('tolov_turi', 'муддатли')
             ->count();
 
