@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            YerSotuvSeeder::class,
+            Yer2SotuvSeeder::class,
         ]);
     }
 }
