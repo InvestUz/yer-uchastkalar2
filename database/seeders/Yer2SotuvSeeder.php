@@ -19,11 +19,6 @@ class Yer2SotuvSeeder extends Seeder
         9 => 'sentabr', 10 => 'oktabr', 11 => 'noyabr', 12 => 'dekabr'
     ];
 
-    /**
-     * CORRECTED PAYMENT SCHEDULE MAPPING
-     * Column 51 = Contract total reference (NOT stored in grafik)
-     * Columns 52-147 = Actual monthly payments (CSV index 51-146)
-     */
     private $grafikColumnMap = [
         2022 => [1 => 51, 2 => 52, 3 => 53, 4 => 54, 5 => 55, 6 => 56, 7 => 57, 8 => 58, 9 => 59, 10 => 60, 11 => 61, 12 => 62],
         2023 => [1 => 63, 2 => 64, 3 => 65, 4 => 66, 5 => 67, 6 => 68, 7 => 69, 8 => 70, 9 => 71, 10 => 72, 11 => 73, 12 => 74],
@@ -42,7 +37,6 @@ class Yer2SotuvSeeder extends Seeder
     private $faktBatch = [];
     private $importErrors = [];
 
-    // Table names
     private $yerSotuvTable = 'yer_sotuvlar';
     private $grafikTable = 'grafik_tolov';
     private $faktTable = 'fakt_tolov';
@@ -56,20 +50,16 @@ class Yer2SotuvSeeder extends Seeder
         $this->writeLog("Boshlandi: " . now()->format('Y-m-d H:i:s'));
         $this->writeLog(str_repeat("=", 80));
 
-        // Detect table names
         $this->detectTableNames();
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-
         $this->command->info("Ma'lumotlar tozalanmoqda...");
         DB::table($this->faktTable)->truncate();
         DB::table($this->grafikTable)->truncate();
         DB::table($this->yerSotuvTable)->truncate();
-
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $this->command->info("Import boshlanmoqda...");
-
         $startTime = microtime(true);
 
         try {
@@ -142,9 +132,7 @@ class Yer2SotuvSeeder extends Seeder
             throw new \RuntimeException("CSV faylni ochib bo'lmadi");
         }
 
-        // Read and skip header
         $headers = fgetcsv($handle, 0, ';');
-
         $this->command->info("CSV ustunlar: " . count($headers));
         $this->writeLog("CSV columns: " . count($headers));
 
@@ -153,7 +141,7 @@ class Yer2SotuvSeeder extends Seeder
             $totalRows++;
         }
         rewind($handle);
-        fgetcsv($handle, 0, ';'); // Skip header again
+        fgetcsv($handle, 0, ';');
 
         $this->command->info("Jami {$totalRows} ta qator topildi.");
         $this->writeLog("Jami qatorlar: {$totalRows}");
@@ -172,7 +160,6 @@ class Yer2SotuvSeeder extends Seeder
                 continue;
             }
 
-            // CSV uses 0-based indexing, so column A = index 0
             $lotRaqami = $this->parseLotNumber($row[0] ?? null);
 
             if (!$lotRaqami) {
@@ -214,16 +201,11 @@ class Yer2SotuvSeeder extends Seeder
         $this->writeLog("Yuklangan: {$count} ta lot");
     }
 
-    /**
-     * Store ALL columns from CSV - flexible approach
-     * CSV index starts at 0
-     */
     private function createYerSotuv($row, $lotRaqami, $rowNumber): ?int
     {
         $auksionSana = $this->parseDate($row[15] ?? null);
         $shartnomaSana = $this->parseDate($row[26] ?? null);
 
-        // Build data array with ALL CSV columns
         $data = [
             'lot_raqami' => $lotRaqami,
             'tuman' => $this->cleanValue($row[2] ?? null),
@@ -278,17 +260,14 @@ class Yer2SotuvSeeder extends Seeder
             'yil' => $auksionSana ? Carbon::parse($auksionSana)->year : date('Y')
         ];
 
-        // Calculate shartnoma_summasi from grafik (columns 51-146 in CSV = index 50-145)
         $shartnomaSummasi = $this->calculateShartnomaSummasiFromGrafik($row);
         $data['shartnoma_summasi'] = $shartnomaSummasi;
 
-        // Filter out only columns that exist in the table
         $tableColumns = Schema::getColumnListing($this->yerSotuvTable);
         $filteredData = array_filter($data, function($key) use ($tableColumns) {
             return in_array($key, $tableColumns);
         }, ARRAY_FILTER_USE_KEY);
 
-        // Add timestamps
         $filteredData['created_at'] = now();
         $filteredData['updated_at'] = now();
 
@@ -297,16 +276,9 @@ class Yer2SotuvSeeder extends Seeder
         return $id;
     }
 
-    /**
-     * Calculate shartnoma_summasi using the correct formula:
-     * MAX(Column 50 (index 49), SUM(Columns 51-146 in CSV))
-     */
     private function calculateShartnomaSummasiFromGrafik($row): float
     {
-        // Get Column 50 value (Contract Total Reference) - CSV index 49
         $column50Value = $this->parseNumber($row[49] ?? null) ?? 0;
-
-        // Calculate sum from payment schedule (CSV columns 51-146 = indices 50-145)
         $paymentScheduleSum = 0;
 
         foreach ($this->grafikColumnMap as $yil => $oylar) {
@@ -320,7 +292,6 @@ class Yer2SotuvSeeder extends Seeder
             }
         }
 
-        // Use the MAXIMUM of the two values
         return max($column50Value, $paymentScheduleSum);
     }
 
@@ -399,41 +370,47 @@ class Yer2SotuvSeeder extends Seeder
 
     private function importFaktTolovlar(): void
     {
-        $file = storage_path('app/excel/Тушум 2024-2025-13.11.2025.xlsx');
+        $file = storage_path('app/excel/fakt_tolovlar.csv');
 
         if (!file_exists($file)) {
-            $this->command->warn("Fakt to'lovlar fayli topilmadi");
+            $this->command->warn("Fakt to'lovlar fayli topilmadi: " . $file);
+            $this->writeLog("Fakt fayl topilmadi");
             return;
         }
 
-        $this->command->info("\nFakt to'lovlar yuklanmoqda...");
+        $this->command->info("\nFakt to'lovlar yuklanmoqda (CSV)...");
 
-        // Use PhpSpreadsheet for Excel file
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
-        $worksheet = $spreadsheet->getActiveSheet();
-        $rows = $worksheet->toArray(null, true, true, true);
+        $handle = fopen($file, 'r');
+        if ($handle === false) {
+            throw new \RuntimeException("CSV faylni ochib bo'lmadi");
+        }
 
-        unset($rows[1]);
-
-        $totalRows = count($rows);
-        $bar = $this->command->getOutput()->createProgressBar($totalRows);
-        $bar->start();
+        fgetcsv($handle, 0, ';'); // Skip header
 
         $count = 0;
         $skipped = 0;
 
+        $totalRows = 0;
+        while (fgets($handle) !== false) {
+            $totalRows++;
+        }
+        rewind($handle);
+        fgetcsv($handle, 0, ';');
+
+        $bar = $this->command->getOutput()->createProgressBar($totalRows);
+        $bar->start();
+
         $existingLots = DB::table($this->yerSotuvTable)->pluck('lot_raqami')->flip();
 
-        foreach ($rows as $row) {
-            $rowData = array_values($row);
-
-            if (empty(array_filter($rowData))) {
+        while (($row = fgetcsv($handle, 0, ';')) !== false) {
+            if (empty(array_filter($row))) {
                 $skipped++;
                 $bar->advance();
                 continue;
             }
 
-            $lotRaqami = $this->extractLotRaqami($rowData[7] ?? '');
+            // CSV: 0=Date, 1=Doc#, 2=Payer, 3=Account, 4=Bank, 5=Amount, 6=Details
+            $lotRaqami = $this->extractLotRaqami($row[6] ?? '');
 
             if (!$lotRaqami || !isset($existingLots[$lotRaqami])) {
                 if ($lotRaqami && !in_array($lotRaqami, $this->notFoundLots)) {
@@ -444,7 +421,7 @@ class Yer2SotuvSeeder extends Seeder
                 continue;
             }
 
-            $tolovSana = $this->parseDate($rowData[0] ?? null);
+            $tolovSana = $this->parseDate($row[0] ?? null);
             if (!$tolovSana) {
                 $tolovSana = Carbon::now()->format('Y-m-d');
             }
@@ -452,12 +429,12 @@ class Yer2SotuvSeeder extends Seeder
             $this->faktBatch[] = [
                 'lot_raqami' => $lotRaqami,
                 'tolov_sana' => $tolovSana,
-                'hujjat_raqam' => $this->cleanValue($rowData[1] ?? null),
-                'tolash_nom' => $this->cleanValue($rowData[2] ?? null),
-                'tolash_hisob' => $this->cleanValue($rowData[3] ?? null),
-                'tolash_inn' => $this->cleanValue($rowData[4] ?? null),
-                'tolov_summa' => $this->parseNumber($rowData[5] ?? null) ?? 0,
-                'detali' => $this->cleanValue($rowData[6] ?? null),
+                'hujjat_raqam' => $this->cleanValue($row[1] ?? null),
+                'tolash_nom' => $this->cleanValue($row[2] ?? null),
+                'tolash_hisob' => $this->cleanValue($row[3] ?? null),
+                'tolash_inn' => $this->cleanValue($row[4] ?? null),
+                'tolov_summa' => $this->parseNumber($row[5] ?? null) ?? 0,
+                'detali' => $this->cleanValue($row[6] ?? null),
                 'created_at' => now(),
                 'updated_at' => now()
             ];
@@ -470,12 +447,16 @@ class Yer2SotuvSeeder extends Seeder
             $bar->advance();
         }
 
+        fclose($handle);
+
         $bar->finish();
         $this->command->newLine(2);
         $this->command->info("✓ Jami {$count} ta fakt to'lov yuklandi!");
         if ($skipped > 0) {
             $this->command->warn("⚠ {$skipped} ta o'tkazib yuborildi");
         }
+
+        $this->writeLog("Fakt to'lovlar: {$count} ta yuklandi, {$skipped} ta o'tkazildi");
     }
 
     private function flushFaktBatch(): void
@@ -509,25 +490,30 @@ class Yer2SotuvSeeder extends Seeder
         if (empty($text)) return null;
 
         $text = trim($text);
-        $cleanedText = preg_replace('/(\d+)[,\s]+(\d+)/', '$1$2', $text);
 
-        $patterns = [
-            '/L(\d+)L/i',
-            '/L(\d+)/i',
-            '/(\d+)L/i',
-            '/LOT\s*(\d+)/i',
-            '/\b(\d{6,})\b/'
-        ];
-
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $cleanedText, $matches)) {
-                return $matches[1];
-            }
+        // Pattern 1: L{number}L (most common)
+        if (preg_match('/L(\d+)L/i', $text, $matches)) {
+            return $matches[1];
         }
 
-        $cleanedText = str_replace([',', ' '], '', $cleanedText);
-        if (is_numeric($cleanedText) && strlen($cleanedText) >= 6) {
-            return (string)round($cleanedText);
+        // Pattern 2: L{number}
+        if (preg_match('/L(\d+)/i', $text, $matches)) {
+            return $matches[1];
+        }
+
+        // Pattern 3: {number}L
+        if (preg_match('/(\d+)L/i', $text, $matches)) {
+            return $matches[1];
+        }
+
+        // Pattern 4: LOT {number}
+        if (preg_match('/LOT\s*[:\-]?\s*(\d+)/i', $text, $matches)) {
+            return $matches[1];
+        }
+
+        // Pattern 5: 6+ digit number
+        if (preg_match('/\b(\d{6,})\b/', $text, $matches)) {
+            return $matches[1];
         }
 
         return null;
