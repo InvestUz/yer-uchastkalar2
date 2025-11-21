@@ -14,9 +14,18 @@ class Yer2SotuvSeeder extends Seeder
     private const MEMORY_LIMIT = '512M';
 
     private $oyNomlari = [
-        1 => 'yanvar', 2 => 'fevral', 3 => 'mart', 4 => 'aprel',
-        5 => 'may', 6 => 'iyun', 7 => 'iyul', 8 => 'avgust',
-        9 => 'sentabr', 10 => 'oktabr', 11 => 'noyabr', 12 => 'dekabr'
+        1 => 'yanvar',
+        2 => 'fevral',
+        3 => 'mart',
+        4 => 'aprel',
+        5 => 'may',
+        6 => 'iyun',
+        7 => 'iyul',
+        8 => 'avgust',
+        9 => 'sentabr',
+        10 => 'oktabr',
+        11 => 'noyabr',
+        12 => 'dekabr'
     ];
 
     private $grafikColumnMap = [
@@ -87,7 +96,6 @@ class Yer2SotuvSeeder extends Seeder
 
             $this->command->info("\n✓ Import muvaffaqiyatli yakunlandi! ({$duration}s)");
             $this->command->info("✓ Log: storage/app/{$this->logFileName}");
-
         } catch (\Exception $e) {
             $this->command->error("\n✗ XATOLIK: " . $e->getMessage());
             $this->writeLog("\nXATOLIK: " . $e->getMessage());
@@ -115,7 +123,6 @@ class Yer2SotuvSeeder extends Seeder
 
         $this->writeLog("Table names: {$this->yerSotuvTable}, {$this->grafikTable}, {$this->faktTable}");
     }
-
     private function importAsosiyMalumot(): void
     {
         $file = storage_path('app/excel/new_data.csv');
@@ -160,7 +167,8 @@ class Yer2SotuvSeeder extends Seeder
                 continue;
             }
 
-            $lotRaqami = $this->parseLotNumber($row[0] ?? null);
+            // FIX: Use column 2 (index 1) "Лотрақами" as the actual LOT number
+            $lotRaqami = $this->parseLotNumber($row[1] ?? null);
 
             if (!$lotRaqami) {
                 $this->skippedRecords[] = "Qator {$rowNumber}: LOT topilmadi";
@@ -179,7 +187,6 @@ class Yer2SotuvSeeder extends Seeder
                 }
 
                 DB::commit();
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 $this->importErrors[] = "Qator {$rowNumber}, LOT {$lotRaqami}: " . $e->getMessage();
@@ -264,7 +271,7 @@ class Yer2SotuvSeeder extends Seeder
         $data['shartnoma_summasi'] = $shartnomaSummasi;
 
         $tableColumns = Schema::getColumnListing($this->yerSotuvTable);
-        $filteredData = array_filter($data, function($key) use ($tableColumns) {
+        $filteredData = array_filter($data, function ($key) use ($tableColumns) {
             return in_array($key, $tableColumns);
         }, ARRAY_FILTER_USE_KEY);
 
@@ -380,6 +387,26 @@ class Yer2SotuvSeeder extends Seeder
 
         $this->command->info("\nFakt to'lovlar yuklanmoqda (CSV)...");
 
+        // DEBUG: Show all LOT numbers in database
+        $existingLots = DB::table($this->yerSotuvTable)->pluck('lot_raqami')->toArray();
+        sort($existingLots);
+
+        $this->command->info("\n=== DATABASE LOT NUMBERS ===");
+        $this->command->info("Total LOTs in DB: " . count($existingLots));
+        $this->command->info("First 20: " . implode(', ', array_slice($existingLots, 0, 20)));
+        $this->command->info("Last 20: " . implode(', ', array_slice($existingLots, -20)));
+
+        // Check if any LOT matches the pattern from fakt file
+        $longLots = array_filter($existingLots, function ($lot) {
+            return strlen($lot) >= 7;
+        });
+        $this->command->info("LOTs with 7+ digits: " . count($longLots));
+        if (!empty($longLots)) {
+            $this->command->info("Sample long LOTs: " . implode(', ', array_slice($longLots, 0, 10)));
+        }
+
+        $this->command->newLine();
+
         $handle = fopen($file, 'r');
         if ($handle === false) {
             throw new \RuntimeException("CSV faylni ochib bo'lmadi");
@@ -400,7 +427,7 @@ class Yer2SotuvSeeder extends Seeder
         $bar = $this->command->getOutput()->createProgressBar($totalRows);
         $bar->start();
 
-        $existingLots = DB::table($this->yerSotuvTable)->pluck('lot_raqami')->flip();
+        $existingLotsFlipped = array_flip($existingLots);
 
         while (($row = fgetcsv($handle, 0, ';')) !== false) {
             if (empty(array_filter($row))) {
@@ -409,10 +436,9 @@ class Yer2SotuvSeeder extends Seeder
                 continue;
             }
 
-            // CSV: 0=Date, 1=Doc#, 2=Payer, 3=Account, 4=Bank, 5=Amount, 6=Details
-            $lotRaqami = $this->extractLotRaqami($row[6] ?? '');
+            $lotRaqami = $this->extractLotRaqami($row[7] ?? '');
 
-            if (!$lotRaqami || !isset($existingLots[$lotRaqami])) {
+            if (!$lotRaqami || !isset($existingLotsFlipped[$lotRaqami])) {
                 if ($lotRaqami && !in_array($lotRaqami, $this->notFoundLots)) {
                     $this->notFoundLots[] = $lotRaqami;
                 }
@@ -456,9 +482,16 @@ class Yer2SotuvSeeder extends Seeder
             $this->command->warn("⚠ {$skipped} ta o'tkazib yuborildi");
         }
 
+        if (!empty($this->notFoundLots)) {
+            $this->command->warn("\nTopilmagan LOT namunalari (birinchi 10 ta):");
+            $samples = array_slice(array_unique($this->notFoundLots), 0, 10);
+            foreach ($samples as $lot) {
+                $this->command->warn("  - " . $lot);
+            }
+        }
+
         $this->writeLog("Fakt to'lovlar: {$count} ta yuklandi, {$skipped} ta o'tkazildi");
     }
-
     private function flushFaktBatch(): void
     {
         if (!empty($this->faktBatch)) {
@@ -550,8 +583,7 @@ class Yer2SotuvSeeder extends Seeder
                     $value = str_replace('.', '', $value);
                     $value = str_replace(',', '.', $value);
                 }
-            }
-            elseif ($commaCount > 0 && $dotCount == 0) {
+            } elseif ($commaCount > 0 && $dotCount == 0) {
                 if ($commaCount > 1) {
                     $value = str_replace(',', '', $value);
                 } else {
@@ -564,8 +596,7 @@ class Yer2SotuvSeeder extends Seeder
                         $value = str_replace(',', '', $value);
                     }
                 }
-            }
-            elseif ($dotCount > 0 && $commaCount == 0) {
+            } elseif ($dotCount > 0 && $commaCount == 0) {
                 if ($dotCount > 1) {
                     $value = str_replace('.', '', $value);
                 }
@@ -658,15 +689,16 @@ class Yer2SotuvSeeder extends Seeder
         $this->command->info(sprintf("Jami fakt summa:       %s so'm", number_format($faktSum, 0)));
 
         $lotsWithoutGrafik = DB::table($this->yerSotuvTable)
-            ->whereNotExists(function($query) {
+            ->whereNotExists(function ($query) {
                 $query->select(DB::raw(1))
-                      ->from($this->grafikTable)
-                      ->whereColumn("{$this->grafikTable}.yer_sotuv_id", "{$this->yerSotuvTable}.id");
+                    ->from($this->grafikTable)
+                    ->whereColumn("{$this->grafikTable}.yer_sotuv_id", "{$this->yerSotuvTable}.id");
             })
             ->where('tolov_turi', 'муддатли')
             ->count();
 
-        $this->command->info(sprintf("\n[%s] Muddatli LOTlar grafiksiz:  %s ta",
+        $this->command->info(sprintf(
+            "\n[%s] Muddatli LOTlar grafiksiz:  %s ta",
             $lotsWithoutGrafik === 0 ? '✓' : '✗',
             $lotsWithoutGrafik
         ));
