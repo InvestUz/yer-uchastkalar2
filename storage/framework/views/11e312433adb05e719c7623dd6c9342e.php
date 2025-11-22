@@ -156,7 +156,7 @@
             <!-- Муддатли Content -->
             <div id="content-muddatli" class="tab-content">
                 <!-- Statistics Cards - Муддатли (5 cards) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <!-- 1. Soni -->
                     <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
                         <div class="flex items-center justify-between mb-3">
@@ -191,18 +191,18 @@
 </div>
 
 <!-- Card 3: Amalda to'langan (from nazoratdagilar) -->
-<div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
+<div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
     <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold text-slate-700">Амалда тўланган</h3>
-        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-            <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h3 class="text-sm font-semibold text-slate-700">Амалда тушган маблағ</h3>
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
                 </path>
             </svg>
         </div>
     </div>
-    <p class="text-3xl font-bold text-purple-700 mb-1">
+    <p class="text-3xl font-bold text-green-700 mb-1">
         <?php echo e(number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2)); ?> млрд</p>
     <p class="text-xs text-slate-500">Фактик тўланган сумма</p>
 </div>
@@ -214,25 +214,41 @@
         ? (($nazoratdagilar['tushadigan_mablagh'] - $nazoratdagilar['tushgan_summa']) / $nazoratdagilar['tushadigan_mablagh']) * 100
         : 0;
 ?>
-<div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+<div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
     <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-slate-700">Қолдиқ маблағ</h3>
-        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-            <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
         </div>
     </div>
-    <p class="text-3xl font-bold text-green-700 mb-2">
+    <p class="text-3xl font-bold text-red-700 mb-2">
         <?php echo e(number_format($qoldiqMablagh / 1000000000, 2)); ?> млрд</p>
     <div class="flex items-center">
         <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
-            <div class="bg-green-600 h-2.5 rounded-full transition-all duration-500"
+            <div class="bg-red-600 h-2.5 rounded-full transition-all duration-500"
                 style="width: <?php echo e(100 - min(100, $qoldiqFoizi)); ?>%"></div>
         </div>
-        <span class="text-sm font-bold text-green-600"><?php echo e(number_format(100 - $qoldiqFoizi, 1)); ?>%</span>
+        <span class="text-sm font-bold text-red-600"><?php echo e(number_format(100 - $qoldiqFoizi, 1)); ?>%</span>
     </div>
+</div>
+
+<!-- Card 5: Amalda grafik bo'yicha tushgan (from grafik_ortda) -->
+<div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-slate-700">График б-ча тушадиган маблағ</h3>
+        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+            <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+    </div>
+    <p class="text-3xl font-bold text-orange-700 mb-1">
+       0 млрд</p>
+    <p class="text-xs text-slate-500">Амалда график бўйича</p>
 </div>
 
 <!-- Card 5: Amalda grafik bo'yicha tushgan (from grafik_ortda) -->
@@ -251,10 +267,11 @@
     <p class="text-xs text-slate-500">Амалда график бўйича</p>
 </div>
 
+
 <!-- Card 6: Muddati o'tgan qarzdorlik (from grafik_ortda) -->
 <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
     <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган қарз</h3>
+        <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган қарздорлик</h3>
         <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
             <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
