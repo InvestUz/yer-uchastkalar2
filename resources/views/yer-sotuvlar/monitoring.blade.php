@@ -236,7 +236,7 @@
     </div>
 </div>
 
-<!-- Card 5: Amalda grafik bo'yicha tushgan (from grafik_ortda) -->
+<!-- Card 5: График б-ча тушадиган маблағ (FIXED) -->
 <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
     <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-slate-700">График б-ча тушадиган маблағ</h3>
@@ -248,8 +248,8 @@
         </div>
     </div>
     <p class="text-3xl font-bold text-orange-700 mb-1">
-       0 млрд</p>
-    <p class="text-xs text-slate-500">Амалда график бўйича</p>
+        {{ number_format($grafikTushadiganMuddatli / 1000000000, 2) }} млрд</p>
+    <p class="text-xs text-slate-500">График бўйича тушадиган (охирги ой ҳолатига)</p>
 </div>
 
 <!-- Card 5: Amalda grafik bo'yicha tushgan (from grafik_ortda) -->

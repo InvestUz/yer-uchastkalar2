@@ -89,6 +89,53 @@ class YerSotuvService
         return $query;
     }
 
+/**
+     * Calculate total grafik tushadigan (scheduled amount up to last month)
+     * for муддатли payments with date filters
+     */
+    public function calculateGrafikTushadigan(?array $tumanPatterns = null, array $dateFilters = [], string $tolovTuri = 'муддатли'): float
+    {
+        $query = YerSotuv::query();
+
+        // CRITICAL: Apply base filters
+        $this->applyBaseFilters($query);
+        $this->applyTumanFilter($query, $tumanPatterns);
+        $query->where('tolov_turi', $tolovTuri);
+        $this->applyDateFilters($query, $dateFilters);
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        if (empty($lotRaqamlari)) {
+            Log::info('Grafik Tushadigan Calculation - No lots found', [
+                'tuman_patterns' => $tumanPatterns,
+                'tolov_turi' => $tolovTuri,
+                'date_filters' => $dateFilters,
+            ]);
+            return 0;
+        }
+
+        // Use last month's end date as cutoff
+        $cutoffDate = $this->getGrafikCutoffDate();
+
+        $grafikSumma = DB::table('grafik_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$cutoffDate])
+            ->sum('grafik_summa');
+
+        Log::info('Grafik Tushadigan Calculation', [
+            'tuman_patterns' => $tumanPatterns,
+            'tolov_turi' => $tolovTuri,
+            'date_filters' => $dateFilters,
+            'lots_count' => count($lotRaqamlari),
+            'lot_raqamlari_sample' => array_slice($lotRaqamlari, 0, 5),
+            'cutoff_date' => $cutoffDate,
+            'grafik_summa' => $grafikSumma
+        ]);
+
+        return $grafikSumma;
+    }
+
+
     /**
      * Get basic statistics (jami, bir_yola, bolib)
      */
@@ -180,6 +227,7 @@ class YerSotuvService
             'shartnoma_summasi' => $data->shartnoma_summasi ?? 0,
         ];
     }
+
 
     /**
      * Get auksonda turgan data

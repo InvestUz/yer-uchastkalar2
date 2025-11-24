@@ -237,6 +237,10 @@ class YerSotuvController extends Controller
      */
     // In YerSotuvController.php - update the monitoring() method
 
+    /**
+     * Display monitoring and analytics page
+     * UPDATED VERSION with period filter support and correct grafik calculations
+     */
     public function monitoring(Request $request)
     {
         // Process period filter to convert to date range
@@ -263,9 +267,10 @@ class YerSotuvController extends Controller
         $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
 
         // CRITICAL: Calculate grafik tushadigan for muddatli (up to last month)
-        $grafikTushadiganMuddatli = $this->calculateGrafikTushadigan($dateFilters, 'муддатли');
+        // UPDATED: Now using service method instead of controller method
+        $grafikTushadiganMuddatli = $this->yerSotuvService->calculateGrafikTushadigan(null, $dateFilters, 'муддатли');
 
-        // NEW: Get detailed breakdown statistics from SVOD3 methods
+        // Get detailed breakdown statistics from SVOD3 methods
         $nazoratdagilar = $this->yerSotuvService->getNazoratdagilar(null, $dateFilters);
         $grafikOrtda = $this->yerSotuvService->getGrafikOrtda(null, $dateFilters);
 
@@ -324,9 +329,9 @@ class YerSotuvController extends Controller
             'chartData',
             'dateFilters',
             'periodInfo',
-            'grafikTushadiganMuddatli',
-            'nazoratdagilar',  // NEW: Pass to view
-            'grafikOrtda'      // NEW: Pass to view
+            'grafikTushadiganMuddatli',  // FIXED: Now properly calculated
+            'nazoratdagilar',
+            'grafikOrtda'
         ));
     }
 
