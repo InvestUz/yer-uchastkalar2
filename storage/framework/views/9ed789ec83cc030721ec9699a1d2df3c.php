@@ -253,7 +253,7 @@
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bolib']['auksion_harajati'] / 1000000000, 1)); ?></td>
 
                                 <!-- Col 28: Bolib tushadigan -->
-                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1)); ?>xxx</td>
+                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900"><?php echo e(number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1)); ?></td>
 
                                 <!-- Col 29: Bolib tushgan -->
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900"><?php echo e(number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1)); ?></td>
@@ -370,7 +370,6 @@
 
                                 <!-- Col 24: Bolib boshlangich -->
                                 <td class="border border-slate-400 px-3 py-3 text-right text-slate-700"><?php echo e(number_format($tuman['bolib']['boshlangich_narx'] / 1000000000, 1)); ?></td>
-
                                 <!-- Col 25: Bolib sotilgan -->
                                 <td class="border border-slate-400 px-3 py-3 text-right text-slate-700"><?php echo e(number_format($tuman['bolib']['sotilgan_narx'] / 1000000000, 1)); ?></td>
 

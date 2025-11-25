@@ -319,7 +319,7 @@ class YerSotuvController extends Controller
      */
     public function monitoring(Request $request)
     {
-        // Process period filter to convert to date range
+                // Process period filter to convert to date range
         $dateFilters = $this->processPeriodFilter($request);
 
         // Determine if we're using period-specific filtering
