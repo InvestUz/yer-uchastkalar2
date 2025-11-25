@@ -272,19 +272,24 @@ class YerSotuvController extends Controller
         $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
         $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
 
-        // CRITICAL: Calculate grafik tushadigan for muddatli (up to last month)
-        // UPDATED: Now using service method instead of controller method
-        $grafikTushadiganMuddatli = $this->yerSotuvService->calculateGrafikTushadigan(null, $dateFilters, 'муддатли');
+        // CRITICAL CHANGE: Use PERIOD-SPECIFIC calculations for cards
 
-        // Get detailed breakdown statistics from SVOD3 methods
-        $nazoratdagilar = $this->yerSotuvService->getNazoratdagilar(null, $dateFilters);
-        $grafikOrtda = $this->yerSotuvService->getGrafikOrtda(null, $dateFilters);
+        // Card 5: График б-ча тушадиган маблағ - PERIOD SPECIFIC
+        $grafikTushadiganMuddatli = $this->yerSotuvService->calculateGrafikTushadiganByPeriod($dateFilters, 'муддатли');
 
-        // Get tuman statistics for муддатли
+        // Card 2 & 3: Nazoratdagilar - PERIOD SPECIFIC
+        $nazoratdagilar = $this->yerSotuvService->getNazoratdagilarByPeriod(null, $dateFilters);
+
+        // Card 6 & 7: Grafik ortda - PERIOD SPECIFIC
+        $grafikOrtda = $this->yerSotuvService->getGrafikOrtdaByPeriod(null, $dateFilters);
+
+        // Get tuman statistics with PERIOD-SPECIFIC calculations
         $tumanStatsMuddatli = [];
         foreach ($tumanlar as $tuman) {
             $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
-            $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters, 'муддатли');
+
+            // CRITICAL: Use period-aware calculation
+            $stats = $this->calculateTumanMonitoringByPeriod($tumanPatterns, $dateFilters, 'муддатли');
 
             if ($stats['lots'] > 0) {
                 $tumanStatsMuddatli[] = [
@@ -298,11 +303,13 @@ class YerSotuvController extends Controller
             }
         }
 
-        // Get tuman statistics for муддатли эмас
+        // Get tuman statistics for муддатли эмас with PERIOD-SPECIFIC calculations
         $tumanStatsMuddatliEmas = [];
         foreach ($tumanlar as $tuman) {
             $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
-            $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters, 'муддатли эмас');
+
+            // CRITICAL: Use period-aware calculation
+            $stats = $this->calculateTumanMonitoringByPeriod($tumanPatterns, $dateFilters, 'муддатли эмас');
 
             if ($stats['lots'] > 0) {
                 $tumanStatsMuddatliEmas[] = [
@@ -316,7 +323,7 @@ class YerSotuvController extends Controller
             }
         }
 
-        // Prepare chart data
+        // Prepare chart data with period filters
         $chartData = $this->prepareChartData($tumanStatsMuddatli, $tumanStatsMuddatliEmas, $dateFilters);
 
         // Pass period info to view
@@ -335,14 +342,117 @@ class YerSotuvController extends Controller
             'chartData',
             'dateFilters',
             'periodInfo',
-            'grafikTushadiganMuddatli',  // FIXED: Now properly calculated
+            'grafikTushadiganMuddatli',
             'nazoratdagilar',
-            'grafikOrtda',
-            'categoryData' // NEW
-
+            'grafikOrtda'
         ));
     }
 
+    private function calculateTumanMonitoringByPeriod(?array $tumanPatterns, array $dateFilters, string $tolovTuri): array
+    {
+        $query = YerSotuv::query();
+
+        $this->yerSotuvService->applyTumanFilter($query, $tumanPatterns);
+        $query->where('tolov_turi', $tolovTuri);
+        $this->yerSotuvService->applyDateFilters($query, $dateFilters);
+
+        $lots = $query->count();
+
+        if ($lots === 0) {
+            return [
+                'lots' => 0,
+                'grafik' => 0,
+                'fakt' => 0,
+                'expected' => 0,
+                'received' => 0,
+                'difference' => 0,
+                'percentage' => 0
+            ];
+        }
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        if ($tolovTuri === 'муддатли') {
+            // Get grafik for PERIOD
+            $grafikQuery = DB::table('grafik_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari);
+
+            if (!empty($dateFilters['auksion_sana_from']) && !empty($dateFilters['auksion_sana_to'])) {
+                $dateFrom = \Carbon\Carbon::parse($dateFilters['auksion_sana_from']);
+                $dateTo = \Carbon\Carbon::parse($dateFilters['auksion_sana_to']);
+
+                $grafikQuery->where(function ($q) use ($dateFrom, $dateTo) {
+                    $q->where('yil', '>=', $dateFrom->year)
+                        ->where('yil', '<=', $dateTo->year);
+
+                    if ($dateFrom->year === $dateTo->year) {
+                        $q->where('oy', '>=', $dateFrom->month)
+                            ->where('oy', '<=', $dateTo->month);
+                    }
+                });
+            }
+
+            $grafikSumma = $grafikQuery->sum('grafik_summa');
+
+            // Get fakt for PERIOD
+            $faktQuery = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari);
+
+            if (!empty($dateFilters['auksion_sana_from'])) {
+                $faktQuery->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);
+            }
+            if (!empty($dateFilters['auksion_sana_to'])) {
+                $faktQuery->whereDate('tolov_sana', '<=', $dateFilters['auksion_sana_to']);
+            }
+
+            $faktSumma = $faktQuery->sum('tolov_summa');
+
+            $difference = $grafikSumma - $faktSumma;
+            $percentage = $grafikSumma > 0 ? ($faktSumma / $grafikSumma) * 100 : 0;
+
+            return [
+                'lots' => $lots,
+                'grafik' => $grafikSumma,
+                'fakt' => $faktSumma,
+                'difference' => $difference,
+                'percentage' => $percentage
+            ];
+        } else {
+            // For муддатли эмас - similar period filtering for fakt
+            $faktQuery = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotRaqamlari);
+
+            if (!empty($dateFilters['auksion_sana_from'])) {
+                $faktQuery->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);
+            }
+            if (!empty($dateFilters['auksion_sana_to'])) {
+                $faktQuery->whereDate('tolov_sana', '<=', $dateFilters['auksion_sana_to']);
+            }
+
+            $receivedAmount = $faktQuery->sum('tolov_summa');
+
+            // Expected is total contract amount
+            $data = YerSotuv::whereIn('lot_raqami', $lotRaqamlari)
+                ->selectRaw('
+                SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+                SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+                SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+            ')->first();
+
+            $expectedAmount = ($data->golib_tolagan + $data->shartnoma_summasi) - $data->auksion_harajati;
+
+            $difference = $expectedAmount - $receivedAmount;
+            $percentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
+
+            return [
+                'lots' => $lots,
+                'expected' => $expectedAmount,
+                'received' => $receivedAmount,
+                'difference' => $difference,
+                'percentage' => $percentage
+            ];
+        }
+    }
     /**
      * Calculate monitoring summary
      */
