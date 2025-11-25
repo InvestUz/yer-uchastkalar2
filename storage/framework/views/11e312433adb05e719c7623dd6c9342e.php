@@ -17,7 +17,7 @@
             <!-- Period Filter Buttons -->
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-slate-800">Давр танлаш</h2>
+                    <h2 class="text-xl font-bold text-slate-800">Ҳисобот даври</h2>
                     <div class="flex items-center gap-3">
                         <!-- Clear Button -->
                         <?php if($periodInfo['period'] !== 'all'): ?>

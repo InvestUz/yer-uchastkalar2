@@ -1,13 +1,11 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Лот ' . $yer->lot_raqami . ' - Батафсил'); ?>
 
-@section('title', 'Лот ' . $yer->lot_raqami . ' - Батафсил')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="space-y-4">
 
-        {{-- Back Button --}}
+        
         <div class="flex justify-between">
-            <a href="{{ url()->previous() }}"
+            <a href="<?php echo e(url()->previous()); ?>"
                 class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -15,69 +13,73 @@
                 Орқага қайтиш
             </a>
 
-   <a href="{{ route('yer-sotuvlar.edit', $yer->lot_raqami) }}"
+   <a href="<?php echo e(route('yer-sotuvlar.edit', $yer->lot_raqami)); ?>"
                 class="px-2 py-1 font-medium bg-gray-700 text-white rounded align-center text-center">
 
                 Таҳрирлаш
             </a>
         </div>
 
-        {{-- Main Header Card --}}
+        
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="bg-white px-6 py-4">
                 <div class="flex flex-col md:flex-row md:justify-between md:items-center">
                     <div>
-                        <h1 class="text-xl font-bold text-gray-600">Лот № {{ $yer->lot_raqami }}</h1>
-                        <p class="text-gray-600 text-sm mt-1">{{ $yer->tuman }} • {{ $yer->mfy }} •
-                            {{ $yer->unikal_raqam }}</p>
+                        <h1 class="text-xl font-bold text-gray-600">Лот № <?php echo e($yer->lot_raqami); ?></h1>
+                        <p class="text-gray-600 text-sm mt-1"><?php echo e($yer->tuman); ?> • <?php echo e($yer->mfy); ?> •
+                            <?php echo e($yer->unikal_raqam); ?></p>
                     </div>
 
                 </div>
             </div>
 
-            {{-- Quick Stats Grid --}}
+            
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 border-b border-gray-200">
                 <div class="text-center p-3 bg-white rounded border border-gray-200">
                     <div class="text-xs text-gray-600">ер майдони</div>
 
-                    <div class="text-lg font-bold text-gray-900">{{ number_format($yer->maydoni, 2) }} га</div>
+                    <div class="text-lg font-bold text-gray-900"><?php echo e(number_format($yer->maydoni, 2)); ?> га</div>
                 </div>
                 <div class="text-center p-3 bg-white rounded border border-gray-200">
                     <div class="text-xs text-gray-600">Бошланғич нархи</div>
-                    <div class="text-lg font-bold text-gray-900">{{ number_format($yer->boshlangich_narx, 2) }}
+                    <div class="text-lg font-bold text-gray-900"><?php echo e(number_format($yer->boshlangich_narx, 2)); ?>
+
                         сўм</div>
                 </div>
                 <div class="text-center p-3 bg-white rounded border border-gray-200">
                     <div class="text-xs text-gray-600">Сотилган нархи</div>
-                    <div class="text-lg font-bold text-gray-900">{{ number_format($yer->sotilgan_narx, 2) }}
+                    <div class="text-lg font-bold text-gray-900"><?php echo e(number_format($yer->sotilgan_narx, 2)); ?>
+
                         сўм</div>
                 </div>
 
                 <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Аукцион хизмат ҳақи 1 фоиз</div>
-                    {{ number_format($yer->auksion_harajati, 2) }} сўм
+                    <?php echo e(number_format($yer->auksion_harajati, 2)); ?> сўм
                 </div>
                 <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
-                    {{ number_format($yer->shartnoma_summasi + $yer->golib_tolagan, 2) }} сўм
+                    <?php echo e(number_format($yer->shartnoma_summasi + $yer->golib_tolagan, 2)); ?> сўм
                 </div>
                 <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Шартнома графиги б-ча тўлов</div>
-                    <div class="text-lg font-bold">{{ number_format($yer->shartnoma_summasi, 2) }} сўм
+                    <div class="text-lg font-bold"><?php echo e(number_format($yer->shartnoma_summasi, 2)); ?> сўм
                     </div>
                 </div>
 
                 <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Амалда тўланган қиймат</div>
                     <div class="text-lg font-bold">
-                        {{ number_format($yer->faktTolovlar->sum('tolov_summa'), 2) }}
+                        <?php echo e(number_format($yer->faktTolovlar->sum('tolov_summa'), 2)); ?>
+
                         сўм</div>
                 </div>
 
                 <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
 
                     <div class="text-xs">Тўланиши лозим бўлган қолдик қиймат</div>
-                    {{ number_format($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2) }}
+                    <?php echo e(number_format($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2)); ?>
+
                     сўм
                 </div>
             </div>
@@ -85,7 +87,7 @@
     </div>
 
 
-    {{-- Tabbed Content --}}
+    
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
         <div class="border-b border-gray-200">
             <nav class="flex -mb-px overflow-x-auto">
@@ -108,10 +110,10 @@
             </nav>
         </div>
 
-        {{-- Tab Content: Basic Info --}}
+        
         <div id="basic" class="tab-content p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Left Column --}}
+                
                 <div class="space-y-4">
                     <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide pb-2 border-b border-gray-200">Ер
                         участкаси маълумотлари</h3>
@@ -119,31 +121,31 @@
                         <tbody class="divide-y divide-gray-100">
                             <tr>
                                 <td class="py-2 text-gray-600 w-40">Уникал рақам</td>
-                                <td class="py-2 font-medium text-gray-900">{{ $yer->unikal_raqam ?? '-' }}</td>
+                                <td class="py-2 font-medium text-gray-900"><?php echo e($yer->unikal_raqam ?? '-'); ?></td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Зона</td>
-                                <td class="py-2 font-medium text-gray-900">{{ $yer->zona ?? '-' }}</td>
+                                <td class="py-2 font-medium text-gray-900"><?php echo e($yer->zona ?? '-'); ?></td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Бош режа зона</td>
-                                <td class="py-2 font-medium text-gray-900">{{ $yer->bosh_reja_zona ?? '-' }}</td>
+                                <td class="py-2 font-medium text-gray-900"><?php echo e($yer->bosh_reja_zona ?? '-'); ?></td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Янги Ўзбекистон</td>
-                                <td class="py-2 font-medium text-gray-900">{{ $yer->yangi_ozbekiston ?? '-' }}</td>
+                                <td class="py-2 font-medium text-gray-900"><?php echo e($yer->yangi_ozbekiston ?? '-'); ?></td>
                             </tr>
-                            @if ($yer->manzil)
+                            <?php if($yer->manzil): ?>
                                 <tr>
                                     <td class="py-2 text-gray-600">Манзил</td>
-                                    <td class="py-2 text-gray-900">{{ $yer->manzil }}</td>
+                                    <td class="py-2 text-gray-900"><?php echo e($yer->manzil); ?></td>
                                 </tr>
-                            @endif
-                            @if ($yer->lokatsiya)
+                            <?php endif; ?>
+                            <?php if($yer->lokatsiya): ?>
                                 <tr>
                                     <td class="py-2 text-gray-600">Локация</td>
                                     <td class="py-2">
-                                        <a href="{{ $yer->lokatsiya }}" target="_blank"
+                                        <a href="<?php echo e($yer->lokatsiya); ?>" target="_blank"
                                             class="inline-flex items-center text-blue-600 hover:text-blue-800">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -154,43 +156,37 @@
                                         </a>
                                     </td>
                                 </tr>
-                            @endif
+                            <?php endif; ?>
                         </tbody>
                     </table>
 
-                    @if ($yer->qurilish_turi_1 || $yer->qurilish_maydoni)
+                    <?php if($yer->qurilish_turi_1 || $yer->qurilish_maydoni): ?>
                         <h3
                             class="text-sm font-semibold text-gray-900 uppercase tracking-wide pt-4 pb-2 border-b border-gray-200">
                             Қурилишга рухсат берилган объект тури</h3>
                         <table class="min-w-full text-sm">
                             <tbody class="divide-y divide-gray-100">
-                                @if ($yer->qurilish_turi_1)
+                                <?php if($yer->qurilish_turi_1): ?>
                                     <tr>
                                         <td class="py-2 text-gray-600 w-40">Соҳаси </td>
-                                        <td class="py-2 text-gray-900">{{ $yer->qurilish_turi_1 }}</td>
+                                        <td class="py-2 text-gray-900"><?php echo e($yer->qurilish_turi_1); ?></td>
                                     </tr>
-                                @endif
+                                <?php endif; ?>
 
-                                {{-- @if ($yer->qurilish_maydoni)
-                                    <tr>
-                                        <td class="py-2 text-gray-600">Майдони</td>
-                                        <td class="py-2 font-medium text-gray-900">
-                                            {{ number_format($yer->qurilish_maydoni, 0) }} м²</td>
-                                    </tr>
-                                @endif --}}
-                                @if ($yer->investitsiya)
+                                
+                                <?php if($yer->investitsiya): ?>
                                     <tr>
                                         <td class="py-2 text-gray-600">Киритиладиган инвестиция</td>
                                         <td class="py-2 font-medium text-gray-900">
-                                            {{ number_format($yer->investitsiya, 1) }} АҚШ доллари</td>
+                                            <?php echo e(number_format($yer->investitsiya, 1)); ?> АҚШ доллари</td>
                                     </tr>
-                                @endif
+                                <?php endif; ?>
                             </tbody>
                         </table>
-                    @endif
+                    <?php endif; ?>
                 </div>
 
-                {{-- Right Column --}}
+                
                 <div class="space-y-4">
                     <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide pb-2 border-b border-gray-200">
                         Аукцион маълумотлари</h3>
@@ -198,42 +194,43 @@
                         <tbody class="divide-y divide-gray-100">
                             <tr>
                                 <td class="py-2 text-gray-600 w-40">Аукцион санаси</td>
-                                <td class="py-2 text-gray-900">{{ $yer->auksion_sana ?? '-' }}</td>
+                                <td class="py-2 text-gray-900"><?php echo e($yer->auksion_sana ?? '-'); ?></td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600 w-40">Аукцион тури</td>
-                                <td class="py-2 text-gray-900">{{ $yer->auksion_turi ?? '-' }}</td>
+                                <td class="py-2 text-gray-900"><?php echo e($yer->auksion_turi ?? '-'); ?></td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Асос</td>
-                                <td class="py-2 text-gray-900">{{ $yer->asos ?? '-' }}</td>
+                                <td class="py-2 text-gray-900"><?php echo e($yer->asos ?? '-'); ?></td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Ҳолат</td>
-                                <td class="py-2 text-gray-900">{{ Str::limit($yer->holat, 40) ?? '-' }}</td>
+                                <td class="py-2 text-gray-900"><?php echo e(Str::limit($yer->holat, 40) ?? '-'); ?></td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Ғолиб</td>
-                                <td class="py-2 font-medium text-gray-900">{{ $yer->golib_nomi ?? '-' }}</td>
+                                <td class="py-2 font-medium text-gray-900"><?php echo e($yer->golib_nomi ?? '-'); ?></td>
                             </tr>
-  @if ($yer->telefon)
+  <?php if($yer->telefon): ?>
                                 <tr>
                                     <td class="py-2 text-gray-600">Телефон</td>
                                     <td class="py-2 text-gray-900">
-                                        <a href="tel:{{ $yer->telefon }}" class="text-blue-600 hover:text-blue-800">
-                                            {{ $yer->telefon }}
+                                        <a href="tel:<?php echo e($yer->telefon); ?>" class="text-blue-600 hover:text-blue-800">
+                                            <?php echo e($yer->telefon); ?>
+
                                         </a>
                                     </td>
                                 </tr>
-                            @endif
+                            <?php endif; ?>
                             <tr>
                                 <td class="py-2 text-gray-600">Субъект тури</td>
                                 <td class="py-2 text-gray-900">
-                                    @if ($yer->golib_turi == 'юр лицо')
+                                    <?php if($yer->golib_turi == 'юр лицо'): ?>
                                         юридик шахс
-                                    @else
+                                    <?php else: ?>
                                         жисмоний шахс
-                                    @endif
+                                    <?php endif; ?>
 
                                 </td>
                             </tr>
@@ -241,51 +238,51 @@
                             <tr>
                                 <td class="py-2 text-gray-600">Тўлов тури</td>
                                 <td class="py-2">
-                                    @if ($yer->tolov_turi == 'муддатли эмас')
+                                    <?php if($yer->tolov_turi == 'муддатли эмас'): ?>
                                         <span class="px-2 py-1 text-xs font-medium bg-gray-700 text-white rounded">Бир
                                             йўла</span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="px-2 py-1 text-xs font-medium bg-gray-400 text-white rounded">Бўлиб
                                             тўлаш</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
-                    @if ($yer->shartnoma_sana || $yer->shartnoma_raqam)
+                    <?php if($yer->shartnoma_sana || $yer->shartnoma_raqam): ?>
                         <h3
                             class="text-sm font-semibold text-gray-900 uppercase tracking-wide pt-4 pb-2 border-b border-gray-200">
                             Шартнома маълумотлари</h3>
                         <table class="min-w-full text-sm">
                             <tbody class="divide-y divide-gray-100">
-                                @if ($yer->shartnoma_holati)
+                                <?php if($yer->shartnoma_holati): ?>
                                     <tr>
                                         <td class="py-2 text-gray-600 w-40">Ҳолати</td>
-                                        <td class="py-2 text-gray-900">{{ $yer->shartnoma_holati }}</td>
+                                        <td class="py-2 text-gray-900"><?php echo e($yer->shartnoma_holati); ?></td>
                                     </tr>
-                                @endif
-                                @if ($yer->shartnoma_raqam)
+                                <?php endif; ?>
+                                <?php if($yer->shartnoma_raqam): ?>
                                     <tr>
                                         <td class="py-2 text-gray-600">Рақами</td>
-                                        <td class="py-2 font-medium text-gray-900">{{ $yer->shartnoma_raqam }}</td>
+                                        <td class="py-2 font-medium text-gray-900"><?php echo e($yer->shartnoma_raqam); ?></td>
                                     </tr>
-                                @endif
-                                @if ($yer->shartnoma_sana)
+                                <?php endif; ?>
+                                <?php if($yer->shartnoma_sana): ?>
                                     <tr>
                                         <td class="py-2 text-gray-600">Санаси</td>
                                         <td class="py-2 font-medium text-gray-900">
-                                            {{ $yer->shartnoma_sana->format('d.m.Y') }}</td>
+                                            <?php echo e($yer->shartnoma_sana->format('d.m.Y')); ?></td>
                                     </tr>
-                                @endif
+                                <?php endif; ?>
                             </tbody>
                         </table>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
 
-        {{-- Tab Content: Financial --}}
+        
         <div id="financial" class="tab-content hidden p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -295,30 +292,22 @@
                     <table class="min-w-full text-sm">
                         <tbody class="divide-y divide-gray-100">
                             <tr>
-                                <td class="py-2 text-gray-600">Ғолиб аукционга тўлаган сумма</td>
+                                <td class="py-2 text-gray-600">Ғолиб тўлаган</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->golib_tolagan, 1) }} cўм</td>
+                                    <?php echo e(number_format($yer->golib_tolagan, 1)); ?> cўм</td>
                             </tr>
-                            {{-- <tr>
-                                <td class="py-2 text-gray-600">Буюртмачига ўтказилган</td>
-                                <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->buyurtmachiga_otkazilgan, 1) }} cўм</td>
-                            </tr> --}}
+                            
                             <tr>
-                                <td class="py-2 text-gray-600">Чегирма миқдори</td>
+                                <td class="py-2 text-gray-600">Чегирма</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->chegirma, 1) }} cўм</td>
+                                    <?php echo e(number_format($yer->chegirma, 1)); ?> cўм</td>
                             </tr>
                             <tr>
-                                <td class="py-2 text-gray-600">Аукцион хизмат ҳақи 1 фоиз</td>
+                                <td class="py-2 text-gray-600">Аукцион харажати</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->auksion_harajati, 1) }} cўм</td>
+                                    <?php echo e(number_format($yer->auksion_harajati, 1)); ?> cўм</td>
                             </tr>
-                            {{-- <tr>
-                                <td class="py-2 text-gray-600">Ер аукцион харажат</td>
-                                <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->yer_auksion_harajat, 1) }} cўм</td>
-                            </tr> --}}
+                            
                         </tbody>
                     </table>
                 </div>
@@ -332,37 +321,37 @@
                             <tr>
                                 <td class="py-2 text-gray-600">Тушадиган маблағ</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->tushadigan_mablagh / 1000000, 1) }} млн</td>
+                                    <?php echo e(number_format($yer->tushadigan_mablagh / 1000000, 1)); ?> млн</td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Давактив жамғармаси</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->davaktiv_jamgarmasi / 1000000, 1) }} млн</td>
+                                    <?php echo e(number_format($yer->davaktiv_jamgarmasi / 1000000, 1)); ?> млн</td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Шартнома тушган</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->shartnoma_tushgan / 1000000, 1) }} млн</td>
+                                    <?php echo e(number_format($yer->shartnoma_tushgan / 1000000, 1)); ?> млн</td>
                             </tr>
                             <tr>
                                 <td class="py-2 text-gray-600">Давактивда турган</td>
                                 <td class="py-2 text-right font-medium text-gray-900">
-                                    {{ number_format($yer->davaktivda_turgan / 1000000, 1) }} млн</td>
+                                    <?php echo e(number_format($yer->davaktivda_turgan / 1000000, 1)); ?> млн</td>
                             </tr>
-                            @if ($yer->farqi)
+                            <?php if($yer->farqi): ?>
                                 <tr class="bg-gray-50">
                                     <td class="py-2 text-gray-900 font-semibold">Фарқи</td>
                                     <td class="py-2 text-right font-bold text-gray-900">
-                                        {{ number_format($yer->farqi / 1000000, 1) }} млн</td>
+                                        <?php echo e(number_format($yer->farqi / 1000000, 1)); ?> млн</td>
                                 </tr>
-                            @endif
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        {{-- Tab Content: Budget Distribution --}}
+        
         <div id="budget" class="tab-content hidden p-6">
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
@@ -379,34 +368,34 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Тошкент шаҳар бюджети</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->mahalliy_byudjet_tushadigan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->mahalliy_byudjet_tushadigan, 1)); ?> сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->mahalliy_byudjet_taqsimlangan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->mahalliy_byudjet_taqsimlangan, 1)); ?> сўм</td>
                             <td
-                                class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_mahalliy_byudjet > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_mahalliy_byudjet, 1) }} сўм
+                                class="px-4 py-3 text-right font-semibold <?php echo e($yer->qoldiq_mahalliy_byudjet > 0 ? 'text-red-700' : 'text-green-700'); ?>">
+                                <?php echo e(number_format($yer->qoldiq_mahalliy_byudjet, 1)); ?> сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Жамғарма</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->jamgarma_tushadigan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->jamgarma_tushadigan, 1)); ?> сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->jamgarma_taqsimlangan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->jamgarma_taqsimlangan, 1)); ?> сўм</td>
                             <td
-                                class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_jamgarma > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_jamgarma, 1) }} сўм
+                                class="px-4 py-3 text-right font-semibold <?php echo e($yer->qoldiq_jamgarma > 0 ? 'text-red-700' : 'text-green-700'); ?>">
+                                <?php echo e(number_format($yer->qoldiq_jamgarma, 1)); ?> сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Янги Ўзбекистон</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->yangi_oz_direksiya_tushadigan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->yangi_oz_direksiya_tushadigan, 1)); ?> сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->yangi_oz_direksiya_taqsimlangan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->yangi_oz_direksiya_taqsimlangan, 1)); ?> сўм</td>
                             <td
-                                class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_yangi_oz_direksiya > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_yangi_oz_direksiya, 1) }} сўм
+                                class="px-4 py-3 text-right font-semibold <?php echo e($yer->qoldiq_yangi_oz_direksiya > 0 ? 'text-red-700' : 'text-green-700'); ?>">
+                                <?php echo e(number_format($yer->qoldiq_yangi_oz_direksiya, 1)); ?> сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
@@ -416,7 +405,7 @@
                             <td class="px-4 py-3 text-right text-gray-900">
                                 сўм</td>
                             <td
-                                class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700' }}">
+                                class="px-4 py-3 text-right font-semibold <?php echo e($yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700'); ?>">
                                 сўм
                             </td>
                         </tr>
@@ -425,60 +414,60 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Янгиҳаёт индустриал технопаки</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->yangi_hayot_industrial_park_tushadigan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->yangi_hayot_industrial_park_tushadigan, 1)); ?> сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->yangi_hayot_industrial_park_taqsimlangan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->yangi_hayot_industrial_park_taqsimlangan, 1)); ?> сўм</td>
                             <td
-                                class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_mahalliy_byudjet > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_mahalliy_byudjet, 1) }} сўм
+                                class="px-4 py-3 text-right font-semibold <?php echo e($yer->qoldiq_mahalliy_byudjet > 0 ? 'text-red-700' : 'text-green-700'); ?>">
+                                <?php echo e(number_format($yer->qoldiq_mahalliy_byudjet, 1)); ?> сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">КСЗ дирекциялари</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->ksz_direksiyalari_tushadigan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->ksz_direksiyalari_tushadigan, 1)); ?> сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->ksz_direksiyalari_taqsimlangan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->ksz_direksiyalari_taqsimlangan, 1)); ?> сўм</td>
                             <td
-                                class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_jamgarma > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_jamgarma, 1) }} сўм
+                                class="px-4 py-3 text-right font-semibold <?php echo e($yer->qoldiq_jamgarma > 0 ? 'text-red-700' : 'text-green-700'); ?>">
+                                <?php echo e(number_format($yer->qoldiq_jamgarma, 1)); ?> сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Тошкент сити дирекцияси</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->toshkent_city_direksiya_tushadigan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->toshkent_city_direksiya_tushadigan, 1)); ?> сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->toshkent_city_direksiya_taqsimlangan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->toshkent_city_direksiya_taqsimlangan, 1)); ?> сўм</td>
                             <td
-                                class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_yangi_oz_direksiya > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_yangi_oz_direksiya, 1) }} сўм
+                                class="px-4 py-3 text-right font-semibold <?php echo e($yer->qoldiq_yangi_oz_direksiya > 0 ? 'text-red-700' : 'text-green-700'); ?>">
+                                <?php echo e(number_format($yer->qoldiq_yangi_oz_direksiya, 1)); ?> сўм
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">Туманлар бюжети</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->tuman_byudjeti_tushadigan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->tuman_byudjeti_tushadigan, 1)); ?> сўм</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ number_format($yer->tuman_byudjeti_taqsimlangan, 1) }} сўм</td>
+                                <?php echo e(number_format($yer->tuman_byudjeti_taqsimlangan, 1)); ?> сўм</td>
                             <td
-                                class="px-4 py-3 text-right font-semibold {{ $yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700' }}">
-                                {{ number_format($yer->qoldiq_shayxontohur, 1) }} сўм
+                                class="px-4 py-3 text-right font-semibold <?php echo e($yer->qoldiq_shayxontohur > 0 ? 'text-red-700' : 'text-green-700'); ?>">
+                                <?php echo e(number_format($yer->qoldiq_shayxontohur, 1)); ?> сўм
                             </td>
                         </tr>
 
                         <tr class="bg-gray-100 font-semibold">
                             <td class="px-4 py-3 text-gray-900">ЖАМИ</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{-- {{ number_format(($yer->mahalliy_byudjet_tushadigan + $yer->jamgarma_tushadigan + $yer->yangi_oz_direksiya_tushadigan + $yer->shayxontohur_tushadigan) / 1000000, 1) }} --}}
+                                
                                 сўм
                             </td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{-- {{ number_format(($yer->mahalliy_byudjet_taqsimlangan + $yer->jamgarma_taqsimlangan + $yer->yangi_oz_direksiya_taqsimlangan + $yer->shayxontohur_taqsimlangan) / 1000000, 1) }} --}}
+                                
                                 сўм
                             </td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{-- {{ number_format(($yer->qoldiq_mahalliy_byudjet + $yer->qoldiq_jamgarma + $yer->qoldiq_yangi_oz_direksiya + $yer->qoldiq_shayxontohur) / 1000000, 1) }} --}}
+                                
                                 сўм
                             </td>
                         </tr>
@@ -487,17 +476,17 @@
             </div>
         </div>
 
-        {{-- Tab Content: Payments --}}
+        
         <div id="payment" class="tab-content hidden p-6">
-            @php
+            <?php
                 $grafikJami = $yer->grafikTolovlar->sum('grafik_summa');
                 $faktJami = $yer->faktTolovlar->sum('tolov_summa');
                 $qarzdorlik = $grafikJami - $faktJami;
                 $foiz = $grafikJami > 0 ? round(($faktJami / $grafikJami) * 100, 1) : 0;
                 $hasPaymentData = $yer->grafikTolovlar->count() > 0 || $yer->faktTolovlar->count() > 0;
-            @endphp
+            ?>
 
-            @if (!$hasPaymentData)
+            <?php if(!$hasPaymentData): ?>
                 <div class="text-center py-8">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -505,12 +494,12 @@
                             d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p class="mt-3 text-sm text-gray-600">Тўлов маълумотлари мавжуд эмас</p>
-                    <p class="text-xs text-gray-500 mt-1">{{ $yer->holat ?? 'Маълум эмас' }}</p>
+                    <p class="text-xs text-gray-500 mt-1"><?php echo e($yer->holat ?? 'Маълум эмас'); ?></p>
                 </div>
-            @else
-                {{-- Collapsible Sections --}}
+            <?php else: ?>
+                
                 <div class="space-y-2">
-                    @if (isset($tolovTaqqoslash) && count($tolovTaqqoslash) > 0)
+                    <?php if(isset($tolovTaqqoslash) && count($tolovTaqqoslash) > 0): ?>
                         <details class="group border border-gray-200 rounded">
                             <summary
                                 class="cursor-pointer px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center">
@@ -533,47 +522,50 @@
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-100">
-                                            @php
+                                            <?php
                                                 $jamiGrafik = 0;
                                                 $jamiFakt = 0;
-                                            @endphp
+                                            ?>
 
-                                            @foreach ($tolovTaqqoslash as $tolov)
-                                                @php
+                                            <?php $__currentLoopData = $tolovTaqqoslash; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tolov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <?php
                                                     $jamiGrafik += $tolov['grafik'];
                                                     $jamiFakt += $tolov['fakt'];
-                                                @endphp
+                                                ?>
                                                 <tr
-                                                    class="hover:bg-gray-50 {{ $tolov['is_advance'] ? 'bg-yellow-50' : '' }}">
+                                                    class="hover:bg-gray-50 <?php echo e($tolov['is_advance'] ? 'bg-yellow-50' : ''); ?>">
                                                     <td class="px-3 py-2 text-gray-900">
-                                                        {{ $tolov['oy_nomi'] }}
+                                                        <?php echo e($tolov['oy_nomi']); ?>
+
 
                                                     </td>
                                                     <td class="px-3 py-2 text-right text-gray-900">
-                                                        {{ number_format($tolov['grafik'] / 1000000, 1) }}
+                                                        <?php echo e(number_format($tolov['grafik'] / 1000000, 1)); ?>
+
                                                     </td>
                                                     <td
-                                                        class="px-3 py-2 text-right {{ $tolov['fakt'] > 0 ? 'text-gray-900 font-semibold' : 'text-gray-400' }}">
-                                                        {{ number_format($tolov['fakt'] / 1000000, 1) }}
+                                                        class="px-3 py-2 text-right <?php echo e($tolov['fakt'] > 0 ? 'text-gray-900 font-semibold' : 'text-gray-400'); ?>">
+                                                        <?php echo e(number_format($tolov['fakt'] / 1000000, 1)); ?>
+
                                                     </td>
                                                     <td class="px-3 py-2 text-center">
-                                                        @if ($tolov['is_advance'])
+                                                        <?php if($tolov['is_advance']): ?>
                                                             <span
                                                                 class="px-2 py-1 rounded text-xs bg-yellow-500 text-white">
                                                                 -
                                                             </span>
-                                                        @else
+                                                        <?php else: ?>
                                                             <span
-                                                                class="px-2 py-1 rounded text-xs {{ $tolov['foiz'] >= 100 ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800' }}">
-                                                                {{ $tolov['foiz'] }}%
+                                                                class="px-2 py-1 rounded text-xs <?php echo e($tolov['foiz'] >= 100 ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800'); ?>">
+                                                                <?php echo e($tolov['foiz']); ?>%
                                                             </span>
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
                                                 </tr>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </tbody>
 
-                                        {{-- Jami (Total) Footer --}}
+                                        
                                         <tfoot class="border-t-2 border-gray-300">
                                             <tr class="bg-gradient-to-r from-blue-50 to-indigo-50">
                                                 <td class="px-3 py-3 text-sm font-bold text-gray-900">
@@ -590,21 +582,21 @@
                                                     </div>
                                                 </td>
                                                 <td class="px-3 py-3 text-right text-sm font-bold text-gray-900">
-                                                    {{ number_format($jamiGrafik / 1000000, 1) }} млн
+                                                    <?php echo e(number_format($jamiGrafik / 1000000, 1)); ?> млн
                                                 </td>
                                                 <td class="px-3 py-3 text-right text-sm font-bold text-gray-900">
-                                                    {{ number_format($jamiFakt / 1000000, 1) }} млн
+                                                    <?php echo e(number_format($jamiFakt / 1000000, 1)); ?> млн
                                                 </td>
                                                 <td class="px-3 py-3 text-center">
-                                                    @php
+                                                    <?php
                                                         $jamiFoiz =
                                                             $jamiGrafik > 0
                                                                 ? round(($jamiFakt / $jamiGrafik) * 100)
                                                                 : 0;
-                                                    @endphp
+                                                    ?>
                                                     <span
-                                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $jamiFoiz >= 100 ? 'bg-green-600 text-white' : ($jamiFoiz >= 50 ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white') }}">
-                                                        {{ $jamiFoiz }}%
+                                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold <?php echo e($jamiFoiz >= 100 ? 'bg-green-600 text-white' : ($jamiFoiz >= 50 ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white')); ?>">
+                                                        <?php echo e($jamiFoiz); ?>%
                                                     </span>
                                                 </td>
                                             </tr>
@@ -613,14 +605,14 @@
                                 </div>
                             </div>
                         </details>
-                    @endif
+                    <?php endif; ?>
 
-                    @if ($yer->faktTolovlar->count() > 0)
+                    <?php if($yer->faktTolovlar->count() > 0): ?>
                         <details class="group border border-gray-200 rounded">
                             <summary
                                 class="cursor-pointer px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center">
                                 <span class="text-sm font-medium text-gray-900">Тўлов тарихи
-                                    ({{ $yer->faktTolovlar->count() }})</span>
+                                    (<?php echo e($yer->faktTolovlar->count()); ?>)</span>
                                 <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -629,25 +621,25 @@
                             </summary>
                             <div class="p-4 border-t border-gray-200">
                                 <div class="space-y-2">
-                                    @foreach ($yer->faktTolovlar->sortByDesc('tolov_sana')->all() as $tolov)
+                                    <?php $__currentLoopData = $yer->faktTolovlar->sortByDesc('tolov_sana')->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tolov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <div class="flex justify-between items-center py-2 border-b border-gray-100">
                                             <div>
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ $tolov->tolov_sana->format('d.m.Y') }}</div>
+                                                    <?php echo e($tolov->tolov_sana->format('d.m.Y')); ?></div>
                                                 <div class="text-xs text-gray-500">
-                                                    {{ Str::limit($tolov->tolash_nom, 30) }}</div>
+                                                    <?php echo e(Str::limit($tolov->tolash_nom, 30)); ?></div>
                                             </div>
                                             <div class="text-sm font-semibold text-gray-900">
-                                                {{ number_format($tolov->tolov_summa / 1000000, 1) }} млн
+                                                <?php echo e(number_format($tolov->tolov_summa / 1000000, 1)); ?> млн
                                             </div>
                                         </div>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </div>
                             </div>
                         </details>
-                    @endif
+                    <?php endif; ?>
                 </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
     </div>
@@ -673,4 +665,6 @@
             evt.currentTarget.classList.remove("border-transparent", "text-gray-600");
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/show.blade.php ENDPATH**/ ?>

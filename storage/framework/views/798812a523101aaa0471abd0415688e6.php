@@ -210,8 +210,7 @@
                                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                         <span
-                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('yer-sotuvlar.index') ? 'text-white' : 'text-gray-700'); ?>">Йиғма
-                            маълумотлар</span>
+                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('yer-sotuvlar.index') ? 'text-white' : 'text-gray-700'); ?>">Ер мониторинг</span>
                     </a>
 
                     <a href="<?php echo e(route('yer-sotuvlar.yigma')); ?>"
@@ -222,8 +221,7 @@
                                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                         <span
-                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('yer-sotuvlar.yigma') ? 'text-white' : 'text-gray-700'); ?>">Йиғма
-                            маълумот</span>
+                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('yer-sotuvlar.yigma') ? 'text-white' : 'text-gray-700'); ?>">Тўлов мониторинг</span>
                     </a>
                     <a href="<?php echo e(route('yer-sotuvlar.svod3')); ?>"
                         class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg <?php echo e(request()->routeIs('yer-sotuvlar.svod3') ? 'active' : ''); ?>">
@@ -233,8 +231,7 @@
                                 d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                         </svg>
                         <span
-                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('yer-sotuvlar.svod3') ? 'text-white' : 'text-gray-700'); ?>">Бўлиб
-                            тўлаш</span>
+                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('yer-sotuvlar.svod3') ? 'text-white' : 'text-gray-700'); ?>">Бўлиб тўлаш мониторинги</span>
                     </a>
 
                     <a href="<?php echo e(route('yer-sotuvlar.list')); ?>"
