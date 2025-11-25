@@ -216,7 +216,7 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['tolangan_mablagh'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 20: Қайтарилган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['qaytarilgan_mablagh'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">0</td>
                             </tr>
 
                             <!-- Tuman Rows (21 columns: 0-20) -->
@@ -302,7 +302,7 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['tolangan_mablagh'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 20: Қайтарилган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['qaytarilgan_mablagh'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">0</td>
                             </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
