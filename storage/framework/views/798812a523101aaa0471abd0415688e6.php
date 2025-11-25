@@ -196,17 +196,6 @@
                             class="nav-text text-sm font-medium <?php echo e(request()->routeIs('yer-sotuvlar.monitoring') ? 'text-white' : 'text-gray-700'); ?>">Инфографика</span>
                     </a>
 
-                    <a href="<?php echo e(route('yer-sotuvlar.monitoring_mirzayev')); ?>"
-                        class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg <?php echo e(request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'active' : ''); ?>">
-                        <svg class="w-5 h-5 <?php echo e(request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'text-white' : 'text-gray-600'); ?>"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span
-                            class="nav-text text-sm font-medium <?php echo e(request()->routeIs('yer-sotuvlar.monitoring_mirzayev') ? 'text-white' : 'text-gray-700'); ?>">Ойлик
-                            динамика</span>
-                    </a>
 
                     <!-- Asosiy bo'lim -->
                     <div class="px-3 py-2">
