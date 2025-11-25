@@ -1549,14 +1549,11 @@ class YerSotuvController extends Controller
             $grafikFoiz = $grafikTushadigan > 0 ? round(($grafikTushgan / $grafikTushadigan) * 100, 1) : 0;
 
             // Get bекор qilinganlar count FIRST
-            $bekorQilinganlar = YerSotuv::query()
-                ->where(function ($q) use ($tumanPatterns) {
-                    foreach ($tumanPatterns as $pattern) {
-                        $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-                    }
-                })
-                ->where('holat', 'Бекор қилинган')
-                ->count();
+            $bekorQuery = YerSotuv::query();
+            $this->yerSotuvService->applyTumanFilter($bekorQuery, $tumanPatterns);
+            $bekorQuery->where('holat', 'Бекор қилинган');
+            $this->yerSotuvService->applyDateFilters($bekorQuery, $dateFilters);
+            $bekorQilinganlar = $bekorQuery->count();
 
             // Calculate tolangan mablagh from fakt_tolovlar for bekor qilinganlar
             $bekorQilinganlarPayments = $this->yerSotuvService->calculateBekorQilinganlarPayments($tumanPatterns, $dateFilters);

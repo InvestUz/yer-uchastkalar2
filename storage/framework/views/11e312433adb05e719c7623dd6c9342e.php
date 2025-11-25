@@ -107,7 +107,7 @@
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                         style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Жами лотлар сони</h3>
+                            <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
                             <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                 style="background-color: rgba(29, 78, 216, 0.1);">
                                 <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor"
@@ -120,6 +120,7 @@
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             <?php echo e(number_format($summaryTotal['total_lots'])); ?> та</p>
+                        <p class="text-xs text-slate-500 mb-3">Барча тўлов турлари</p>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200">
                                 <p class="text-xs text-blue-600 font-medium flex items-center">
@@ -139,7 +140,7 @@
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                         style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Тушадиган маблағ</h3>
+                            <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
                             <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                 style="background-color: rgba(29, 78, 216, 0.1);">
                                 <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor"
@@ -151,7 +152,8 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                            <?php echo e(number_format($summaryTotal['expected_amount'] / 1000000000, 2)); ?> млрд сўм</p>
+                            <?php echo e(number_format($summaryTotal['expected_amount'] / 1000000000, 2)); ?> млрд</p>
+                        <p class="text-xs text-slate-500 mb-3">Кутилаятган маблағ</p>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200">
                                 <p class="text-xs text-blue-600 font-medium flex items-center">
@@ -171,7 +173,7 @@
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                         style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Амалда тушган маблағ</h3>
+                            <h3 class="text-sm font-semibold text-slate-700">Амалда тушган маблағ</h3>
                             <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                 style="background-color: rgba(29, 78, 216, 0.1);">
                                 <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor"
@@ -183,7 +185,8 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                            <?php echo e(number_format($summaryTotal['received_amount'] / 1000000000, 2)); ?> млрд сўм</p>
+                            <?php echo e(number_format($summaryTotal['received_amount'] / 1000000000, 2)); ?> млрд</p>
+                        <p class="text-xs text-slate-500 mb-3">Фактик тўланган сумма</p>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200">
                                 <p class="text-xs text-blue-600 font-medium flex items-center">
@@ -210,7 +213,7 @@
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                         style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Қолдиқ маблағ</h3>
+                            <h3 class="text-sm font-semibold text-slate-700">Қолдиқ маблағ</h3>
                             <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                 style="background-color: rgba(185, 28, 28, 0.1);">
                                 <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor"
@@ -221,7 +224,7 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
-                            <?php echo e(number_format($totalQoldiq / 1000000000, 2)); ?> млрд сўм</p>
+                            <?php echo e(number_format($totalQoldiq / 1000000000, 2)); ?> млрд</p>
                         <div class="flex items-center mb-3">
                             <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                 <div class="h-2.5 rounded-full transition-all duration-500"
@@ -249,15 +252,18 @@
 
             <!-- ROW 2: МУДДАТЛИ (Installment Payments) -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
-                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
-                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                        </path>
-                    </svg>
-                    Муддатли тўлов (Бўлиб тўлаш)
-                </h2>
 
+                <!-- Payment Type Tabs -->
+                <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
+                    <div class="flex border-b border-gray-200">
+                        <button class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
+                            id="tab-muddatli"
+                            style="background: linear-gradient(to right, rgb(37, 99, 235), rgb(29, 78, 216)); color: white;">
+                            Муддатли тўлов (Бўлиб тўлаш)
+                        </button>
+
+                    </div>
+                </div>
 
                 <!-- Муддатли Content -->
                 <div id="content-muddatli" class="tab-content">
@@ -269,7 +275,7 @@
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Жами лотлар сони</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(185, 28, 28, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
@@ -284,6 +290,7 @@
                                 <?php echo e(number_format($summaryMuddatli['total_lots'])); ?>
 
                                 та</p>
+                            <p class="text-xs text-slate-500 mb-3">Бўлиб тўлаш</p>
 
                             <!-- Period info at BOTTOM -->
                             <?php if($periodInfo['period'] !== 'all'): ?>
@@ -312,7 +319,7 @@
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Тушадиган маблағ</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(29, 78, 216, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
@@ -324,7 +331,8 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2)); ?> млрд сўм</p>
+                                <?php echo e(number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2)); ?> млрд</p>
+                            <p class="text-xs text-slate-500 mb-3">Назоратдагилар тушадиган маблағ</p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
                                 <div class="mt-auto pt-3 border-t border-slate-200">
@@ -352,8 +360,7 @@
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Амалда тушган маблағ
-                                </h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Амалда тушган маблағ</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(29, 78, 216, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
@@ -365,7 +372,8 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2)); ?> млрд сўм</p>
+                                <?php echo e(number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2)); ?> млрд</p>
+                            <p class="text-xs text-slate-500 mb-3">Фактик тўланган сумма</p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
                                 <div class="mt-auto pt-3 border-t border-slate-200">
@@ -402,7 +410,7 @@
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Қолдиқ маблағ</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Қолдиқ маблағ</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(185, 28, 28, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
@@ -413,7 +421,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
-                                <?php echo e(number_format($qoldiqMablagh / 1000000000, 2)); ?> млрд сўм</p>
+                                <?php echo e(number_format($qoldiqMablagh / 1000000000, 2)); ?> млрд</p>
                             <div class="flex items-center mb-3">
                                 <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                     <div class="h-2.5 rounded-full transition-all duration-500"
@@ -450,8 +458,7 @@
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">График б-ча тушадиган
-                                    маблағ</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">График б-ча тушадиган маблағ</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(29, 78, 216, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
@@ -462,7 +469,8 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($grafikTushadiganMuddatli / 1000000000, 2)); ?> млрд сўм</p>
+                                <?php echo e(number_format($grafikTushadiganMuddatli / 1000000000, 2)); ?> млрд</p>
+                            <p class="text-xs text-slate-500 mb-3">График бўйича тушадиган (охирги ой ҳолатига)</p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
                                 <div class="mt-auto pt-3 border-t border-slate-200">
@@ -491,8 +499,7 @@
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">График бўйича тушган
-                                </h3>
+                                <h3 class="text-sm font-semibold text-slate-700">График бўйича тушган</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(29, 78, 216, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
@@ -503,8 +510,9 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($grafikBoyichaTushgan / 1000000000, 2)); ?> млрдсўм
+                                <?php echo e(number_format($grafikBoyichaTushgan / 1000000000, 2)); ?> млрд
                             </p>
+                            <p class="text-xs text-slate-500 mb-3">Амалда график бўйича</p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
                                 <div class="mt-auto pt-3 border-t border-slate-200">
@@ -532,8 +540,7 @@
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Муддати ўтган қарздорлик
-                                </h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган қарздорлик</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(185, 28, 28, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
@@ -545,8 +552,9 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                <?php echo e(number_format($muddatiUtganQarz / 1000000000, 2)); ?> млрдсўм
+                                <?php echo e(number_format($muddatiUtganQarz / 1000000000, 2)); ?> млрд
                             </p>
+                            <p class="text-xs text-slate-500 mb-3">Графикдан ортда қолган</p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
                                 <div class="mt-auto pt-3 border-t border-slate-200">
@@ -635,7 +643,7 @@
                                                         <?php echo e($periodInfo['quarter'] == $quarter['chorak_raqam'] ? 'selected' : ''); ?>>
                                                         <?php echo e($quarter['chorak_nomi']); ?>
 
-                                                        (<?php echo e(number_format($quarter['summa'] / 1000000000, 2)); ?> млрд сўм)
+                                                        (<?php echo e(number_format($quarter['summa'] / 1000000000, 2)); ?> млрд)
                                                     </option>
                                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                                     <option value="">Маълумот йўқ</option>
@@ -666,7 +674,7 @@
                                                         <?php echo e($periodInfo['month'] == $month['oy'] ? 'selected' : ''); ?>>
                                                         <?php echo e($month['oy_nomi']); ?>
 
-                                                        (<?php echo e(number_format($month['summa'] / 1000000000, 2)); ?> млрд сўм)
+                                                        (<?php echo e(number_format($month['summa'] / 1000000000, 2)); ?> млрд)
                                                     </option>
                                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                                     <option value="">Маълумот йўқ</option>
@@ -793,7 +801,7 @@
                                                 const option = document.createElement('option');
                                                 option.value = q.chorak_raqam;
                                                 option.textContent = q.chorak_nomi + ' (' + (q.summa / 1000000000)
-                                                    .toFixed(2) + ' млрд сўм)';
+                                                    .toFixed(2) + ' млрд)';
                                                 quarterSelect.appendChild(option);
                                             });
                                         } else {
@@ -814,7 +822,7 @@
                                                 const option = document.createElement('option');
                                                 option.value = m.oy;
                                                 option.textContent = m.oy_nomi + ' (' + (m.summa / 1000000000).toFixed(
-                                                    2) + ' млрд сўм)';
+                                                    2) + ' млрд)';
                                                 monthSelect.appendChild(option);
                                             });
                                         } else {
@@ -841,7 +849,7 @@
                                             const option = document.createElement('option');
                                             option.value = q.chorak_raqam;
                                             option.textContent = q.chorak_nomi + ' (' + (q.summa / 1000000000).toFixed(2) +
-                                                ' млрд сўм)';
+                                                ' млрд)';
                                             if (q.chorak_raqam === currentQuarter) {
                                                 option.selected = true;
                                             }
@@ -860,7 +868,7 @@
                                             const option = document.createElement('option');
                                             option.value = m.oy;
                                             option.textContent = m.oy_nomi + ' (' + (m.summa / 1000000000).toFixed(2) +
-                                                ' млрд сўм)';
+                                                ' млрд)';
                                             if (m.oy === currentMonth) {
                                                 option.selected = true;
                                             }
@@ -879,15 +887,17 @@
 
                 </div>
 
+                <!-- Payment Type Tabs -->
+                <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
+                    <div class="flex border-b border-gray-200">
+                        <button class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
+                            id="tab-muddatli-emas" style="background: white; color: rgb(71, 85, 105);">
+                            Муддатсиз тўлов (Бир йўла тўлаш)
+                        </button>
 
-                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
-                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                        </path>
-                    </svg>
-                    Муддатсиз тўлов (Бир йўла тўлаш)
-                </h2>
+
+                    </div>
+                </div>
 
 
 
@@ -899,7 +909,7 @@
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Жами лотлар сони</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(185, 28, 28, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
@@ -912,13 +922,14 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
                                 <?php echo e(number_format($summaryMuddatliEmas['total_lots'])); ?> та</p>
+                            <p class="text-xs text-slate-500">Бир йўла тўлаш</p>
                         </div>
 
                         <!-- 2. Tushadigan mablag' -->
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Тушадиган маблағ</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(29, 78, 216, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
@@ -930,14 +941,15 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд сўм</p>
+                                <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд</p>
+                            <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
                         </div>
 
                         <!-- 3. Grafik = Expected (no schedule) -->
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Графикда тушадиган</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Графикда тушадиган</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(29, 78, 216, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
@@ -949,14 +961,15 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд сўм</p>
+                                <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд</p>
+                            <p class="text-xs text-slate-500">Бир йўла тўлов (график йўқ)</p>
                         </div>
 
                         <!-- 4. Amalda to'langan -->
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Амалда тўланган</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Амалда тўланган</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(29, 78, 216, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
@@ -967,7 +980,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-2" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2)); ?> млрд сўм</p>
+                                <?php echo e(number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2)); ?> млрд</p>
                             <div class="flex items-center">
                                 <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                     <div class="h-2.5 rounded-full transition-all duration-500"
@@ -989,7 +1002,7 @@
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 style="font-size: 22px;" class="font-semibold text-slate-700">Муддати ўтган</h3>
+                                <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(185, 28, 28, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
@@ -1000,7 +1013,8 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                <?php echo e(number_format($muddatiOtganMuddatliEmas / 1000000000, 2)); ?> млрд сўм</p>
+                                <?php echo e(number_format($muddatiOtganMuddatliEmas / 1000000000, 2)); ?> млрд</p>
+                            <p class="text-xs text-slate-500">Тўланмаған маблағ</p>
                         </div>
                     </div>
 
@@ -1149,7 +1163,7 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: (value) => value.toFixed(1) + ' млрд сўм'
+                                callback: (value) => value.toFixed(1) + ' млрд'
                             }
                         }
                     }
@@ -1198,7 +1212,7 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: (value) => value.toFixed(1) + ' млрд сўм'
+                                callback: (value) => value.toFixed(1) + ' млрд'
                             }
                         }
                     }
@@ -1240,7 +1254,7 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: (value) => value.toFixed(1) + ' млрд сўм'
+                                callback: (value) => value.toFixed(1) + ' млрд'
                             }
                         }
                     }
@@ -1289,7 +1303,7 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: (value) => value.toFixed(1) + ' млрд сўм'
+                                callback: (value) => value.toFixed(1) + ' млрд'
                             }
                         }
                     }
