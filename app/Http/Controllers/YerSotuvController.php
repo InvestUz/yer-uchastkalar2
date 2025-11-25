@@ -351,7 +351,7 @@ class YerSotuvController extends Controller
             }
         }
 
-        $availablePeriods = $this->getAvailablePeriods();
+        $availablePeriods = $this->yerSotuvService->getAvailablePeriods();
 
         // Prepare chart data with period filters
         $chartData = $this->prepareChartData($tumanStatsMuddatli, $tumanStatsMuddatliEmas, $dateFilters);
@@ -379,14 +379,22 @@ class YerSotuvController extends Controller
     private function calculateMonitoringSummaryByPeriod(array $dateFilters, string $tolovTuri): array
     {
         if ($tolovTuri === 'муддатли') {
-            // Get ALL lots of this payment type
+            // Get ALL lots of this payment type that have grafik data
             $query = YerSotuv::query();
             $this->yerSotuvService->applyBaseFilters($query);
             $query->where('tolov_turi', $tolovTuri);
 
-            $allLots = $query->pluck('lot_raqami')->toArray();
+            // Get all lots that have grafik entries
+            $allLotsWithGrafik = DB::table('yer_sotuvlar as ys')
+                ->join('grafik_tolovlar as gt', 'ys.lot_raqami', '=', 'gt.lot_raqami')
+                ->where('ys.tolov_turi', $tolovTuri)
+                ->where('ys.holat', '!=', 'Бекор қилинган')
+                ->whereNotNull('ys.holat')
+                ->distinct()
+                ->pluck('ys.lot_raqami')
+                ->toArray();
 
-            if (empty($allLots)) {
+            if (empty($allLotsWithGrafik)) {
                 return [
                     'total_lots' => 0,
                     'expected_amount' => 0,
@@ -395,14 +403,14 @@ class YerSotuvController extends Controller
                 ];
             }
 
-            // Find lots that have grafik in this period
+            // For PERIOD filtering: find lots that have grafik in this quarter/month/year
             $dateFrom = \Carbon\Carbon::parse($dateFilters['auksion_sana_from']);
             $dateTo = \Carbon\Carbon::parse($dateFilters['auksion_sana_to']);
 
-            // Build query for lots in period
+            // Build query for lots with grafik in the period
             $lotsQuery = DB::table('grafik_tolovlar')
                 ->select('lot_raqami')
-                ->whereIn('lot_raqami', $allLots)
+                ->whereIn('lot_raqami', $allLotsWithGrafik)
                 ->distinct();
 
             // Apply year and month filters
@@ -440,24 +448,25 @@ class YerSotuvController extends Controller
             \Log::info('Period Summary Calculation', [
                 'tolov_turi' => $tolovTuri,
                 'period' => $dateFrom->format('Y-m') . ' to ' . $dateTo->format('Y-m'),
-                'all_lots' => count($allLots),
+                'all_lots_with_grafik' => count($allLotsWithGrafik),
                 'lots_in_period' => $totalLots,
                 'sample_lots' => array_slice($lotsInPeriod, 0, 5)
             ]);
 
-            // Calculate expected amount for these lots
-            $data = YerSotuv::whereIn('lot_raqami', $lotsInPeriod)
+            // Calculate expected amount for ALL lots (not just period lots)
+            // This matches the total contract amount
+            $data = YerSotuv::whereIn('lot_raqami', $allLotsWithGrafik)
                 ->selectRaw('
-                SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
-                SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
-                SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
-            ')->first();
+                    SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+                    SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+                    SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+                ')->first();
 
             $expectedAmount = ($data->golib_tolagan + $data->shartnoma_summasi) - $data->auksion_harajati;
 
             // Calculate received amount (all-time for these lots)
             $receivedAmount = DB::table('fakt_tolovlar')
-                ->whereIn('lot_raqami', $lotsInPeriod)
+                ->whereIn('lot_raqami', $allLotsWithGrafik)
                 ->sum('tolov_summa');
 
             $paymentPercentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
@@ -504,10 +513,10 @@ class YerSotuvController extends Controller
             // Calculate expected amount for these lots
             $data = YerSotuv::whereIn('lot_raqami', $lotsInPeriod)
                 ->selectRaw('
-                SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
-                SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
-                SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
-            ')->first();
+                    SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+                    SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+                    SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+                ')->first();
 
             $expectedAmount = ($data->golib_tolagan + $data->shartnoma_summasi) - $data->auksion_harajati;
 
@@ -564,80 +573,12 @@ class YerSotuvController extends Controller
     }
 
     /**
-     * Get available years, quarters, and months from grafik_tolovlar
+     * Get available period options (years, quarters, months) via AJAX
      */
-    private function getAvailablePeriods(): array
+    public function getPeriodOptions()
     {
-        // Get available years
-        $years = DB::table('grafik_tolovlar')
-            ->select('yil')
-            ->distinct()
-            ->orderBy('yil', 'ASC')
-            ->pluck('yil')
-            ->toArray();
-
-        // Get quarters with year-quarter combinations
-        $quarters = DB::table('grafik_tolovlar')
-            ->selectRaw("
-            yil,
-            CASE
-                WHEN oy BETWEEN 1 AND 3 THEN 1
-                WHEN oy BETWEEN 4 AND 6 THEN 2
-                WHEN oy BETWEEN 7 AND 9 THEN 3
-                WHEN oy BETWEEN 10 AND 12 THEN 4
-            END as chorak_raqam,
-            CASE
-                WHEN oy BETWEEN 1 AND 3 THEN '1-чорак (Январь - Март)'
-                WHEN oy BETWEEN 4 AND 6 THEN '2-чорак (Апрель - Июнь)'
-                WHEN oy BETWEEN 7 AND 9 THEN '3-чорак (Июль - Сентябрь)'
-                WHEN oy BETWEEN 10 AND 12 THEN '4-чорак (Октябрь - Декабрь)'
-            END as chorak_nomi,
-            SUM(grafik_summa) as choraklik_summa,
-            MIN(oy) as min_oy
-        ")
-            ->groupBy('yil', 'chorak_raqam', 'chorak_nomi')
-            ->orderBy('yil', 'ASC')
-            ->orderBy('min_oy', 'ASC')  // ✅ Use regular orderBy with the aliased column
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'yil' => $item->yil,
-                    'chorak_raqam' => $item->chorak_raqam,
-                    'chorak_nomi' => $item->chorak_nomi,
-                    'summa' => $item->choraklik_summa,
-                    'display' => $item->yil . ' - ' . $item->chorak_nomi
-                ];
-            })
-            ->toArray();
-
-        // Get months with year-month combinations
-        $months = DB::table('grafik_tolovlar')
-            ->select(
-                'yil',
-                'oy',
-                'oy_nomi',
-                DB::raw('SUM(grafik_summa) as oylik_summa')
-            )
-            ->groupBy('yil', 'oy', 'oy_nomi')
-            ->orderBy('yil', 'ASC')
-            ->orderBy('oy', 'ASC')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'yil' => $item->yil,
-                    'oy' => $item->oy,
-                    'oy_nomi' => $item->oy_nomi,
-                    'summa' => $item->oylik_summa,
-                    'display' => $item->oy_nomi . ' ' . $item->yil
-                ];
-            })
-            ->toArray();
-
-        return [
-            'years' => $years,
-            'quarters' => $quarters,
-            'months' => $months
-        ];
+        $periods = $this->yerSotuvService->getAvailablePeriods();
+        return response()->json($periods);
     }
     private function calculateTumanMonitoringByPeriod(?array $tumanPatterns, array $dateFilters, string $tolovTuri): array
     {

@@ -1710,23 +1710,82 @@ public function calculateGrafikTushadiganByPeriod(array $dateFilters, string $to
             : 0;
     }
 
-    private function getMonthName(int $month): string
+    /**
+     * Get available years, quarters, and months from grafik_tolovlar
+     * Optimized to use single query per type
+     */
+    public function getAvailablePeriods(): array
     {
-        $months = [
-            1 => 'Январь',
-            2 => 'Февраль',
-            3 => 'Март',
-            4 => 'Апрель',
-            5 => 'Май',
-            6 => 'Июнь',
-            7 => 'Июль',
-            8 => 'Август',
-            9 => 'Сентябрь',
-            10 => 'Октябрь',
-            11 => 'Ноябрь',
-            12 => 'Декабрь'
+        // Get available years
+        $years = DB::table('grafik_tolovlar')
+            ->select('yil')
+            ->distinct()
+            ->orderBy('yil', 'ASC')
+            ->pluck('yil')
+            ->toArray();
+
+        // Get quarters with aggregated data using CASE statement
+        $quarters = DB::table('grafik_tolovlar')
+            ->selectRaw("
+                yil,
+                CASE
+                    WHEN oy BETWEEN 1 AND 3 THEN 1
+                    WHEN oy BETWEEN 4 AND 6 THEN 2
+                    WHEN oy BETWEEN 7 AND 9 THEN 3
+                    WHEN oy BETWEEN 10 AND 12 THEN 4
+                END as chorak_raqam,
+                CASE
+                    WHEN oy BETWEEN 1 AND 3 THEN '1-чорак (Январь - Март)'
+                    WHEN oy BETWEEN 4 AND 6 THEN '2-чорак (Апрель - Июнь)'
+                    WHEN oy BETWEEN 7 AND 9 THEN '3-чорак (Июль - Сентябрь)'
+                    WHEN oy BETWEEN 10 AND 12 THEN '4-чорак (Октябрь - Декабрь)'
+                END as chorak_nomi,
+                SUM(grafik_summa) as choraklik_summa,
+                MIN(oy) as min_oy
+            ")
+            ->groupByRaw('yil, chorak_raqam, chorak_nomi')
+            ->orderBy('yil', 'ASC')
+            ->orderBy('min_oy', 'ASC')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'yil' => $item->yil,
+                    'chorak_raqam' => $item->chorak_raqam,
+                    'chorak_nomi' => $item->chorak_nomi,
+                    'summa' => $item->choraklik_summa,
+                    'display' => $item->yil . ' - ' . $item->chorak_nomi
+                ];
+            })
+            ->toArray();
+
+        // Get months with aggregated data
+        $months = DB::table('grafik_tolovlar')
+            ->select(
+                'yil',
+                'oy',
+                'oy_nomi',
+                DB::raw('SUM(grafik_summa) as oylik_summa')
+            )
+            ->groupBy('yil', 'oy', 'oy_nomi')
+            ->orderBy('yil', 'ASC')
+            ->orderBy('oy', 'ASC')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'yil' => $item->yil,
+                    'oy' => $item->oy,
+                    'oy_nomi' => $item->oy_nomi,
+                    'summa' => $item->oylik_summa,
+                    'display' => $item->oy_nomi . ' ' . $item->yil
+                ];
+            })
+            ->toArray();
+
+        return [
+            'years' => $years,
+            'quarters' => $quarters,
+            'months' => $months
         ];
-        return $months[$month] ?? 'Unknown';
     }
     /**
      * Write comprehensive statistics to log file
