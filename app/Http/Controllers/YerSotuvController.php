@@ -52,6 +52,18 @@ class YerSotuvController extends Controller
      */
     public function list(Request $request)
     {
+        // Check if period parameters are passed (from monitoring cards)
+        if ($request->has('period') && $request->period !== 'all') {
+            // Convert period to date filters for grafik-based filtering
+            $periodFilters = $this->processPeriodFilter($request);
+
+            // For муддатли: filter by lots that have grafik in this period
+            if ($request->tolov_turi === 'муддатли') {
+                return $this->listByGrafikPeriod($request, $periodFilters);
+            }
+        }
+
+        // Standard filtering by auction date or other filters
         $filters = [
             'search' => $request->search,
             'tuman' => $request->tuman,
@@ -71,6 +83,67 @@ class YerSotuvController extends Controller
             'grafik_ortda' => $request->grafik_ortda,
             'toliq_tolangan' => $request->toliq_tolangan,
             'nazoratda' => $request->nazoratda,
+        ];
+
+        return $this->showFilteredData($request, $filters);
+    }
+
+    /**
+     * List lots by grafik period (for monitoring card clicks)
+     */
+    private function listByGrafikPeriod(Request $request, array $periodFilters)
+    {
+        $dateFrom = \Carbon\Carbon::parse($periodFilters['auksion_sana_from']);
+        $dateTo = \Carbon\Carbon::parse($periodFilters['auksion_sana_to']);
+
+        // Get distinct lots with grafik in this period (matching monitoring logic)
+        $lotsQuery = DB::table('grafik_tolovlar as gt')
+            ->join('yer_sotuvlar as ys', 'gt.lot_raqami', '=', 'ys.lot_raqami')
+            ->where('ys.tolov_turi', $request->tolov_turi)
+            ->where('ys.holat', '!=', 'Бекор қилинган')
+            ->whereNotNull('ys.holat')
+            ->distinct();
+
+        // Apply year and month filters to grafik data
+        if ($dateFrom->year === $dateTo->year) {
+            $lotsQuery->where('gt.yil', $dateFrom->year)
+                ->whereBetween('gt.oy', [$dateFrom->month, $dateTo->month]);
+        } else {
+            $lotsQuery->where(function ($q) use ($dateFrom, $dateTo) {
+                $q->where(function ($y1) use ($dateFrom) {
+                    $y1->where('gt.yil', $dateFrom->year)
+                        ->where('gt.oy', '>=', $dateFrom->month);
+                });
+
+                if ($dateTo->year - $dateFrom->year > 1) {
+                    $q->orWhere(function ($ym) use ($dateFrom, $dateTo) {
+                        $ym->whereBetween('gt.yil', [$dateFrom->year + 1, $dateTo->year - 1]);
+                    });
+                }
+
+                $q->orWhere(function ($y2) use ($dateTo) {
+                    $y2->where('gt.yil', $dateTo->year)
+                        ->where('gt.oy', '<=', $dateTo->month);
+                });
+            });
+        }
+
+        $lotRaqamlari = $lotsQuery->pluck('gt.lot_raqami')->unique()->toArray();
+
+        \Log::info('List By Grafik Period', [
+            'period' => $request->period,
+            'year' => $request->year,
+            'quarter' => $request->quarter,
+            'month' => $request->month,
+            'date_range' => $dateFrom->format('Y-m') . ' to ' . $dateTo->format('Y-m'),
+            'lots_count' => count($lotRaqamlari),
+            'sample_lots' => array_slice($lotRaqamlari, 0, 5)
+        ]);
+
+        // Build filters for showFilteredData
+        $filters = [
+            'tolov_turi' => $request->tolov_turi,
+            'lot_raqamlari' => $lotRaqamlari, // Pass specific lots to filter by
         ];
 
         return $this->showFilteredData($request, $filters);
@@ -379,22 +452,59 @@ class YerSotuvController extends Controller
     private function calculateMonitoringSummaryByPeriod(array $dateFilters, string $tolovTuri): array
     {
         if ($tolovTuri === 'муддатли') {
-            // Get ALL lots of this payment type that have grafik data
-            $query = YerSotuv::query();
-            $this->yerSotuvService->applyBaseFilters($query);
-            $query->where('tolov_turi', $tolovTuri);
+            // For period filtering: Count DISTINCT lots from grafik_tolovlar in this period
+            // This matches the SQL query logic
+            $dateFrom = \Carbon\Carbon::parse($dateFilters['auksion_sana_from']);
+            $dateTo = \Carbon\Carbon::parse($dateFilters['auksion_sana_to']);
 
-            // Get all lots that have grafik entries
-            $allLotsWithGrafik = DB::table('yer_sotuvlar as ys')
-                ->join('grafik_tolovlar as gt', 'ys.lot_raqami', '=', 'gt.lot_raqami')
+            // Build query to count distinct lots with grafik in the period
+            $lotsQuery = DB::table('grafik_tolovlar as gt')
+                ->join('yer_sotuvlar as ys', 'gt.lot_raqami', '=', 'ys.lot_raqami')
                 ->where('ys.tolov_turi', $tolovTuri)
                 ->where('ys.holat', '!=', 'Бекор қилинган')
                 ->whereNotNull('ys.holat')
-                ->distinct()
-                ->pluck('ys.lot_raqami')
-                ->toArray();
+                ->distinct();
 
-            if (empty($allLotsWithGrafik)) {
+            // Apply year and month filters to grafik data
+            if ($dateFrom->year === $dateTo->year) {
+                // Same year - simple month range
+                $lotsQuery->where('gt.yil', $dateFrom->year)
+                    ->whereBetween('gt.oy', [$dateFrom->month, $dateTo->month]);
+            } else {
+                // Multiple years - complex logic
+                $lotsQuery->where(function ($q) use ($dateFrom, $dateTo) {
+                    // First year: from start month to December
+                    $q->where(function ($y1) use ($dateFrom) {
+                        $y1->where('gt.yil', $dateFrom->year)
+                            ->where('gt.oy', '>=', $dateFrom->month);
+                    });
+
+                    // Middle years: all months
+                    if ($dateTo->year - $dateFrom->year > 1) {
+                        $q->orWhere(function ($ym) use ($dateFrom, $dateTo) {
+                            $ym->whereBetween('gt.yil', [$dateFrom->year + 1, $dateTo->year - 1]);
+                        });
+                    }
+
+                    // Last year: January to end month
+                    $q->orWhere(function ($y2) use ($dateTo) {
+                        $y2->where('gt.yil', $dateTo->year)
+                            ->where('gt.oy', '<=', $dateTo->month);
+                    });
+                });
+            }
+
+            $lotsInPeriod = $lotsQuery->pluck('gt.lot_raqami')->unique()->toArray();
+            $totalLots = count($lotsInPeriod);
+
+            \Log::info('Period Summary Calculation', [
+                'tolov_turi' => $tolovTuri,
+                'period' => $dateFrom->format('Y-m') . ' to ' . $dateTo->format('Y-m'),
+                'lots_in_period' => $totalLots,
+                'sample_lots' => array_slice($lotsInPeriod, 0, 5)
+            ]);
+
+            if ($totalLots === 0) {
                 return [
                     'total_lots' => 0,
                     'expected_amount' => 0,
@@ -403,59 +513,8 @@ class YerSotuvController extends Controller
                 ];
             }
 
-            // For PERIOD filtering: find lots that have grafik in this quarter/month/year
-            $dateFrom = \Carbon\Carbon::parse($dateFilters['auksion_sana_from']);
-            $dateTo = \Carbon\Carbon::parse($dateFilters['auksion_sana_to']);
-
-            // Build query for lots with grafik in the period
-            $lotsQuery = DB::table('grafik_tolovlar')
-                ->select('lot_raqami')
-                ->whereIn('lot_raqami', $allLotsWithGrafik)
-                ->distinct();
-
-            // Apply year and month filters
-            if ($dateFrom->year === $dateTo->year) {
-                // Same year - simple month range
-                $lotsQuery->where('yil', $dateFrom->year)
-                    ->whereBetween('oy', [$dateFrom->month, $dateTo->month]);
-            } else {
-                // Multiple years - complex logic
-                $lotsQuery->where(function ($q) use ($dateFrom, $dateTo) {
-                    // First year: from start month to December
-                    $q->where(function ($y1) use ($dateFrom) {
-                        $y1->where('yil', $dateFrom->year)
-                            ->where('oy', '>=', $dateFrom->month);
-                    });
-
-                    // Middle years: all months
-                    if ($dateTo->year - $dateFrom->year > 1) {
-                        $q->orWhere(function ($ym) use ($dateFrom, $dateTo) {
-                            $ym->whereBetween('yil', [$dateFrom->year + 1, $dateTo->year - 1]);
-                        });
-                    }
-
-                    // Last year: January to end month
-                    $q->orWhere(function ($y2) use ($dateTo) {
-                        $y2->where('yil', $dateTo->year)
-                            ->where('oy', '<=', $dateTo->month);
-                    });
-                });
-            }
-
-            $lotsInPeriod = $lotsQuery->pluck('lot_raqami')->toArray();
-            $totalLots = count($lotsInPeriod);
-
-            \Log::info('Period Summary Calculation', [
-                'tolov_turi' => $tolovTuri,
-                'period' => $dateFrom->format('Y-m') . ' to ' . $dateTo->format('Y-m'),
-                'all_lots_with_grafik' => count($allLotsWithGrafik),
-                'lots_in_period' => $totalLots,
-                'sample_lots' => array_slice($lotsInPeriod, 0, 5)
-            ]);
-
-            // Calculate expected amount for ALL lots (not just period lots)
-            // This matches the total contract amount
-            $data = YerSotuv::whereIn('lot_raqami', $allLotsWithGrafik)
+            // Calculate expected amount for these lots
+            $data = YerSotuv::whereIn('lot_raqami', $lotsInPeriod)
                 ->selectRaw('
                     SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
                     SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
@@ -466,7 +525,7 @@ class YerSotuvController extends Controller
 
             // Calculate received amount (all-time for these lots)
             $receivedAmount = DB::table('fakt_tolovlar')
-                ->whereIn('lot_raqami', $allLotsWithGrafik)
+                ->whereIn('lot_raqami', $lotsInPeriod)
                 ->sum('tolov_summa');
 
             $paymentPercentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
@@ -478,6 +537,7 @@ class YerSotuvController extends Controller
                 'payment_percentage' => $paymentPercentage
             ];
         } else {
+            // ... existing code ...
             // For муддатли эмас - similar logic
             $query = YerSotuv::query();
             $this->yerSotuvService->applyBaseFilters($query);
@@ -948,6 +1008,11 @@ class YerSotuvController extends Controller
     private function showFilteredData(Request $request, array $filters)
     {
         $query = YerSotuv::query();
+
+        // Lot raqamlari filter (from grafik period filtering)
+        if (!empty($filters['lot_raqamlari']) && is_array($filters['lot_raqamlari'])) {
+            $query->whereIn('lot_raqami', $filters['lot_raqamlari']);
+        }
 
         // Search filter
         if (!empty($filters['search'])) {

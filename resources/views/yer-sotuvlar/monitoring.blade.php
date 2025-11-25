@@ -106,7 +106,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
                     <!-- Card 1: Жами лотлар сони - CLICKABLE -->
-                    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
+                    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
