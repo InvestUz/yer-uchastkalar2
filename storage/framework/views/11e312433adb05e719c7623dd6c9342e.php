@@ -208,8 +208,7 @@
             <!-- Payment Type Tabs -->
             <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
                 <div class="flex border-b border-gray-200">
-                    <button onclick="switchTab('muddatli')"
-                        class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
+                    <button                     class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
                         id="tab-muddatli"
                         style="background: linear-gradient(to right, rgb(37, 99, 235), rgb(29, 78, 216)); color: white;">
                         Муддатли тўлов (Бўлиб тўлаш)
@@ -301,11 +300,11 @@
 
                     <!-- Card 3: Амалда тушган маблағ - CLICKABLE -->
                     <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters))); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Амалда тушган маблағ</h3>
-                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor"
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
@@ -313,7 +312,7 @@
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-green-700 mb-1">
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             <?php echo e(number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2)); ?> млрд</p>
                         <p class="text-xs text-slate-500 mb-3">Фактик тўланган сумма</p>
 
@@ -348,26 +347,26 @@
                                 : 0;
                     ?>
                     <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters))); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Қолдиқ маблағ</h3>
-                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor"
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(185, 28, 28, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-red-700 mb-2">
+                        <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
                             <?php echo e(number_format($qoldiqMablagh / 1000000000, 2)); ?> млрд</p>
                         <div class="flex items-center mb-3">
                             <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
-                                <div class="bg-red-600 h-2.5 rounded-full transition-all duration-500"
-                                    style="width: <?php echo e(100 - min(100, $qoldiqFoizi)); ?>%"></div>
+                                <div class="h-2.5 rounded-full transition-all duration-500"
+                                    style="width: <?php echo e(100 - min(100, $qoldiqFoizi)); ?>%; background-color: rgb(185 28 28);"></div>
                             </div>
                             <span
-                                class="text-sm font-bold text-red-600"><?php echo e(number_format(100 - $qoldiqFoizi, 1)); ?>%</span>
+                                class="text-sm font-bold" style="color: rgb(185 28 28);"><?php echo e(number_format(100 - $qoldiqFoizi, 1)); ?>%</span>
                         </div>
 
                         <?php if($periodInfo['period'] !== 'all'): ?>
@@ -392,18 +391,18 @@
 
                     <!-- Card 5: График б-ча тушадиган маблағ - CLICKABLE -->
                     <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters))); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">График б-ча тушадиган маблағ</h3>
-                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor"
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-orange-700 mb-1">
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             <?php echo e(number_format($grafikTushadiganMuddatli / 1000000000, 2)); ?> млрд</p>
                         <p class="text-xs text-slate-500 mb-3">График бўйича тушадиган (охирги ой ҳолатига)</p>
 
@@ -430,18 +429,17 @@
 
 <!-- Card 6: График бўйича тушган - CLICKABLE -->
 <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters))); ?>"
-    class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+    class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(29 78 216);">
     <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-slate-700">График бўйича тушган</h3>
-        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-            <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+            <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
         </div>
     </div>
-    <p class="text-3xl font-bold text-orange-700 mb-1">
-        
+    <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
         <?php echo e(number_format($grafikBoyichaTushgan / 1000000000, 2)); ?> млрд
     </p>
     <p class="text-xs text-slate-500 mb-3">Амалда график бўйича</p>
@@ -468,19 +466,18 @@
 
 <!-- Card 7: Муддати ўтган қарздорлик - CLICKABLE -->
 <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'], $dateFilters))); ?>"
-    class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+    class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(185 28 28);">
     <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган қарздорлик</h3>
-        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(185, 28, 28, 0.1);">
+            <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
                 </path>
             </svg>
         </div>
     </div>
-    <p class="text-3xl font-bold text-red-700 mb-1">
-        
+    <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
         <?php echo e(number_format($muddatiUtganQarz / 1000000000, 2)); ?> млрд
     </p>
     <p class="text-xs text-slate-500 mb-3">Графикдан ортда қолган</p>
@@ -808,8 +805,7 @@
             <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
                 <div class="flex border-b border-gray-200">
 
-                 <button onclick="switchTab('muddatli-emas')"
-                        class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
+                 <button                        class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
                         id="tab-muddatli-emas" style="background: white; color: rgb(71, 85, 105);">
                         Муддатсиз тўлов (Бир йўла тўлаш)
                     </button>
@@ -825,11 +821,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                     <!-- 1. Soni -->
                     <div
-                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow" style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
-                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor"
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(185, 28, 28, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
@@ -837,18 +833,18 @@
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-red-700 mb-1">
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
                             <?php echo e(number_format($summaryMuddatliEmas['total_lots'])); ?> та</p>
                         <p class="text-xs text-slate-500">Бир йўла тўлаш</p>
                     </div>
 
                     <!-- 2. Tushadigan mablag' -->
                     <div
-                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
-                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor"
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
@@ -856,18 +852,18 @@
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-blue-700 mb-1">
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд</p>
                         <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
                     </div>
 
                     <!-- 3. Grafik = Expected (no schedule) -->
                     <div
-                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Графикда тушадиган</h3>
-                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor"
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
@@ -875,33 +871,33 @@
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-purple-700 mb-1">
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд</p>
                         <p class="text-xs text-slate-500">Бир йўла тўлов (график йўқ)</p>
                     </div>
 
                     <!-- 4. Amalda to'langan -->
                     <div
-                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Амалда тўланган</h3>
-                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor"
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-green-700 mb-2">
+                        <p class="text-3xl font-bold mb-2" style="color: rgb(29 78 216);">
                             <?php echo e(number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2)); ?> млрд</p>
                         <div class="flex items-center">
                             <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
-                                <div class="bg-green-600 h-2.5 rounded-full transition-all duration-500"
-                                    style="width: <?php echo e(min(100, $summaryMuddatliEmas['payment_percentage'])); ?>%"></div>
+                                <div class="h-2.5 rounded-full transition-all duration-500"
+                                    style="width: <?php echo e(min(100, $summaryMuddatliEmas['payment_percentage'])); ?>%; background-color: rgb(29 78 216);"></div>
                             </div>
                             <span
-                                class="text-sm font-bold text-green-600"><?php echo e(number_format($summaryMuddatliEmas['payment_percentage'], 1)); ?>%</span>
+                                class="text-sm font-bold" style="color: rgb(29 78 216);"><?php echo e(number_format($summaryMuddatliEmas['payment_percentage'], 1)); ?>%</span>
                         </div>
                     </div>
 
@@ -913,20 +909,20 @@
                         );
                     ?>
                     <div
-                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+                        class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow" style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган</h3>
-                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor"
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(185, 28, 28, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-orange-700 mb-1">
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
                             <?php echo e(number_format($muddatiOtganMuddatliEmas / 1000000000, 2)); ?> млрд</p>
-                        <p class="text-xs text-slate-500">Тўланмаган маблағ</p>
+                        <p class="text-xs text-slate-500">Тўланмаған маблағ</p>
                     </div>
                 </div>
 
@@ -982,7 +978,7 @@
                         <?php echo e($chartData['status']['auction']); ?>
 
                     ],
-                    backgroundColor: ['rgb(34, 197, 94)', 'rgb(59, 130, 246)', 'rgb(239, 68, 68)',
+                    backgroundColor: ['rgb(29, 78, 216)', 'rgb(29, 78, 216)', 'rgb(185, 28, 28)',
                         'rgb(156, 163, 175)'
                     ],
                     borderWidth: 3,
@@ -1041,8 +1037,8 @@
                 datasets: [{
                     label: 'График',
                     data: <?php echo json_encode($chartData['monthly_muddatli']['grafik']); ?>,
-                    borderColor: 'rgb(239, 68, 68)',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderColor: 'rgb(185, 28, 28)',
+                    backgroundColor: 'rgba(185, 28, 28, 0.1)',
                     tension: 0.4,
                     fill: true,
                     borderWidth: 3
@@ -1063,7 +1059,7 @@
                     datalabels: {
                         display: true,
                         align: 'top',
-                        color: (context) => context.datasetIndex === 0 ? 'rgb(239, 68, 68)' : 'rgb(29, 78, 216)',
+                        color: (context) => context.datasetIndex === 0 ? 'rgb(185, 28, 28)' : 'rgb(29, 78, 216)',
                         font: {
                             weight: 'bold',
                             size: 10
@@ -1091,8 +1087,8 @@
                 datasets: [{
                     label: 'График',
                     data: <?php echo json_encode($chartData['tuman_muddatli']['grafik']); ?>,
-                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(185, 28, 28, 0.8)',
+                    borderColor: 'rgb(185, 28, 28)',
                     borderWidth: 2,
                     borderRadius: 6
                 }, {
@@ -1112,7 +1108,7 @@
                         display: true,
                         align: 'end',
                         anchor: 'end',
-                        color: (context) => context.datasetIndex === 0 ? 'rgb(239, 68, 68)' : 'rgb(29, 78, 216)',
+                        color: (context) => context.datasetIndex === 0 ? 'rgb(185, 28, 28)' : 'rgb(29, 78, 216)',
                         font: {
                             weight: 'bold',
                             size: 9
@@ -1140,8 +1136,8 @@
                 datasets: [{
                     label: 'Тушган маблағ',
                     data: <?php echo json_encode($chartData['monthly_muddatli_emas']['received']); ?>,
-                    borderColor: 'rgb(34, 197, 94)',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderColor: 'rgb(29, 78, 216)',
+                    backgroundColor: 'rgba(29, 78, 216, 0.1)',
                     tension: 0.4,
                     fill: true,
                     borderWidth: 3
@@ -1154,7 +1150,7 @@
                     datalabels: {
                         display: true,
                         align: 'top',
-                        color: 'rgb(34, 197, 94)',
+                        color: 'rgb(29, 78, 216)',
                         font: {
                             weight: 'bold',
                             size: 10
@@ -1182,15 +1178,15 @@
                 datasets: [{
                     label: 'Тушадиган',
                     data: <?php echo json_encode($chartData['tuman_muddatli_emas']['expected']); ?>,
-                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(185, 28, 28, 0.8)',
+                    borderColor: 'rgb(185, 28, 28)',
                     borderWidth: 2,
                     borderRadius: 6
                 }, {
                     label: 'Тушган',
                     data: <?php echo json_encode($chartData['tuman_muddatli_emas']['received']); ?>,
-                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(29, 78, 216, 0.8)',
+                    borderColor: 'rgb(29, 78, 216)',
                     borderWidth: 2,
                     borderRadius: 6
                 }]
@@ -1203,7 +1199,7 @@
                         display: true,
                         align: 'end',
                         anchor: 'end',
-                        color: (context) => context.datasetIndex === 0 ? 'rgb(59, 130, 246)' : 'rgb(34, 197, 94)',
+                        color: (context) => context.datasetIndex === 0 ? 'rgb(185, 28, 28)' : 'rgb(29, 78, 216)',
                         font: {
                             weight: 'bold',
                             size: 9
