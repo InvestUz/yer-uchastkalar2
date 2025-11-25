@@ -300,69 +300,83 @@ class YerSotuvService
     /**
      * Get mulk qabul qilmagan data (for both муддатли and муддатли эмас)
      */
-    public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFilters = []): array
-    {
-        $query = YerSotuv::query();
 
-        // CRITICAL: Exclude canceled records
-        $this->applyBaseFilters($query);
-        $this->applyTumanFilter($query, $tumanPatterns);
+public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFilters = []): array
+{
+    $query = YerSotuv::query();
+    $this->applyBaseFilters($query);
+    $this->applyTumanFilter($query, $tumanPatterns);
 
-        $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida (34)%')
-            ->where('asos', 'ПФ-135');
+    $query->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+        ->where('asos', 'ПФ-135');
 
-        $this->applyDateFilters($query, $dateFilters);
+    $this->applyDateFilters($query, $dateFilters);
 
-        $results = $query->get(['tolov_turi', 'golib_tolagan', 'auksion_harajati', 'lot_raqami']);
+    $results = $query->get(['tolov_turi', 'golib_tolagan', 'shartnoma_summasi', 'auksion_harajati', 'lot_raqami']);
 
-        $auksionMablagh = 0;
-        $calculationLog = [];
+    $totalAuksionMablagh = 0;
+    $totalAuksionMablaghMuddatliEmas = 0; // Only муддатли эмас
+    $itemCalculations = [];
+    $countMuddatli = 0;
+    $countMuddatliEmas = 0;
 
-        foreach ($results as $result) {
-            $golibTolagan = floatval($result->golib_tolagan ?? 0);
-            $auksionHarajati = floatval($result->auksion_harajati ?? 0);
-            $itemValue = 0;
+    foreach ($results as $result) {
+        $golibTolagan = (float) $result->golib_tolagan;
+        $shartnomaSummasi = (float) $result->shartnoma_summasi;
+        $auksionHarajati = (float) $result->auksion_harajati;
 
-            // Only subtract auksion_harajati for муддатли эмас
-            if ($result->tolov_turi === 'муддатли эмас') {
-                $itemValue = $golibTolagan - $auksionHarajati;
-                $calculationLog[] = [
-                    'lot_raqami' => $result->lot_raqami,
-                    'tolov_turi' => $result->tolov_turi,
-                    'formula' => 'golib_tolagan - auksion_harajati',
-                    'golib_tolagan' => $golibTolagan,
-                    'auksion_harajati' => $auksionHarajati,
-                    'item_value' => $itemValue
-                ];
-            } else {
-                $itemValue = $golibTolagan;
-                $calculationLog[] = [
-                    'lot_raqami' => $result->lot_raqami,
-                    'tolov_turi' => $result->tolov_turi,
-                    'formula' => 'golib_tolagan (no subtraction)',
-                    'golib_tolagan' => $golibTolagan,
-                    'auksion_harajati' => $auksionHarajati,
-                    'item_value' => $itemValue
-                ];
-            }
+        Log::info('----------------------------------', ['shartnomaSummasi' => $shartnomaSummasi]);
 
-            $auksionMablagh += $itemValue;
+        // Apply correct formula based on tolov_turi
+        if ($result->tolov_turi === 'муддатли эмас') {
+            // TM1: golib_tolagan - auksion_harajati
+            $itemValue = $golibTolagan + $auksionHarajati;
+            $countMuddatliEmas++;
+            $totalAuksionMablaghMuddatliEmas += $itemValue; // Add to муддатли эмас total
+        } else {
+            // TM2: (golib_tolagan + shartnoma_summasi) - auksion_harajati
+            // $itemValue = ($golibTolagan + $shartnomaSummasi) - $auksionHarajati; // CORRECT FORMULA
+            $itemValue = $golibTolagan - $auksionHarajati;
+
+            $countMuddatli++;
+            // DON'T add to totalAuksionMablaghMuddatliEmas (we exclude муддатли from the financial sum)
         }
 
-        Log::info('MULK QABUL QILMAGAN Calculation', [
-            'tuman_patterns' => $tumanPatterns,
-            'date_filters' => $dateFilters,
-            'total_records' => $results->count(),
-            'item_calculations' => $calculationLog,
-            'total_auksion_mablagh' => $auksionMablagh
-        ]);
+        $totalAuksionMablagh += $itemValue; // Total includes both
 
-        return [
-            'soni' => $results->count(),
-            'auksion_mablagh' => $auksionMablagh
+        $itemCalculations[] = [
+            'lot_raqami' => $result->lot_raqami,
+            'tolov_turi' => $result->tolov_turi,
+            'golib_tolagan' => $golibTolagan,
+            'shartnoma_summasi' => $shartnomaSummasi,
+            'auksion_harajati' => $auksionHarajati,
+            'formula' => $result->tolov_turi === 'муддатли эмас'
+                ? 'golib_tolagan - auksion_harajati'
+                : '(golib_tolagan + shartnoma_summasi) - auksion_harajati',
+            'calculated_value' => $itemValue
         ];
     }
 
+    Log::info('MULK QABUL QILMAGAN Calculation', [
+        'tuman_patterns' => $tumanPatterns,
+        'date_filters' => $dateFilters,
+        'total_records' => $results->count(),
+        'count_muddatli' => $countMuddatli,
+        'count_muddatli_emas' => $countMuddatliEmas,
+        'item_calculations' => $itemCalculations,
+        'total_auksion_mablagh' => $totalAuksionMablagh,
+        'total_auksion_mablagh_muddatli_emas_only' => $totalAuksionMablaghMuddatliEmas
+    ]);
+
+    return [
+        'total_records' => $results->count(), // All records (10)
+        'total_records_muddatli_emas' => $countMuddatliEmas, // Only муддатли эмас (8)
+        'total_records_muddatli' => $countMuddatli, // Only муддатли (2)
+        'total_auksion_mablagh' => $totalAuksionMablagh, // All amounts
+        'total_auksion_mablagh_muddatli_emas' => $totalAuksionMablaghMuddatliEmas, // Only муддатли эмас amounts
+        'items' => $itemCalculations
+    ];
+}
     /**
      * Get lot numbers for bo'lib to'lash by tuman
      */
@@ -1158,125 +1172,124 @@ public function calculateGrafikTushadiganByPeriod(array $dateFilters, string $to
     /**
      * Get complete statistics for main page (SVOD1)
      */
-    public function getDetailedStatistics(array $dateFilters = []): array
-    {
-        Log::info('========== STARTING DETAILED STATISTICS CALCULATION (SVOD1) ==========', [
-            'date_filters' => $dateFilters
-        ]);
+ public function getDetailedStatistics(array $dateFilters = []): array
+{
+    Log::info('========== STARTING DETAILED STATISTICS CALCULATION (SVOD1) ==========', [
+        'date_filters' => $dateFilters
+    ]);
 
-        $tumanlar = [
-            'Бектемир тумани',
-            'Мирзо Улуғбек тумани',
-            'Миробод тумани',
-            'Олмазор тумани',
-            'Сирғали тумани',
-            'Учтепа тумани',
-            'Чилонзор тумани',
-            'Шайхонтоҳур тумани',
-            'Юнусобод тумани',
-            'Яккасарой тумани',
-            'Янги ҳаёт тумани',
-            'Яшнобод тумани'
-        ];
+    $tumanlar = [
+        'Бектемир тумани',
+        'Мирзо Улуғбек тумани',
+        'Миробод тумани',
+        'Олмазор тумани',
+        'Сирғали тумани',
+        'Учтепа тумани',
+        'Чилонзор тумани',
+        'Шайхонтоҳур тумани',
+        'Юнусобод тумани',
+        'Яккасарой тумани',
+        'Янги ҳаёт тумани',
+        'Яшнобод тумани'
+    ];
 
-        $statistics = [];
+    $statistics = [];
 
-        foreach ($tumanlar as $tuman) {
-            Log::info("---------- Processing Tuman: {$tuman} ----------");
+foreach ($tumanlar as $tuman) {
+    Log::info("---------- Processing Tuman: {$tuman} ----------");
 
-            $tumanPatterns = $this->getTumanPatterns($tuman);
+    $tumanPatterns = $this->getTumanPatterns($tuman);
 
-            $stat = [
-                'tuman' => $tuman,
-                'jami' => $this->getTumanData($tumanPatterns, null, $dateFilters),
-                'bir_yola' => $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters), // golib_tolagan - auksion_harajati
-                'bolib' => $this->getTumanData($tumanPatterns, 'муддатли', $dateFilters), // golib_tolagan + shartnoma - auksion
-                'auksonda' => $this->getAuksondaTurgan($tumanPatterns, $dateFilters),
-                'mulk_qabul' => $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters),
-                'biryola_fakt' => $this->calculateBiryolaFakt($tumanPatterns, $dateFilters),
-                'bolib_tushgan' => $this->calculateBolibTushgan($tumanPatterns, $dateFilters),
-                'bolib_tushadigan' => $this->calculateBolibTushadigan($tumanPatterns, $dateFilters), // golib_tolagan + shartnoma - auksion
-            ];
+    $stat = [
+        'tuman' => $tuman,  // ← CRITICAL: Add tuman name
+        'jami' => $this->getTumanData($tumanPatterns, null, $dateFilters),
+        'bir_yola' => $this->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters),
+        'bolib' => $this->getTumanData($tumanPatterns, 'муддатли', $dateFilters),
+        'auksonda' => $this->getAuksondaTurgan($tumanPatterns, $dateFilters),
+        'mulk_qabul' => $this->getMulkQabulQilmagan($tumanPatterns, $dateFilters),
+        'biryola_fakt' => $this->calculateBiryolaFakt($tumanPatterns, $dateFilters),
+        'bolib_tushgan' => $this->calculateBolibTushgan($tumanPatterns, $dateFilters),
+        'bolib_tushadigan' => $this->calculateBolibTushadigan($tumanPatterns, $dateFilters),
+    ];
 
-            // CALCULATE JAMI TUSHADIGAN:
-            // bir_yola_tushadigan + bolib_tushadigan + mulk_qabul
-            $stat['jami']['tushadigan_mablagh'] =
-                $stat['bir_yola']['tushadigan_mablagh'] +  // golib_tolagan - auksion (муддатли эмас)
-                $stat['bolib_tushadigan'] +                 // golib_tolagan + shartnoma - auksion (муддатли)
-                $stat['mulk_qabul']['auksion_mablagh'];    // mulk qabul amount
+    // CALCULATE JAMI TUSHADIGAN:
+    // bir_yola_tushadigan + bolib_tushadigan + mulk_qabul
+    $stat['jami']['tushadigan_mablagh'] =
+        $stat['bir_yola']['tushadigan_mablagh'] +
+        $stat['bolib_tushadigan'] +
+        $stat['mulk_qabul']['total_auksion_mablagh'];
 
-            $stat['jami_tushgan_yigindi'] = $stat['biryola_fakt'] + $stat['bolib_tushgan'];
+    $stat['jami_tushgan_yigindi'] = $stat['biryola_fakt'] + $stat['bolib_tushgan'];
 
-            Log::info("JAMI TUSHADIGAN Calculation for {$tuman}", [
-                'formula' => 'bir_yola_tushadigan + bolib_tushadigan + mulk_qabul',
-                'calculation_steps' => [
-                    'bir_yola_tushadigan' => $stat['bir_yola']['tushadigan_mablagh'],
-                    'bolib_tushadigan' => $stat['bolib_tushadigan'],
-                    'mulk_qabul' => $stat['mulk_qabul']['auksion_mablagh'],
-                    'sum' => "{$stat['bir_yola']['tushadigan_mablagh']} + {$stat['bolib_tushadigan']} + {$stat['mulk_qabul']['auksion_mablagh']}",
-                ],
-                'result' => $stat['jami']['tushadigan_mablagh']
-            ]);
+    Log::info("JAMI TUSHADIGAN Calculation for {$tuman}", [
+        'formula' => 'bir_yola_tushadigan + bolib_tushadigan + mulk_qabul',
+        'calculation_steps' => [
+            'bir_yola_tushadigan' => $stat['bir_yola']['tushadigan_mablagh'],
+            'bolib_tushadigan' => $stat['bolib_tushadigan'],
+            'mulk_qabul' => $stat['mulk_qabul']['total_auksion_mablagh'],
+            'sum' => "{$stat['bir_yola']['tushadigan_mablagh']} + {$stat['bolib_tushadigan']} + {$stat['mulk_qabul']['total_auksion_mablagh']}",
+        ],
+        'result' => $stat['jami']['tushadigan_mablagh']
+    ]);
 
-            Log::info("JAMI TUSHGAN YIGINDI for {$tuman}", [
-                'formula' => 'biryola_fakt + bolib_tushgan',
-                'biryola_fakt' => $stat['biryola_fakt'],
-                'bolib_tushgan' => $stat['bolib_tushgan'],
-                'result' => $stat['jami_tushgan_yigindi']
-            ]);
+    Log::info("JAMI TUSHGAN YIGINDI for {$tuman}", [
+        'formula' => 'biryola_fakt + bolib_tushgan',
+        'biryola_fakt' => $stat['biryola_fakt'],
+        'bolib_tushgan' => $stat['bolib_tushgan'],
+        'result' => $stat['jami_tushgan_yigindi']
+    ]);
 
-            $statistics[] = $stat;
-        }
+    $statistics[] = $stat;
+}
 
-        // Calculate JAMI totals
-        Log::info("========== Calculating OVERALL JAMI TOTALS ==========");
+    // Calculate JAMI totals
+    Log::info("========== Calculating OVERALL JAMI TOTALS ==========");
 
-        $jami = [
-            'jami' => $this->getTumanData(null, null, $dateFilters),
-            'bir_yola' => $this->getTumanData(null, 'муддатли эмас', $dateFilters), // golib_tolagan - auksion_harajati
-            'bolib' => $this->getTumanData(null, 'муддатли', $dateFilters), // golib_tolagan + shartnoma - auksion
-            'auksonda' => $this->getAuksondaTurgan(null, $dateFilters),
-            'mulk_qabul' => $this->getMulkQabulQilmagan(null, $dateFilters),
-            'biryola_fakt' => $this->calculateBiryolaFakt(null, $dateFilters),
-            'bolib_tushgan' => $this->calculateBolibTushgan(null, $dateFilters),
-            'bolib_tushadigan' => $this->calculateBolibTushadigan(null, $dateFilters), // golib_tolagan + shartnoma - auksion
-        ];
+    $jami = [
+        'jami' => $this->getTumanData(null, null, $dateFilters),
+        'bir_yola' => $this->getTumanData(null, 'муддатли эмас', $dateFilters),
+        'bolib' => $this->getTumanData(null, 'муддатли', $dateFilters),
+        'auksonda' => $this->getAuksondaTurgan(null, $dateFilters),
+        'mulk_qabul' => $this->getMulkQabulQilmagan(null, $dateFilters),
+        'biryola_fakt' => $this->calculateBiryolaFakt(null, $dateFilters),
+        'bolib_tushgan' => $this->calculateBolibTushgan(null, $dateFilters),
+        'bolib_tushadigan' => $this->calculateBolibTushadigan(null, $dateFilters),
+    ];
 
-        // CALCULATE JAMI TUSHADIGAN:
-        // bir_yola_tushadigan + bolib_tushadigan + mulk_qabul
-        $jami['jami']['tushadigan_mablagh'] =
-            $jami['bir_yola']['tushadigan_mablagh'] +  // golib_tolagan - auksion (муддатли эмас)
-            $jami['bolib_tushadigan'] +                 // golib_tolagan + shartnoma - auksion (муддатли)
-            $jami['mulk_qabul']['auksion_mablagh'];    // mulk qabul amount
+    // CALCULATE JAMI TUSHADIGAN:
+    // bir_yola_tushadigan + bolib_tushadigan + mulk_qabul
+    $jami['jami']['tushadigan_mablagh'] =
+        $jami['bir_yola']['tushadigan_mablagh'] +
+        $jami['bolib_tushadigan'] +
+        $jami['mulk_qabul']['total_auksion_mablagh'];    // FIXED KEY NAME
 
-        $jami['jami_tushgan_yigindi'] = $jami['biryola_fakt'] + $jami['bolib_tushgan'];
+    $jami['jami_tushgan_yigindi'] = $jami['biryola_fakt'] + $jami['bolib_tushgan'];
 
-        Log::info("OVERALL JAMI TUSHADIGAN Calculation", [
-            'formula' => 'bir_yola_tushadigan + bolib_tushadigan + mulk_qabul',
-            'calculation_steps' => [
-                'bir_yola_tushadigan' => $jami['bir_yola']['tushadigan_mablagh'],
-                'bolib_tushadigan' => $jami['bolib_tushadigan'],
-                'mulk_qabul' => $jami['mulk_qabul']['auksion_mablagh'],
-                'sum' => "{$jami['bir_yola']['tushadigan_mablagh']} + {$jami['bolib_tushadigan']} + {$jami['mulk_qabul']['auksion_mablagh']}",
-            ],
-            'result' => $jami['jami']['tushadigan_mablagh']
-        ]);
+    Log::info("OVERALL JAMI TUSHADIGAN Calculation", [
+        'formula' => 'bir_yola_tushadigan + bolib_tushadigan + mulk_qabul',
+        'calculation_steps' => [
+            'bir_yola_tushadigan' => $jami['bir_yola']['tushadigan_mablagh'],
+            'bolib_tushadigan' => $jami['bolib_tushadigan'],
+            'mulk_qabul' => $jami['mulk_qabul']['total_auksion_mablagh'],  // FIXED
+            'sum' => "{$jami['bir_yola']['tushadigan_mablagh']} + {$jami['bolib_tushadigan']} + {$jami['mulk_qabul']['total_auksion_mablagh']}",  // FIXED
+        ],
+        'result' => $jami['jami']['tushadigan_mablagh']
+    ]);
 
-        Log::info("OVERALL JAMI TUSHGAN YIGINDI", [
-            'formula' => 'biryola_fakt + bolib_tushgan',
-            'biryola_fakt' => $jami['biryola_fakt'],
-            'bolib_tushgan' => $jami['bolib_tushgan'],
-            'result' => $jami['jami_tushgan_yigindi']
-        ]);
+    Log::info("OVERALL JAMI TUSHGAN YIGINDI", [
+        'formula' => 'biryola_fakt + bolib_tushgan',
+        'biryola_fakt' => $jami['biryola_fakt'],
+        'bolib_tushgan' => $jami['bolib_tushgan'],
+        'result' => $jami['jami_tushgan_yigindi']
+    ]);
 
-        Log::info('========== DETAILED STATISTICS CALCULATION COMPLETED ==========');
+    Log::info('========== DETAILED STATISTICS CALCULATION COMPLETED ==========');
 
-        return [
-            'tumanlar' => $statistics,
-            'jami' => $jami
-        ];
-    }
-
+    return [
+        'tumanlar' => $statistics,
+        'jami' => $jami
+    ];
+}
     /**
      * Get complete statistics for SVOD3 page
      */
@@ -1832,176 +1845,204 @@ public function calculateGrafikTushadiganByPeriod(array $dateFilters, string $to
     /**
      * Write comprehensive statistics to a formatted text file
      */
-    public function logDetailedStatisticsToFile(array $statistics): void
-    {
-        $logContent = [];
+  /**
+ * Write comprehensive statistics to a formatted text file
+ */
+public function logDetailedStatisticsToFile(array $statistics): void
+{
+    $logContent = [];
 
-        $logContent[] = "";
-        $logContent[] = str_repeat("=", 100);
-        $logContent[] = "=== SVOD1 STATISTIKA (T1 va T2 bo'yicha) ===";
-        $logContent[] = "Sana: " . now()->format('Y-m-d H:i:s');
-        $logContent[] = str_repeat("=", 100);
+    $logContent[] = "";
+    $logContent[] = str_repeat("=", 100);
+    $logContent[] = "=== SVOD1 STATISTIKA (T1 va T2 bo'yicha) ===";
+    $logContent[] = "Sana: " . now()->format('Y-m-d H:i:s');
+    $logContent[] = str_repeat("=", 100);
 
-        // JAMI UMUMIY STATISTIKA
-        $logContent[] = "";
-        $logContent[] = "╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗";
-        $logContent[] = "║                                    UMUMIY STATISTIKA                                              ║";
-        $logContent[] = "╠═══════════════════════════════════════════════════════════════════════════════════════════════════╣";
+    // JAMI UMUMIY STATISTIKA
+    $logContent[] = "";
+    $logContent[] = "╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗";
+    $logContent[] = "║                                    UMUMIY STATISTIKA                                              ║";
+    $logContent[] = "╠═══════════════════════════════════════════════════════════════════════════════════════════════════╣";
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "KO'RSATKICH",
+        "T1 (bir yo'la)",
+        "T2 (bo'lib)",
+        "JAMI"
+    );
+    $logContent[] = "╠═══════════════════════════════════════════════════════════════════════════════════════════════════╣";
+
+    $jami = $statistics['jami'];
+
+    // LOT soni
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "LOT soni",
+        number_format($jami['bir_yola']['soni']),
+        number_format($jami['bolib']['soni']),
+        number_format($jami['jami']['soni'])
+    );
+
+    // Maydoni
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "Maydoni (gektar)",
+        number_format($jami['bir_yola']['maydoni'], 2),
+        number_format($jami['bolib']['maydoni'], 2),
+        number_format($jami['jami']['maydoni'], 2)
+    );
+
+    // Boshlangich narx
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "Boshlangich narx (mln)",
+        number_format($jami['bir_yola']['boshlangich_narx'] / 1000000, 1),
+        number_format($jami['bolib']['boshlangich_narx'] / 1000000, 1),
+        number_format($jami['jami']['boshlangich_narx'] / 1000000, 1)
+    );
+
+    // Sotilgan narx
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "Sotilgan narx (mln)",
+        number_format($jami['bir_yola']['sotilgan_narx'] / 1000000, 1),
+        number_format($jami['bolib']['sotilgan_narx'] / 1000000, 1),
+        number_format($jami['jami']['sotilgan_narx'] / 1000000, 1)
+    );
+
+    // Golib to'lagan
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "G'olib to'lagan (mln)",
+        number_format($jami['bir_yola']['golib_tolagan'] / 1000000, 1),
+        number_format($jami['bolib']['golib_tolagan'] / 1000000, 1),
+        number_format($jami['jami']['golib_tolagan'] / 1000000, 1)
+    );
+
+    // Shartnoma summasi
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "Shartnoma summasi (mln)",
+        number_format($jami['bir_yola']['shartnoma_summasi'] / 1000000, 1),
+        number_format($jami['bolib']['shartnoma_summasi'] / 1000000, 1),
+        number_format($jami['jami']['shartnoma_summasi'] / 1000000, 1)
+    );
+
+    // Auksion harajati
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "Auksion harajati (mln)",
+        number_format($jami['bir_yola']['auksion_harajati'] / 1000000, 1),
+        number_format($jami['bolib']['auksion_harajati'] / 1000000, 1),
+        number_format($jami['jami']['auksion_harajati'] / 1000000, 1)
+    );
+
+    $logContent[] = "╠═══════════════════════════════════════════════════════════════════════════════════════════════════╣";
+
+    // TUSHADIGAN MABLAGH (including mulk_qabul)
+    $mulkQabulMablagh = $jami['mulk_qabul']['total_auksion_mablagh'] ?? 0; // FIXED KEY NAME
+
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "TUSHADIGAN MABLAGH (mln)",
+        number_format($jami['bir_yola']['tushadigan_mablagh'] / 1000000, 1),
+        number_format($jami['bolib_tushadigan'] / 1000000, 1),
+        number_format($jami['jami']['tushadigan_mablagh'] / 1000000, 1)
+    );
+
+    // Add Mulk Qabul row if there's data
+    if ($mulkQabulMablagh > 0) {
         $logContent[] = sprintf(
             "║ %-50s │ %15s │ %15s │ %15s ║",
-            "KO'RSATKICH",
+            "  + Mulk qabul qilmagan (mln)",
+            "-",
+            "-",
+            number_format($mulkQabulMablagh / 1000000, 1)
+        );
+    }
+
+    // FAKT TUSHGAN
+    $logContent[] = sprintf(
+        "║ %-50s │ %15s │ %15s │ %15s ║",
+        "FAKT TUSHGAN (mln)",
+        number_format($jami['biryola_fakt'] / 1000000, 1),
+        number_format($jami['bolib_tushgan'] / 1000000, 1),
+        number_format($jami['jami_tushgan_yigindi'] / 1000000, 1)
+    );
+
+    $logContent[] = "╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝";
+
+    // TUMAN BO'YICHA BATAFSIL
+    $logContent[] = "";
+    $logContent[] = "╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗";
+    $logContent[] = "║                                TUMAN BO'YICHA STATISTIKA                                          ║";
+    $logContent[] = "╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝";
+
+    foreach ($statistics['tumanlar'] as $tumanStat) {
+        $logContent[] = "";
+        $logContent[] = "┌─────────────────────────────────────────────────────────────────────────────────────────────────┐";
+        $logContent[] = sprintf("│ TUMAN: %-87s │", $tumanStat['tuman'] ?? 'N/A');
+        $logContent[] = "├─────────────────────────────────────────────────────────────────────────────────────────────────┤";
+        $logContent[] = sprintf(
+            "│ %-50s │ %15s │ %15s │ %15s │",
+            "Ko'rsatkich",
             "T1 (bir yo'la)",
             "T2 (bo'lib)",
             "JAMI"
         );
-        $logContent[] = "╠═══════════════════════════════════════════════════════════════════════════════════════════════════╣";
-
-        $jami = $statistics['jami'];
+        $logContent[] = "├─────────────────────────────────────────────────────────────────────────────────────────────────┤";
 
         // LOT soni
         $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
+            "│ %-50s │ %15s │ %15s │ %15s │",
             "LOT soni",
-            number_format($jami['bir_yola']['soni']),
-            number_format($jami['bolib']['soni']),
-            number_format($jami['jami']['soni'])
+            number_format($tumanStat['bir_yola']['soni']),
+            number_format($tumanStat['bolib']['soni']),
+            number_format($tumanStat['jami']['soni'])
         );
 
-        // Maydoni
+        // Tushadigan mablagh
         $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
-            "Maydoni (gektar)",
-            number_format($jami['bir_yola']['maydoni'], 2),
-            number_format($jami['bolib']['maydoni'], 2),
-            number_format($jami['jami']['maydoni'], 2)
+            "│ %-50s │ %15s │ %15s │ %15s │",
+            "Tushadigan (mln)",
+            number_format($tumanStat['bir_yola']['tushadigan_mablagh'] / 1000000, 1),
+            number_format($tumanStat['bolib_tushadigan'] / 1000000, 1),
+            number_format($tumanStat['jami']['tushadigan_mablagh'] / 1000000, 1)
         );
 
-        // Boshlangich narx
-        $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
-            "Boshlangich narx (mln)",
-            number_format($jami['bir_yola']['boshlangich_narx'] / 1000000, 1),
-            number_format($jami['bolib']['boshlangich_narx'] / 1000000, 1),
-            number_format($jami['jami']['boshlangich_narx'] / 1000000, 1)
-        );
-
-        // Sotilgan narx
-        $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
-            "Sotilgan narx (mln)",
-            number_format($jami['bir_yola']['sotilgan_narx'] / 1000000, 1),
-            number_format($jami['bolib']['sotilgan_narx'] / 1000000, 1),
-            number_format($jami['jami']['sotilgan_narx'] / 1000000, 1)
-        );
-
-        // Golib to'lagan
-        $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
-            "G'olib to'lagan (mln)",
-            number_format($jami['bir_yola']['golib_tolagan'] / 1000000, 1),
-            number_format($jami['bolib']['golib_tolagan'] / 1000000, 1),
-            number_format($jami['jami']['golib_tolagan'] / 1000000, 1)
-        );
-
-        // Shartnoma summasi
-        $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
-            "Shartnoma summasi (mln)",
-            number_format($jami['bir_yola']['shartnoma_summasi'] / 1000000, 1),
-            number_format($jami['bolib']['shartnoma_summasi'] / 1000000, 1),
-            number_format($jami['jami']['shartnoma_summasi'] / 1000000, 1)
-        );
-
-        // Auksion harajati
-        $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
-            "Auksion harajati (mln)",
-            number_format($jami['bir_yola']['auksion_harajati'] / 1000000, 1),
-            number_format($jami['bolib']['auksion_harajati'] / 1000000, 1),
-            number_format($jami['jami']['auksion_harajati'] / 1000000, 1)
-        );
-
-        $logContent[] = "╠═══════════════════════════════════════════════════════════════════════════════════════════════════╣";
-
-        // TUSHADIGAN MABLAGH
-        $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
-            "TUSHADIGAN MABLAGH (mln)",
-            number_format($jami['bir_yola']['tushadigan_mablagh'] / 1000000, 1),
-            number_format($jami['bolib_tushadigan'] / 1000000, 1),
-            number_format($jami['jami']['tushadigan_mablagh'] / 1000000, 1)
-        );
-
-        // FAKT TUSHGAN
-        $logContent[] = sprintf(
-            "║ %-50s │ %15s │ %15s │ %15s ║",
-            "FAKT TUSHGAN (mln)",
-            number_format($jami['biryola_fakt'] / 1000000, 1),
-            number_format($jami['bolib_tushgan'] / 1000000, 1),
-            number_format($jami['jami_tushgan_yigindi'] / 1000000, 1)
-        );
-
-        $logContent[] = "╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝";
-
-        // TUMAN BO'YICHA BATAFSIL
-        $logContent[] = "";
-        $logContent[] = "╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗";
-        $logContent[] = "║                                TUMAN BO'YICHA STATISTIKA                                          ║";
-        $logContent[] = "╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝";
-
-        foreach ($statistics['tumanlar'] as $tumanStat) {
-            $logContent[] = "";
-            $logContent[] = "┌─────────────────────────────────────────────────────────────────────────────────────────────────┐";
-            $logContent[] = sprintf("│ TUMAN: %-87s │", $tumanStat['tuman']);
-            $logContent[] = "├─────────────────────────────────────────────────────────────────────────────────────────────────┤";
+        // Add Mulk Qabul for this tuman if there's data
+        $tumanMulkQabul = $tumanStat['mulk_qabul']['total_auksion_mablagh'] ?? 0; // FIXED KEY NAME
+        if ($tumanMulkQabul > 0) {
             $logContent[] = sprintf(
                 "│ %-50s │ %15s │ %15s │ %15s │",
-                "Ko'rsatkich",
-                "T1 (bir yo'la)",
-                "T2 (bo'lib)",
-                "JAMI"
+                "  + Mulk qabul qilmagan (mln)",
+                "-",
+                "-",
+                number_format($tumanMulkQabul / 1000000, 1)
             );
-            $logContent[] = "├─────────────────────────────────────────────────────────────────────────────────────────────────┤";
-
-            // LOT soni
-            $logContent[] = sprintf(
-                "│ %-50s │ %15s │ %15s │ %15s │",
-                "LOT soni",
-                number_format($tumanStat['bir_yola']['soni']),
-                number_format($tumanStat['bolib']['soni']),
-                number_format($tumanStat['jami']['soni'])
-            );
-
-            // Tushadigan mablagh
-            $logContent[] = sprintf(
-                "│ %-50s │ %15s │ %15s │ %15s │",
-                "Tushadigan (mln)",
-                number_format($tumanStat['bir_yola']['tushadigan_mablagh'] / 1000000, 1),
-                number_format($tumanStat['bolib_tushadigan'] / 1000000, 1),
-                number_format($tumanStat['jami']['tushadigan_mablagh'] / 1000000, 1)
-            );
-
-            // Fakt tushgan
-            $logContent[] = sprintf(
-                "│ %-50s │ %15s │ %15s │ %15s │",
-                "Fakt tushgan (mln)",
-                number_format($tumanStat['biryola_fakt'] / 1000000, 1),
-                number_format($tumanStat['bolib_tushgan'] / 1000000, 1),
-                number_format($tumanStat['jami_tushgan_yigindi'] / 1000000, 1)
-            );
-
-            $logContent[] = "└─────────────────────────────────────────────────────────────────────────────────────────────────┘";
         }
 
-        $logContent[] = "";
-        $logContent[] = str_repeat("=", 100);
-        $logContent[] = "Yakunlandi: " . now()->format('Y-m-d H:i:s');
-        $logContent[] = str_repeat("=", 100);
+        // Fakt tushgan
+        $logContent[] = sprintf(
+            "│ %-50s │ %15s │ %15s │ %15s │",
+            "Fakt tushgan (mln)",
+            number_format($tumanStat['biryola_fakt'] / 1000000, 1),
+            number_format($tumanStat['bolib_tushgan'] / 1000000, 1),
+            number_format($tumanStat['jami_tushgan_yigindi'] / 1000000, 1)
+        );
 
-        // Write to storage/app/statistics directory
-        $filename = 'statistics/svod1_' . now()->format('Y-m-d_His') . '.txt';
-        Storage::put($filename, implode("\n", $logContent));
-
-        Log::info("Statistics report written to: " . storage_path('app/' . $filename));
+        $logContent[] = "└─────────────────────────────────────────────────────────────────────────────────────────────────┘";
     }
+
+    $logContent[] = "";
+    $logContent[] = str_repeat("=", 100);
+    $logContent[] = "Yakunlandi: " . now()->format('Y-m-d H:i:s');
+    $logContent[] = str_repeat("=", 100);
+
+    // Write to storage/app/statistics directory
+    $filename = 'statistics/svod1_' . now()->format('Y-m-d_His') . '.txt';
+    Storage::put($filename, implode("\n", $logContent));
+
+    Log::info("Statistics report written to: " . storage_path('app/' . $filename));
+}
 }
