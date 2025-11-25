@@ -152,7 +152,7 @@
                             <!-- JAMI row (21 columns: 0-20) -->
                             <tr class="bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100 border-y-2 border-amber-400">
                                 <!-- Col 0-1: ЖАМИ label (merged) -->
-                                <td colspan="2" class="sticky-col sticky-col-2 border border-slate-300 px-4 py-4 text-center align-middle font-bold text-slate-900 text-base uppercase bg-gradient-to-r from-amber-100 via-yellow-100 ">
+                                <td colspan="2" class="sticky-col border border-slate-300 px-4 py-4 text-center align-middle font-bold text-slate-900 text-base uppercase bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100">
                                     ЖАМИ:
                                 </td>
 
