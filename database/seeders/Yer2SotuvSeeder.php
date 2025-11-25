@@ -208,99 +208,116 @@ class Yer2SotuvSeeder extends Seeder
         $this->writeLog("Yuklangan: {$count} ta lot");
     }
 
-    private function createYerSotuv($row, $lotRaqami, $rowNumber): ?int
-    {
-        $auksionSana = $this->parseDate($row[15] ?? null);
-        $shartnomaSana = $this->parseDate($row[26] ?? null);
+  private function createYerSotuv($row, $lotRaqami, $rowNumber): ?int
+{
+    $auksionSana = $this->parseDate($row[15] ?? null);
+    $shartnomaSana = $this->parseDate($row[26] ?? null);
 
-        $data = [
-            'lot_raqami' => $lotRaqami,
-            'tuman' => $this->cleanValue($row[2] ?? null),
-            'mfy' => $this->cleanValue($row[3] ?? null),
-            'manzil' => $this->cleanValue($row[3] ?? null),
-            'unikal_raqam' => $this->cleanValue($row[4] ?? null),
-            'zona' => $this->cleanValue($row[5] ?? null),
-            'bosh_reja_zona' => $this->cleanValue($row[6] ?? null),
-            'yangi_ozbekiston' => $this->cleanValue($row[7] ?? null),
-            'maydoni' => $this->parseNumber($row[8] ?? null),
-            'lokatsiya' => $this->cleanValue($row[9] ?? null),
-            'qurilish_turi_1' => $this->cleanValue($row[10] ?? null),
-            'qurilish_turi_2' => $this->cleanValue($row[11] ?? null),
-            'qurilish_maydoni' => $this->parseNumber($row[12] ?? null),
-            'investitsiya' => $this->parseNumber($row[13] ?? null),
-            'boshlangich_narx' => $this->parseNumber($row[14] ?? null),
-            'auksion_sana' => $auksionSana ? Carbon::parse($auksionSana) : null,
-            'sotilgan_narx' => $this->parseNumber($row[16] ?? null),
-            'auksion_golibi' => $this->cleanValue($row[17] ?? null),
-            'golib_turi' => $this->cleanValue($row[18] ?? null),
-            'golib_nomi' => $this->cleanValue($row[19] ?? null),
-            'telefon' => $this->cleanValue($row[20] ?? null),
-            'tolov_turi' => $this->cleanValue($row[21] ?? null),
-            'asos' => $this->cleanValue($row[22] ?? null),
-            'auksion_turi' => $this->cleanValue($row[23] ?? null),
-            'holat' => $this->cleanValue($row[24] ?? null),
-            'shartnoma_holati' => $this->cleanValue($row[25] ?? null),
-            'shartnoma_sana' => $shartnomaSana,
-            'shartnoma_raqam' => $this->cleanValue($row[27] ?? null),
-            'golib_tolagan' => $this->parseNumber($row[28] ?? null),
-            'buyurtmachiga_otkazilgan' => $this->parseNumber($row[29] ?? null),
-            'chegirma' => $this->parseNumber($row[30] ?? null),
-            'auksion_harajati' => $this->parseNumber($row[31] ?? null),
-            'tushadigan_mablagh' => $this->parseNumber($row[32] ?? null),
-            'davaktiv_jamgarmasi' => $this->parseNumber($row[33] ?? null),
-            'shartnoma_tushgan' => $this->parseNumber($row[34] ?? null),
-            'davaktivda_turgan' => $this->parseNumber($row[35] ?? null),
-            'yer_auksion_harajat' => $this->parseNumber($row[36] ?? null),
-            'mahalliy_byudjet_tushadigan' => $this->parseNumber($row[37] ?? null),
-            'jamgarma_tushadigan' => $this->parseNumber($row[38] ?? null),
-            'yangi_oz_direksiya_tushadigan' => $this->parseNumber($row[39] ?? null),
-            'shayxontohur_tushadigan' => $this->parseNumber($row[40] ?? null),
-            'mahalliy_byudjet_taqsimlangan' => $this->parseNumber($row[41] ?? null),
-            'jamgarma_taqsimlangan' => $this->parseNumber($row[42] ?? null),
-            'yangi_oz_direksiya_taqsimlangan' => $this->parseNumber($row[43] ?? null),
-            'shayxontohur_taqsimlangan' => $this->parseNumber($row[44] ?? null),
-            'qoldiq_mahalliy_byudjet' => $this->parseNumber($row[45] ?? null),
-            'qoldiq_jamgarma' => $this->parseNumber($row[46] ?? null),
-            'qoldiq_yangi_oz_direksiya' => $this->parseNumber($row[47] ?? null),
-            'qoldiq_shayxontohur' => $this->parseNumber($row[48] ?? null),
-            'farqi' => $this->parseNumber($row[49] ?? null),
-            'yil' => $auksionSana ? Carbon::parse($auksionSana)->year : date('Y')
-        ];
+    $data = [
+        'lot_raqami' => $lotRaqami,
+        'tuman' => $this->cleanValue($row[2] ?? null),
+        'mfy' => $this->cleanValue($row[3] ?? null),
+        'manzil' => $this->cleanValue($row[3] ?? null),
+        'unikal_raqam' => $this->cleanValue($row[4] ?? null),
+        'zona' => $this->cleanValue($row[5] ?? null),
+        'bosh_reja_zona' => $this->cleanValue($row[6] ?? null),
+        'yangi_ozbekiston' => $this->cleanValue($row[7] ?? null),
+        'maydoni' => $this->parseNumber($row[8] ?? null),
+        'lokatsiya' => $this->cleanValue($row[9] ?? null),
+        'qurilish_turi_1' => $this->cleanValue($row[10] ?? null),
+        'qurilish_turi_2' => $this->cleanValue($row[11] ?? null),
+        'qurilish_maydoni' => $this->parseNumber($row[12] ?? null),
+        'investitsiya' => $this->parseNumber($row[13] ?? null),
+        'boshlangich_narx' => $this->parseNumber($row[14] ?? null),
+        'auksion_sana' => $auksionSana ? Carbon::parse($auksionSana) : null,
+        'sotilgan_narx' => $this->parseNumber($row[16] ?? null),
+        'auksion_golibi' => $this->cleanValue($row[17] ?? null),
+        'golib_turi' => $this->cleanValue($row[18] ?? null),
+        'golib_nomi' => $this->cleanValue($row[19] ?? null),
+        'telefon' => $this->cleanValue($row[20] ?? null),
+        'tolov_turi' => $this->cleanValue($row[21] ?? null),
+        'asos' => $this->cleanValue($row[22] ?? null),
+        'auksion_turi' => $this->cleanValue($row[23] ?? null),
+        'holat' => $this->cleanValue($row[24] ?? null),
+        'shartnoma_holati' => $this->cleanValue($row[25] ?? null),
+        'shartnoma_sana' => $shartnomaSana,
+        'shartnoma_raqam' => $this->cleanValue($row[27] ?? null),
+        'golib_tolagan' => $this->parseNumber($row[28] ?? null),
+        'buyurtmachiga_otkazilgan' => $this->parseNumber($row[29] ?? null),
+        'chegirma' => $this->parseNumber($row[30] ?? null),
+        'auksion_harajati' => $this->parseNumber($row[31] ?? null),
+        'tushadigan_mablagh' => $this->parseNumber($row[32] ?? null),
+        'davaktiv_jamgarmasi' => $this->parseNumber($row[33] ?? null),
+        'shartnoma_tushgan' => $this->parseNumber($row[34] ?? null),
+        'davaktivda_turgan' => $this->parseNumber($row[35] ?? null),
+        'yer_auksion_harajat' => $this->parseNumber($row[36] ?? null),
+        'mahalliy_byudjet_tushadigan' => $this->parseNumber($row[37] ?? null),
+        'jamgarma_tushadigan' => $this->parseNumber($row[38] ?? null),
+        'yangi_oz_direksiya_tushadigan' => $this->parseNumber($row[39] ?? null),
+        'shayxontohur_tushadigan' => $this->parseNumber($row[40] ?? null),
+        'mahalliy_byudjet_taqsimlangan' => $this->parseNumber($row[41] ?? null),
+        'jamgarma_taqsimlangan' => $this->parseNumber($row[42] ?? null),
+        'yangi_oz_direksiya_taqsimlangan' => $this->parseNumber($row[43] ?? null),
+        'shayxontohur_taqsimlangan' => $this->parseNumber($row[44] ?? null),
+        'qoldiq_mahalliy_byudjet' => $this->parseNumber($row[45] ?? null),
+        'qoldiq_jamgarma' => $this->parseNumber($row[46] ?? null),
+        'qoldiq_yangi_oz_direksiya' => $this->parseNumber($row[47] ?? null),
+        'qoldiq_shayxontohur' => $this->parseNumber($row[48] ?? null),
+        'farqi' => $this->parseNumber($row[49] ?? null),
+        'yil' => $auksionSana ? Carbon::parse($auksionSana)->year : date('Y')
+    ];
 
-        $shartnomaSummasi = $this->calculateShartnomaSummasiFromGrafik($row);
-        $data['shartnoma_summasi'] = $shartnomaSummasi;
+    // CRITICAL FIX: Calculate shartnoma_summasi correctly
+    $shartnomaSummasi = $this->calculateShartnomaSummasiFromGrafik($row);
+    $data['shartnoma_summasi'] = $shartnomaSummasi;
 
-        $tableColumns = Schema::getColumnListing($this->yerSotuvTable);
-        $filteredData = array_filter($data, function ($key) use ($tableColumns) {
-            return in_array($key, $tableColumns);
-        }, ARRAY_FILTER_USE_KEY);
-
-        $filteredData['created_at'] = now();
-        $filteredData['updated_at'] = now();
-
-        $id = DB::table($this->yerSotuvTable)->insertGetId($filteredData);
-
-        return $id;
+    // Add logging for verification in production
+    if ($shartnomaSummasi > 0) {
+        \Log::info("LOT {$lotRaqami} shartnoma_summasi calculated", [
+            'lot' => $lotRaqami,
+            'shartnoma_summasi' => $shartnomaSummasi,
+            'tolov_turi' => $data['tolov_turi']
+        ]);
     }
 
-    private function calculateShartnomaSummasiFromGrafik($row): float
-    {
-        $column50Value = $this->parseNumber($row[49] ?? null) ?? 0;
-        $paymentScheduleSum = 0;
+    $tableColumns = Schema::getColumnListing($this->yerSotuvTable);
+    $filteredData = array_filter($data, function ($key) use ($tableColumns) {
+        return in_array($key, $tableColumns);
+    }, ARRAY_FILTER_USE_KEY);
 
-        foreach ($this->grafikColumnMap as $yil => $oylar) {
-            foreach ($oylar as $oy => $csvIndex) {
-                if (isset($row[$csvIndex])) {
-                    $summa = $this->parseNumber($row[$csvIndex]);
-                    if ($summa !== null && $summa > 0) {
-                        $paymentScheduleSum += $summa;
-                    }
+    $filteredData['created_at'] = now();
+    $filteredData['updated_at'] = now();
+
+    $id = DB::table($this->yerSotuvTable)->insertGetId($filteredData);
+
+    return $id;
+}
+
+private function calculateShartnomaSummasiFromGrafik($row): float
+{
+    // Column 51 (index 50): "Шартнома бўйича тушадиган"
+    $explicitContractAmount = $this->parseNumber($row[50] ?? null) ?? 0;
+
+    // Sum all scheduled payments from columns 51-146 (months 2022-2029)
+    $paymentScheduleSum = 0;
+
+    foreach ($this->grafikColumnMap as $yil => $oylar) {
+        foreach ($oylar as $oy => $csvIndex) {
+            if (isset($row[$csvIndex])) {
+                $summa = $this->parseNumber($row[$csvIndex]);
+                if ($summa !== null && $summa > 0) {
+                    $paymentScheduleSum += $summa;
                 }
             }
         }
-
-        return max($column50Value, $paymentScheduleSum);
     }
+
+    // Use maximum of explicit amount or calculated schedule sum
+    // This handles cases where schedule might have extra payments
+    $finalAmount = max($explicitContractAmount, $paymentScheduleSum);
+
+    return $finalAmount;
+}
 
     private function createGrafikTolovlar($row, $yerSotuvId, $lotRaqami): void
     {
