@@ -272,24 +272,28 @@ class YerSotuvController extends Controller
             'Яшнобод тумани'
         ];
 
-        // Calculate summary for both payment types
-        $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
-        $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
-
-        // CRITICAL: Use period-aware methods when period is selected
+        // Calculate summary for both payment types based on filter type
         if ($isPeriodFiltered) {
-            // Period-specific calculations
+            // For period-specific: count lots that have grafik/fakt in THIS period
+            $summaryMuddatli = $this->calculateMonitoringSummaryByPeriod($dateFilters, 'муддатли');
+            $summaryMuddatliEmas = $this->calculateMonitoringSummaryByPeriod($dateFilters, 'муддатли эмас');
+
+            // CARD 5, 6, 7: Period-specific calculations
             $grafikTushadiganMuddatli = $this->yerSotuvService->calculateGrafikTushadiganByPeriod($dateFilters, 'муддатли');
             $nazoratdagilar = $this->yerSotuvService->getNazoratdagilarByPeriod(null, $dateFilters);
             $grafikOrtda = $this->yerSotuvService->getGrafikOrtdaByPeriod(null, $dateFilters);
 
-            // NEW: Calculate Card 6 (График бўйича тушган) specifically for period
+            // Card 6: Calculate period-specific fakt
             $grafikBoyichaTushgan = $this->calculateGrafikFaktByPeriod($dateFilters);
 
-            // NEW: Calculate Card 7 (Муддати ўтган) specifically for period
+            // Card 7: Calculate period-specific overdue
             $muddatiUtganQarz = max(0, $grafikTushadiganMuddatli - $grafikBoyichaTushgan);
         } else {
-            // All-time calculations (original logic)
+            // For all-time: count lots by auction date
+            $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
+            $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
+
+            // CARD 5, 6, 7: All-time calculations
             $grafikTushadiganMuddatli = $this->yerSotuvService->calculateGrafikTushadigan(null, $dateFilters, 'муддатли');
             $nazoratdagilar = $this->yerSotuvService->getNazoratdagilar(null, $dateFilters);
             $grafikOrtda = $this->yerSotuvService->getGrafikOrtda(null, $dateFilters);
@@ -362,13 +366,173 @@ class YerSotuvController extends Controller
             'periodInfo',
             'grafikTushadiganMuddatli',
             'nazoratdagilar',
-            'grafikBoyichaTushgan',      // NEW - Card 6
-            'muddatiUtganQarz',            // NEW - Card 7
+            'grafikBoyichaTushgan',
+            'muddatiUtganQarz',
             'availablePeriods'
         ));
     }
 
 
+    /**
+     * Calculate monitoring summary BY PERIOD (lots with grafik/fakt in period)
+     */
+    private function calculateMonitoringSummaryByPeriod(array $dateFilters, string $tolovTuri): array
+    {
+        if ($tolovTuri === 'муддатли') {
+            // Get ALL lots of this payment type
+            $query = YerSotuv::query();
+            $this->yerSotuvService->applyBaseFilters($query);
+            $query->where('tolov_turi', $tolovTuri);
+
+            $allLots = $query->pluck('lot_raqami')->toArray();
+
+            if (empty($allLots)) {
+                return [
+                    'total_lots' => 0,
+                    'expected_amount' => 0,
+                    'received_amount' => 0,
+                    'payment_percentage' => 0
+                ];
+            }
+
+            // Find lots that have grafik in this period
+            $dateFrom = \Carbon\Carbon::parse($dateFilters['auksion_sana_from']);
+            $dateTo = \Carbon\Carbon::parse($dateFilters['auksion_sana_to']);
+
+            // Build query for lots in period
+            $lotsQuery = DB::table('grafik_tolovlar')
+                ->select('lot_raqami')
+                ->whereIn('lot_raqami', $allLots)
+                ->distinct();
+
+            // Apply year and month filters
+            if ($dateFrom->year === $dateTo->year) {
+                // Same year - simple month range
+                $lotsQuery->where('yil', $dateFrom->year)
+                    ->whereBetween('oy', [$dateFrom->month, $dateTo->month]);
+            } else {
+                // Multiple years - complex logic
+                $lotsQuery->where(function ($q) use ($dateFrom, $dateTo) {
+                    // First year: from start month to December
+                    $q->where(function ($y1) use ($dateFrom) {
+                        $y1->where('yil', $dateFrom->year)
+                            ->where('oy', '>=', $dateFrom->month);
+                    });
+
+                    // Middle years: all months
+                    if ($dateTo->year - $dateFrom->year > 1) {
+                        $q->orWhere(function ($ym) use ($dateFrom, $dateTo) {
+                            $ym->whereBetween('yil', [$dateFrom->year + 1, $dateTo->year - 1]);
+                        });
+                    }
+
+                    // Last year: January to end month
+                    $q->orWhere(function ($y2) use ($dateTo) {
+                        $y2->where('yil', $dateTo->year)
+                            ->where('oy', '<=', $dateTo->month);
+                    });
+                });
+            }
+
+            $lotsInPeriod = $lotsQuery->pluck('lot_raqami')->toArray();
+            $totalLots = count($lotsInPeriod);
+
+            \Log::info('Period Summary Calculation', [
+                'tolov_turi' => $tolovTuri,
+                'period' => $dateFrom->format('Y-m') . ' to ' . $dateTo->format('Y-m'),
+                'all_lots' => count($allLots),
+                'lots_in_period' => $totalLots,
+                'sample_lots' => array_slice($lotsInPeriod, 0, 5)
+            ]);
+
+            // Calculate expected amount for these lots
+            $data = YerSotuv::whereIn('lot_raqami', $lotsInPeriod)
+                ->selectRaw('
+                SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+                SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+                SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+            ')->first();
+
+            $expectedAmount = ($data->golib_tolagan + $data->shartnoma_summasi) - $data->auksion_harajati;
+
+            // Calculate received amount (all-time for these lots)
+            $receivedAmount = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotsInPeriod)
+                ->sum('tolov_summa');
+
+            $paymentPercentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
+
+            return [
+                'total_lots' => $totalLots,
+                'expected_amount' => $expectedAmount,
+                'received_amount' => $receivedAmount,
+                'payment_percentage' => $paymentPercentage
+            ];
+        } else {
+            // For муддатли эмас - similar logic
+            $query = YerSotuv::query();
+            $this->yerSotuvService->applyBaseFilters($query);
+            $query->where('tolov_turi', $tolovTuri);
+
+            $allLots = $query->pluck('lot_raqami')->toArray();
+
+            if (empty($allLots)) {
+                return [
+                    'total_lots' => 0,
+                    'expected_amount' => 0,
+                    'received_amount' => 0,
+                    'payment_percentage' => 0
+                ];
+            }
+
+            // Find lots that have fakt payments in this period
+            $faktQuery = DB::table('fakt_tolovlar')
+                ->select('lot_raqami')
+                ->whereIn('lot_raqami', $allLots)
+                ->distinct();
+
+            if (!empty($dateFilters['auksion_sana_from'])) {
+                $faktQuery->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);
+            }
+            if (!empty($dateFilters['auksion_sana_to'])) {
+                $faktQuery->whereDate('tolov_sana', '<=', $dateFilters['auksion_sana_to']);
+            }
+
+            $lotsInPeriod = $faktQuery->pluck('lot_raqami')->toArray();
+            $totalLots = count($lotsInPeriod);
+
+            // Calculate expected amount for these lots
+            $data = YerSotuv::whereIn('lot_raqami', $lotsInPeriod)
+                ->selectRaw('
+                SUM(COALESCE(golib_tolagan, 0)) as golib_tolagan,
+                SUM(COALESCE(shartnoma_summasi, 0)) as shartnoma_summasi,
+                SUM(COALESCE(auksion_harajati, 0)) as auksion_harajati
+            ')->first();
+
+            $expectedAmount = ($data->golib_tolagan + $data->shartnoma_summasi) - $data->auksion_harajati;
+
+            // Calculate received amount IN PERIOD
+            $receivedQuery = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $lotsInPeriod);
+
+            if (!empty($dateFilters['auksion_sana_from'])) {
+                $receivedQuery->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);
+            }
+            if (!empty($dateFilters['auksion_sana_to'])) {
+                $receivedQuery->whereDate('tolov_sana', '<=', $dateFilters['auksion_sana_to']);
+            }
+
+            $receivedAmount = $receivedQuery->sum('tolov_summa');
+            $paymentPercentage = $expectedAmount > 0 ? ($receivedAmount / $expectedAmount) * 100 : 0;
+
+            return [
+                'total_lots' => $totalLots,
+                'expected_amount' => $expectedAmount,
+                'received_amount' => $receivedAmount,
+                'payment_percentage' => $paymentPercentage
+            ];
+        }
+    }
 
     /**
      * Calculate график фактик summa for specific period
