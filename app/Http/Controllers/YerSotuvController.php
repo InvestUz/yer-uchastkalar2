@@ -22,9 +22,10 @@ class YerSotuvController extends Controller
      */
     public function index(Request $request)
     {
+        // DEFAULT: From 01.01.2024 to today
         $dateFilters = [
-            'auksion_sana_from' => $request->auksion_sana_from,
-            'auksion_sana_to' => $request->auksion_sana_to,
+            'auksion_sana_from' => $request->auksion_sana_from ?? '2024-01-01',
+            'auksion_sana_to' => $request->auksion_sana_to ?? now()->toDateString(),
         ];
 
         $statistics = $this->yerSotuvService->getDetailedStatistics($dateFilters);
@@ -37,9 +38,10 @@ class YerSotuvController extends Controller
      */
     public function svod3(Request $request)
     {
+        // DEFAULT: From 01.01.2024 to today
         $dateFilters = [
-            'auksion_sana_from' => $request->auksion_sana_from,
-            'auksion_sana_to' => $request->auksion_sana_to,
+            'auksion_sana_from' => $request->auksion_sana_from ?? '2024-01-01',
+            'auksion_sana_to' => $request->auksion_sana_to ?? now()->toDateString(),
         ];
 
         $statistics = $this->yerSotuvService->getSvod3Statistics($dateFilters);
@@ -71,8 +73,9 @@ class YerSotuvController extends Controller
             'tolov_turi' => $request->tolov_turi,
             'holat' => $request->holat,
             'asos' => $request->asos,
-            'auksion_sana_from' => $request->auksion_sana_from,
-            'auksion_sana_to' => $request->auksion_sana_to,
+            // DEFAULT: From 01.01.2024 to today if not specified
+            'auksion_sana_from' => $request->auksion_sana_from ?? '2024-01-01',
+            'auksion_sana_to' => $request->auksion_sana_to ?? now()->toDateString(),
             'shartnoma_sana_from' => $request->shartnoma_sana_from,
             'shartnoma_sana_to' => $request->shartnoma_sana_to,
             'narx_from' => $request->narx_from,
@@ -287,9 +290,9 @@ class YerSotuvController extends Controller
 
             case 'all':
             default:
-                // No date filter - show all data
-                $dateFilters['auksion_sana_from'] = null;
-                $dateFilters['auksion_sana_to'] = null;
+                // DEFAULT: From 01.01.2024 to today
+                $dateFilters['auksion_sana_from'] = '2024-01-01';
+                $dateFilters['auksion_sana_to'] = now()->toDateString();
                 break;
         }
 
@@ -345,9 +348,10 @@ class YerSotuvController extends Controller
             'Яшнобод тумани'
         ];
 
-        // Calculate summary for both payment types based on filter type
+        // Calculate summary for THREE rows: Total, Муддатли, Муддатли эмас
         if ($isPeriodFiltered) {
             // For period-specific: count lots that have grafik/fakt in THIS period
+            $summaryTotal = $this->calculateMonitoringSummaryByPeriod($dateFilters, null); // null = all types
             $summaryMuddatli = $this->calculateMonitoringSummaryByPeriod($dateFilters, 'муддатли');
             $summaryMuddatliEmas = $this->calculateMonitoringSummaryByPeriod($dateFilters, 'муддатли эмас');
 
@@ -362,7 +366,8 @@ class YerSotuvController extends Controller
             // Card 7: Calculate period-specific overdue
             $muddatiUtganQarz = max(0, $grafikTushadiganMuddatli - $grafikBoyichaTushgan);
         } else {
-            // For all-time: count lots by auction date
+            // For all-time (default: 2024-01-01 to today): count lots
+            $summaryTotal = $this->calculateMonitoringSummary($dateFilters, null); // null = all types
             $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
             $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
 
@@ -430,6 +435,7 @@ class YerSotuvController extends Controller
         $chartData = $this->prepareChartData($tumanStatsMuddatli, $tumanStatsMuddatliEmas, $dateFilters);
 
         return view('yer-sotuvlar.monitoring', compact(
+            'summaryTotal',
             'summaryMuddatli',
             'summaryMuddatliEmas',
             'tumanStatsMuddatli',
@@ -449,9 +455,9 @@ class YerSotuvController extends Controller
     /**
      * Calculate monitoring summary BY PERIOD (lots with grafik/fakt in period)
      */
-    private function calculateMonitoringSummaryByPeriod(array $dateFilters, string $tolovTuri): array
+    private function calculateMonitoringSummaryByPeriod(array $dateFilters, ?string $tolovTuri): array
     {
-        if ($tolovTuri === 'муддатли') {
+        if ($tolovTuri === 'муддатли' || $tolovTuri === null) {
             // For period filtering: Count DISTINCT lots from grafik_tolovlar in this period
             // This matches the SQL query logic
             $dateFrom = \Carbon\Carbon::parse($dateFilters['auksion_sana_from']);
@@ -460,10 +466,14 @@ class YerSotuvController extends Controller
             // Build query to count distinct lots with grafik in the period
             $lotsQuery = DB::table('grafik_tolovlar as gt')
                 ->join('yer_sotuvlar as ys', 'gt.lot_raqami', '=', 'ys.lot_raqami')
-                ->where('ys.tolov_turi', $tolovTuri)
                 ->where('ys.holat', '!=', 'Бекор қилинган')
                 ->whereNotNull('ys.holat')
                 ->distinct();
+
+            // Apply payment type filter if specified
+            if ($tolovTuri !== null) {
+                $lotsQuery->where('ys.tolov_turi', $tolovTuri);
+            }
 
             // Apply year and month filters to grafik data
             if ($dateFrom->year === $dateTo->year) {
@@ -748,11 +758,14 @@ class YerSotuvController extends Controller
     /**
      * Calculate monitoring summary
      */
-    private function calculateMonitoringSummary(array $dateFilters, string $tolovTuri): array
+    private function calculateMonitoringSummary(array $dateFilters, ?string $tolovTuri): array
     {
         $query = YerSotuv::query();
 
-        $query->where('tolov_turi', $tolovTuri);
+        // Apply payment type filter only if specified
+        if ($tolovTuri !== null) {
+            $query->where('tolov_turi', $tolovTuri);
+        }
         $this->yerSotuvService->applyDateFilters($query, $dateFilters);
 
         $totalLots = $query->count();
@@ -1473,9 +1486,10 @@ class YerSotuvController extends Controller
      */
     public function yigmaMalumot(Request $request)
     {
+        // DEFAULT: From 01.01.2024 to today
         $dateFilters = [
-            'auksion_sana_from' => $request->auksion_sana_from,
-            'auksion_sana_to' => $request->auksion_sana_to,
+            'auksion_sana_from' => $request->auksion_sana_from ?? '2024-01-01',
+            'auksion_sana_to' => $request->auksion_sana_to ?? now()->toDateString(),
         ];
 
         $tumanlar = [
@@ -1534,14 +1548,7 @@ class YerSotuvController extends Controller
 
             $grafikFoiz = $grafikTushadigan > 0 ? round(($grafikTushgan / $grafikTushadigan) * 100, 1) : 0;
 
-            // CRITICAL: Calculate JAMI муддати ўтган қарздорлик (Column 6)
-            // This is the TOTAL overdue debt across ALL payment types
-            // For муддатли эмас: qoldiq represents overdue only if positive (tushadigan - tushgan)
-            // For муддатли: use график-based calculation (grafik_tushadigan - grafik_tushgan)
-            $biryolaMuddatiUtgan = max(0, $biryolaQoldiq); // Only count if positive (overdue)
-            $jamiMuddatiUtgan = $biryolaMuddatiUtgan + $bolibMuddatiUtgan;
-
-            // Get bекор qilinganlar count
+            // Get bекор qilinganlar count FIRST
             $bekorQilinganlar = YerSotuv::query()
                 ->where(function ($q) use ($tumanPatterns) {
                     foreach ($tumanPatterns as $pattern) {
@@ -1550,6 +1557,17 @@ class YerSotuvController extends Controller
                 })
                 ->where('holat', 'Бекор қилинган')
                 ->count();
+
+            // CRITICAL: Calculate JAMI soni correctly
+            // T (Total) = Bkn (Bekor) + Bn (Muddatli emas) + Nn (Muddatli)
+            $jamiSoni = $bekorQilinganlar + $biryolaData['soni'] + $bolibData['soni'];
+
+            // CRITICAL: Calculate JAMI муддати ўтган қарздорлик (Column 6)
+            // This is the TOTAL overdue debt across ALL payment types
+            // For муддатли эмас: qoldiq represents overdue only if positive (tushadigan - tushgan)
+            // For муддатли: use график-based calculation (grafik_tushadigan - grafik_tushgan)
+            $biryolaMuddatiUtgan = max(0, $biryolaQoldiq); // Only count if positive (overdue)
+            $jamiMuddatiUtgan = $biryolaMuddatiUtgan + $bolibMuddatiUtgan;
 
             // Calculate combined totals
             $jamiTushgan = $biryolaFakt + $bolibTushgan;
@@ -1563,8 +1581,8 @@ class YerSotuvController extends Controller
             $statistics[] = [
                 'tuman' => $tuman,
 
-                // JAMI
-                'jami_soni' => $jamiData['soni'],
+                // JAMI (T = Bkn + Bn + Nn)
+                'jami_soni' => $jamiSoni,
                 'jami_tushadigan' => $biryolaData['tushadigan_mablagh'] + $bolibTushadigan,
                 'jami_tushgan' => $jamiTushgan,
                 'jami_qoldiq' => $jamiQoldiq,
