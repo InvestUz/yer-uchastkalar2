@@ -941,25 +941,7 @@
                             <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
                         </div>
 
-                        <!-- 3. Grafik = Expected (no schedule) -->
-                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
-                            style="border-color: rgb(29 78 216);">
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="text-sm font-semibold text-slate-700">Графикда тушадиган</h3>
-                                <div class="w-12 h-12 rounded-lg flex items-center justify-center"
-                                    style="background-color: rgba(29, 78, 216, 0.1);">
-                                    <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд</p>
-                            <p class="text-xs text-slate-500">Бир йўла тўлов (график йўқ)</p>
-                        </div>
+                        
 
                         <!-- 4. Amalda to'langan -->
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"

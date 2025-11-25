@@ -938,7 +938,7 @@
                             <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
                         </div>
 
-                        <!-- 3. Grafik = Expected (no schedule) -->
+                        {{-- <!-- 3. Grafik = Expected (no schedule) -->
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -956,7 +956,7 @@
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                                 {{ number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2) }} млрд</p>
                             <p class="text-xs text-slate-500">Бир йўла тўлов (график йўқ)</p>
-                        </div>
+                        </div> --}}
 
                         <!-- 4. Amalda to'langan -->
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"

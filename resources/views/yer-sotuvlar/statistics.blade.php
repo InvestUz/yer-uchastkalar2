@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Йиғма маълумот')
-
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
     <div class="max-w-[98%] mx-auto">
@@ -256,7 +255,7 @@
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bolib']['auksion_harajati'] / 1000000000, 1) }}</td>
 
                                 <!-- Col 28: Bolib tushadigan -->
-                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1) }}</td>
+                                <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">{{ number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1) }}xxx</td>
 
                                 <!-- Col 29: Bolib tushgan -->
                                 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900">{{ number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1) }}</td>
