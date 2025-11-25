@@ -246,6 +246,16 @@ class YerSotuvController extends Controller
         // Process period filter to convert to date range
         $dateFilters = $this->processPeriodFilter($request);
 
+        // Determine if we're using period-specific filtering
+        $periodInfo = [
+            'period' => $request->period ?? 'all',
+            'year' => $request->year ?? now()->year,
+            'month' => $request->month ?? now()->month,
+            'quarter' => $request->quarter ?? ceil(now()->month / 3)
+        ];
+
+        $isPeriodFiltered = $periodInfo['period'] !== 'all';
+
         // Get all tumanlar
         $tumanlar = [
             'Бектемир тумани',
@@ -262,34 +272,44 @@ class YerSotuvController extends Controller
             'Яшнобод тумани'
         ];
 
-        $categoryData = [
-            'total_lots' => $this->yerSotuvService->getMonitoringCategoryData('total_lots', $dateFilters),
-            'nazoratdagilar' => $this->yerSotuvService->getMonitoringCategoryData('nazoratdagilar', $dateFilters),
-            'grafik_ortda' => $this->yerSotuvService->getMonitoringCategoryData('grafik_ortda', $dateFilters),
-        ];
-
         // Calculate summary for both payment types
         $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
         $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
 
-        // CRITICAL CHANGE: Use PERIOD-SPECIFIC calculations for cards
+        // CRITICAL: Use period-aware methods when period is selected
+        if ($isPeriodFiltered) {
+            // Period-specific calculations
+            $grafikTushadiganMuddatli = $this->yerSotuvService->calculateGrafikTushadiganByPeriod($dateFilters, 'муддатли');
+            $nazoratdagilar = $this->yerSotuvService->getNazoratdagilarByPeriod(null, $dateFilters);
+            $grafikOrtda = $this->yerSotuvService->getGrafikOrtdaByPeriod(null, $dateFilters);
 
-        // Card 5: График б-ча тушадиган маблағ - PERIOD SPECIFIC
-        $grafikTushadiganMuddatli = $this->yerSotuvService->calculateGrafikTushadiganByPeriod($dateFilters, 'муддатли');
+            // NEW: Calculate Card 6 (График бўйича тушган) specifically for period
+            $grafikBoyichaTushgan = $this->calculateGrafikFaktByPeriod($dateFilters);
 
-        // Card 2 & 3: Nazoratdagilar - PERIOD SPECIFIC
-        $nazoratdagilar = $this->yerSotuvService->getNazoratdagilarByPeriod(null, $dateFilters);
+            // NEW: Calculate Card 7 (Муддати ўтган) specifically for period
+            $muddatiUtganQarz = max(0, $grafikTushadiganMuddatli - $grafikBoyichaTushgan);
+        } else {
+            // All-time calculations (original logic)
+            $grafikTushadiganMuddatli = $this->yerSotuvService->calculateGrafikTushadigan(null, $dateFilters, 'муддатли');
+            $nazoratdagilar = $this->yerSotuvService->getNazoratdagilar(null, $dateFilters);
+            $grafikOrtda = $this->yerSotuvService->getGrafikOrtda(null, $dateFilters);
 
-        // Card 6 & 7: Grafik ortda - PERIOD SPECIFIC
-        $grafikOrtda = $this->yerSotuvService->getGrafikOrtdaByPeriod(null, $dateFilters);
+            // Use original values from service
+            $grafikBoyichaTushgan = $grafikOrtda['fakt_summa'];
+            $muddatiUtganQarz = $grafikOrtda['muddati_utgan_qarz'] ?? 0;
+        }
 
-        // Get tuman statistics with PERIOD-SPECIFIC calculations
+        // Get tuman statistics with period-aware calculations
         $tumanStatsMuddatli = [];
         foreach ($tumanlar as $tuman) {
             $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
 
-            // CRITICAL: Use period-aware calculation
-            $stats = $this->calculateTumanMonitoringByPeriod($tumanPatterns, $dateFilters, 'муддатли');
+            // Use period-aware method
+            if ($isPeriodFiltered) {
+                $stats = $this->calculateTumanMonitoringByPeriod($tumanPatterns, $dateFilters, 'муддатли');
+            } else {
+                $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters, 'муддатли');
+            }
 
             if ($stats['lots'] > 0) {
                 $tumanStatsMuddatli[] = [
@@ -303,13 +323,17 @@ class YerSotuvController extends Controller
             }
         }
 
-        // Get tuman statistics for муддатли эмас with PERIOD-SPECIFIC calculations
+        // Get tuman statistics for муддатли эмас with period-aware calculations
         $tumanStatsMuddatliEmas = [];
         foreach ($tumanlar as $tuman) {
             $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
 
-            // CRITICAL: Use period-aware calculation
-            $stats = $this->calculateTumanMonitoringByPeriod($tumanPatterns, $dateFilters, 'муддатли эмас');
+            // Use period-aware method
+            if ($isPeriodFiltered) {
+                $stats = $this->calculateTumanMonitoringByPeriod($tumanPatterns, $dateFilters, 'муддатли эмас');
+            } else {
+                $stats = $this->calculateTumanMonitoring($tumanPatterns, $dateFilters, 'муддатли эмас');
+            }
 
             if ($stats['lots'] > 0) {
                 $tumanStatsMuddatliEmas[] = [
@@ -323,16 +347,10 @@ class YerSotuvController extends Controller
             }
         }
 
+        $availablePeriods = $this->getAvailablePeriods();
+
         // Prepare chart data with period filters
         $chartData = $this->prepareChartData($tumanStatsMuddatli, $tumanStatsMuddatliEmas, $dateFilters);
-
-        // Pass period info to view
-        $periodInfo = [
-            'period' => $request->period ?? 'all',
-            'year' => $request->year ?? now()->year,
-            'month' => $request->month ?? now()->month,
-            'quarter' => $request->quarter ?? ceil(now()->month / 3)
-        ];
 
         return view('yer-sotuvlar.monitoring', compact(
             'summaryMuddatli',
@@ -344,10 +362,119 @@ class YerSotuvController extends Controller
             'periodInfo',
             'grafikTushadiganMuddatli',
             'nazoratdagilar',
-            'grafikOrtda'
+            'grafikBoyichaTushgan',      // NEW - Card 6
+            'muddatiUtganQarz',            // NEW - Card 7
+            'availablePeriods'
         ));
     }
 
+
+
+    /**
+     * Calculate график фактик summa for specific period
+     */
+    private function calculateGrafikFaktByPeriod(array $dateFilters): float
+    {
+        $query = YerSotuv::query();
+        $query->where('tolov_turi', 'муддатли');
+        $this->yerSotuvService->applyDateFilters($query, $dateFilters);
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        if (empty($lotRaqamlari)) {
+            return 0;
+        }
+
+        // Get fakt payments within the period
+        $faktQuery = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari);
+
+        if (!empty($dateFilters['auksion_sana_from'])) {
+            $faktQuery->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);
+        }
+        if (!empty($dateFilters['auksion_sana_to'])) {
+            $faktQuery->whereDate('tolov_sana', '<=', $dateFilters['auksion_sana_to']);
+        }
+
+        return $faktQuery->sum('tolov_summa');
+    }
+
+    /**
+     * Get available years, quarters, and months from grafik_tolovlar
+     */
+    private function getAvailablePeriods(): array
+    {
+        // Get available years
+        $years = DB::table('grafik_tolovlar')
+            ->select('yil')
+            ->distinct()
+            ->orderBy('yil', 'ASC')
+            ->pluck('yil')
+            ->toArray();
+
+        // Get quarters with year-quarter combinations
+        $quarters = DB::table('grafik_tolovlar')
+            ->selectRaw("
+            yil,
+            CASE
+                WHEN oy BETWEEN 1 AND 3 THEN 1
+                WHEN oy BETWEEN 4 AND 6 THEN 2
+                WHEN oy BETWEEN 7 AND 9 THEN 3
+                WHEN oy BETWEEN 10 AND 12 THEN 4
+            END as chorak_raqam,
+            CASE
+                WHEN oy BETWEEN 1 AND 3 THEN '1-чорак (Январь - Март)'
+                WHEN oy BETWEEN 4 AND 6 THEN '2-чорак (Апрель - Июнь)'
+                WHEN oy BETWEEN 7 AND 9 THEN '3-чорак (Июль - Сентябрь)'
+                WHEN oy BETWEEN 10 AND 12 THEN '4-чорак (Октябрь - Декабрь)'
+            END as chorak_nomi,
+            SUM(grafik_summa) as choraklik_summa,
+            MIN(oy) as min_oy
+        ")
+            ->groupBy('yil', 'chorak_raqam', 'chorak_nomi')
+            ->orderBy('yil', 'ASC')
+            ->orderBy('min_oy', 'ASC')  // ✅ Use regular orderBy with the aliased column
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'yil' => $item->yil,
+                    'chorak_raqam' => $item->chorak_raqam,
+                    'chorak_nomi' => $item->chorak_nomi,
+                    'summa' => $item->choraklik_summa,
+                    'display' => $item->yil . ' - ' . $item->chorak_nomi
+                ];
+            })
+            ->toArray();
+
+        // Get months with year-month combinations
+        $months = DB::table('grafik_tolovlar')
+            ->select(
+                'yil',
+                'oy',
+                'oy_nomi',
+                DB::raw('SUM(grafik_summa) as oylik_summa')
+            )
+            ->groupBy('yil', 'oy', 'oy_nomi')
+            ->orderBy('yil', 'ASC')
+            ->orderBy('oy', 'ASC')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'yil' => $item->yil,
+                    'oy' => $item->oy,
+                    'oy_nomi' => $item->oy_nomi,
+                    'summa' => $item->oylik_summa,
+                    'display' => $item->oy_nomi . ' ' . $item->yil
+                ];
+            })
+            ->toArray();
+
+        return [
+            'years' => $years,
+            'quarters' => $quarters,
+            'months' => $months
+        ];
+    }
     private function calculateTumanMonitoringByPeriod(?array $tumanPatterns, array $dateFilters, string $tolovTuri): array
     {
         $query = YerSotuv::query();

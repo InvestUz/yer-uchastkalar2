@@ -73,82 +73,7 @@
                     </button>
                 </div>
 
-                <!-- Detailed Filters -->
-                <form method="GET" action="{{ route('yer-sotuvlar.monitoring') }}" id="filterForm">
-                    <input type="hidden" name="period" id="periodInput" value="{{ $periodInfo['period'] }}">
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="detailFilters"
-                        style="display: {{ $periodInfo['period'] !== 'all' ? 'grid' : 'none' }};">
-
-                        <!-- Year Filter -->
-                        @if ($periodInfo['period'] === 'month' || $periodInfo['period'] === 'quarter' || $periodInfo['period'] === 'year')
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">Йил</label>
-                                <select name="year"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    onchange="this.form.submit()">
-                                    @for ($y = now()->year; $y >= 2024; $y--)
-                                        <option value="{{ $y }}"
-                                            {{ $periodInfo['year'] == $y ? 'selected' : '' }}>
-                                            {{ $y }} йил
-                                        </option>
-                                    @endfor
-                                </select>
-                            </div>
-                        @endif
-
-                        <!-- Month Filter -->
-                        @if ($periodInfo['period'] === 'month')
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">Ой</label>
-                                <select name="month"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    onchange="this.form.submit()">
-                                    @php
-                                        $months = [
-                                            1 => 'Январь',
-                                            2 => 'Февраль',
-                                            3 => 'Март',
-                                            4 => 'Апрель',
-                                            5 => 'Май',
-                                            6 => 'Июнь',
-                                            7 => 'Июль',
-                                            8 => 'Август',
-                                            9 => 'Сентябрь',
-                                            10 => 'Октябрь',
-                                            11 => 'Ноябрь',
-                                            12 => 'Декабрь',
-                                        ];
-                                    @endphp
-                                    @foreach ($months as $monthNum => $monthName)
-                                        <option value="{{ $monthNum }}"
-                                            {{ $periodInfo['month'] == $monthNum ? 'selected' : '' }}>
-                                            {{ $monthName }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        @endif
-
-                        <!-- Quarter Filter -->
-                        @if ($periodInfo['period'] === 'quarter')
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">Чорак</label>
-                                <select name="quarter"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    onchange="this.form.submit()">
-                                    @for ($q = 1; $q <= 4; $q++)
-                                        <option value="{{ $q }}"
-                                            {{ $periodInfo['quarter'] == $q ? 'selected' : '' }}>
-                                            {{ $q }}-чорак
-                                        </option>
-                                    @endfor
-                                </select>
-                            </div>
-                        @endif
-
-                    </div>
-                </form>
             </div>
             <!-- Payment Type Tabs -->
             <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
@@ -169,236 +94,442 @@
 
             <!-- Муддатли Content -->
             <div id="content-muddatli" class="tab-content">
-<!-- Statistics Cards - Муддатли (7 cards with period info at BOTTOM) -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Statistics Cards - Муддатли (7 cards with period info at BOTTOM) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
-    <!-- Card 1: Жами лотлар сони - CLICKABLE -->
-    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
-       class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Card 1: Жами лотлар сони - CLICKABLE -->
+                    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-red-700 mb-1">{{ number_format($summaryMuddatli['total_lots']) }}
+                            та</p>
+                        <p class="text-xs text-slate-500 mb-3">Бўлиб тўлаш</p>
+
+                        <!-- Period info at BOTTOM -->
+                        @if ($periodInfo['period'] !== 'all')
+                            <div class="mt-auto pt-3 border-t border-slate-200">
+                                <p class="text-xs text-blue-600 font-medium flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                    <span>{{ $periodInfo['period'] === 'month'
+                                        ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
+                                        : ($periodInfo['period'] === 'quarter'
+                                            ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
+                                            : ($periodInfo['period'] === 'year'
+                                                ? $periodInfo['year'] . ' йил'
+                                                : '')) }}</span>
+                                </p>
+                            </div>
+                        @endif
+                    </a>
+
+                    <!-- Card 2: Тушадиган маблағ - CLICKABLE -->
+                    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-blue-700 mb-1">
+                            {{ number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500 mb-3">Назоратдагилар тушадиган маблағ</p>
+
+                        @if ($periodInfo['period'] !== 'all')
+                            <div class="mt-auto pt-3 border-t border-slate-200">
+                                <p class="text-xs text-blue-600 font-medium flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                    <span>{{ $periodInfo['period'] === 'month'
+                                        ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
+                                        : ($periodInfo['period'] === 'quarter'
+                                            ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
+                                            : ($periodInfo['period'] === 'year'
+                                                ? $periodInfo['year'] . ' йил'
+                                                : '')) }}</span>
+                                </p>
+                            </div>
+                        @endif
+                    </a>
+
+                    <!-- Card 3: Амалда тушган маблағ - CLICKABLE -->
+                    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Амалда тушган маблағ</h3>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-green-700 mb-1">
+                            {{ number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500 mb-3">Фактик тўланган сумма</p>
+
+                        @if ($periodInfo['period'] !== 'all')
+                            <div class="mt-auto pt-3 border-t border-slate-200">
+                                <p class="text-xs text-blue-600 font-medium flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                    <span>{{ $periodInfo['period'] === 'month'
+                                        ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
+                                        : ($periodInfo['period'] === 'quarter'
+                                            ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
+                                            : ($periodInfo['period'] === 'year'
+                                                ? $periodInfo['year'] . ' йил'
+                                                : '')) }}</span>
+                                </p>
+                            </div>
+                        @endif
+                    </a>
+
+                    <!-- Card 4: Қолдиқ маблағ - CLICKABLE -->
+                    @php
+                        $qoldiqMablagh = $nazoratdagilar['tushadigan_mablagh'] - $nazoratdagilar['tushgan_summa'];
+                        $qoldiqFoizi =
+                            $nazoratdagilar['tushadigan_mablagh'] > 0
+                                ? (($nazoratdagilar['tushadigan_mablagh'] - $nazoratdagilar['tushgan_summa']) /
+                                        $nazoratdagilar['tushadigan_mablagh']) *
+                                    100
+                                : 0;
+                    @endphp
+                    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">Қолдиқ маблағ</h3>
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-red-700 mb-2">
+                            {{ number_format($qoldiqMablagh / 1000000000, 2) }} млрд</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
+                                <div class="bg-red-600 h-2.5 rounded-full transition-all duration-500"
+                                    style="width: {{ 100 - min(100, $qoldiqFoizi) }}%"></div>
+                            </div>
+                            <span
+                                class="text-sm font-bold text-red-600">{{ number_format(100 - $qoldiqFoizi, 1) }}%</span>
+                        </div>
+
+                        @if ($periodInfo['period'] !== 'all')
+                            <div class="mt-auto pt-3 border-t border-slate-200">
+                                <p class="text-xs text-blue-600 font-medium flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                    <span>{{ $periodInfo['period'] === 'month'
+                                        ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
+                                        : ($periodInfo['period'] === 'quarter'
+                                            ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
+                                            : ($periodInfo['period'] === 'year'
+                                                ? $periodInfo['year'] . ' йил'
+                                                : '')) }}</span>
+                                </p>
+                            </div>
+                        @endif
+                    </a>
+
+                    <!-- Card 5: График б-ча тушадиган маблағ - CLICKABLE -->
+                    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-semibold text-slate-700">График б-ча тушадиган маблағ</h3>
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-3xl font-bold text-orange-700 mb-1">
+                            {{ number_format($grafikTushadiganMuddatli / 1000000000, 2) }} млрд</p>
+                        <p class="text-xs text-slate-500 mb-3">График бўйича тушадиган (охирги ой ҳолатига)</p>
+
+                        @if ($periodInfo['period'] !== 'all')
+                            <div class="mt-auto pt-3 border-t border-slate-200">
+                                <p class="text-xs text-blue-600 font-medium flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                    <span>{{ $periodInfo['period'] === 'month'
+                                        ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
+                                        : ($periodInfo['period'] === 'quarter'
+                                            ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
+                                            : ($periodInfo['period'] === 'year'
+                                                ? $periodInfo['year'] . ' йил'
+                                                : '')) }}</span>
+                                </p>
+                            </div>
+                        @endif
+                    </a>
+
+
+<!-- Card 6: График бўйича тушган - CLICKABLE -->
+<a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
+    class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-slate-700">График бўйича тушган</h3>
+        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+            <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+    </div>
+    <p class="text-3xl font-bold text-orange-700 mb-1">
+        {{-- CHANGED: Use new variable --}}
+        {{ number_format($grafikBoyichaTushgan / 1000000000, 2) }} млрд
+    </p>
+    <p class="text-xs text-slate-500 mb-3">Амалда график бўйича</p>
+
+    @if ($periodInfo['period'] !== 'all')
+        <div class="mt-auto pt-3 border-t border-slate-200">
+            <p class="text-xs text-blue-600 font-medium flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                     </path>
                 </svg>
-            </div>
+                <span>{{ $periodInfo['period'] === 'month'
+                    ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
+                    : ($periodInfo['period'] === 'quarter'
+                        ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
+                        : ($periodInfo['period'] === 'year'
+                            ? $periodInfo['year'] . ' йил'
+                            : '')) }}</span>
+            </p>
         </div>
-        <p class="text-3xl font-bold text-red-700 mb-1">{{ number_format($summaryMuddatli['total_lots']) }} та</p>
-        <p class="text-xs text-slate-500 mb-3">Бўлиб тўлаш</p>
+    @endif
+</a>
 
-        <!-- Period info at BOTTOM -->
-        @if($periodInfo['period'] !== 'all')
-            <div class="mt-auto pt-3 border-t border-slate-200">
-                <p class="text-xs text-blue-600 font-medium flex items-center">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>{{ $periodInfo['period'] === 'month' ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y') :
-                           ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] :
-                           ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                </p>
-            </div>
-        @endif
-    </a>
+<!-- Card 7: Муддати ўтган қарздорлик - CLICKABLE -->
+<a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'], $dateFilters)) }}"
+    class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган қарздорлик</h3>
+        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+            <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                </path>
+            </svg>
+        </div>
+    </div>
+    <p class="text-3xl font-bold text-red-700 mb-1">
+        {{-- CHANGED: Use new variable --}}
+        {{ number_format($muddatiUtganQarz / 1000000000, 2) }} млрд
+    </p>
+    <p class="text-xs text-slate-500 mb-3">Графикдан ортда қолган</p>
 
-    <!-- Card 2: Тушадиган маблағ - CLICKABLE -->
-    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
-       class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    @if ($periodInfo['period'] !== 'all')
+        <div class="mt-auto pt-3 border-t border-slate-200">
+            <p class="text-xs text-blue-600 font-medium flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                     </path>
                 </svg>
-            </div>
+                <span>{{ $periodInfo['period'] === 'month'
+                    ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
+                    : ($periodInfo['period'] === 'quarter'
+                        ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
+                        : ($periodInfo['period'] === 'year'
+                            ? $periodInfo['year'] . ' йил'
+                            : '')) }}</span>
+            </p>
         </div>
-        <p class="text-3xl font-bold text-blue-700 mb-1">
-            {{ number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2) }} млрд</p>
-        <p class="text-xs text-slate-500 mb-3">Назоратдагилар тушадиган маблағ</p>
+    @endif
+</a>
+                    {{-- Period Filter Section --}}
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <form method="GET" action="{{ route('yer-sotuvlar.monitoring') }}" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                {{-- Period Type Selector --}}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Давр тури
+                                    </label>
+                                    <select name="period" id="period"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="all" {{ $periodInfo['period'] === 'all' ? 'selected' : '' }}>
+                                            Барчаси (умумий)
+                                        </option>
+                                        <option value="year" {{ $periodInfo['period'] === 'year' ? 'selected' : '' }}>
+                                            Йил бўйича
+                                        </option>
+                                        <option value="quarter"
+                                            {{ $periodInfo['period'] === 'quarter' ? 'selected' : '' }}>
+                                            Чорак бўйича
+                                        </option>
+                                        <option value="month" {{ $periodInfo['period'] === 'month' ? 'selected' : '' }}>
+                                            Ой бўйича
+                                        </option>
+                                    </select>
+                                </div>
 
-        @if($periodInfo['period'] !== 'all')
-            <div class="mt-auto pt-3 border-t border-slate-200">
-                <p class="text-xs text-blue-600 font-medium flex items-center">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>{{ $periodInfo['period'] === 'month' ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y') :
-                           ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] :
-                           ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                </p>
-            </div>
-        @endif
-    </a>
+                                {{-- Year Selector --}}
+                                <div id="year-selector"
+                                    style="display: {{ in_array($periodInfo['period'], ['year', 'quarter', 'month']) ? 'block' : 'none' }}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Йил
+                                    </label>
+                                    <select name="year"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        @foreach ($availablePeriods['years'] as $year)
+                                            <option value="{{ $year }}"
+                                                {{ $periodInfo['year'] == $year ? 'selected' : '' }}>
+                                                {{ $year }} йил
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-    <!-- Card 3: Амалда тушган маблағ - CLICKABLE -->
-    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
-       class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-700">Амалда тушган маблағ</h3>
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                    </path>
-                </svg>
-            </div>
-        </div>
-        <p class="text-3xl font-bold text-green-700 mb-1">
-            {{ number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2) }} млрд</p>
-        <p class="text-xs text-slate-500 mb-3">Фактик тўланган сумма</p>
+                                {{-- Quarter Selector --}}
+                                <div id="quarter-selector"
+                                    style="display: {{ $periodInfo['period'] === 'quarter' ? 'block' : 'none' }}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Чорак
+                                    </label>
+                                    <select name="quarter"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="1" {{ $periodInfo['quarter'] == 1 ? 'selected' : '' }}>
+                                            1-чорак (Январь - Март)
+                                        </option>
+                                        <option value="2" {{ $periodInfo['quarter'] == 2 ? 'selected' : '' }}>
+                                            2-чорак (Апрель - Июнь)
+                                        </option>
+                                        <option value="3" {{ $periodInfo['quarter'] == 3 ? 'selected' : '' }}>
+                                            3-чорак (Июль - Сентябрь)
+                                        </option>
+                                        <option value="4" {{ $periodInfo['quarter'] == 4 ? 'selected' : '' }}>
+                                            4-чорак (Октябрь - Декабрь)
+                                        </option>
+                                    </select>
+                                </div>
 
-        @if($periodInfo['period'] !== 'all')
-            <div class="mt-auto pt-3 border-t border-slate-200">
-                <p class="text-xs text-blue-600 font-medium flex items-center">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>{{ $periodInfo['period'] === 'month' ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y') :
-                           ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] :
-                           ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                </p>
-            </div>
-        @endif
-    </a>
+                                {{-- Month Selector --}}
+                                <div id="month-selector"
+                                    style="display: {{ $periodInfo['period'] === 'month' ? 'block' : 'none' }}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Ой
+                                    </label>
+                                    <select name="month"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        @php
+                                            $oylar = [
+                                                1 => 'Январь',
+                                                2 => 'Февраль',
+                                                3 => 'Март',
+                                                4 => 'Апрель',
+                                                5 => 'Май',
+                                                6 => 'Июнь',
+                                                7 => 'Июль',
+                                                8 => 'Август',
+                                                9 => 'Сентябрь',
+                                                10 => 'Октябрь',
+                                                11 => 'Ноябрь',
+                                                12 => 'Декабрь',
+                                            ];
+                                        @endphp
+                                        @foreach ($oylar as $oyRaqam => $oyNomi)
+                                            <option value="{{ $oyRaqam }}"
+                                                {{ $periodInfo['month'] == $oyRaqam ? 'selected' : '' }}>
+                                                {{ $oyNomi }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
 
-    <!-- Card 4: Қолдиқ маблағ - CLICKABLE -->
-    @php
-        $qoldiqMablagh = $nazoratdagilar['tushadigan_mablagh'] - $nazoratdagilar['tushgan_summa'];
-        $qoldiqFoizi = $nazoratdagilar['tushadigan_mablagh'] > 0
-            ? (($nazoratdagilar['tushadigan_mablagh'] - $nazoratdagilar['tushgan_summa']) / $nazoratdagilar['tushadigan_mablagh']) * 100
-            : 0;
-    @endphp
-    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
-       class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-700">Қолдиқ маблағ</h3>
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-        <p class="text-3xl font-bold text-red-700 mb-2">
-            {{ number_format($qoldiqMablagh / 1000000000, 2) }} млрд</p>
-        <div class="flex items-center mb-3">
-            <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
-                <div class="bg-red-600 h-2.5 rounded-full transition-all duration-500"
-                    style="width: {{ 100 - min(100, $qoldiqFoizi) }}%"></div>
-            </div>
-            <span class="text-sm font-bold text-red-600">{{ number_format(100 - $qoldiqFoizi, 1) }}%</span>
-        </div>
+                            {{-- Action Buttons --}}
+                            <div class="flex justify-end space-x-3">
+                                <a href="{{ route('yer-sotuvlar.monitoring') }}"
+                                    class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                    Тозалаш
+                                </a>
+                                <button type="submit"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    Қидириш
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
-        @if($periodInfo['period'] !== 'all')
-            <div class="mt-auto pt-3 border-t border-slate-200">
-                <p class="text-xs text-blue-600 font-medium flex items-center">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>{{ $periodInfo['period'] === 'month' ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y') :
-                           ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] :
-                           ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                </p>
-            </div>
-        @endif
-    </a>
+                    {{-- JavaScript for Dynamic Form --}}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const periodSelect = document.getElementById('period');
+                            const yearSelector = document.getElementById('year-selector');
+                            const quarterSelector = document.getElementById('quarter-selector');
+                            const monthSelector = document.getElementById('month-selector');
 
-    <!-- Card 5: График б-ча тушадиган маблағ - CLICKABLE -->
-    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
-       class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-700">График б-ча тушадиган маблағ</h3>
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-        <p class="text-3xl font-bold text-orange-700 mb-1">
-            {{ number_format($grafikTushadiganMuddatli / 1000000000, 2) }} млрд</p>
-        <p class="text-xs text-slate-500 mb-3">График бўйича тушадиган (охирги ой ҳолатига)</p>
+                            function updateSelectors() {
+                                const periodValue = periodSelect.value;
 
-        @if($periodInfo['period'] !== 'all')
-            <div class="mt-auto pt-3 border-t border-slate-200">
-                <p class="text-xs text-blue-600 font-medium flex items-center">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>{{ $periodInfo['period'] === 'month' ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y') :
-                           ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] :
-                           ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                </p>
-            </div>
-        @endif
-    </a>
+                                // Hide all first
+                                yearSelector.style.display = 'none';
+                                quarterSelector.style.display = 'none';
+                                monthSelector.style.display = 'none';
 
-    <!-- Card 6: График бўйича тушган - CLICKABLE -->
-    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
-       class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-700">График бўйича тушган</h3>
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-        </div>
-        <p class="text-3xl font-bold text-orange-700 mb-1">
-            {{ number_format($grafikOrtda['fakt_summa'] / 1000000000, 2) }} млрд</p>
-        <p class="text-xs text-slate-500 mb-3">Амалда график бўйича</p>
+                                // Show based on selection
+                                if (periodValue === 'year') {
+                                    yearSelector.style.display = 'block';
+                                } else if (periodValue === 'quarter') {
+                                    yearSelector.style.display = 'block';
+                                    quarterSelector.style.display = 'block';
+                                } else if (periodValue === 'month') {
+                                    yearSelector.style.display = 'block';
+                                    monthSelector.style.display = 'block';
+                                }
+                            }
 
-        @if($periodInfo['period'] !== 'all')
-            <div class="mt-auto pt-3 border-t border-slate-200">
-                <p class="text-xs text-blue-600 font-medium flex items-center">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>{{ $periodInfo['period'] === 'month' ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y') :
-                           ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] :
-                           ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                </p>
-            </div>
-        @endif
-    </a>
-
-    <!-- Card 7: Муддати ўтган қарздорлик - CLICKABLE -->
-    <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'], $dateFilters)) }}"
-       class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-slate-700">Муддати ўтган қарздорлик</h3>
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                    </path>
-                </svg>
-            </div>
-        </div>
-        <p class="text-3xl font-bold text-red-700 mb-1">
-            {{ number_format(($grafikOrtda['muddati_utgan_qarz'] ?? 0) / 1000000000, 2) }} млрд</p>
-        <p class="text-xs text-slate-500 mb-3">Графикдан ортда қолган</p>
-
-        @if($periodInfo['period'] !== 'all')
-            <div class="mt-auto pt-3 border-t border-slate-200">
-                <p class="text-xs text-blue-600 font-medium flex items-center">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>{{ $periodInfo['period'] === 'month' ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y') :
-                           ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] :
-                           ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                </p>
-            </div>
-        @endif
-    </a>
-
-</div>
+                            periodSelect.addEventListener('change', updateSelectors);
+                            updateSelectors(); // Initial call
+                        });
+                    </script>
+                </div>
 
                 <!-- Charts - Муддатли -->
                 <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">

@@ -847,71 +847,7 @@ public function getMonitoringCategoryData(string $category, array $dateFilters =
  * Calculate grafik tushadigan for a specific period
  * Returns scheduled payments for the selected period ONLY
  */
-public function calculateGrafikTushadiganByPeriod(array $dateFilters, string $tolovTuri = 'муддатли'): float
-{
-    $query = YerSotuv::query();
 
-    // CRITICAL: Apply base filters
-    $this->applyBaseFilters($query);
-    $query->where('tolov_turi', $tolovTuri);
-    $this->applyDateFilters($query, $dateFilters);
-
-    $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
-
-    if (empty($lotRaqamlari)) {
-        return 0;
-    }
-
-    // Build grafik query with period filters
-    $grafikQuery = DB::table('grafik_tolovlar')
-        ->whereIn('lot_raqami', $lotRaqamlari);
-
-    // Apply period filters to grafik_tolovlar
-    if (!empty($dateFilters['auksion_sana_from']) && !empty($dateFilters['auksion_sana_to'])) {
-        $dateFrom = \Carbon\Carbon::parse($dateFilters['auksion_sana_from']);
-        $dateTo = \Carbon\Carbon::parse($dateFilters['auksion_sana_to']);
-
-        // Filter by year and month range in grafik_tolovlar
-        $grafikQuery->where(function($q) use ($dateFrom, $dateTo) {
-            $q->where(function($subQ) use ($dateFrom, $dateTo) {
-                // Include months that fall within the date range
-                $subQ->where('yil', '>=', $dateFrom->year)
-                     ->where('yil', '<=', $dateTo->year);
-
-                // If same year, filter by month
-                if ($dateFrom->year === $dateTo->year) {
-                    $subQ->where('oy', '>=', $dateFrom->month)
-                         ->where('oy', '<=', $dateTo->month);
-                } else {
-                    // For different years, handle start and end year separately
-                    $subQ->where(function($yearQ) use ($dateFrom, $dateTo) {
-                        $yearQ->where(function($startYear) use ($dateFrom) {
-                            $startYear->where('yil', $dateFrom->year)
-                                      ->where('oy', '>=', $dateFrom->month);
-                        })->orWhere(function($middleYears) use ($dateFrom, $dateTo) {
-                            $middleYears->where('yil', '>', $dateFrom->year)
-                                        ->where('yil', '<', $dateTo->year);
-                        })->orWhere(function($endYear) use ($dateTo) {
-                            $endYear->where('yil', $dateTo->year)
-                                    ->where('oy', '<=', $dateTo->month);
-                        });
-                    });
-                }
-            });
-        });
-    }
-
-    $grafikSumma = $grafikQuery->sum('grafik_summa');
-
-    \Log::info('Grafik Tushadigan BY PERIOD Calculation', [
-        'tolov_turi' => $tolovTuri,
-        'date_filters' => $dateFilters,
-        'lots_count' => count($lotRaqamlari),
-        'grafik_summa' => $grafikSumma
-    ]);
-
-    return $grafikSumma;
-}
 
 /**
  * Calculate fakt payments for a specific period
@@ -1140,6 +1076,50 @@ public function getGrafikOrtdaByPeriod(?array $tumanPatterns = null, array $date
         'fakt_summa' => $faktSumma, // PERIOD-SPECIFIC
         'muddati_utgan_qarz' => $muddatiUtganQarz // PERIOD-SPECIFIC
     ];
+}
+public function calculateGrafikTushadiganByPeriod(array $dateFilters, string $tolovTuri): float
+{
+    // Get ALL lots of this payment type
+    $query = YerSotuv::query();
+    $this->applyBaseFilters($query);
+    $query->where('tolov_turi', $tolovTuri);
+
+    $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+    if (empty($lotRaqamlari)) {
+        return 0;
+    }
+
+    // Extract period from date filters
+    if (empty($dateFilters['auksion_sana_from']) || empty($dateFilters['auksion_sana_to'])) {
+        return 0; // No period specified
+    }
+
+    $dateFrom = \Carbon\Carbon::parse($dateFilters['auksion_sana_from']);
+    $dateTo = \Carbon\Carbon::parse($dateFilters['auksion_sana_to']);
+
+    // Build SQL query for grafik
+    $grafikQuery = DB::table('grafik_tolovlar')
+        ->whereIn('lot_raqami', $lotRaqamlari)
+        ->where('yil', '>=', $dateFrom->year)
+        ->where('yil', '<=', $dateTo->year);
+
+    // If same year, filter by months
+    if ($dateFrom->year === $dateTo->year) {
+        $grafikQuery->where('oy', '>=', $dateFrom->month)
+                    ->where('oy', '<=', $dateTo->month);
+    }
+
+    $grafikSumma = $grafikQuery->sum('grafik_summa');
+
+    \Log::info('Grafik By Period', [
+        'lots' => count($lotRaqamlari),
+        'from' => $dateFrom->format('Y-m'),
+        'to' => $dateTo->format('Y-m'),
+        'summa' => $grafikSumma
+    ]);
+
+    return $grafikSumma;
 }
     /**
      * Get complete statistics for main page (SVOD1)
