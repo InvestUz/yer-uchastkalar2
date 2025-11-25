@@ -1050,7 +1050,7 @@ class YerSotuvController extends Controller
         ));
     }
 
-    /**
+      /**
      * Display Yigma Malumot (Comprehensive Summary) page
      * This combines both муддатли and муддатли эмас data with additional calculations
      */
@@ -1100,7 +1100,7 @@ class YerSotuvController extends Controller
 
             $grafikTushadigan = 0;
             $grafikTushgan = 0;
-            $muddatiUtganQarz = 0;
+            $bolibMuddatiUtgan = 0;
 
             if (!empty($bolibLots)) {
                 $grafikTushadigan = DB::table('grafik_tolovlar')
@@ -1112,10 +1112,17 @@ class YerSotuvController extends Controller
                     ->whereIn('lot_raqami', $bolibLots)
                     ->sum('tolov_summa');
 
-                $muddatiUtganQarz = max(0, $grafikTushadigan - $grafikTushgan);
+                $bolibMuddatiUtgan = max(0, $grafikTushadigan - $grafikTushgan);
             }
 
             $grafikFoiz = $grafikTushadigan > 0 ? round(($grafikTushgan / $grafikTushadigan) * 100, 1) : 0;
+
+            // CRITICAL: Calculate JAMI муддати ўтган қарздорлик (Column 6)
+            // This is the TOTAL overdue debt across ALL payment types
+            // For муддатли эмас: qoldiq represents overdue only if positive (tushadigan - tushgan)
+            // For муддатли: use график-based calculation (grafik_tushadigan - grafik_tushgan)
+            $biryolaMuddatiUtgan = max(0, $biryolaQoldiq); // Only count if positive (overdue)
+            $jamiMuddatiUtgan = $biryolaMuddatiUtgan + $bolibMuddatiUtgan;
 
             // Get bекор qilinganlar count
             $bekorQilinganlar = YerSotuv::query()
@@ -1144,6 +1151,7 @@ class YerSotuvController extends Controller
                 'jami_tushadigan' => $biryolaData['tushadigan_mablagh'] + $bolibTushadigan,
                 'jami_tushgan' => $jamiTushgan,
                 'jami_qoldiq' => $jamiQoldiq,
+                'jami_muddati_utgan' => $jamiMuddatiUtgan, // NEW: Total overdue (Column 6)
 
                 // BIR YOLA
                 'biryola_soni' => $biryolaData['soni'],
@@ -1158,7 +1166,7 @@ class YerSotuvController extends Controller
                 'bolib_qoldiq' => $bolibTushadigan - $bolibTushgan,
                 'grafik_tushadigan' => $grafikTushadigan,
                 'grafik_tushgan' => $grafikTushgan,
-                'muddati_utgan_qarz' => $muddatiUtganQarz,
+                'muddati_utgan_qarz' => $bolibMuddatiUtgan, // муддатли overdue only (Column 17)
                 'grafik_foiz' => $grafikFoiz,
 
                 // BEKOR QILINGANLAR
@@ -1174,6 +1182,7 @@ class YerSotuvController extends Controller
             'jami_tushadigan' => 0,
             'jami_tushgan' => 0,
             'jami_qoldiq' => 0,
+            'jami_muddati_utgan' => 0, // NEW (Column 6)
 
             'biryola_soni' => 0,
             'biryola_tushadigan' => 0,
@@ -1186,7 +1195,7 @@ class YerSotuvController extends Controller
             'bolib_qoldiq' => 0,
             'grafik_tushadigan' => 0,
             'grafik_tushgan' => 0,
-            'muddati_utgan_qarz' => 0,
+            'muddati_utgan_qarz' => 0, // (Column 17)
 
             'bekor_soni' => 0,
             'tolangan_mablagh' => 0,
@@ -1208,4 +1217,5 @@ class YerSotuvController extends Controller
 
         return view('yer-sotuvlar.yigma', compact('statistics', 'jami', 'dateFilters'));
     }
+
 }

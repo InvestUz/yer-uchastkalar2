@@ -25,18 +25,18 @@
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse statistics-table">
                         <thead>
-                            <!-- Row 1: Main section headers -->
+                            <!-- Row 1: Main section headers - EXACT MATCH with Excel (21 columns: 0-20) -->
                             <tr style="background:#eff6ff !important;">
-                                <!-- Col 0: Т/р -->
+                                <!-- Col 0: Т/р (rowspan=5) -->
                                 <th rowspan="5" class="sticky-col border border-slate-300 px-2 py-3 text-center align-middle font-bold text-slate-800" style="width: 50px;">Т/р</th>
 
-                                <!-- Col 1: Ҳудудлар -->
+                                <!-- Col 1: Ҳудудлар (rowspan=5) -->
                                 <th rowspan="5" class="sticky-col-2 border border-slate-300 px-3 py-3 text-center align-middle font-bold text-slate-800" style="width: 180px;">Ҳудудлар</th>
 
-                                <!-- Col 2-5: Сотилган ер участкалари (colspan=4) -->
-                                <th colspan="4" class="border border-slate-300 px-2 py-2 text-center font-bold text-slate-800 text-sm">Сотилган ер участкалари</th>
+                                <!-- Col 2-6: Сотилган ер участкалари (colspan=5) -->
+                                <th colspan="5" class="border border-slate-300 px-2 py-2 text-center font-bold text-slate-800 text-sm">Сотилган ер участкалари</th>
 
-                                <!-- Col 6-19: шундан (colspan=14, was 15 before removing фоизда) -->
+                                <!-- Col 7-20: шундан (colspan=14) -->
                                 <th colspan="14" class="border border-slate-300 px-2 py-2 text-center font-bold text-slate-800 text-sm">шундан</th>
                             </tr>
 
@@ -50,22 +50,22 @@
                                 <!-- Col 3: Сотилган ер нархи бўйича тушадиган маблағ (rowspan=4) -->
                                 <th rowspan="4" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 100px;">Сотилган ер нархи бўйича тушадиган маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 4-5: шундан (colspan=2, rowspan=1) -->
-                                <th colspan="2" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
+                                <!-- Col 4-6: шундан (colspan=3) -->
+                                <th colspan="3" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
 
-                                <!-- Col 6-9: Бир йўла тўлаш шарти билан сотилган (colspan=4, rowspan=2) -->
+                                <!-- Col 7-10: Бир йўла тўлаш шарти билан сотилган (colspan=4, rowspan=2) -->
                                 <th colspan="4" rowspan="2" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">Бир йўла тўлаш шарти билан сотилган</th>
 
-                                <!-- Col 10-16: Нархини бўлиб тўлаш шарти билан сотилган (colspan=7, was 8 before removing фоизда, rowspan=2) -->
+                                <!-- Col 11-17: Нархини бўлиб тўлаш шарти билан сотилган (colspan=7, rowspan=2) -->
                                 <th colspan="7" rowspan="2" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">Нархини бўлиб тўлаш шарти билан сотилган</th>
 
-                                <!-- Col 17: Бекор қилинганлар сони (rowspan=4) -->
+                                <!-- Col 18: Бекор қилинганлар сони (rowspan=4) -->
                                 <th rowspan="4" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 70px;">Бекор қилинганлар сони</th>
 
-                                <!-- Col 18: Тўланған маблағ (rowspan=4) -->
+                                <!-- Col 19: Тўланған маблағ (rowspan=4) -->
                                 <th rowspan="4" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 90px;">Тўланған маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 19: Қайтарилган маблағ (rowspan=4) -->
+                                <!-- Col 20: Қайтарилган маблағ (rowspan=4) -->
                                 <th rowspan="4" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 90px;">Қайтарилган  маблағ<br>(млрд сўм)</th>
                             </tr>
 
@@ -79,79 +79,80 @@
                                 <!-- Col 5: қолдиқ маблағ (rowspan=3) -->
                                 <th rowspan="3" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 100px;">қолдиқ маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 6-9: COVERED by rowspan (Бир йўла) -->
+                                <!-- Col 6: Муддати ўтган қарздорлик (rowspan=3) -->
+                                <th rowspan="3" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 100px;">Муддати ўтган қарздорлик<br>(млрд сўм)</th>
 
-                                <!-- Col 10-16: COVERED by rowspan (Нархини бўлиб) -->
+                                <!-- Col 7-10: COVERED by rowspan (Бир йўла) -->
 
-                                <!-- Col 17-19: COVERED by rowspan -->
+                                <!-- Col 11-17: COVERED by rowspan (Нархини бўлиб) -->
+
+                                <!-- Col 18-20: COVERED by rowspan -->
                             </tr>
 
                             <!-- Row 4: Bottom level details -->
                             <tr style="background:#eff6ff !important;">
-                                <!-- Col 0-5: COVERED by rowspan -->
+                                <!-- Col 0-6: COVERED by rowspan -->
 
-                                <!-- Col 6: Бир йўла - Сони (rowspan=2) -->
+                                <!-- Col 7: Бир йўла - Сони (rowspan=2) -->
                                 <th rowspan="2" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 70px;">Сони</th>
 
-                                <!-- Col 7: Бир йўла - Сотилган ер нархи... (rowspan=2) -->
+                                <!-- Col 8: Бир йўла - Сотилган ер нархи... (rowspan=2) -->
                                 <th rowspan="2" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 100px;">Сотилган ер нархи бўйича тушадиган маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 8-9: Бир йўла - шундан (colspan=2) -->
+                                <!-- Col 9-10: Бир йўла - шундан (colspan=2) -->
                                 <th colspan="2" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
 
-                                <!-- Col 10: Нархини бўлиб - Сони (rowspan=2) -->
+                                <!-- Col 11: Нархини бўлиб - Сони (rowspan=2) -->
                                 <th rowspan="2" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 70px;">Сони</th>
 
-                                <!-- Col 11: Нархини бўлиб - Сотилган ер нархи... (rowspan=2) -->
+                                <!-- Col 12: Нархини бўлиб - Сотилган ер нархи... (rowspan=2) -->
                                 <th rowspan="2" class="border border-slate-300 px-2 py-2 text-center align-middle font-semibold text-slate-700 text-xs" style="width: 100px;">Сотилган ер нархи бўйича тушадиган маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 12-13: Нархини бўлиб - шундан (colspan=2, was 3 before removing фоизда) -->
+                                <!-- Col 13-14: Нархини бўлиб - шундан (colspan=2) -->
                                 <th colspan="2" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">шундан</th>
 
-                                <!-- Col 14-16: {{ now()->format('d.m.Y') }} йил ҳолатига (colspan=3) -->
+                                <!-- Col 15-17: 17.11.2025 йил ҳолатига (colspan=3) -->
                                 <th colspan="3" class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs">{{ now()->format('d.m.Y') }} йил ҳолатига</th>
 
-                                <!-- Col 17-19: COVERED by rowspan -->
+                                <!-- Col 18-20: COVERED by rowspan -->
                             </tr>
 
                             <!-- Row 5: Final details -->
                             <tr style="background:#eff6ff !important;">
-                                <!-- Col 0-7: COVERED by rowspan -->
+                                <!-- Col 0-8: COVERED by rowspan -->
 
-                                <!-- Col 8: Бир йўла - тушган маблағ -->
+                                <!-- Col 9: Бир йўла - тушган маблағ -->
                                 <th class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="width: 90px;">тушган маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 9: Бир йўла - қолдиқ маблағ -->
+                                <!-- Col 10: Бир йўла - қолдиқ маблағ -->
                                 <th class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="width: 90px;">қолдиқ маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 10-11: COVERED by rowspan -->
+                                <!-- Col 11-12: COVERED by rowspan -->
 
-                                <!-- Col 12: Нархини бўлиб - тушган маблағ -->
+                                <!-- Col 13: Нархини бўлиб - тушган маблағ -->
                                 <th class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="width: 90px;">тушган маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 13: Нархини бўлиб - қолдиқ маблағ -->
+                                <!-- Col 14: Нархини бўлиб - қолдиқ маблағ -->
                                 <th class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="width: 90px;">қолдиқ маблағ<br>(млрд сўм)</th>
 
-                                <!-- NOTE: Col 14 (фоизда) is EXCLUDED as requested -->
-
-                                <!-- Col 14 (was 15): График б-ча тушадиган маблағ -->
+                                <!-- Col 15: График б-ча тушадиган маблағ -->
                                 <th class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="width: 100px;">График б-ча тушадиган маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 15 (was 16): Амалда график б-ча тушган маблағ -->
+                                <!-- Col 16: Амалда график б-ча тушган маблағ -->
                                 <th class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="width: 100px;">Амалда график б-ча тушган маблағ<br>(млрд сўм)</th>
 
-                                <!-- Col 16 (was 17): Муддати ўтган қарздорлик -->
+                                <!-- Col 17: Муддати ўтган қарздорлик -->
                                 <th class="border border-slate-300 px-2 py-2 text-center font-semibold text-slate-700 text-xs" style="width: 110px;">Муддати ўтган қарздорлик<br>(млрд сўм)</th>
 
-                                <!-- Col 17-19: COVERED by rowspan -->
+                                <!-- Col 18-20: COVERED by rowspan -->
                             </tr>
                         </thead>
 
                         <tbody class="bg-white">
-                            <!-- JAMI row -->
+                            <!-- JAMI row (21 columns: 0-20) -->
                             <tr class="bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100 border-y-2 border-amber-400">
                                 <!-- Col 0-1: ЖАМИ label (merged) -->
-                                <td colspan="2" class="sticky-col sticky-col-2 border border-slate-300 px-4 py-4 text-center align-middle font-bold text-slate-900 text-base uppercase bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100">
+                                <td colspan="2" class="sticky-col sticky-col-2 border border-slate-300 px-4 py-4 text-center align-middle font-bold text-slate-900 text-base uppercase bg-gradient-to-r from-amber-100 via-yellow-100 ">
                                     ЖАМИ:
                                 </td>
 
@@ -167,59 +168,60 @@
                                 <!-- Col 5: қолдиқ маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['jami_qoldiq'] / 1000000000, 2) }}</td>
 
-                                <!-- BIR YOLA SECTION (4 columns: 6-9) -->
-                                <!-- Col 6: Бир йўла - Сони -->
+                                <!-- Col 6: Муддати ўтган қарздорлик (NEW COLUMN) -->
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['jami_muddati_utgan'] / 1000000000, 2) }}</td>
+
+                                <!-- BIR YOLA SECTION (4 columns: 7-10) -->
+                                <!-- Col 7: Бир йўла - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
                                     <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас']) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['biryola_soni'] }}</a>
                                 </td>
 
-                                <!-- Col 7: Бир йўла - Сотилган ер нархи... -->
+                                <!-- Col 8: Бир йўла - Сотилган ер нархи... -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['biryola_tushadigan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 8: Бир йўла - тушган маблағ -->
+                                <!-- Col 9: Бир йўла - тушган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['biryola_tushgan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 9: Бир йўла - қолдиқ маблағ -->
+                                <!-- Col 10: Бир йўла - қолдиқ маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['biryola_qoldiq'] / 1000000000, 2) }}</td>
 
-                                <!-- BOLIB SECTION (7 columns: 10-16, was 10 columns before removing фоизда) -->
-                                <!-- Col 10: Нархини бўлиб - Сони -->
+                                <!-- BOLIB SECTION (7 columns: 11-17) -->
+                                <!-- Col 11: Нархини бўлиб - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
                                     <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли']) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['bolib_soni'] }}</a>
                                 </td>
 
-                                <!-- Col 11: Нархини бўлиб - Сотилган ер нархи... -->
+                                <!-- Col 12: Нархини бўлиб - Сотилган ер нархи... -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['bolib_tushadigan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 12: Нархини бўлиб - тушган маблағ -->
+                                <!-- Col 13: Нархини бўлиб - тушган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['bolib_tushgan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 13: Нархини бўлиб - қолдиқ маблағ -->
+                                <!-- Col 14: Нархини бўлиб - қолдиқ маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['bolib_qoldiq'] / 1000000000, 2) }}</td>
 
-                                <!-- NOTE: фоизда column EXCLUDED -->
-
-                                <!-- Col 14 (was 15): График б-ча тушадиган маблағ -->
+                                <!-- Col 15: График б-ча тушадиган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['grafik_tushadigan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 15 (was 16): Амалда график б-ча тушган маблағ -->
+                                <!-- Col 16: Амалда график б-ча тушган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['grafik_tushgan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 16 (was 17): Муддати ўтган қарздорлик -->
+                                <!-- Col 17: Муддати ўтган қарздорлик -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['muddati_utgan_qarz'] / 1000000000, 2) }}</td>
 
-                                <!-- BEKOR SECTION (3 columns: 17-19) -->
-                                <!-- Col 17: Бекор қилинганлар сони -->
+                                <!-- BEKOR SECTION (3 columns: 18-20) -->
+                                <!-- Col 18: Бекор қилинганлар сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ $jami['bekor_soni'] }}</td>
 
-                                <!-- Col 18: Тўланған маблағ -->
+                                <!-- Col 19: Тўланған маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['tolangan_mablagh'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 19: Қайтарилган маблағ -->
+                                <!-- Col 20: Қайтарилган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['qaytarilgan_mablagh'] / 1000000000, 2) }}</td>
                             </tr>
 
-                            <!-- Tuman Rows -->
+                            <!-- Tuman Rows (21 columns: 0-20) -->
                             @foreach($statistics as $index => $stat)
                             <tr class="hover:bg-blue-50 transition-colors duration-150 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">
                                 <!-- Col 0: Т/р -->
@@ -228,7 +230,7 @@
                                 <!-- Col 1: Ҳудудлар -->
                                 <td class="sticky-col-2 border border-slate-300 px-3 py-2 align-middle font-semibold text-slate-800 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">{{ $stat['tuman'] }}</td>
 
-                                <!-- SOTILGAN YER SECTION (4 columns: 2-5) -->
+                                <!-- SOTILGAN YER SECTION (5 columns: 2-6) -->
                                 <!-- Col 2: Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ $stat['jami_soni'] }}</td>
 
@@ -241,8 +243,11 @@
                                 <!-- Col 5: қолдиқ маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['jami_qoldiq'] / 1000000000, 2) }}</td>
 
-                                <!-- BIR YOLA SECTION (4 columns: 6-9) -->
-                                <!-- Col 6: Бир йўла - Сони -->
+                                <!-- Col 6: Муддати ўтган қарздорлик (NEW COLUMN - placeholder) -->
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 {{ $stat['jami_muddati_utgan'] > 0 ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">{{ number_format($stat['jami_muddati_utgan'] / 1000000000, 2) }}</td>
+
+                                <!-- BIR YOLA SECTION (4 columns: 7-10) -->
+                                <!-- Col 7: Бир йўла - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                     @if($stat['biryola_soni'] > 0)
                                         <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли эмас']) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['biryola_soni'] }}</a>
@@ -251,17 +256,17 @@
                                     @endif
                                 </td>
 
-                                <!-- Col 7: Бир йўла - Сотилган ер нархи... -->
+                                <!-- Col 8: Бир йўла - Сотилган ер нархи... -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['biryola_tushadigan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 8: Бир йўла - тушган маблағ -->
+                                <!-- Col 9: Бир йўла - тушган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['biryola_tushgan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 9: Бир йўла - қолдиқ маблағ -->
+                                <!-- Col 10: Бир йўла - қолдиқ маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['biryola_qoldiq'] / 1000000000, 2) }}</td>
 
-                                <!-- BOLIB SECTION (7 columns: 10-16) -->
-                                <!-- Col 10: Нархини бўлиб - Сони -->
+                                <!-- BOLIB SECTION (7 columns: 11-17) -->
+                                <!-- Col 11: Нархини бўлиб - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                     @if($stat['bolib_soni'] > 0)
                                         <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли']) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['bolib_soni'] }}</a>
@@ -270,36 +275,34 @@
                                     @endif
                                 </td>
 
-                                <!-- Col 11: Нархини бўлиб - Сотилган ер нархи... -->
+                                <!-- Col 12: Нархини бўлиб - Сотилган ер нархи... -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['bolib_tushadigan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 12: Нархини бўлиб - тушган маблағ -->
+                                <!-- Col 13: Нархини бўлиб - тушган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['bolib_tushgan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 13: Нархини бўлиб - қолдиқ маблағ -->
+                                <!-- Col 14: Нархини бўлиб - қолдиқ маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['bolib_qoldiq'] / 1000000000, 2) }}</td>
 
-                                <!-- NOTE: фоизда column EXCLUDED (was col 14) -->
-
-                                <!-- Col 14 (was 15): График б-ча тушадиган маблағ -->
+                                <!-- Col 15: График б-ча тушадиган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['grafik_tushadigan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 15 (was 16): Амалда график б-ча тушган маблағ -->
+                                <!-- Col 16: Амалда график б-ча тушган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['grafik_tushgan'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 16 (was 17): Муддати ўтган қарздорлик -->
+                                <!-- Col 17: Муддати ўтган қарздорлик -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 {{ $stat['muddati_utgan_qarz'] > 0 ? 'bg-red-50 text-red-700 font-semibold' : '' }}">
                                     {{ number_format($stat['muddati_utgan_qarz'] / 1000000000, 2) }}
                                 </td>
 
-                                <!-- BEKOR SECTION (3 columns: 17-19) -->
-                                <!-- Col 17: Бекор қилинганлар сони -->
+                                <!-- BEKOR SECTION (3 columns: 18-20) -->
+                                <!-- Col 18: Бекор қилинганлар сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ $stat['bekor_soni'] }}</td>
 
-                                <!-- Col 18: Тўланған маблағ -->
+                                <!-- Col 19: Тўланған маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['tolangan_mablagh'] / 1000000000, 2) }}</td>
 
-                                <!-- Col 19: Қайтарилган маблағ -->
+                                <!-- Col 20: Қайтарилган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['qaytarilgan_mablagh'] / 1000000000, 2) }}</td>
                             </tr>
                             @endforeach
@@ -344,36 +347,46 @@
 </div>
 
 <style>
+    /* Sticky columns for horizontal scroll */
     .sticky-col {
         position: sticky;
         left: 0;
         z-index: 20;
         background-color: inherit;
     }
+
     .sticky-col-2 {
         position: sticky;
         left: 50px;
         z-index: 20;
         background-color: inherit;
     }
+
+    /* Smooth scrollbar */
     .overflow-x-auto::-webkit-scrollbar {
         height: 12px;
     }
+
     .overflow-x-auto::-webkit-scrollbar-track {
         background: #f1f5f9;
         border-radius: 6px;
     }
+
     .overflow-x-auto::-webkit-scrollbar-thumb {
         background: linear-gradient(to right, #64748b, #475569);
         border-radius: 6px;
     }
+
     .overflow-x-auto::-webkit-scrollbar-thumb:hover {
         background: linear-gradient(to right, #475569, #334155);
     }
+
+    /* Print styles */
     @media print {
         .sticky-col, .sticky-col-2 {
             position: static;
         }
+
         body {
             background: white;
         }
