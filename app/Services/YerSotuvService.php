@@ -264,6 +264,40 @@ class YerSotuvService
     }
 
     /**
+     * Calculate total payments from fakt_tolovlar for bekor qilinganlar (canceled lots)
+     */
+    public function calculateBekorQilinganlarPayments(?array $tumanPatterns = null, array $dateFilters = []): float
+    {
+        $query = YerSotuv::query();
+
+        $this->applyTumanFilter($query, $tumanPatterns);
+        $query->where('holat', 'Бекор қилинган');
+        $this->applyDateFilters($query, $dateFilters);
+
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
+
+        if (empty($lotRaqamlari)) {
+            return 0;
+        }
+
+        // Get total payments from fakt_tolovlar for these canceled lots
+        $faktSum = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $lotRaqamlari)
+            ->sum('tolov_summa');
+
+        Log::info('BEKOR QILINGANLAR Payments Calculation', [
+            'tuman_patterns' => $tumanPatterns,
+            'date_filters' => $dateFilters,
+            'lots_count' => count($lotRaqamlari),
+            'lot_raqamlari' => $lotRaqamlari,
+            'source' => 'fakt_tolovlar table',
+            'result' => $faktSum
+        ]);
+
+        return $faktSum;
+    }
+
+    /**
      * Get mulk qabul qilmagan data (for both муддатли and муддатли эмас)
      */
     public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFilters = []): array

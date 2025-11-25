@@ -93,16 +93,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Total Card 1: Жами лотлар сони -->
                     <a href="<?php echo e(route('yer-sotuvlar.list', $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
-                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-purple-700 mb-1"><?php echo e(number_format($summaryTotal['total_lots'])); ?> та</p>
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);"><?php echo e(number_format($summaryTotal['total_lots'])); ?> та</p>
                         <p class="text-xs text-slate-500 mb-3">Барча тўлов турлари</p>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200">
@@ -118,16 +118,16 @@
 
                     <!-- Total Card 2: Тушадиган маблағ -->
                     <a href="<?php echo e(route('yer-sotuvlar.list', $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-indigo-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
-                            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-indigo-700 mb-1"><?php echo e(number_format($summaryTotal['expected_amount'] / 1000000000, 2)); ?> млрд</p>
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);"><?php echo e(number_format($summaryTotal['expected_amount'] / 1000000000, 2)); ?> млрд</p>
                         <p class="text-xs text-slate-500 mb-3">Кутилаятган маблағ</p>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200">
@@ -143,16 +143,16 @@
 
                     <!-- Total Card 3: Амалда тушган маблағ -->
                     <a href="<?php echo e(route('yer-sotuvlar.list', $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-teal-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Амалда тушган маблағ</h3>
-                            <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-teal-700 mb-1"><?php echo e(number_format($summaryTotal['received_amount'] / 1000000000, 2)); ?> млрд</p>
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);"><?php echo e(number_format($summaryTotal['received_amount'] / 1000000000, 2)); ?> млрд</p>
                         <p class="text-xs text-slate-500 mb-3">Фактик тўланган сумма</p>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200">
@@ -172,21 +172,21 @@
                         $totalQoldiqFoizi = $summaryTotal['expected_amount'] > 0 ? ($totalQoldiq / $summaryTotal['expected_amount']) * 100 : 0;
                     ?>
                     <a href="<?php echo e(route('yer-sotuvlar.list', $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-amber-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Қолдиқ маблағ</h3>
-                            <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(185, 28, 28, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-amber-700 mb-2"><?php echo e(number_format($totalQoldiq / 1000000000, 2)); ?> млрд</p>
+                        <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);"><?php echo e(number_format($totalQoldiq / 1000000000, 2)); ?> млрд</p>
                         <div class="flex items-center mb-3">
                             <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
-                                <div class="bg-amber-600 h-2.5 rounded-full transition-all duration-500" style="width: <?php echo e(min(100, $totalQoldiqFoizi)); ?>%"></div>
+                                <div class="h-2.5 rounded-full transition-all duration-500" style="width: <?php echo e(min(100, $totalQoldiqFoizi)); ?>%; background-color: rgb(185 28 28);"></div>
                             </div>
-                            <span class="text-sm font-bold text-amber-600"><?php echo e(number_format($totalQoldiqFoizi, 1)); ?>%</span>
+                            <span class="text-sm font-bold" style="color: rgb(185 28 28);"><?php echo e(number_format($totalQoldiqFoizi, 1)); ?>%</span>
                         </div>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200">
@@ -204,12 +204,7 @@
 
             <!-- ROW 2: МУДДАТЛИ (Installment Payments) -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
-                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
-                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    МУДДАТЛИ ТЎЛОВ (Бўлиб тўлаш)
-                </h2>
+
             <!-- Payment Type Tabs -->
             <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
                 <div class="flex border-b border-gray-200">
@@ -219,11 +214,7 @@
                         style="background: linear-gradient(to right, rgb(37, 99, 235), rgb(29, 78, 216)); color: white;">
                         Муддатли тўлов (Бўлиб тўлаш)
                     </button>
-                    <button onclick="switchTab('muddatli-emas')"
-                        class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
-                        id="tab-muddatli-emas" style="background: white; color: rgb(71, 85, 105);">
-                        Муддатсиз тўлов (Бир йўла тўлаш)
-                    </button>
+
                 </div>
             </div>
 
@@ -234,18 +225,18 @@
 
                     <!-- Card 1: Жами лотлар сони - CLICKABLE -->
                     <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Жами лотлар сони</h3>
-                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(185, 28, 28, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                                     </path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-red-700 mb-1"><?php echo e(number_format($summaryMuddatli['total_lots'])); ?>
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);"><?php echo e(number_format($summaryMuddatli['total_lots'])); ?>
 
                             та</p>
                         <p class="text-xs text-slate-500 mb-3">Бўлиб тўлаш</p>
@@ -273,18 +264,18 @@
 
                     <!-- Card 2: Тушадиган маблағ - CLICKABLE -->
                     <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters))); ?>"
-                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1" style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-semibold text-slate-700">Тушадиган маблағ</h3>
-                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: rgba(29, 78, 216, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                                     </path>
                                 </svg>
                             </div>
                         </div>
-                        <p class="text-3xl font-bold text-blue-700 mb-1">
+                        <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             <?php echo e(number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2)); ?> млрд</p>
                         <p class="text-xs text-slate-500 mb-3">Назоратдагилар тушадиган маблағ</p>
 
@@ -809,147 +800,27 @@
                     </script>
                 </div>
 
-                <!-- Charts - Муддатли -->
-                <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
-                    <!-- Payment Status Distribution -->
-                    <div class="xl:col-span-4 bg-white rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                            </svg>
-                            Тўлов ҳолати бўйича тақсимот
-                        </h3>
-                        <div class="h-72">
-                            <canvas id="paymentStatusChart"></canvas>
-                        </div>
-                    </div>
 
-                    <!-- Monthly Payment Comparison -->
-                    <div class="xl:col-span-8 bg-white rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                            </svg>
-                            Тўловлар динамикаси (ойлар кесимида)
-                        </h3>
-                        <div class="h-72">
-                            <canvas id="monthlyComparisonChart"></canvas>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Tuman Analysis - Муддатли -->
-                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        Тўловлар динамикаси (туманлар кесимида)
-                    </h3>
-                    <div class="h-[32rem]">
-                        <canvas id="tumanComparisonChart"></canvas>
-                    </div>
-                </div>
+            </div>
 
-                <!-- Detailed Statistics Table - Муддатли -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-6">Туманлар бўйича батафсил статистика</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="bg-blue-50 border-b-2 border-blue-200">
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">Ҳудуд номи
-                                    </th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Лотлар
-                                        сони</th>
-                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">График б-ча
-                                        тўлов</th>
-                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Амалдаги
-                                        тўлов</th>
-                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Фарқи</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Фоизда
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                <?php $__currentLoopData = $tumanStatsMuddatli; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <tr class="hover:bg-blue-50 transition-colors">
-                                        <td class="px-4 py-3 text-sm font-semibold text-slate-800"><?php echo e($stat['tuman']); ?>
+                <!-- Payment Type Tabs -->
+            <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
+                <div class="flex border-b border-gray-200">
 
-                                        </td>
-                                        <td class="px-4 py-3 text-center">
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                                                <?php echo e(number_format($stat['lots'])); ?>
+                 <button onclick="switchTab('muddatli-emas')"
+                        class="flex-1 px-6 py-4 text-center font-bold transition-all duration-300 tab-button"
+                        id="tab-muddatli-emas" style="background: white; color: rgb(71, 85, 105);">
+                        Муддатсиз тўлов (Бир йўла тўлаш)
+                    </button>
 
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3 text-right text-sm font-semibold text-blue-600">
-                                            <?php echo e(number_format($stat['grafik'] / 1000000000, 2)); ?></td>
-                                        <td class="px-4 py-3 text-right text-sm font-semibold text-green-600">
-                                            <?php echo e(number_format($stat['fakt'] / 1000000000, 2)); ?></td>
-                                        <td
-                                            class="px-4 py-3 text-right text-sm font-semibold <?php echo e($stat['difference'] > 0 ? 'text-red-600' : 'text-green-600'); ?>">
-                                            <?php echo e(number_format($stat['difference'] / 1000000000, 2)); ?>
-
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <div class="w-24 bg-slate-200 rounded-full h-2">
-                                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
-                                                        style="width: <?php echo e(min($stat['percentage'], 100)); ?>%"></div>
-                                                </div>
-                                                <span
-                                                    class="text-sm font-bold text-blue-600"><?php echo e(number_format($stat['percentage'], 1)); ?>%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </tbody>
-                            <tfoot
-                                class="bg-gradient-to-r from-yellow-50 to-yellow-100 border-t-2 border-yellow-300 font-bold">
-                                <tr>
-                                    <td class="px-4 py-3 text-sm text-slate-800">ЖАМИ</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-200 text-red-900">
-                                            <?php echo e(number_format(collect($tumanStatsMuddatli)->sum('lots'))); ?>
-
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-right text-sm text-blue-700">
-                                        <?php echo e(number_format(collect($tumanStatsMuddatli)->sum('grafik') / 1000000000, 2)); ?>
-
-                                    </td>
-                                    <td class="px-4 py-3 text-right text-sm text-green-700">
-                                        <?php echo e(number_format(collect($tumanStatsMuddatli)->sum('fakt') / 1000000000, 2)); ?></td>
-                                    <td
-                                        class="px-4 py-3 text-right text-sm <?php echo e(collect($tumanStatsMuddatli)->sum('difference') > 0 ? 'text-red-600' : 'text-green-600'); ?>">
-                                        <?php echo e(number_format(collect($tumanStatsMuddatli)->sum('difference') / 1000000000, 2)); ?>
-
-                                    </td>
-                                    <td class="px-4 py-3 text-center text-sm text-blue-700">
-                                        <?php
-                                            $totalGrafik = collect($tumanStatsMuddatli)->sum('grafik');
-                                            $totalFakt = collect($tumanStatsMuddatli)->sum('fakt');
-                                            $percentage = $totalGrafik > 0 ? ($totalFakt / $totalGrafik) * 100 : 0;
-                                        ?>
-                                        <?php echo e(number_format($percentage, 1)); ?>%
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
                 </div>
             </div>
 
+
+
             <!-- Муддатли эмас Content -->
-            <div id="content-muddatli-emas" class="tab-content" style="display: none;">
+            <div id="content-muddatli-emas" class="tab-content">
                 <!-- Statistics Cards - Муддатли эмас (5 cards) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                     <!-- 1. Soni -->
@@ -1059,134 +930,6 @@
                     </div>
                 </div>
 
-                <!-- Charts - Муддатли эмас -->
-                <div class="grid grid-cols-1 gap-6 mb-8">
-                    <!-- Monthly Payment Trend -->
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                            </svg>
-                            Тўловлар динамикаси (ойлар кесимида)
-                        </h3>
-                        <div class="h-72">
-                            <canvas id="monthlyMuddatliEmasChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Tuman Comparison -->
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Тўловлар динамикаси (туманлар кесимида)
-                        </h3>
-                        <div class="h-[32rem]">
-                            <canvas id="tumanMuddatliEmasChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detailed Statistics Table - Муддатли эмас -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-6">Туманлар бўйича батафсил статистика</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="bg-green-50 border-b-2 border-green-200">
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">Ҳудуд номи
-                                    </th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Лотлар
-                                        сони</th>
-                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Тушадиган
-                                        маблағ</th>
-                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Тушган
-                                        маблағ</th>
-                                    <th class="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">Фарқи</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-slate-700 uppercase">Фоизда
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                <?php $__currentLoopData = $tumanStatsMuddatliEmas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <tr class="hover:bg-green-50 transition-colors">
-                                        <td class="px-4 py-3 text-sm font-semibold text-slate-800"><?php echo e($stat['tuman']); ?>
-
-                                        </td>
-                                        <td class="px-4 py-3 text-center">
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                                                <?php echo e(number_format($stat['lots'])); ?>
-
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3 text-right text-sm font-semibold text-blue-600">
-                                            <?php echo e(number_format($stat['expected'] / 1000000000, 2)); ?></td>
-                                        <td class="px-4 py-3 text-right text-sm font-semibold text-green-600">
-                                            <?php echo e(number_format($stat['received'] / 1000000000, 2)); ?></td>
-                                        <td
-                                            class="px-4 py-3 text-right text-sm font-semibold <?php echo e($stat['difference'] > 0 ? 'text-red-600' : 'text-green-600'); ?>">
-                                            <?php echo e(number_format($stat['difference'] / 1000000000, 2)); ?>
-
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <div class="w-24 bg-slate-200 rounded-full h-2">
-                                                    <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
-                                                        style="width: <?php echo e(min($stat['percentage'], 100)); ?>%"></div>
-                                                </div>
-                                                <span
-                                                    class="text-sm font-bold text-green-600"><?php echo e(number_format($stat['percentage'], 1)); ?>%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </tbody>
-                            <tfoot
-                                class="bg-gradient-to-r from-yellow-50 to-yellow-100 border-t-2 border-yellow-300 font-bold">
-                                <tr>
-                                    <td class="px-4 py-3 text-sm text-slate-800">ЖАМИ</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-200 text-red-900">
-                                            <?php echo e(number_format(collect($tumanStatsMuddatliEmas)->sum('lots'))); ?>
-
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-right text-sm text-blue-700">
-                                        <?php echo e(number_format(collect($tumanStatsMuddatliEmas)->sum('expected') / 1000000000, 2)); ?>
-
-                                    </td>
-                                    <td class="px-4 py-3 text-right text-sm text-green-700">
-                                        <?php echo e(number_format(collect($tumanStatsMuddatliEmas)->sum('received') / 1000000000, 2)); ?>
-
-                                    </td>
-                                    <td
-                                        class="px-4 py-3 text-right text-sm <?php echo e(collect($tumanStatsMuddatliEmas)->sum('difference') > 0 ? 'text-red-600' : 'text-green-600'); ?>">
-                                        <?php echo e(number_format(collect($tumanStatsMuddatliEmas)->sum('difference') / 1000000000, 2)); ?>
-
-                                    </td>
-                                    <td class="px-4 py-3 text-center text-sm text-green-700">
-                                        <?php
-                                            $totalExpectedFinal = collect($tumanStatsMuddatliEmas)->sum('expected');
-                                            $totalReceivedFinal = collect($tumanStatsMuddatliEmas)->sum('received');
-                                            $percentageFinal =
-                                                $totalExpectedFinal > 0
-                                                    ? ($totalReceivedFinal / $totalExpectedFinal) * 100
-                                                    : 0;
-                                        ?>
-                                        <?php echo e(number_format($percentageFinal, 1)); ?>%
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
             </div>
 
         </div>

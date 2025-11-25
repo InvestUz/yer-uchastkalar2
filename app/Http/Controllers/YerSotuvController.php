@@ -1558,6 +1558,9 @@ class YerSotuvController extends Controller
                 ->where('holat', 'Бекор қилинган')
                 ->count();
 
+            // Calculate tolangan mablagh from fakt_tolovlar for bekor qilinganlar
+            $bekorQilinganlarPayments = $this->yerSotuvService->calculateBekorQilinganlarPayments($tumanPatterns, $dateFilters);
+
             // CRITICAL: Calculate JAMI soni correctly
             // T (Total) = Bkn (Bekor) + Bn (Muddatli emas) + Nn (Muddatli)
             $jamiSoni = $bekorQilinganlar + $biryolaData['soni'] + $bolibData['soni'];
@@ -1573,10 +1576,9 @@ class YerSotuvController extends Controller
             $jamiTushgan = $biryolaFakt + $bolibTushgan;
             $jamiQoldiq = $biryolaData['tushadigan_mablagh'] + $bolibTushadigan - $jamiTushgan;
 
-            // Calculate return amounts (this would need additional data if tracked)
-            // For now, using 0 as placeholder
-            $tolanganMablagh = $jamiTushgan;
-            $qaytarilganMablagh = 0; // This would come from a separate tracking if available
+            // Calculate return amounts (qaytarilgan is the bekor payments)
+            $tolanganMablagh = $bekorQilinganlarPayments; // Payments from BEKOR lots
+            $qaytarilganMablagh = $bekorQilinganlarPayments; // Same as tolangan for bekor lots
 
             $statistics[] = [
                 'tuman' => $tuman,
