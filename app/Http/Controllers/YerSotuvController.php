@@ -262,6 +262,12 @@ class YerSotuvController extends Controller
             'Яшнобод тумани'
         ];
 
+        $categoryData = [
+            'total_lots' => $this->yerSotuvService->getMonitoringCategoryData('total_lots', $dateFilters),
+            'nazoratdagilar' => $this->yerSotuvService->getMonitoringCategoryData('nazoratdagilar', $dateFilters),
+            'grafik_ortda' => $this->yerSotuvService->getMonitoringCategoryData('grafik_ortda', $dateFilters),
+        ];
+
         // Calculate summary for both payment types
         $summaryMuddatli = $this->calculateMonitoringSummary($dateFilters, 'муддатли');
         $summaryMuddatliEmas = $this->calculateMonitoringSummary($dateFilters, 'муддатли эмас');
@@ -331,7 +337,9 @@ class YerSotuvController extends Controller
             'periodInfo',
             'grafikTushadiganMuddatli',  // FIXED: Now properly calculated
             'nazoratdagilar',
-            'grafikOrtda'
+            'grafikOrtda',
+            'categoryData' // NEW
+
         ));
     }
 
@@ -588,6 +596,8 @@ class YerSotuvController extends Controller
             ];
         }
     }
+
+
 
     /**
      * Show filtered data with pagination
@@ -1050,7 +1060,7 @@ class YerSotuvController extends Controller
         ));
     }
 
-      /**
+    /**
      * Display Yigma Malumot (Comprehensive Summary) page
      * This combines both муддатли and муддатли эмас data with additional calculations
      */
@@ -1217,5 +1227,4 @@ class YerSotuvController extends Controller
 
         return view('yer-sotuvlar.yigma', compact('statistics', 'jami', 'dateFilters'));
     }
-
 }

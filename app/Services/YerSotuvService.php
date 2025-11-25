@@ -782,6 +782,66 @@ class YerSotuvService
             $jami['grafik_ortda'][$field] += $stat['grafik_ortda'][$field];
         }
     }
+/**
+ * Get monitoring statistics for a specific category with period filters
+ */
+public function getMonitoringCategoryData(string $category, array $dateFilters = []): array
+{
+    $query = YerSotuv::query();
+
+    // CRITICAL: Apply base filters
+    $this->applyBaseFilters($query);
+    $this->applyDateFilters($query, $dateFilters);
+
+    switch ($category) {
+        case 'total_lots':
+            $query->where('tolov_turi', 'муддатли');
+            break;
+
+        case 'nazoratdagilar':
+            $query->where('tolov_turi', 'муддатли');
+            $query->whereRaw('(
+                (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
+                - (
+                    COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
+                    + COALESCE(auksion_harajati, 0)
+                )
+            ) > 0');
+            break;
+
+        case 'grafik_ortda':
+            $bugun = $this->getGrafikCutoffDate();
+            $query->where('tolov_turi', 'муддатли');
+            $query->whereRaw('lot_raqami IN (
+                SELECT ys.lot_raqami
+                FROM yer_sotuvlar ys
+                LEFT JOIN (
+                    SELECT lot_raqami, SUM(grafik_summa) as jami_grafik
+                    FROM grafik_tolovlar
+                    WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
+                    GROUP BY lot_raqami
+                ) g ON g.lot_raqami = ys.lot_raqami
+                LEFT JOIN (
+                    SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
+                    FROM fakt_tolovlar
+                    GROUP BY lot_raqami
+                ) f ON f.lot_raqami = ys.lot_raqami
+                WHERE ys.tolov_turi = "муддатли"
+                AND (
+                    (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
+                    - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
+                ) > 0
+                AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
+                AND COALESCE(g.jami_grafik, 0) > 0
+            )', [$bugun]);
+            break;
+    }
+
+    return [
+        'count' => $query->count(),
+        'lot_raqamlari' => $query->pluck('lot_raqami')->toArray()
+    ];
+}
 
     /**
      * Get complete statistics for main page (SVOD1)
