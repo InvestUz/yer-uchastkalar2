@@ -429,18 +429,18 @@
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
                                         {{ number_format($statistics['jami']['auksonda']['sotilgan_narx'] / 1000000000, 1) }}
                                     </td>
-<!-- JAMI - Col 36: Mulk qabul soni (ALL lots) -->
-<td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-    <a href="{{ route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida']) }}"
-       class="text-blue-700 hover:text-blue-900 hover:underline">
-        {{ $statistics['jami']['mulk_qabul']['total_records'] ?? 0 }}
-    </a>
-</td>
+                                    <!-- JAMI - Col 36: Mulk qabul soni (ALL lots) -->
+                                    <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
+                                        <a href="{{ route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida']) }}"
+                                            class="text-blue-700 hover:text-blue-900 hover:underline">
+                                            {{ $statistics['jami']['mulk_qabul']['total_records'] ?? 0 }}
+                                        </a>
+                                    </td>
 
-<!-- JAMI - Col 37: Mulk qabul mablagh (only муддатли эмас amounts) -->
-<td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-    {{ number_format(($statistics['jami']['mulk_qabul']['total_auksion_mablagh'] ?? 0) / 1000000000, 1) }}
-</td>
+                                    <!-- JAMI - Col 37: Mulk qabul mablagh (only муддатли эмас amounts) -->
+                                    <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
+                                        {{ number_format(($statistics['jami']['mulk_qabul']['total_auksion_mablagh'] ?? 0) / 1000000000, 1) }}
+                                    </td>
                                 </tr>
 
                                 <!-- TUMANLAR ROWS -->
@@ -626,20 +626,20 @@
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                             {{ number_format($tuman['auksonda']['sotilgan_narx'] / 1000000000, 1) }}</td>
 
-                                  <!-- Col 36: Mulk qabul soni -->
-<td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-    @if (($tuman['mulk_qabul']['total_records'] ?? 0) > 0)
-        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida']) }}"
-            class="text-blue-600 hover:text-blue-800 hover:underline font-medium">{{ $tuman['mulk_qabul']['total_records'] }}</a>
-    @else
-        0
-    @endif
-</td>
+                                        <!-- Col 36: Mulk qabul soni -->
+                                        <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
+                                            @if (($tuman['mulk_qabul']['total_records'] ?? 0) > 0)
+                                                <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida']) }}"
+                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium">{{ $tuman['mulk_qabul']['total_records'] }}</a>
+                                            @else
+                                                0
+                                            @endif
+                                        </td>
 
-                                   <!-- Col 37: Mulk qabul mablagh -->
-<td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-    {{ number_format(($tuman['mulk_qabul']['total_auksion_mablagh']  ?? 0) / 1000000000, 1) }}
-</td>
+                                        <!-- Col 37: Mulk qabul mablagh -->
+                                        <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
+                                            {{ number_format(($tuman['mulk_qabul']['total_auksion_mablagh'] ?? 0) / 1000000000, 1) }}
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
