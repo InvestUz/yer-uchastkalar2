@@ -1755,16 +1755,41 @@ public function monitoring(Request $request)
             $bolibMuddatiUtgan = 0;
 
             if (!empty($bolibLots)) {
-                $grafikTushadigan = DB::table('grafik_tolovlar')
-                    ->whereIn('lot_raqami', $bolibLots)
-                    ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
-                    ->sum('grafik_summa');
+                // ✅ Calculate LOT-BY-LOT overdue debt (same as monitoring)
+                $bolibMuddatiUtgan = 0;
+                $grafikTushadigan = 0;
+                $grafikTushgan = 0;
 
-                $grafikTushgan = DB::table('fakt_tolovlar')
-                    ->whereIn('lot_raqami', $bolibLots)
-                    ->sum('tolov_summa');
+                foreach ($bolibLots as $lotRaqami) {
+                    // Get grafik for this lot
+                    $lotGrafikTushadigan = DB::table('grafik_tolovlar')
+                        ->where('lot_raqami', $lotRaqami)
+                        ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
+                        ->sum('grafik_summa');
 
-                $bolibMuddatiUtgan = max(0, $grafikTushadigan - $grafikTushgan);
+                    // Get fakt for this lot (EXCLUDING auction org payments)
+                    $lotGrafikTushgan = DB::table('fakt_tolovlar')
+                        ->where('lot_raqami', $lotRaqami)
+                        ->where(function($q) {
+                            $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+                              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+                              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+                              ->orWhereNull('tolash_nom');
+                        })
+                        ->sum('tolov_summa');
+
+                    // Calculate debt for this lot
+                    $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
+
+                    // ✅ Only add to total if debt is positive (> 0)
+                    if ($lotDebt > 0) {
+                        $bolibMuddatiUtgan += $lotDebt;
+                    }
+
+                    // Add to totals for display
+                    $grafikTushadigan += $lotGrafikTushadigan;
+                    $grafikTushgan += $lotGrafikTushgan;
+                }
             }
 
             $grafikFoiz = $grafikTushadigan > 0 ? round(($grafikTushgan / $grafikTushadigan) * 100, 1) : 0;
