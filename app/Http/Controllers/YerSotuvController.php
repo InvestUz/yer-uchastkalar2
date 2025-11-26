@@ -1272,32 +1272,53 @@ public function monitoring(Request $request)
             )
         ) > 0');
         } elseif (!empty($filters['grafik_ortda']) && $filters['grafik_ortda'] === 'true') {
+            // ✅ Filter lots with ACTUAL overdue debt (LOT-BY-LOT calculation, EXCLUDING auction org payments)
             $bugun = $this->yerSotuvService->getGrafikCutoffDate();
-
             $query->where('tolov_turi', 'муддатли');
-            $query->whereRaw('lot_raqami IN (
-            SELECT ys.lot_raqami
-            FROM yer_sotuvlar ys
-            LEFT JOIN (
-                SELECT lot_raqami,
-                       SUM(grafik_summa) as jami_grafik
-                FROM grafik_tolovlar
-                WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
-                GROUP BY lot_raqami
-            ) g ON g.lot_raqami = ys.lot_raqami
-            LEFT JOIN (
-                SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
-                FROM fakt_tolovlar
-                GROUP BY lot_raqami
-            ) f ON f.lot_raqami = ys.lot_raqami
-            WHERE ys.tolov_turi = "муддатли"
-            AND (
-                (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
-                - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
-            ) > 0
-            AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
-            AND COALESCE(g.jami_grafik, 0) > 0
-        )', [$bugun]);
+
+            // Get ALL муддатли lots first
+            $allMuddatliLots = (clone $query)->pluck('lot_raqami')->toArray();
+
+            if (!empty($allMuddatliLots)) {
+                $lotsWithDebt = [];
+
+                // LOT-BY-LOT: Calculate debt for each lot
+                foreach ($allMuddatliLots as $lotRaqami) {
+                    // Get grafik for this lot
+                    $lotGrafikTushadigan = DB::table('grafik_tolovlar')
+                        ->where('lot_raqami', $lotRaqami)
+                        ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
+                        ->sum('grafik_summa');
+
+                    // Get fakt for this lot (EXCLUDING auction org payments)
+                    $lotGrafikTushgan = DB::table('fakt_tolovlar')
+                        ->where('lot_raqami', $lotRaqami)
+                        ->where(function($q) {
+                            $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+                              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+                              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+                              ->orWhereNull('tolash_nom');
+                        })
+                        ->sum('tolov_summa');
+
+                    // Calculate debt for this lot
+                    $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
+
+                    // ✅ Only include lots with positive debt
+                    if ($lotDebt > 0) {
+                        $lotsWithDebt[] = $lotRaqami;
+                    }
+                }
+
+                if (!empty($lotsWithDebt)) {
+                    $query->whereIn('lot_raqami', $lotsWithDebt);
+                } else {
+                    // No lots with debt - return empty result
+                    $query->whereRaw('1 = 0');
+                }
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         } elseif (!empty($filters['qoldiq_qarz']) && $filters['qoldiq_qarz'] === 'true') {
             // ✅ FILTER: Auksonda turgan mablagh - shartnoma imzolanmagan lotlar
 

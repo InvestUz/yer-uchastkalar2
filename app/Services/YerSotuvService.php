@@ -730,34 +730,8 @@ public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateF
         $query->where('tolov_turi', 'муддатли');
         $this->applyDateFilters($query, $dateFilters);
 
-        // Find lots where: outstanding balance AND grafik > fakt
-        $query->whereRaw('lot_raqami IN (
-        SELECT ys.lot_raqami
-        FROM yer_sotuvlar ys
-        LEFT JOIN (
-            SELECT lot_raqami,
-                   SUM(grafik_summa) as jami_grafik
-            FROM grafik_tolovlar
-            WHERE CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?
-            GROUP BY lot_raqami
-        ) g ON g.lot_raqami = ys.lot_raqami
-        LEFT JOIN (
-            SELECT lot_raqami, SUM(tolov_summa) as jami_fakt
-            FROM fakt_tolovlar
-            GROUP BY lot_raqami
-        ) f ON f.lot_raqami = ys.lot_raqami
-        WHERE ys.tolov_turi = "муддатли"
-        AND ys.holat != "Бекор қилинган"
-        AND (
-            (COALESCE(ys.golib_tolagan, 0) + COALESCE(ys.shartnoma_summasi, 0))
-            - (COALESCE(f.jami_fakt, 0) + COALESCE(ys.auksion_harajati, 0))
-        ) > 0
-        AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
-        AND COALESCE(g.jami_grafik, 0) > 0
-    )', [$bugun]);
-
-        // Get lot numbers BEFORE aggregation
-        $lotRaqamlari = (clone $query)->pluck('lot_raqami')->toArray();
+        // Get ALL муддатли lots (no complex subquery)
+        $lotRaqamlari = $query->pluck('lot_raqami')->toArray();
 
         if (empty($lotRaqamlari)) {
             return [
