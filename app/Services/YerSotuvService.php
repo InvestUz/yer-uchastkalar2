@@ -270,6 +270,7 @@ class YerSotuvService
     {
         $query = YerSotuv::query();
 
+
         $this->applyTumanFilter($query, $tumanPatterns);
         $query->where('holat', 'Бекор қилинган');
         $this->applyDateFilters($query, $dateFilters);

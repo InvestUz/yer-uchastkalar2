@@ -319,7 +319,7 @@ class YerSotuvController extends Controller
      * Display monitoring and analytics page
      * UPDATED VERSION with period filter support and correct grafik calculations
      */
-    public function monitoring(Request $request)
+ public function monitoring(Request $request)
     {
         // Process period filter to convert to date range
         $dateFilters = $this->processPeriodFilter($request);
@@ -391,19 +391,10 @@ class YerSotuvController extends Controller
 
             $grafikFoiz = $grafikTushadigan > 0 ? round(($grafikTushgan / $grafikTushadigan) * 100, 1) : 0;
 
-            // Get bекор qилинганлар count FIRST (with date filtering)
-            $bekorQuery = YerSotuv::query();
-            $this->yerSotuvService->applyTumanFilter($bekorQuery, $tumanPatterns);
-            $bekorQuery->where('holat', 'Бекор қилинган');
-            $this->yerSotuvService->applyDateFilters($bekorQuery, $dateFilters);
-            $bekorQilinganlar = $bekorQuery->count();
-
-            // Calculate tolangan mablagh from fakt_tolovlar for bekor qilinganlar
-            $bekorQilinganlarPayments = $this->yerSotuvService->calculateBekorQilinganlarPayments($tumanPatterns, $dateFilters);
-
             // CRITICAL: Calculate JAMI soni correctly
-            // T (Total) = Bkn (Bekor) + Bn (Muddatli emas) + Nn (Muddatli)
-            $jamiSoni = $bekorQilinganlar + $biryolaData['soni'] + $bolibData['soni'];
+            // T (Total) = Bn (Muddatli emas) + Nn (Muddatli)
+            // Note: Бекор қилинган lots are EXCLUDED via applyBaseFilters
+            $jamiSoni = $biryolaData['soni'] + $bolibData['soni'];
 
             // CRITICAL: Calculate JAMI муддати ўтган қарздорлик (Column 6)
             // This is the TOTAL overdue debt across ALL payment types
@@ -416,14 +407,10 @@ class YerSotuvController extends Controller
             $jamiTushgan = $biryolaFakt + $bolibTushgan;
             $jamiQoldiq = $biryolaData['tushadigan_mablagh'] + $bolibTushadigan - $jamiTushgan;
 
-            // Calculate return amounts (qaytarilgan is the bekor payments)
-            $tolanganMablagh = $bekorQilinganlarPayments; // Payments from BEKOR lots
-            $qaytarilganMablagh = $bekorQilinganlarPayments; // Same as tolangan for bekor lots
-
             $monitoringStatistics[] = [
                 'tuman' => $tuman,
 
-                // JAMI (T = Bkn + Bn + Nn)
+                // JAMI (T = Bn + Nn) - EXCLUDES bekor qilinganlar
                 'jami_soni' => $jamiSoni,
                 'jami_tushadigan' => $biryolaData['tushadigan_mablagh'] + $bolibTushadigan,
                 'jami_tushgan' => $jamiTushgan,
@@ -445,11 +432,6 @@ class YerSotuvController extends Controller
                 'grafik_tushgan' => $grafikTushgan,
                 'muddati_utgan_qarz' => $bolibMuddatiUtgan, // муддатли overdue only (Column 17)
                 'grafik_foiz' => $grafikFoiz,
-
-                // BEKOR QILINGANLAR
-                'bekor_soni' => $bekorQilinganlar,
-                'tolangan_mablagh' => $tolanganMablagh,
-                'qaytarilgan_mablagh' => $qaytarilganMablagh,
             ];
         }
 
@@ -473,10 +455,6 @@ class YerSotuvController extends Controller
             'grafik_tushadigan' => 0,
             'grafik_tushgan' => 0,
             'muddati_utgan_qarz' => 0, // (Column 17)
-
-            'bekor_soni' => 0,
-            'tolangan_mablagh' => 0,
-            'qaytarilgan_mablagh' => 0,
         ];
 
         foreach ($monitoringStatistics as $stat) {
@@ -1762,6 +1740,8 @@ class YerSotuvController extends Controller
             $bekorQuery->where('holat', 'Бекор қилинган');
             $this->yerSotuvService->applyDateFilters($bekorQuery, $dateFilters);
             $bekorQilinganlar = $bekorQuery->count();
+
+
 
             // Calculate tolangan mablagh from fakt_tolovlar for bekor qilinganlar
             $bekorQilinganlarPayments = $this->yerSotuvService->calculateBekorQilinganlarPayments($tumanPatterns, $dateFilters);

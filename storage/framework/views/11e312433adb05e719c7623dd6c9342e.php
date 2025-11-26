@@ -810,7 +810,6 @@
                 </div>
             </div>
         </div>
-
         <style>
             .tab-button {
                 position: relative;
