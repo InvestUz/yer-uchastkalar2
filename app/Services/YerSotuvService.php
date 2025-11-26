@@ -654,7 +654,7 @@ public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateF
     /**
      * SVOD3: Get nazoratdagilar statistics
      */
-    public function getNazoratdagilar(?array $tumanPatterns = null, array $dateFilters = []): array
+   public function getNazoratdagilar(?array $tumanPatterns = null, array $dateFilters = []): array
     {
         $query = YerSotuv::query();
 
