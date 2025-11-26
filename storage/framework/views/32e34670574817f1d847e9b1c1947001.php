@@ -203,7 +203,7 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['grafik_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 16: Амалда график б-ча тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['grafik_tushgan'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['grafik_tushgan'] / 1000000000, 2)); ?> xxx</td>
 
                                 <!-- Col 17: Муддати ўтган қарздорлик -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['muddati_utgan_qarz'] / 1000000000, 2)); ?></td>
