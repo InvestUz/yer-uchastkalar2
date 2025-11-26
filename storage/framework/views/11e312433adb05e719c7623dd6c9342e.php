@@ -909,7 +909,6 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
                                 <?php echo e(number_format($summaryMuddatliEmas['total_lots'])); ?> та</p>
-                            <p class="text-xs text-slate-500">Бир йўла тўлаш</p>
                         </div>
 
                         <!-- 2. Tushadigan mablag' -->
@@ -929,7 +928,6 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                                 <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд</p>
-                            <p class="text-xs text-slate-500">Жами шартнома суммаси</p>
                         </div>
 
                         
@@ -971,7 +969,7 @@
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">Муддати ўтган қарздорлик</h3>
+                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">Аукционда турган маблағ </h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(185, 28, 28, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
@@ -983,7 +981,7 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
                                 <?php echo e(number_format($muddatiOtganMuddatliEmas / 1000000000, 2)); ?> млрд</p>
-                            <p class="text-xs text-slate-500">Тўланмаған маблағ</p>
+                            <p class="text-1xl text-slate-500">мулкни қабул қилиш тасдиқланмаганлар</p>
                         </div>
                     </div>
 
