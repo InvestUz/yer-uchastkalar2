@@ -493,36 +493,37 @@ public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFi
      * Calculate bolib_tushgan: ONLY actual payments from fakt_tolovlar for bo'lib to'lash
      * CRITICAL: Must use fakt_tolovlar table ONLY
      */
-    public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateFilters = []): float
-    {
-        $bolibLots = $this->getBolibLotlar($tumanPatterns, $dateFilters);
+public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateFilters = []): float
+{
+    $bolibLots = $this->getBolibLotlar($tumanPatterns, $dateFilters);
 
-        if (empty($bolibLots)) {
-            Log::info('BOLIB TUSHGAN Calculation', [
-                'tuman_patterns' => $tumanPatterns,
-                'date_filters' => $dateFilters,
-                'lots_count' => 0,
-                'result' => 0
-            ]);
-            return 0;
-        }
-
-        // Get ONLY from fakt_tolovlar
-        $faktSum = DB::table('fakt_tolovlar')
-            ->whereIn('lot_raqami', $bolibLots)
-            ->sum('tolov_summa');
-
+    if (empty($bolibLots)) {
         Log::info('BOLIB TUSHGAN Calculation', [
             'tuman_patterns' => $tumanPatterns,
             'date_filters' => $dateFilters,
-            'lots_count' => count($bolibLots),
-            'lot_raqamlari' => $bolibLots,
-            'source' => 'fakt_tolovlar table ONLY',
-            'result' => $faktSum
+            'lots_count' => 0,
+            'result' => 0
         ]);
-
-        return $faktSum;
+        return 0;
     }
+
+    // Get ONLY from fakt_tolovlar, EXCLUDING auction org payments
+    $faktQuery = DB::table('fakt_tolovlar')
+        ->whereIn('lot_raqami', $bolibLots);
+
+    // EXCLUDE auction organization payments
+    $faktQuery->where(function($q) {
+        $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+          ->where('tolash_nom', 'NOT LIKE', '%ГУП "ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI"%');
+    });
+
+    $faktSum = $faktQuery->sum('tolov_summa');
+
+    return $faktSum;
+}
+
 
     /**
      * Calculate bolib_tushadigan: expected amount for bo'lib to'lash
@@ -913,6 +914,14 @@ public function calculateFaktByPeriod(?array $tumanPatterns, array $dateFilters,
     $faktQuery = DB::table('fakt_tolovlar')
         ->whereIn('lot_raqami', $lotRaqamlari);
 
+    // EXCLUDE auction organization payments
+    $faktQuery->where(function($q) {
+        $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+          ->where('tolash_nom', 'NOT LIKE', '%ГУП "ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI"%');
+    });
+
     // Apply date filters to tolov_sana
     if (!empty($dateFilters['auksion_sana_from'])) {
         $faktQuery->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);
@@ -923,7 +932,7 @@ public function calculateFaktByPeriod(?array $tumanPatterns, array $dateFilters,
 
     $faktSumma = $faktQuery->sum('tolov_summa');
 
-    \Log::info('Fakt BY PERIOD Calculation', [
+    \Log::info('Fakt BY PERIOD Calculation (Net of Auction Fees)', [
         'tuman_patterns' => $tumanPatterns,
         'tolov_turi' => $tolovTuri,
         'date_filters' => $dateFilters,
@@ -933,6 +942,7 @@ public function calculateFaktByPeriod(?array $tumanPatterns, array $dateFilters,
 
     return $faktSumma;
 }
+
 
 /**
  * Get nazoratdagilar with PERIOD-SPECIFIC calculations
@@ -1000,11 +1010,19 @@ public function getNazoratdagilarByPeriod(?array $tumanPatterns = null, array $d
         $tushadiganMablagh = $grafikQuery->sum('grafik_summa');
     }
 
-    // Calculate tushgan for SELECTED PERIOD from fakt_tolovlar
+    // Calculate tushgan for SELECTED PERIOD from fakt_tolovlar (EXCLUDING auction org)
     $tushganSumma = 0;
     if (!empty($lotRaqamlari)) {
         $faktQuery = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari);
+
+        // EXCLUDE auction organization payments
+        $faktQuery->where(function($q) {
+            $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+              ->where('tolash_nom', 'NOT LIKE', '%ГУП "ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI"%');
+        });
 
         // Apply date filters
         if (!empty($dateFilters['auksion_sana_from'])) {
@@ -1022,8 +1040,8 @@ public function getNazoratdagilarByPeriod(?array $tumanPatterns = null, array $d
         'maydoni' => $data->maydoni ?? 0,
         'boshlangich_narx' => $data->boshlangich_narx ?? 0,
         'sotilgan_narx' => $data->sotilgan_narx ?? 0,
-        'tushadigan_mablagh' => $tushadiganMablagh, // PERIOD-SPECIFIC
-        'tushgan_summa' => $tushganSumma // PERIOD-SPECIFIC
+        'tushadigan_mablagh' => $tushadiganMablagh,
+        'tushgan_summa' => $tushganSumma // NET of auction fees
     ];
 }
 
@@ -1094,9 +1112,17 @@ public function getGrafikOrtdaByPeriod(?array $tumanPatterns = null, array $date
 
     $grafikSumma = $grafikQuery->sum('grafik_summa');
 
-    // Calculate fakt for SELECTED PERIOD
+    // Calculate fakt for SELECTED PERIOD (EXCLUDING auction org)
     $faktQuery = DB::table('fakt_tolovlar')
         ->whereIn('lot_raqami', $lotRaqamlari);
+
+    // EXCLUDE auction organization payments
+    $faktQuery->where(function($q) {
+        $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+          ->where('tolash_nom', 'NOT LIKE', '%ГУП "ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI"%');
+    });
 
     if (!empty($dateFilters['auksion_sana_from'])) {
         $faktQuery->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);
@@ -1112,9 +1138,9 @@ public function getGrafikOrtdaByPeriod(?array $tumanPatterns = null, array $date
     return [
         'soni' => $data->soni ?? 0,
         'maydoni' => $data->maydoni ?? 0,
-        'grafik_summa' => $grafikSumma, // PERIOD-SPECIFIC
-        'fakt_summa' => $faktSumma, // PERIOD-SPECIFIC
-        'muddati_utgan_qarz' => $muddatiUtganQarz // PERIOD-SPECIFIC
+        'grafik_summa' => $grafikSumma,
+        'fakt_summa' => $faktSumma, // NET of auction fees
+        'muddati_utgan_qarz' => $muddatiUtganQarz
     ];
 }
 public function calculateGrafikTushadiganByPeriod(array $dateFilters, string $tolovTuri): float
@@ -1152,15 +1178,67 @@ public function calculateGrafikTushadiganByPeriod(array $dateFilters, string $to
 
     $grafikSumma = $grafikQuery->sum('grafik_summa');
 
-    \Log::info('Grafik By Period', [
+    // NOW SUBTRACT auction organization payments
+    $auksionOrgPayments = $this->getAuksionOrganizationPayments($lotRaqamlari, $dateFilters);
+
+    $netGrafikSumma = $grafikSumma - $auksionOrgPayments;
+
+    \Log::info('Grafik By Period (Net of Auction Fees)', [
         'lots' => count($lotRaqamlari),
         'from' => $dateFrom->format('Y-m'),
         'to' => $dateTo->format('Y-m'),
-        'summa' => $grafikSumma
+        'gross_grafik' => $grafikSumma,
+        'auction_org_payments' => $auksionOrgPayments,
+        'net_grafik_summa' => $netGrafikSumma
     ]);
 
-    return $grafikSumma;
+    return max(0, $netGrafikSumma); // Don't return negative
 }
+
+/**
+ * Get total payments made to auction organizations
+ * These should be excluded from "tushadigan" calculations
+ */
+private function getAuksionOrganizationPayments(array $lotRaqamlari, array $dateFilters = []): float
+{
+    if (empty($lotRaqamlari)) {
+        return 0;
+    }
+
+    $auksionOrganizations = [
+        'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ',
+        'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ',
+        'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI'
+    ];
+
+    $query = DB::table('fakt_tolovlar')
+        ->whereIn('lot_raqami', $lotRaqamlari)
+        ->where(function($q) use ($auksionOrganizations) {
+            foreach ($auksionOrganizations as $org) {
+                $q->orWhere('tolash_nom', 'LIKE', '%' . $org . '%');
+            }
+        });
+
+    // Apply date filters if provided
+    if (!empty($dateFilters['auksion_sana_from'])) {
+        $query->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);
+    }
+    if (!empty($dateFilters['auksion_sana_to'])) {
+        $query->whereDate('tolov_sana', '<=', $dateFilters['auksion_sana_to']);
+    }
+
+    $totalAuksionPayments = $query->sum('tolov_summa');
+
+    \Log::info('Auction Organization Payments Excluded', [
+        'lots_count' => count($lotRaqamlari),
+        'date_filters' => $dateFilters,
+        'organizations' => $auksionOrganizations,
+        'total_excluded' => $totalAuksionPayments
+    ]);
+
+    return $totalAuksionPayments;
+}
+
     /**
      * Get complete statistics for main page (SVOD1)
      */
