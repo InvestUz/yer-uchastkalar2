@@ -1175,6 +1175,15 @@ public function monitoring(Request $request)
     {
         $query = YerSotuv::query();
 
+        // ✅ CRITICAL: Apply base filters (excludes "Бекор қилинган" lots)
+        $this->yerSotuvService->applyBaseFilters($query);
+
+        // ✅ EXCLUDE "Аукционда турган" lots from list page
+        $query->where(function($q) {
+            $q->where('tolov_turi', 'муддатли')
+              ->orWhere('tolov_turi', 'муддатли эмас');
+        });
+
         // Lot raqamlari filter (from grafik period filtering)
         if (!empty($filters['lot_raqamlari']) && is_array($filters['lot_raqamlari'])) {
             $query->whereIn('lot_raqami', $filters['lot_raqamlari']);

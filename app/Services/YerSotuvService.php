@@ -16,8 +16,11 @@ class YerSotuvService
      */
     public function applyBaseFilters($query)
     {
-        return $query->where('holat', '!=', 'Бекор қилинган')
-            ->whereNotNull('holat');
+        // ✅ ONLY exclude "Бекор қилинган" lots (don't exclude NULL holat)
+        return $query->where(function($q) {
+            $q->where('holat', '!=', 'Бекор қилинган')
+              ->orWhereNull('holat');
+        });
     }
 
     /**
