@@ -456,7 +456,7 @@
 
 <!-- JAMI - Col 37: Mulk qabul mablagh (only муддатли эмас amounts) -->
 <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-    <?php echo e(number_format(($statistics['jami']['mulk_qabul']['total_auksion_mablagh_muddatli_emas'] ?? 0) / 1000000000, 1)); ?>
+    <?php echo e(number_format(($statistics['jami']['mulk_qabul']['total_auksion_mablagh'] ?? 0) / 1000000000, 1)); ?>
 
 </td>
                                 </tr>

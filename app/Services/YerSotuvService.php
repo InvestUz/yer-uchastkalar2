@@ -315,7 +315,7 @@ public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFi
     $results = $query->get(['tolov_turi', 'golib_tolagan', 'shartnoma_summasi', 'auksion_harajati', 'lot_raqami']);
 
     $totalAuksionMablagh = 0;
-    $totalAuksionMablaghMuddatliEmas = 0; // Only муддатли эмас
+    $totalAuksionMablaghMuddatliEmas = 0;
     $itemCalculations = [];
     $countMuddatli = 0;
     $countMuddatliEmas = 0;
@@ -325,24 +325,17 @@ public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFi
         $shartnomaSummasi = (float) $result->shartnoma_summasi;
         $auksionHarajati = (float) $result->auksion_harajati;
 
-        Log::info('----------------------------------', ['shartnomaSummasi' => $shartnomaSummasi]);
+        // ✅ SQL bilan bir xil formula: golib_tolagan - auksion_harajati
+        $itemValue = $golibTolagan - $auksionHarajati;
 
-        // Apply correct formula based on tolov_turi
         if ($result->tolov_turi === 'муддатли эмас') {
-            // TM1: golib_tolagan - auksion_harajati
-            $itemValue = $golibTolagan - $auksionHarajati;
             $countMuddatliEmas++;
-            $totalAuksionMablaghMuddatliEmas += $itemValue; // Add to муддатли эмас total
+            $totalAuksionMablaghMuddatliEmas += $itemValue;
         } else {
-            // TM2: (golib_tolagan + shartnoma_summasi) - auksion_harajati
-            // $itemValue = ($golibTolagan + $shartnomaSummasi) - $auksionHarajati; // CORRECT FORMULA
-            $itemValue = $golibTolagan - $auksionHarajati;
-
             $countMuddatli++;
-            // DON'T add to totalAuksionMablaghMuddatliEmas (we exclude муддатли from the financial sum)
         }
 
-        $totalAuksionMablagh += $itemValue; // Total includes both
+        $totalAuksionMablagh += $itemValue;
 
         $itemCalculations[] = [
             'lot_raqami' => $result->lot_raqami,
@@ -350,9 +343,7 @@ public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFi
             'golib_tolagan' => $golibTolagan,
             'shartnoma_summasi' => $shartnomaSummasi,
             'auksion_harajati' => $auksionHarajati,
-            'formula' => $result->tolov_turi === 'муддатли эмас'
-                ? 'golib_tolagan - auksion_harajati'
-                : '(golib_tolagan + shartnoma_summasi) - auksion_harajati',
+            'formula' => 'golib_tolagan - auksion_harajati', // ✅ Hamma uchun bir xil
             'calculated_value' => $itemValue
         ];
     }
@@ -369,11 +360,11 @@ public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFi
     ]);
 
     return [
-        'total_records' => $results->count(), // All records (10)
-        'total_records_muddatli_emas' => $countMuddatliEmas, // Only муддатли эмас (8)
-        'total_records_muddatli' => $countMuddatli, // Only муддатли (2)
-        'total_auksion_mablagh' => $totalAuksionMablagh, // All amounts
-        'total_auksion_mablagh_muddatli_emas' => $totalAuksionMablaghMuddatliEmas, // Only муддатли эмас amounts
+        'total_records' => $results->count(),
+        'total_records_muddatli_emas' => $countMuddatliEmas,
+        'total_records_muddatli' => $countMuddatli,
+        'total_auksion_mablagh' => $totalAuksionMablagh, // ✅ SQL bilan bir xil bo'ladi
+        'total_auksion_mablagh_muddatli_emas' => $totalAuksionMablaghMuddatliEmas,
         'items' => $itemCalculations
     ];
 }
