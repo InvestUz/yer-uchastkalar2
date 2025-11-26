@@ -563,7 +563,7 @@
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-4"
                         style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 class="font-semibold text-slate-700" style="font-size: 22px">Қолдиқ маблағ</h3>
+                            <h3 class="font-semibold text-slate-700" style="font-size: 22px">Муддати ўтган қарздорлик</h3>
                             <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                 style="background-color: rgba(185, 28, 28, 0.1);">
                                 <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor"
