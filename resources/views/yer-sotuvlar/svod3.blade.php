@@ -201,11 +201,11 @@
                                 </td>
 
                                 <!-- Grafik ortda - 5 columns -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
-                                        {{ $statistics['jami']['grafik_ortda']['soni'] }}
-                                    </a>
-                                </td>
+                              <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
+    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true']) }}" class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
+        {{ $statistics['jami']['grafik_ortda']['soni'] }}
+    </a>
+</td>
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
                                     {{ number_format($statistics['jami']['grafik_ortda']['maydoni'], 2) }}
                                 </td>

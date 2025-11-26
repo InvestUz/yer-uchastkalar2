@@ -718,9 +718,6 @@ public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateF
     /**
      * SVOD3: Get grafik ortda statistics
      */
-    /**
-     * SVOD3: Get grafik ortda statistics
-     */
     public function getGrafikOrtda(?array $tumanPatterns = null, array $dateFilters = []): array
     {
         $bugun = $this->getGrafikCutoffDate();
@@ -762,12 +759,6 @@ public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateF
         // Get lot numbers BEFORE aggregation
         $lotRaqamlari = (clone $query)->pluck('lot_raqami')->toArray();
 
-        // Now get aggregated data
-        $data = $query->selectRaw('
-        COUNT(*) as soni,
-        SUM(maydoni) as maydoni
-    ')->first();
-
         if (empty($lotRaqamlari)) {
             return [
                 'soni' => 0,
@@ -778,24 +769,52 @@ public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateF
             ];
         }
 
-        $grafikSumma = DB::table('grafik_tolovlar')
-            ->whereIn('lot_raqami', $lotRaqamlari)
-            ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
-            ->sum('grafik_summa');
+        // ✅ Calculate LOT-BY-LOT with auction org exclusion
+        $soniWithDebt = 0;
+        $totalMaydoni = 0;
+        $grafikSumma = 0;
+        $faktSumma = 0;
+        $muddatiUtganQarz = 0;
 
-        // Get FROM fakt_tolovlar ONLY
-        $faktSumma = DB::table('fakt_tolovlar')
-            ->whereIn('lot_raqami', $lotRaqamlari)
-            ->sum('tolov_summa');
+        foreach ($lotRaqamlari as $lotRaqami) {
+            // Get grafik for this lot
+            $lotGrafikSumma = DB::table('grafik_tolovlar')
+                ->where('lot_raqami', $lotRaqami)
+                ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
+                ->sum('grafik_summa');
 
-        // Calculate overdue debt (график - факт)
-        $muddatiUtganQarz = $grafikSumma - $faktSumma;
-        // Ensure it's not negative
-        $muddatiUtganQarz = max(0, $muddatiUtganQarz);
+            // Get fakt for this lot (EXCLUDING auction org payments)
+            $lotFaktSumma = DB::table('fakt_tolovlar')
+                ->where('lot_raqami', $lotRaqami)
+                ->where(function($q) {
+                    $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+                      ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+                      ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+                      ->orWhereNull('tolash_nom');
+                })
+                ->sum('tolov_summa');
+
+            // Calculate debt for this lot
+            $lotDebt = $lotGrafikSumma - $lotFaktSumma;
+
+            // ✅ Only count lots with positive debt
+            if ($lotDebt > 0) {
+                $soniWithDebt++;
+                $muddatiUtganQarz += $lotDebt;
+
+                // Get maydoni for this lot
+                $lotMaydoni = YerSotuv::where('lot_raqami', $lotRaqami)->value('maydoni');
+                $totalMaydoni += $lotMaydoni ?? 0;
+            }
+
+            // Add to totals for display (all lots)
+            $grafikSumma += $lotGrafikSumma;
+            $faktSumma += $lotFaktSumma;
+        }
 
         return [
-            'soni' => $data->soni ?? 0,
-            'maydoni' => $data->maydoni ?? 0,
+            'soni' => $soniWithDebt, // ✅ Count of lots with debt > 0 only
+            'maydoni' => $totalMaydoni,
             'grafik_summa' => $grafikSumma,
             'fakt_summa' => $faktSumma,
             'muddati_utgan_qarz' => $muddatiUtganQarz
