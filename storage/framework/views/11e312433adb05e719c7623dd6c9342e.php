@@ -777,31 +777,35 @@
                             </div>
                         </a>
 
-<!-- 5. Аукционда турган маблағ (Qoldiq qarz - to'lanmagan lotlar) -->
-<?php
-    // Calculate "Аукционда турган маблағ" from summaryMuddatliEmas
-    // Only show if >= 0 (has debt or fully paid, exclude overpayments)
-    $muddatiOtganMuddatliEmas = max(0, $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount']);
-?>
-<a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'qoldiq_qarz' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
-    class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
-    style="border-color: rgb(185 28 28);">
-    <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-slate-700" style="font-size: 22px">Аукционда турган маблағ</h3>
-        <div class="w-12 h-12 rounded-lg flex items-center justify-center"
-            style="background-color: rgba(185, 28, 28, 0.1);">
-            <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-        </div>
-    </div>
-    <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-        <?php echo e(number_format($muddatiOtganMuddatliEmas / 1000000000, 2)); ?> млрд сўм
-    </p>
-    <p class="text-1xl text-slate-500">мулкни қабул қилиш тасдиқланмаганлар</p>
-</a>
+                        <!-- 5. Аукционда турган маблағ (Qoldiq qarz - to'lanmagan lotlar) -->
+                        <?php
+                            // Calculate "Аукционда турган маблағ" from summaryMuddatliEmas
+                            // Only show if >= 0 (has debt or fully paid, exclude overpayments)
+                            $muddatiOtganMuddatliEmas = max(
+                                0,
+                                $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
+                            );
+                        ?>
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'qoldiq_qarz' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
+                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                            style="border-color: rgb(185 28 28);">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">Аукционда турган маблағ
+                                </h3>
+                                <div class="w-12 h-12 rounded-lg flex items-center justify-center"
+                                    style="background-color: rgba(185, 28, 28, 0.1);">
+                                    <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
+                                <?php echo e(number_format($muddatiOtganMuddatliEmas / 1000000000, 2)); ?> млрд сўм
+                            </p>
+                            <p class="text-1xl text-slate-500">мулкни қабул қилиш тасдиқланмаганлар</p>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -878,6 +882,6 @@
                 animation: fadeInRow 0.3s ease-in-out;
             }
         </style>
-<?php $__env->stopSection(); ?>
+    <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/monitoring.blade.php ENDPATH**/ ?>

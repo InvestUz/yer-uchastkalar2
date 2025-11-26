@@ -241,155 +241,196 @@
                 <div class="mx-auto">
                     <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-700">
-                                    <tr>
-                                        @php
-                                            function sortableColumn($field, $label)
-                                            {
-                                                $currentSort = request('sort', 'auksion_sana');
-                                                $currentDirection = request('direction', 'desc');
-                                                $newDirection =
-                                                    $currentSort === $field && $currentDirection === 'asc'
-                                                        ? 'desc'
-                                                        : 'asc';
+                        <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-700">
+        <tr>
+            @php
+                function sortableColumn($field, $label)
+                {
+                    $currentSort = request('sort', 'auksion_sana');
+                    $currentDirection = request('direction', 'desc');
+                    $newDirection =
+                        $currentSort === $field && $currentDirection === 'asc'
+                            ? 'desc'
+                            : 'asc';
 
-                                                $queryParams = array_merge(
-                                                    request()->except(['sort', 'direction', 'page']),
-                                                    [
-                                                        'sort' => $field,
-                                                        'direction' => $newDirection,
-                                                    ],
-                                                );
+                    $queryParams = array_merge(
+                        request()->except(['sort', 'direction', 'page']),
+                        [
+                            'sort' => $field,
+                            'direction' => $newDirection,
+                        ],
+                    );
 
-                                                $url = route('yer-sotuvlar.list', $queryParams);
-                                                $isActive = $currentSort === $field;
-                                                $arrow = $isActive ? ($currentDirection === 'asc' ? '↑' : '↓') : '⇅';
+                    $url = route('yer-sotuvlar.list', $queryParams);
+                    $isActive = $currentSort === $field;
+                    $arrow = $isActive ? ($currentDirection === 'asc' ? '↑' : '↓') : '⇅';
 
-                                                return [
-                                                    'url' => $url,
-                                                    'isActive' => $isActive,
-                                                    'arrow' => $arrow,
-                                                    'label' => $label,
-                                                ];
-                                            }
+                    return [
+                        'url' => $url,
+                        'isActive' => $isActive,
+                        'arrow' => $arrow,
+                        'label' => $label,
+                    ];
+                }
 
-                                            $columns = [
-                                                'lot_raqami' => '№ Лот',
-                                                'tuman' => 'Туман',
-                                                'manzil' => 'Манзил',
-                                                'maydoni' => 'Майдон (га)',
-                                                'boshlangich_narx' => 'Бошл. нарх',
-                                                'auksion_sana' => 'Аукцион',
-                                                'sotilgan_narx' => 'Сотил. нарх',
-                                                'chegirma' => 'Чегирма',
-                                                'golib_tolagan' => 'Ғолиб аукционга тўлаган сумма',
-                                                'golib' => 'Ғолиб',
-                                            ];
-                                        @endphp
+                $columns = [
+                    'lot_raqami' => '№ Лот',
+                    'tuman' => 'Туман',
+                    'manzil' => 'Манзил',
+                    'maydoni' => 'Майдон (га)',
+                    'boshlangich_narx' => 'Бошл. нарх',
+                    'auksion_sana' => 'Аукцион',
+                    'sotilgan_narx' => 'Сотил. нарх',
+                    'chegirma' => 'Чегирма',
+                    'golib_tolagan' => 'Ғолиб аукционга тўлаган сумма',
+                    'golib' => 'Ғолиб',
+                ];
+            @endphp
 
-                                        @foreach ($columns as $field => $label)
-                                            @php $col = sortableColumn($field, $label); @endphp
-                                            <th scope="col"style="text-align: center !important;"
-                                                class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
-                                                <a href="{{ $col['url'] }}"
-                                                    class="">
-                                                    <span>{{ $col['label'] }}</span>
-                                                    <span
-                                                        class="ml-2 {{ $col['isActive'] ? 'text-yellow-300' : 'text-gray-400 group-hover:text-gray-300' }}">
-                                                        {{ $col['arrow'] }}
-                                                    </span>
-                                                </a>
-                                            </th>
-                                        @endforeach
+            @foreach ($columns as $field => $label)
+                @php $col = sortableColumn($field, $label); @endphp
+                <th scope="col" style="text-align: center !important;"
+                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
+                    <a href="{{ $col['url'] }}">
+                        <span>{{ $col['label'] }}</span>
+                        <span
+                            class="ml-2 {{ $col['isActive'] ? 'text-yellow-300' : 'text-gray-400 group-hover:text-gray-300' }}">
+                            {{ $col['arrow'] }}
+                        </span>
+                    </a>
+                </th>
+            @endforeach
 
-                                        <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            Тўлов тури</th>
-                                        <th scope="col"
-                                            class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            Ҳолат</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse($yerlar as $yer)
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-medium">
-                                                <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}"
-                                                    class="font-semibold text-blue-600 hover:text-blue-800 hover:underline">
-                                                    {{ $yer->lot_raqami }}
-                                                </a>
-                                            </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $yer->tuman }}
-                                            </td>
-                                            <td class="px-3 py-3 text-sm text-gray-900 max-w-xs"
-                                                title="{{ $yer->manzil }}">
-                                                {{ Str::limit($yer->manzil, 40) }}
-                                            </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
-                                                {{ number_format($yer->maydoni, 4) }}
-                                            </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
-                                                {{ number_format($yer->boshlangich_narx / 1000000, 1) }} млн
-                                            </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '-' }}
-                                            </td>
-                                            <td
-                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center">
-                                                {{ number_format($yer->sotilgan_narx / 1000000, 1) }} млн
-                                            </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
-                                                {{ number_format($yer->chegirma / 1000000, 1) }} млн
-                                            </td>
-                                            <td
-                                                class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center">
-                                                @php
-                                                    $total_tolov = $yer->faktTolovlar->sum('tolov_summa');
-                                                    $golib_total = $yer->golib_tolagan + $total_tolov;
-                                                @endphp
-                                                {{ number_format($golib_total / 1000000, 1) }} млн
-                                            </td>
-                                            <td class="px-3 py-3 text-sm text-gray-900 max-w-xs"
-                                                title="{{ $yer->golib_nomi }}">
-                                                {{ Str::limit($yer->golib_nomi, 30) }}
-                                            </td>
-                                            <td class="px-3 py-3 whitespace-nowrap text-sm">
-                                                @if ($yer->tolov_turi === 'муддатли')
-                                                    <span
-                                                        class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                        Муддатли
-                                                    </span>
-                                                @elseif($yer->tolov_turi === 'муддатли эмас')
-                                                    <span
-                                                        class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                        Муддатли эмас
-                                                    </span>
-                                                @else
-                                                    <span class="text-gray-400">-</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-3 py-3 text-sm text-gray-600 max-w-sm"
-                                                title="{{ $yer->holat }}">
-                                                {{ Str::limit($yer->holat, 50) }}
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="12" class="px-4 py-8 text-center text-gray-500">
-                                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                                </svg>
-                                                <p class="mt-2 text-lg font-medium">Маълумот топилмади</p>
-                                                <p class="mt-1 text-sm">Филтр параметрларини ўзгартириб кўринг</p>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+            {{-- ✅ NEW COLUMNS: Only show for qoldiq_qarz filter --}}
+                <th scope="col"
+                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-blue-800">
+                    Тушадиган маблағ
+                </th>
+                <th scope="col"
+                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-green-800">
+                    Тушган маблағ
+                </th>
+                <th scope="col"
+                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-red-800">
+                    Қолдиқ қарз
+                </th>
+
+            <th scope="col"
+                class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                Тўлов тури
+            </th>
+            <th scope="col"
+                class="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                Ҳолат
+            </th>
+        </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+        @forelse($yerlar as $yer)
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-3 py-3 whitespace-nowrap text-sm font-medium">
+                    <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}"
+                        class="font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                        {{ $yer->lot_raqami }}
+                    </a>
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
+                    {{ $yer->tuman }}
+                </td>
+                <td class="px-3 py-3 text-sm text-gray-900 max-w-xs"
+                    title="{{ $yer->manzil }}">
+                    {{ Str::limit($yer->manzil, 40) }}
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
+                    {{ number_format($yer->maydoni, 4) }}
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
+                    {{ number_format($yer->boshlangich_narx / 1000000, 1) }} млн
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
+                    {{ $yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '-' }}
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center">
+                    {{ number_format($yer->sotilgan_narx / 1000000, 1) }} млн
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
+                    {{ number_format($yer->chegirma / 1000000, 1) }} млн
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center">
+                    @php
+                        $total_tolov = $yer->faktTolovlar->sum('tolov_summa');
+                        $golib_total = $yer->golib_tolagan + $total_tolov;
+                    @endphp
+                    {{ number_format($golib_total / 1000000, 1) }} млн
+                </td>
+                <td class="px-3 py-3 text-sm text-gray-900 max-w-xs"
+                    title="{{ $yer->golib_nomi }}">
+                    {{ Str::limit($yer->golib_nomi, 30) }}
+                </td>
+
+                {{-- ✅ NEW COLUMNS DATA: Only show for qoldiq_qarz filter --}}
+                    @php
+                        // Calculate expected amount
+                        $expected = ($yer->golib_tolagan ?? 0) + ($yer->shartnoma_summasi ?? 0) - ($yer->auksion_harajati ?? 0);
+
+                        // Get received amount from fakt_tolovlar
+                        $received = $yer->faktTolovlar->sum('tolov_summa');
+
+                        // Calculate qoldiq
+                        $qoldiq = $expected - $received;
+                    @endphp
+
+                    {{-- Тушадиган маблағ --}}
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center bg-blue-50">
+                        {{ number_format($expected / 1000000, 1) }} млн
+                    </td>
+
+                    {{-- Тушган маблағ --}}
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center bg-green-50">
+                        {{ number_format($received / 1000000, 1) }} млн
+                    </td>
+
+                    {{-- Қолдиқ қарз --}}
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center {{ $qoldiq > 0 ? 'text-red-600 bg-red-50' : 'text-gray-600 bg-gray-50' }}">
+                        {{ number_format($qoldiq / 1000000, 1) }} млн
+                    </td>
+
+                <td class="px-3 py-3 whitespace-nowrap text-sm">
+                    @if ($yer->tolov_turi === 'муддатли')
+                        <span
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            Муддатли
+                        </span>
+                    @elseif($yer->tolov_turi === 'муддатли эмас')
+                        <span
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Муддатли эмас
+                        </span>
+                    @else
+                        <span class="text-gray-400">-</span>
+                    @endif
+                </td>
+                <td class="px-3 py-3 text-sm text-gray-600 max-w-sm"
+                    title="{{ $yer->holat }}">
+                    {{ Str::limit($yer->holat, 50) }}
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="" class="px-4 py-8 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                    <p class="mt-2 text-lg font-medium">Маълумот топилмади</p>
+                    <p class="mt-1 text-sm">Филтр параметрларини ўзгартириб кўринг</p>
+                </td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
                         </div>
 
                         <!-- Pagination -->

@@ -1285,76 +1285,72 @@ class YerSotuvController extends Controller
             AND COALESCE(g.jami_grafik, 0) > COALESCE(f.jami_fakt, 0)
             AND COALESCE(g.jami_grafik, 0) > 0
         )', [$bugun]);
-        }elseif (!empty($filters['qoldiq_qarz']) && $filters['qoldiq_qarz'] === 'true') {
-    // ✅ FILTER: Show lots with remaining debt >= 0 (муддатли эмас only)
+        } elseif (!empty($filters['qoldiq_qarz']) && $filters['qoldiq_qarz'] === 'true') {
+            // ✅ FILTER: Auksonda turgan mablagh - shartnoma imzolanmagan lotlar
 
-    \Log::info('===== QOLDIQ QARZ FILTER DEBUG START =====');
+            \Log::info('===== AUKSONDA TURGAN FILTER DEBUG START =====');
 
-    $query->where('tolov_turi', 'муддатли эмас');
+            $query->where('tolov_turi', 'муддатли эмас');
 
-    // First, let's see ALL муддатли эмас lots BEFORE applying debt filter
-    $allMuddatliEmasLots = (clone $query)->get(['lot_raqami', 'golib_tolagan', 'shartnoma_summasi', 'auksion_harajati']);
+            // ✅ CRITICAL: Filter by holat - only show lots that haven't signed contract yet
+            $query->where(function ($q) {
+                $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаган%');
+            });
 
-    \Log::info('tolangan_minus_fakt: Total муддатли эмас lots BEFORE debt filter', [
-        'count' => $allMuddatliEmasLots->count()
-    ]);
+            // Get all filtered lots BEFORE debt calculation
+            $allFilteredLots = (clone $query)->get(['lot_raqami', 'golib_tolagan', 'shartnoma_summasi', 'auksion_harajati', 'holat']);
 
-    // ✅ IMPROVED: Add floating point tolerance (0.01 sum)
-    $query->whereRaw('(
+            \Log::info('auksonda_turgan: Total муддатли эмас lots with pending contract status', [
+                'count' => $allFilteredLots->count(),
+                'sample_holat' => $allFilteredLots->take(5)->pluck('holat')->toArray()
+            ]);
+
+            // ✅ ADDITIONAL FILTER: Show only lots with qoldiq >= 0 (exclude overpayments)
+            $query->whereRaw('(
         (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
         >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
     )');
 
-    // Get filtered results to analyze
-    $filteredLots = (clone $query)->get(['lot_raqami', 'golib_tolagan', 'shartnoma_summasi', 'auksion_harajati']);
+            // Get final filtered results
+            $filteredLots = (clone $query)->get(['lot_raqami', 'golib_tolagan', 'shartnoma_summasi', 'auksion_harajati', 'holat']);
 
-    // Calculate detailed breakdown for each lot
-    $detailedBreakdown = $filteredLots->map(function ($lot) {
-        $expected = ($lot->golib_tolagan ?? 0) + ($lot->shartnoma_summasi ?? 0) - ($lot->auksion_harajati ?? 0);
+            // Calculate detailed breakdown
+            $detailedBreakdown = $filteredLots->map(function ($lot) {
+                $expected = ($lot->golib_tolagan ?? 0) + ($lot->shartnoma_summasi ?? 0) - ($lot->auksion_harajati ?? 0);
 
-        $received = DB::table('fakt_tolovlar')
-            ->where('lot_raqami', $lot->lot_raqami)
-            ->sum('tolov_summa');
+                $received = DB::table('fakt_tolovlar')
+                    ->where('lot_raqami', $lot->lot_raqami)
+                    ->sum('tolov_summa');
 
-        $qoldiq = $expected - $received;
+                $qoldiq = $expected - $received;
 
-        return [
-            'lot_raqami' => $lot->lot_raqami,
-            'expected' => round($expected, 2),
-            'received' => round($received, 2),
-            'qoldiq' => round($qoldiq, 2),
-            'status' => $qoldiq > 0.01 ? 'HAS_DEBT' : ($qoldiq >= -0.01 ? 'FULLY_PAID' : 'OVERPAID'),
-        ];
-    });
+                return [
+                    'lot_raqami' => $lot->lot_raqami,
+                    'holat' => $lot->holat,
+                    'expected' => round($expected, 2),
+                    'received' => round($received, 2),
+                    'qoldiq' => round($qoldiq, 2),
+                    'status' => $qoldiq > 0.01 ? 'HAS_DEBT' : ($qoldiq >= -0.01 ? 'FULLY_PAID' : 'OVERPAID'),
+                ];
+            });
 
-    // Separate categories with proper rounding tolerance
-    $hasDebt = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] > 0.01);
-    $fullyPaid = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] >= -0.01 && $lot['qoldiq'] <= 0.01);
-    $overpaid = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] < -0.01);
+            // Categorize
+            $hasDebt = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] > 0.01);
+            $fullyPaid = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] >= -0.01 && $lot['qoldiq'] <= 0.01);
+            $overpaid = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] < -0.01);
 
-    \Log::info('tolangan_minus_fakt: Filtered lots with debt >= 0', [
-        'total_filtered' => $filteredLots->count(),
-        'summary' => [
-            'has_debt_count' => $hasDebt->count(),
-            'has_debt_sum' => number_format($hasDebt->sum('qoldiq'), 2),
-            'has_debt_lots' => $hasDebt->pluck('lot_raqami')->take(10)->toArray(),
-            'fully_paid_count' => $fullyPaid->count(),
-            'overpaid_count' => $overpaid->count(),
-            'overpaid_lots' => $overpaid->pluck('lot_raqami')->toArray(),
-            'total_expected' => number_format($detailedBreakdown->sum('expected'), 2),
-            'total_received' => number_format($detailedBreakdown->sum('received'), 2),
-            'total_qoldiq' => number_format($detailedBreakdown->sum('qoldiq'), 2),
-        ]
-    ]);
+            \Log::info('auksonda_turgan: Final breakdown', [
+                'total_filtered' => $filteredLots->count(),
+                'has_debt_count' => $hasDebt->count(),
+                'fully_paid_count' => $fullyPaid->count(),
+                'overpaid_count' => $overpaid->count(),
+                'sample_lots' => $hasDebt->take(5)->toArray(),
+            ]);
 
-    \Log::info('tolangan_minus_fakt: SQL Logic Verification', [
-        'formula' => 'expected = golib_tolagan + shartnoma_summasi - auksion_harajati',
-        'filter_condition' => 'expected >= received - 0.01 (floating point tolerance)',
-        'tolerance' => '0.01 sum for floating point errors',
-    ]);
-
-    \Log::info('===== QOLDIQ QARZ FILTER DEBUG END =====');
-} elseif (!empty($filters['tolov_turi'])) {
+            \Log::info('===== AUKSONDA TURGAN FILTER DEBUG END =====');
+        } elseif (!empty($filters['tolov_turi'])) {
             $query->where('tolov_turi', $filters['tolov_turi']);
         }
 
@@ -1404,8 +1400,11 @@ class YerSotuvController extends Controller
             }
         }
 
+        // ✅ FIX: Explicitly select all columns to ensure shartnoma_summasi and auksion_harajati are loaded
+        $query->select('yer_sotuvlar.*');
+
         // Paginate results
-        $yerlar = $query->paginate(50)->withQueryString();
+        $yerlar = $query->with('faktTolovlar')->paginate(50)->withQueryString();
 
         // Get dropdown options
         $tumanlar = YerSotuv::select('tuman')
