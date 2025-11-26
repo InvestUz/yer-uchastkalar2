@@ -330,7 +330,7 @@ public function getMulkQabulQilmagan(?array $tumanPatterns = null, array $dateFi
         // Apply correct formula based on tolov_turi
         if ($result->tolov_turi === 'муддатли эмас') {
             // TM1: golib_tolagan - auksion_harajati
-            $itemValue = $golibTolagan + $auksionHarajati;
+            $itemValue = $golibTolagan - $auksionHarajati;
             $countMuddatliEmas++;
             $totalAuksionMablaghMuddatliEmas += $itemValue; // Add to муддатли эмас total
         } else {
