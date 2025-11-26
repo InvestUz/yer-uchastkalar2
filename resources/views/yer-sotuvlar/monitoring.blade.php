@@ -63,11 +63,7 @@
                                 Барча давр
                             @endif
                         </span>
-
-
                     </div>
-
-
                 </div>
 
                 <!-- Main Period Filter -->
@@ -92,9 +88,8 @@
                         id="btn-all">
                         Умумий ҳисобот
                     </a>
-
-
                 </div>
+
                 {{-- Period Filter Section --}}
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <form method="GET" action="{{ route('yer-sotuvlar.monitoring') }}" class="space-y-4">
@@ -146,7 +141,6 @@
                                 </label>
                                 <select name="quarter" id="quarter-select"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    {{-- Dynamically populated by JavaScript based on selected year --}}
                                     @if ($periodInfo['period'] === 'quarter')
                                         @php
                                             $selectedYearQuarters = collect($availablePeriods['quarters'])
@@ -176,7 +170,6 @@
                                 </label>
                                 <select name="month" id="month-select"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    {{-- Dynamically populated by JavaScript based on selected year --}}
                                     @if ($periodInfo['period'] === 'month')
                                         @php
                                             $selectedYearMonths = collect($availablePeriods['months'])
@@ -240,28 +233,23 @@
 
                 {{-- JavaScript for Dynamic Form --}}
                 <script>
-                    // Clean form before submit to remove unnecessary parameters
                     function cleanFormBeforeSubmit(event) {
                         const periodValue = document.getElementById('period').value;
 
-                        // Disable inputs based on period type
                         if (periodValue === 'all') {
-                            // Disable all period selectors
                             document.getElementById('year-select').disabled = true;
                             document.getElementById('quarter-select').disabled = true;
                             document.getElementById('month-select').disabled = true;
                         } else if (periodValue === 'year') {
-                            // Only year is needed
                             document.getElementById('quarter-select').disabled = true;
                             document.getElementById('month-select').disabled = true;
                         } else if (periodValue === 'quarter') {
-                            // Year and quarter are needed, disable month
                             document.getElementById('month-select').disabled = true;
                         } else if (periodValue === 'month') {
-                            // Year and month are needed, disable quarter
                             document.getElementById('quarter-select').disabled = true;
                         }
                     }
+
                     document.addEventListener('DOMContentLoaded', function() {
                         const periodSelect = document.getElementById('period');
                         const yearSelector = document.getElementById('year-selector');
@@ -271,7 +259,6 @@
                         const quarterSelect = document.getElementById('quarter-select');
                         const monthSelect = document.getElementById('month-select');
 
-                        // Store period data
                         let periodData = {
                             years: {!! json_encode($availablePeriods['years']) !!},
                             quarters: {!! json_encode($availablePeriods['quarters']) !!},
@@ -281,12 +268,10 @@
                         function updateSelectors() {
                             const periodValue = periodSelect.value;
 
-                            // Hide all first
                             yearSelector.style.display = 'none';
                             quarterSelector.style.display = 'none';
                             monthSelector.style.display = 'none';
 
-                            // Show based on selection
                             if (periodValue === 'year') {
                                 yearSelector.style.display = 'block';
                             } else if (periodValue === 'quarter') {
@@ -298,13 +283,11 @@
                             }
                         }
 
-                        // Update quarters when year changes (for quarter selection)
                         yearSelect.addEventListener('change', function() {
                             if (periodSelect.value === 'quarter') {
                                 const selectedYear = parseInt(this.value);
                                 const quartersForYear = periodData.quarters.filter(q => q.yil === selectedYear);
 
-                                // Rebuild quarter options
                                 quarterSelect.innerHTML = '';
 
                                 if (quartersForYear.length > 0) {
@@ -325,7 +308,6 @@
                                 const selectedYear = parseInt(this.value);
                                 const monthsForYear = periodData.months.filter(m => m.yil === selectedYear);
 
-                                // Rebuild month options
                                 monthSelect.innerHTML = '';
 
                                 if (monthsForYear.length > 0) {
@@ -345,11 +327,9 @@
                             }
                         });
 
-                        // Initialize on page load
                         function initializeSelectors() {
                             updateSelectors();
 
-                            // If quarter mode is active, populate quarters for selected year
                             if (periodSelect.value === 'quarter') {
                                 const selectedYear = parseInt(yearSelect.value);
                                 const quartersForYear = periodData.quarters.filter(q => q.yil === selectedYear);
@@ -368,7 +348,6 @@
                                 });
                             }
 
-                            // If month mode is active, populate months for selected year
                             if (periodSelect.value === 'month') {
                                 const selectedYear = parseInt(yearSelect.value);
                                 const monthsForYear = periodData.months.filter(m => m.yil === selectedYear);
@@ -389,10 +368,9 @@
                         }
 
                         periodSelect.addEventListener('change', updateSelectors);
-                        initializeSelectors(); // Initial call with data population
+                        initializeSelectors();
                     });
                 </script>
-
             </div>
 
             <!-- ROW 1: TOTAL (All Payment Types) -->
@@ -424,18 +402,6 @@
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             {{ number_format($summaryTotal['total_lots']) }} та</p>
-                        @if ($periodInfo['period'] !== 'all')
-                            <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                <p class="text-xs text-blue-600 font-medium flex items-center">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    <span>{{ $periodInfo['period'] === 'month' ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year'] : ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] : ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                                </p>
-                            </div>
-                        @endif
                     </a>
 
                     <!-- Total Card 2: Тушадиган маблағ -->
@@ -456,18 +422,6 @@
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             {{ number_format($summaryTotal['expected_amount'] / 1000000000, 2) }} млрд сўм</p>
-                        @if ($periodInfo['period'] !== 'all')
-                            <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                <p class="text-xs text-blue-600 font-medium flex items-center">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    <span>{{ $periodInfo['period'] === 'month' ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year'] : ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] : ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                                </p>
-                            </div>
-                        @endif
                     </a>
 
                     <!-- Total Card 3: Амалда тушган маблағ -->
@@ -488,18 +442,6 @@
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                             {{ number_format($summaryTotal['received_amount'] / 1000000000, 2) }} млрд сўм</p>
-                        @if ($periodInfo['period'] !== 'all')
-                            <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                <p class="text-xs text-blue-600 font-medium flex items-center">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    <span>{{ $periodInfo['period'] === 'month' ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year'] : ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] : ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                                </p>
-                            </div>
-                        @endif
                     </a>
 
                     <!-- Total Card 4: Қолдиқ маблағ -->
@@ -535,29 +477,16 @@
                             <span class="text-sm font-bold"
                                 style="color: rgb(185 28 28);">{{ number_format($totalQoldiqFoizi, 1) }}%</span>
                         </div>
-                        @if ($periodInfo['period'] !== 'all')
-                            <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                <p class="text-xs text-blue-600 font-medium flex items-center">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    <span>{{ $periodInfo['period'] === 'month' ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year'] : ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] : ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                                </p>
-                            </div>
-                        @endif
                     </a>
 
-                    <!-- Total Card 5: Yigindi Қолдиқ маблағ -->
+                    <!-- Total Card 5: Муддати ўтган қарздорлик (JAMI - ALL) -->
                     @php
-                        $totalQoldiq = $summaryTotal['expected_amount'] - $summaryTotal['received_amount'];
-                        $totalQoldiqFoizi =
-                            $summaryTotal['expected_amount'] > 0
-                                ? ($totalQoldiq / $summaryTotal['expected_amount']) * 100
-                                : 0;
+                        $muddatiOtganMuddatliEmas = max(
+                            0,
+                            $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
+                        );
                     @endphp
-                    <a href="{{ route('yer-sotuvlar.list', $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []) }}"
+                    <a href="{{ route('yer-sotuvlar.list', array_merge(['grafik_ortda' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-4"
                         style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
@@ -571,41 +500,19 @@
                                 </svg>
                             </div>
                         </div>
-                        @php
-                            $muddatiOtganMuddatliEmas = max(
-                                0,
-                                $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
-                            );
-                        @endphp
-
                         <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
                             {{ number_format(($muddatiOtganMuddatliEmas + $muddatiUtganQarz) / 1000000000, 2) }} млрд сўм
-
-
-                            <div class="flex items-center mb-3">
-                                <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
-                                    <div class="h-2.5 rounded-full transition-all duration-500"
-                                        style="width: {{ min(100, $totalQoldiqFoizi) }}%; background-color: rgb(185 28 28);">
-                                    </div>
+                        </p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
+                                <div class="h-2.5 rounded-full transition-all duration-500"
+                                    style="width: {{ min(100, $totalQoldiqFoizi) }}%; background-color: rgb(185 28 28);">
                                 </div>
-                                <span class="text-sm font-bold"
-                                    style="color: rgb(185 28 28);">{{ number_format($totalQoldiqFoizi, 1) }}%</span>
                             </div>
-                            @if ($periodInfo['period'] !== 'all')
-                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                    <p class="text-xs text-blue-600 font-medium flex items-center">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ $periodInfo['period'] === 'month' ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year'] : ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] : ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : '')) }}</span>
-                                    </p>
-                                </div>
-                            @endif
+                            <span class="text-sm font-bold"
+                                style="color: rgb(185 28 28);">{{ number_format($totalQoldiqFoizi, 1) }}%</span>
+                        </div>
                     </a>
-
                 </div>
             </div>
 
@@ -620,13 +527,12 @@
                     Муддатли тўлов (Бўлиб тўлаш)
                 </h2>
 
-
                 <!-- Муддатли Content -->
                 <div id="content-muddatli" class="tab-content">
-                    <!-- Statistics Cards - Муддатли (7 cards with period info at BOTTOM) -->
+                    <!-- Statistics Cards - Муддатли -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
-                        <!-- Card 1: Жами лотлар сони - CLICKABLE -->
+                        <!-- Card 1: Жами лотлар сони -->
                         <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
@@ -643,33 +549,11 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                {{ number_format($summaryMuddatli['total_lots']) }}
-                                та</p>
-
-                            <!-- Period info at BOTTOM -->
-                            @if ($periodInfo['period'] !== 'all')
-                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                    <p class="text-xs text-blue-600 font-medium flex items-center">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ $periodInfo['period'] === 'month'
-                                            ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year']
-                                            : ($periodInfo['period'] === 'quarter'
-                                                ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
-                                                : ($periodInfo['period'] === 'year'
-                                                    ? $periodInfo['year'] . ' йил'
-                                                    : '')) }}</span>
-                                    </p>
-                                </div>
-                            @endif
+                                {{ number_format($summaryMuddatli['total_lots']) }} та</p>
                         </a>
 
-                        <!-- Card 2: Тушадиган маблағ - CLICKABLE -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
+                        <!-- Card 2: Тушадиган маблағ -->
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -686,30 +570,10 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                                 {{ number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2) }} млрд сўм</p>
-
-                            @if ($periodInfo['period'] !== 'all')
-                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                    <p class="text-xs text-blue-600 font-medium flex items-center">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ $periodInfo['period'] === 'month'
-                                            ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year']
-                                            : ($periodInfo['period'] === 'quarter'
-                                                ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
-                                                : ($periodInfo['period'] === 'year'
-                                                    ? $periodInfo['year'] . ' йил'
-                                                    : '')) }}</span>
-                                    </p>
-                                </div>
-                            @endif
                         </a>
 
-                        <!-- Card 3: Амалда тушган маблағ - CLICKABLE -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
+                        <!-- Card 3: Амалда тушган маблағ -->
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -726,29 +590,9 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                                 {{ number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2) }} млрд сўм</p>
-
-                            @if ($periodInfo['period'] !== 'all')
-                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                    <p class="text-xs text-blue-600 font-medium flex items-center">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ $periodInfo['period'] === 'month'
-                                            ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year']
-                                            : ($periodInfo['period'] === 'quarter'
-                                                ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
-                                                : ($periodInfo['period'] === 'year'
-                                                    ? $periodInfo['year'] . ' йил'
-                                                    : '')) }}</span>
-                                    </p>
-                                </div>
-                            @endif
                         </a>
 
-                        <!-- Card 4: Қолдиқ маблағ - CLICKABLE -->
+                        <!-- Card 4: Қолдиқ маблағ -->
                         @php
                             $qoldiqMablagh = $nazoratdagilar['tushadigan_mablagh'] - $nazoratdagilar['tushgan_summa'];
                             $qoldiqFoizi =
@@ -758,7 +602,7 @@
                                         100
                                     : 0;
                         @endphp
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $dateFilters)) }}"
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
@@ -783,30 +627,10 @@
                                 <span class="text-sm font-bold"
                                     style="color: rgb(185 28 28);">{{ number_format(100 - $qoldiqFoizi, 1) }}%</span>
                             </div>
-
-                            @if ($periodInfo['period'] !== 'all')
-                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                    <p class="text-xs text-blue-600 font-medium flex items-center">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ $periodInfo['period'] === 'month'
-                                            ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year']
-                                            : ($periodInfo['period'] === 'quarter'
-                                                ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
-                                                : ($periodInfo['period'] === 'year'
-                                                    ? $periodInfo['year'] . ' йил'
-                                                    : '')) }}</span>
-                                    </p>
-                                </div>
-                            @endif
                         </a>
 
-                        <!-- Card 5: График б-ча тушадиган маблағ - CLICKABLE -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
+                        <!-- Card 5: График б-ча тушадиган маблағ -->
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-2"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -823,31 +647,10 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                                 {{ number_format($grafikTushadiganMuddatli / 1000000000, 2) }} млрд сўм</p>
-
-                            @if ($periodInfo['period'] !== 'all')
-                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                    <p class="text-xs text-blue-600 font-medium flex items-center">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ $periodInfo['period'] === 'month'
-                                            ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year']
-                                            : ($periodInfo['period'] === 'quarter'
-                                                ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
-                                                : ($periodInfo['period'] === 'year'
-                                                    ? $periodInfo['year'] . ' йил'
-                                                    : '')) }}</span>
-                                    </p>
-                                </div>
-                            @endif
                         </a>
 
-
-                        <!-- Card 6: График бўйича тушган - CLICKABLE -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters)) }}"
+                        <!-- Card 6: График бўйича тушган -->
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-3"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -864,30 +667,10 @@
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                                 {{ number_format($grafikBoyichaTushgan / 1000000000, 2) }} млрд сўм
                             </p>
-
-                            @if ($periodInfo['period'] !== 'all')
-                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                    <p class="text-xs text-blue-600 font-medium flex items-center">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ $periodInfo['period'] === 'month'
-                                            ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
-                                            : ($periodInfo['period'] === 'quarter'
-                                                ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
-                                                : ($periodInfo['period'] === 'year'
-                                                    ? $periodInfo['year'] . ' йил'
-                                                    : '')) }}</span>
-                                    </p>
-                                </div>
-                            @endif
                         </a>
 
-                        <!-- Card 7: Муддати ўтган қарздорлик - CLICKABLE -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'], $dateFilters)) }}"
+                        <!-- Card 7: Муддати ўтган қарздорлик (Муддатли only) -->
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-4"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
@@ -906,36 +689,11 @@
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
                                 {{ number_format($muddatiUtganQarz / 1000000000, 2) }} млрд сўм
                             </p>
-
-                            @if ($periodInfo['period'] !== 'all')
-                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
-                                    <p class="text-xs text-blue-600 font-medium flex items-center">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <span>{{ $periodInfo['period'] === 'month'
-                                            ? \Carbon\Carbon::create($periodInfo['year'], $periodInfo['month'], 1)->locale('uz')->translatedFormat('F Y')
-                                            : ($periodInfo['period'] === 'quarter'
-                                                ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year']
-                                                : ($periodInfo['period'] === 'year'
-                                                    ? $periodInfo['year'] . ' йил'
-                                                    : '')) }}</span>
-                                    </p>
-                                </div>
-                            @endif
                         </a>
-
                     </div>
-
-
-
                 </div>
 
                 <!-- Payment Type Tabs -->
-
                 <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
                     <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -945,14 +703,13 @@
                     Муддатсиз тўлов (Бир йўла тўлаш)
                 </h2>
 
-
-
                 <!-- Муддатли эмас Content -->
                 <div id="content-muddatli-emas" class="tab-content">
-                    <!-- Statistics Cards - Муддатли эмас (5 cards) -->
+                    <!-- Statistics Cards - Муддатли эмас -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <!-- 1. Soni -->
-                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
                                 <h3 class="font-semibold text-slate-700" style="font-size: 22px">Жами лотлар сони</h3>
@@ -968,10 +725,11 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
                                 {{ number_format($summaryMuddatliEmas['total_lots']) }} та</p>
-                        </div>
+                        </a>
 
                         <!-- 2. Tushadigan mablag' -->
-                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
                                 <h3 class="font-semibold text-slate-700" style="font-size: 22px">Тушадиган маблағ</h3>
@@ -987,30 +745,11 @@
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
                                 {{ number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2) }} млрд сўм</p>
-                        </div>
-
-                        {{-- <!-- 3. Grafik = Expected (no schedule) -->
-                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
-                            style="border-color: rgb(29 78 216);">
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">Графикда тушадиган</h3>
-                                <div class="w-12 h-12 rounded-lg flex items-center justify-center"
-                                    style="background-color: rgba(29, 78, 216, 0.1);">
-                                    <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                {{ number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2) }} млрд сўм</p>
-                            <p class="text-xs text-slate-500">Бир йўла тўлов (график йўқ)</p>
-                        </div> --}}
+                        </a>
 
                         <!-- 4. Amalda to'langan -->
-                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
                                 <h3 class="font-semibold text-slate-700" style="font-size: 22px">Амалда тўланган</h3>
@@ -1034,11 +773,19 @@
                                 <span class="text-sm font-bold"
                                     style="color: rgb(29 78 216);">{{ number_format($summaryMuddatliEmas['payment_percentage'], 1) }}%</span>
                             </div>
-                        </div>
+                        </a>
 
-                        <!-- 5. Muddati o'tgan -->
-
-                        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
+                        <!-- 5. Аукционда турган маблағ (Qoldiq qarz - to'lanmagan lotlar) -->
+                        @php
+                            // Calculate "Аукционда турган маблағ" from summaryMuddatliEmas
+                            // Only show if >= 0 (has debt or fully paid, exclude overpayments)
+                            $muddatiOtganMuddatliEmas = max(
+                                0,
+                                $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
+                            );
+                        @endphp
+                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'qoldiq_qarz' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
                                 <h3 class="font-semibold text-slate-700" style="font-size: 22px">Аукционда турган маблағ
@@ -1053,302 +800,14 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                {{ number_format($muddatiOtganMuddatliEmas / 1000000000, 2) }} млрд сўм</p>
+                                {{ number_format($muddatiOtganMuddatliEmas / 1000000000, 2) }} млрд сўм
+                            </p>
                             <p class="text-1xl text-slate-500">мулкни қабул қилиш тасдиқланмаганлар</p>
-                        </div>
+                        </a>
                     </div>
-
                 </div>
-
             </div>
         </div>
-
-        <!-- Chart.js -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js">
-        </script>
-
-        <script>
-            // Tab switching functions
-            function switchTab(tabName) {
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.style.display = 'none';
-                });
-                document.getElementById('content-' + tabName).style.display = 'block';
-
-                document.querySelectorAll('.tab-button').forEach(button => {
-                    button.style.background = 'white';
-                    button.style.color = 'rgb(71, 85, 105)';
-                });
-
-                const activeTab = document.getElementById('tab-' + tabName);
-                if (tabName === 'muddatli') {
-                    activeTab.style.background = 'linear-gradient(to right, rgb(37, 99, 235), rgb(29, 78, 216))';
-                } else {
-                    activeTab.style.background = 'linear-gradient(to right, rgb(34, 197, 94), rgb(22, 163, 74))';
-                }
-                activeTab.style.color = 'white';
-            }
-
-            // Register datalabels plugin globally
-            Chart.register(ChartDataLabels);
-            Chart.defaults.set('plugins.datalabels', {
-                display: false
-            });
-
-            // Payment Status Distribution Chart
-            const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
-            new Chart(paymentStatusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Тўлиқ тўланган', 'Назоратда', 'График ортда', 'Аукционда'],
-                    datasets: [{
-                        data: [
-                            {{ $chartData['status']['completed'] }},
-                            {{ $chartData['status']['under_control'] }},
-                            {{ $chartData['status']['overdue'] }},
-                            {{ $chartData['status']['auction'] }}
-                        ],
-                        backgroundColor: ['rgb(29, 78, 216)', 'rgb(29, 78, 216)', 'rgb(185, 28, 28)',
-                            'rgb(156, 163, 175)'
-                        ],
-                        borderWidth: 3,
-                        borderColor: '#fff',
-                        hoverOffset: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: {
-                            display: true,
-                            color: '#fff',
-                            font: {
-                                weight: 'bold',
-                                size: 14
-                            },
-                            formatter: (value) => value
-                        },
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    size: 11,
-                                    weight: 'bold'
-                                },
-                                color: '#000',
-                                padding: 12,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            callbacks: {
-                                label: function(context) {
-                                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    let percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                                    return context.label + ': ' + context.parsed + ' дона (' + percentage + '%)';
-                                }
-                            }
-                        }
-                    },
-                    cutout: '65%'
-                }
-            });
-
-            // Monthly Comparison Chart - Муддатли
-            const monthlyCtx = document.getElementById('monthlyComparisonChart').getContext('2d');
-            new Chart(monthlyCtx, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($chartData['monthly_muddatli']['labels']) !!},
-                    datasets: [{
-                        label: 'График',
-                        data: {!! json_encode($chartData['monthly_muddatli']['grafik']) !!},
-                        borderColor: 'rgb(185, 28, 28)',
-                        backgroundColor: 'rgba(185, 28, 28, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3
-                    }, {
-                        label: 'Факт',
-                        data: {!! json_encode($chartData['monthly_muddatli']['fakt']) !!},
-                        borderColor: 'rgb(29, 78, 216)',
-                        backgroundColor: 'rgba(29, 78, 216, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: {
-                            display: true,
-                            align: 'top',
-                            color: (context) => context.datasetIndex === 0 ? 'rgb(185, 28, 28)' : 'rgb(29, 78, 216)',
-                            font: {
-                                weight: 'bold',
-                                size: 10
-                            },
-                            formatter: (value) => value.toFixed(2)
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: (value) => value.toFixed(1) + ' млрд'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Tuman Comparison Chart - Муддатли
-            const tumanCtx = document.getElementById('tumanComparisonChart').getContext('2d');
-            new Chart(tumanCtx, {
-                type: 'bar',
-                data: {
-                    labels: {!! json_encode($chartData['tuman_muddatli']['labels']) !!},
-                    datasets: [{
-                        label: 'График',
-                        data: {!! json_encode($chartData['tuman_muddatli']['grafik']) !!},
-                        backgroundColor: 'rgba(185, 28, 28, 0.8)',
-                        borderColor: 'rgb(185, 28, 28)',
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }, {
-                        label: 'Факт',
-                        data: {!! json_encode($chartData['tuman_muddatli']['fakt']) !!},
-                        backgroundColor: 'rgba(29, 78, 216, 0.8)',
-                        borderColor: 'rgb(29, 78, 216)',
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: {
-                            display: true,
-                            align: 'end',
-                            anchor: 'end',
-                            color: (context) => context.datasetIndex === 0 ? 'rgb(185, 28, 28)' : 'rgb(29, 78, 216)',
-                            font: {
-                                weight: 'bold',
-                                size: 9
-                            },
-                            formatter: (value) => value.toFixed(2)
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: (value) => value.toFixed(1) + ' млрд'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Monthly Chart - Муддатли эмас
-            const monthlyMuddatliEmasCtx = document.getElementById('monthlyMuddatliEmasChart').getContext('2d');
-            new Chart(monthlyMuddatliEmasCtx, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($chartData['monthly_muddatli_emas']['labels']) !!},
-                    datasets: [{
-                        label: 'Тушган маблағ',
-                        data: {!! json_encode($chartData['monthly_muddatli_emas']['received']) !!},
-                        borderColor: 'rgb(29, 78, 216)',
-                        backgroundColor: 'rgba(29, 78, 216, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: {
-                            display: true,
-                            align: 'top',
-                            color: 'rgb(29, 78, 216)',
-                            font: {
-                                weight: 'bold',
-                                size: 10
-                            },
-                            formatter: (value) => value.toFixed(2)
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: (value) => value.toFixed(1) + ' млрд'
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Tuman Chart - Муддатли эмас
-            const tumanMuddatliEmasCtx = document.getElementById('tumanMuddatliEmasChart').getContext('2d');
-            new Chart(tumanMuddatliEmasCtx, {
-                type: 'bar',
-                data: {
-                    labels: {!! json_encode($chartData['tuman_muddatli_emas']['labels']) !!},
-                    datasets: [{
-                        label: 'Тушадиган',
-                        data: {!! json_encode($chartData['tuman_muddatli_emas']['expected']) !!},
-                        backgroundColor: 'rgba(185, 28, 28, 0.8)',
-                        borderColor: 'rgb(185, 28, 28)',
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }, {
-                        label: 'Тушган',
-                        data: {!! json_encode($chartData['tuman_muddatli_emas']['received']) !!},
-                        backgroundColor: 'rgba(29, 78, 216, 0.8)',
-                        borderColor: 'rgb(29, 78, 216)',
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: {
-                            display: true,
-                            align: 'end',
-                            anchor: 'end',
-                            color: (context) => context.datasetIndex === 0 ? 'rgb(185, 28, 28)' : 'rgb(29, 78, 216)',
-                            font: {
-                                weight: 'bold',
-                                size: 9
-                            },
-                            formatter: (value) => value.toFixed(2)
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: (value) => value.toFixed(1) + ' млрд'
-                            }
-                        }
-                    }
-                }
-            });
-        </script>
 
         <style>
             .tab-button {
@@ -1421,5 +880,4 @@
                 animation: fadeInRow 0.3s ease-in-out;
             }
         </style>
-
     @endsection
