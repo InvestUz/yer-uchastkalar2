@@ -402,8 +402,10 @@ public function monitoring(Request $request)
                 })
                 ->sum('tolov_summa');
 
-            // ✅ Only show positive overdue amounts
-            $bolibMuddatiUtgan = max(0, $grafikTushadigan - $grafikTushgan);
+            // ✅ Calculate difference - can be negative or positive
+            $difference = $grafikTushadigan - $grafikTushgan;
+            // ✅ Only add to overdue if positive (debt exists)
+            $bolibMuddatiUtgan = $difference > 0 ? $difference : 0;
         }
 
         $grafikFoiz = $grafikTushadigan > 0 ? round(($grafikTushgan / $grafikTushadigan) * 100, 1) : 0;
