@@ -61,7 +61,11 @@
                                 Барча давр
                             <?php endif; ?>
                         </span>
+
+
                     </div>
+
+
                 </div>
 
                 <!-- Main Period Filter -->
@@ -86,8 +90,310 @@
                         id="btn-all">
                         Умумий ҳисобот
                     </a>
+
+
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <form method="GET" action="<?php echo e(route('yer-sotuvlar.monitoring')); ?>" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Давр тури
+                                </label>
+                                <select name="period" id="period"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="all" <?php echo e($periodInfo['period'] === 'all' ? 'selected' : ''); ?>>
+                                        Барчаси (умумий)
+                                    </option>
+                                    <option value="year" <?php echo e($periodInfo['period'] === 'year' ? 'selected' : ''); ?>>
+                                        Йил бўйича
+                                    </option>
+                                    <option value="quarter" <?php echo e($periodInfo['period'] === 'quarter' ? 'selected' : ''); ?>>
+                                        Чорак бўйича
+                                    </option>
+                                    <option value="month" <?php echo e($periodInfo['period'] === 'month' ? 'selected' : ''); ?>>
+                                        Ой бўйича
+                                    </option>
+                                </select>
+                            </div>
+
+                            
+                            <div id="year-selector"
+                                style="display: <?php echo e(in_array($periodInfo['period'], ['year', 'quarter', 'month']) ? 'block' : 'none'); ?>">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Йил
+                                </label>
+                                <select name="year" id="year-select"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <?php $__currentLoopData = $availablePeriods['years']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($year); ?>"
+                                            <?php echo e($periodInfo['year'] == $year ? 'selected' : ''); ?>>
+                                            <?php echo e($year); ?> йил
+                                        </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </div>
+
+                            
+                            <div id="quarter-selector"
+                                style="display: <?php echo e($periodInfo['period'] === 'quarter' ? 'block' : 'none'); ?>">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Чорак
+                                </label>
+                                <select name="quarter" id="quarter-select"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    
+                                    <?php if($periodInfo['period'] === 'quarter'): ?>
+                                        <?php
+                                            $selectedYearQuarters = collect($availablePeriods['quarters'])
+                                                ->where('yil', $periodInfo['year'])
+                                                ->sortBy('chorak_raqam');
+                                        ?>
+                                        <?php $__empty_1 = true; $__currentLoopData = $selectedYearQuarters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $quarter): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                            <option value="<?php echo e($quarter['chorak_raqam']); ?>"
+                                                <?php echo e($periodInfo['quarter'] == $quarter['chorak_raqam'] ? 'selected' : ''); ?>>
+                                                <?php echo e($quarter['chorak_nomi']); ?>
+
+                                                (<?php echo e(number_format($quarter['summa'] / 1000000000, 2)); ?> млрд)
+                                            </option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                            <option value="">Маълумот йўқ</option>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <option value="1">1-чорак (Январь - Март)</option>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+
+                            
+                            <div id="month-selector"
+                                style="display: <?php echo e($periodInfo['period'] === 'month' ? 'block' : 'none'); ?>">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Ой
+                                </label>
+                                <select name="month" id="month-select"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    
+                                    <?php if($periodInfo['period'] === 'month'): ?>
+                                        <?php
+                                            $selectedYearMonths = collect($availablePeriods['months'])
+                                                ->where('yil', $periodInfo['year'])
+                                                ->sortBy('oy');
+                                        ?>
+                                        <?php $__empty_1 = true; $__currentLoopData = $selectedYearMonths; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                            <option value="<?php echo e($month['oy']); ?>"
+                                                <?php echo e($periodInfo['month'] == $month['oy'] ? 'selected' : ''); ?>>
+                                                <?php echo e($month['oy_nomi']); ?>
+
+                                                (<?php echo e(number_format($month['summa'] / 1000000000, 2)); ?> млрд)
+                                            </option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                            <option value="">Маълумот йўқ</option>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <?php
+                                            $oylar = [
+                                                1 => 'Январь',
+                                                2 => 'Февраль',
+                                                3 => 'Март',
+                                                4 => 'Апрель',
+                                                5 => 'Май',
+                                                6 => 'Июнь',
+                                                7 => 'Июль',
+                                                8 => 'Август',
+                                                9 => 'Сентябрь',
+                                                10 => 'Октябрь',
+                                                11 => 'Ноябрь',
+                                                12 => 'Декабрь',
+                                            ];
+                                        ?>
+                                        <?php $__currentLoopData = $oylar; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $oyRaqam => $oyNomi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($oyRaqam); ?>">
+                                                <?php echo e($oyNomi); ?>
+
+                                            </option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex justify-end space-x-3">
+                            <a href="<?php echo e(route('yer-sotuvlar.monitoring')); ?>"
+                                class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                Тозалаш
+                            </a>
+                            <button type="submit" onclick="cleanFormBeforeSubmit(event)"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                Қидириш
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
+                
+                <script>
+                    // Clean form before submit to remove unnecessary parameters
+                    function cleanFormBeforeSubmit(event) {
+                        const periodValue = document.getElementById('period').value;
+
+                        // Disable inputs based on period type
+                        if (periodValue === 'all') {
+                            // Disable all period selectors
+                            document.getElementById('year-select').disabled = true;
+                            document.getElementById('quarter-select').disabled = true;
+                            document.getElementById('month-select').disabled = true;
+                        } else if (periodValue === 'year') {
+                            // Only year is needed
+                            document.getElementById('quarter-select').disabled = true;
+                            document.getElementById('month-select').disabled = true;
+                        } else if (periodValue === 'quarter') {
+                            // Year and quarter are needed, disable month
+                            document.getElementById('month-select').disabled = true;
+                        } else if (periodValue === 'month') {
+                            // Year and month are needed, disable quarter
+                            document.getElementById('quarter-select').disabled = true;
+                        }
+                    }
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const periodSelect = document.getElementById('period');
+                        const yearSelector = document.getElementById('year-selector');
+                        const quarterSelector = document.getElementById('quarter-selector');
+                        const monthSelector = document.getElementById('month-selector');
+                        const yearSelect = document.getElementById('year-select');
+                        const quarterSelect = document.getElementById('quarter-select');
+                        const monthSelect = document.getElementById('month-select');
+
+                        // Store period data
+                        let periodData = {
+                            years: <?php echo json_encode($availablePeriods['years']); ?>,
+                            quarters: <?php echo json_encode($availablePeriods['quarters']); ?>,
+                            months: <?php echo json_encode($availablePeriods['months']); ?>
+
+                        };
+
+                        function updateSelectors() {
+                            const periodValue = periodSelect.value;
+
+                            // Hide all first
+                            yearSelector.style.display = 'none';
+                            quarterSelector.style.display = 'none';
+                            monthSelector.style.display = 'none';
+
+                            // Show based on selection
+                            if (periodValue === 'year') {
+                                yearSelector.style.display = 'block';
+                            } else if (periodValue === 'quarter') {
+                                yearSelector.style.display = 'block';
+                                quarterSelector.style.display = 'block';
+                            } else if (periodValue === 'month') {
+                                yearSelector.style.display = 'block';
+                                monthSelector.style.display = 'block';
+                            }
+                        }
+
+                        // Update quarters when year changes (for quarter selection)
+                        yearSelect.addEventListener('change', function() {
+                            if (periodSelect.value === 'quarter') {
+                                const selectedYear = parseInt(this.value);
+                                const quartersForYear = periodData.quarters.filter(q => q.yil === selectedYear);
+
+                                // Rebuild quarter options
+                                quarterSelect.innerHTML = '';
+
+                                if (quartersForYear.length > 0) {
+                                    quartersForYear.forEach(q => {
+                                        const option = document.createElement('option');
+                                        option.value = q.chorak_raqam;
+                                        option.textContent = q.chorak_nomi + ' (' + (q.summa / 1000000000)
+                                            .toFixed(2) + ' млрд)';
+                                        quarterSelect.appendChild(option);
+                                    });
+                                } else {
+                                    const option = document.createElement('option');
+                                    option.value = '';
+                                    option.textContent = 'Бу йил учун маълумот йўқ';
+                                    quarterSelect.appendChild(option);
+                                }
+                            } else if (periodSelect.value === 'month') {
+                                const selectedYear = parseInt(this.value);
+                                const monthsForYear = periodData.months.filter(m => m.yil === selectedYear);
+
+                                // Rebuild month options
+                                monthSelect.innerHTML = '';
+
+                                if (monthsForYear.length > 0) {
+                                    monthsForYear.forEach(m => {
+                                        const option = document.createElement('option');
+                                        option.value = m.oy;
+                                        option.textContent = m.oy_nomi + ' (' + (m.summa / 1000000000).toFixed(
+                                            2) + ' млрд)';
+                                        monthSelect.appendChild(option);
+                                    });
+                                } else {
+                                    const option = document.createElement('option');
+                                    option.value = '';
+                                    option.textContent = 'Бу йил учун маълумот йўқ';
+                                    monthSelect.appendChild(option);
+                                }
+                            }
+                        });
+
+                        // Initialize on page load
+                        function initializeSelectors() {
+                            updateSelectors();
+
+                            // If quarter mode is active, populate quarters for selected year
+                            if (periodSelect.value === 'quarter') {
+                                const selectedYear = parseInt(yearSelect.value);
+                                const quartersForYear = periodData.quarters.filter(q => q.yil === selectedYear);
+                                const currentQuarter = <?php echo e($periodInfo['quarter']); ?>;
+
+                                quarterSelect.innerHTML = '';
+                                quartersForYear.forEach(q => {
+                                    const option = document.createElement('option');
+                                    option.value = q.chorak_raqam;
+                                    option.textContent = q.chorak_nomi + ' (' + (q.summa / 1000000000).toFixed(2) +
+                                        ' млрд)';
+                                    if (q.chorak_raqam === currentQuarter) {
+                                        option.selected = true;
+                                    }
+                                    quarterSelect.appendChild(option);
+                                });
+                            }
+
+                            // If month mode is active, populate months for selected year
+                            if (periodSelect.value === 'month') {
+                                const selectedYear = parseInt(yearSelect.value);
+                                const monthsForYear = periodData.months.filter(m => m.yil === selectedYear);
+                                const currentMonth = <?php echo e($periodInfo['month']); ?>;
+
+                                monthSelect.innerHTML = '';
+                                monthsForYear.forEach(m => {
+                                    const option = document.createElement('option');
+                                    option.value = m.oy;
+                                    option.textContent = m.oy_nomi + ' (' + (m.summa / 1000000000).toFixed(2) +
+                                        ' млрд)';
+                                    if (m.oy === currentMonth) {
+                                        option.selected = true;
+                                    }
+                                    monthSelect.appendChild(option);
+                                });
+                            }
+                        }
+
+                        periodSelect.addEventListener('change', updateSelectors);
+                        initializeSelectors(); // Initial call with data population
+                    });
+                </script>
 
             </div>
 
@@ -151,7 +457,7 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                            <?php echo e(number_format($summaryTotal['expected_amount'] / 1000000000, 2)); ?> млрд</p>
+                            <?php echo e(number_format($summaryTotal['expected_amount'] / 1000000000, 2)); ?> млрд сўм</p>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
                                 <p class="text-xs text-blue-600 font-medium flex items-center">
@@ -183,7 +489,7 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                            <?php echo e(number_format($summaryTotal['received_amount'] / 1000000000, 2)); ?> млрд</p>
+                            <?php echo e(number_format($summaryTotal['received_amount'] / 1000000000, 2)); ?> млрд сўм</p>
                         <?php if($periodInfo['period'] !== 'all'): ?>
                             <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
                                 <p class="text-xs text-blue-600 font-medium flex items-center">
@@ -221,7 +527,7 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
-                            <?php echo e(number_format($totalQoldiq / 1000000000, 2)); ?> млрд</p>
+                            <?php echo e(number_format($totalQoldiq / 1000000000, 2)); ?> млрд сўм</p>
                         <div class="flex items-center mb-3">
                             <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                 <div class="h-2.5 rounded-full transition-all duration-500"
@@ -244,6 +550,64 @@
                             </div>
                         <?php endif; ?>
                     </a>
+
+                    <!-- Total Card 5: Yigindi Қолдиқ маблағ -->
+                    <?php
+                        $totalQoldiq = $summaryTotal['expected_amount'] - $summaryTotal['received_amount'];
+                        $totalQoldiqFoizi =
+                            $summaryTotal['expected_amount'] > 0
+                                ? ($totalQoldiq / $summaryTotal['expected_amount']) * 100
+                                : 0;
+                    ?>
+                    <a href="<?php echo e(route('yer-sotuvlar.list', $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])); ?>"
+                        class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-4"
+                        style="border-color: rgb(185 28 28);">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-slate-700" style="font-size: 22px">Қолдиқ маблағ</h3>
+                            <div class="w-12 h-12 rounded-lg flex items-center justify-center"
+                                style="background-color: rgba(185, 28, 28, 0.1);">
+                                <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <?php
+                            $muddatiOtganMuddatliEmas = max(
+                                0,
+                                $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
+                            );
+                        ?>
+
+                        <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
+                            <?php echo e(number_format(($muddatiOtganMuddatliEmas + $muddatiUtganQarz) / 1000000000, 2)); ?> млрд сўм
+
+
+                            <div class="flex items-center mb-3">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
+                                    <div class="h-2.5 rounded-full transition-all duration-500"
+                                        style="width: <?php echo e(min(100, $totalQoldiqFoizi)); ?>%; background-color: rgb(185 28 28);">
+                                    </div>
+                                </div>
+                                <span class="text-sm font-bold"
+                                    style="color: rgb(185 28 28);"><?php echo e(number_format($totalQoldiqFoizi, 1)); ?>%</span>
+                            </div>
+                            <?php if($periodInfo['period'] !== 'all'): ?>
+                                <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
+                                    <p class="text-xs text-blue-600 font-medium flex items-center">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                        <span><?php echo e($periodInfo['period'] === 'month' ? ($monthNames[$periodInfo['month']] ?? '') . ' ' . $periodInfo['year'] : ($periodInfo['period'] === 'quarter' ? $periodInfo['quarter'] . '-чорак ' . $periodInfo['year'] : ($periodInfo['period'] === 'year' ? $periodInfo['year'] . ' йил' : ''))); ?></span>
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+                    </a>
+
                 </div>
             </div>
 
@@ -324,7 +688,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2)); ?> млрд</p>
+                                <?php echo e(number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2)); ?> млрд сўм</p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
                                 <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
@@ -364,7 +728,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2)); ?> млрд</p>
+                                <?php echo e(number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2)); ?> млрд сўм</p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
                                 <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
@@ -412,7 +776,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
-                                <?php echo e(number_format($qoldiqMablagh / 1000000000, 2)); ?> млрд</p>
+                                <?php echo e(number_format($qoldiqMablagh / 1000000000, 2)); ?> млрд сўм</p>
                             <div class="flex items-center mb-3">
                                 <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                     <div class="h-2.5 rounded-full transition-all duration-500"
@@ -446,10 +810,11 @@
 
                         <!-- Card 5: График б-ча тушадиган маблағ - CLICKABLE -->
                         <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters))); ?>"
-                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-2"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">График б-ча тушадиган маблағ</h3>
+                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">График б-ча тушадиган
+                                    маблағ</h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(29, 78, 216, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(29 78 216);" fill="none"
@@ -460,7 +825,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($grafikTushadiganMuddatli / 1000000000, 2)); ?> млрд</p>
+                                <?php echo e(number_format($grafikTushadiganMuddatli / 1000000000, 2)); ?> млрд сўм</p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
                                 <div class="mt-auto pt-3 border-t border-slate-200" style="display: none">
@@ -486,7 +851,7 @@
 
                         <!-- Card 6: График бўйича тушган - CLICKABLE -->
                         <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли'], $dateFilters))); ?>"
-                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-3"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
                                 <h3 class="font-semibold text-slate-700" style="font-size: 22px">График бўйича тушган</h3>
@@ -500,7 +865,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($grafikBoyichaTushgan / 1000000000, 2)); ?> млрд
+                                <?php echo e(number_format($grafikBoyichaTushgan / 1000000000, 2)); ?> млрд сўм
                             </p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
@@ -526,10 +891,11 @@
 
                         <!-- Card 7: Муддати ўтган қарздорлик - CLICKABLE -->
                         <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'], $dateFilters))); ?>"
-                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                            class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-4"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">Муддати ўтган қарздорлик</h3>
+                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">Муддати ўтган қарздорлик
+                                </h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(185, 28, 28, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
@@ -541,7 +907,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                <?php echo e(number_format($muddatiUtganQarz / 1000000000, 2)); ?> млрд
+                                <?php echo e(number_format($muddatiUtganQarz / 1000000000, 2)); ?> млрд сўм
                             </p>
 
                             <?php if($periodInfo['period'] !== 'all'): ?>
@@ -564,311 +930,7 @@
                                 </div>
                             <?php endif; ?>
                         </a>
-                        
-                        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                            <form method="GET" action="<?php echo e(route('yer-sotuvlar.monitoring')); ?>" class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Давр тури
-                                        </label>
-                                        <select name="period" id="period"
-                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                            <option value="all"
-                                                <?php echo e($periodInfo['period'] === 'all' ? 'selected' : ''); ?>>
-                                                Барчаси (умумий)
-                                            </option>
-                                            <option value="year"
-                                                <?php echo e($periodInfo['period'] === 'year' ? 'selected' : ''); ?>>
-                                                Йил бўйича
-                                            </option>
-                                            <option value="quarter"
-                                                <?php echo e($periodInfo['period'] === 'quarter' ? 'selected' : ''); ?>>
-                                                Чорак бўйича
-                                            </option>
-                                            <option value="month"
-                                                <?php echo e($periodInfo['period'] === 'month' ? 'selected' : ''); ?>>
-                                                Ой бўйича
-                                            </option>
-                                        </select>
-                                    </div>
 
-                                    
-                                    <div id="year-selector"
-                                        style="display: <?php echo e(in_array($periodInfo['period'], ['year', 'quarter', 'month']) ? 'block' : 'none'); ?>">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Йил
-                                        </label>
-                                        <select name="year" id="year-select"
-                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                            <?php $__currentLoopData = $availablePeriods['years']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                <option value="<?php echo e($year); ?>"
-                                                    <?php echo e($periodInfo['year'] == $year ? 'selected' : ''); ?>>
-                                                    <?php echo e($year); ?> йил
-                                                </option>
-                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                        </select>
-                                    </div>
-
-                                    
-                                    <div id="quarter-selector"
-                                        style="display: <?php echo e($periodInfo['period'] === 'quarter' ? 'block' : 'none'); ?>">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Чорак
-                                        </label>
-                                        <select name="quarter" id="quarter-select"
-                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                            
-                                            <?php if($periodInfo['period'] === 'quarter'): ?>
-                                                <?php
-                                                    $selectedYearQuarters = collect($availablePeriods['quarters'])
-                                                        ->where('yil', $periodInfo['year'])
-                                                        ->sortBy('chorak_raqam');
-                                                ?>
-                                                <?php $__empty_1 = true; $__currentLoopData = $selectedYearQuarters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $quarter): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                                                    <option value="<?php echo e($quarter['chorak_raqam']); ?>"
-                                                        <?php echo e($periodInfo['quarter'] == $quarter['chorak_raqam'] ? 'selected' : ''); ?>>
-                                                        <?php echo e($quarter['chorak_nomi']); ?>
-
-                                                        (<?php echo e(number_format($quarter['summa'] / 1000000000, 2)); ?> млрд)
-                                                    </option>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                                                    <option value="">Маълумот йўқ</option>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <option value="1">1-чорак (Январь - Март)</option>
-                                            <?php endif; ?>
-                                        </select>
-                                    </div>
-
-                                    
-                                    <div id="month-selector"
-                                        style="display: <?php echo e($periodInfo['period'] === 'month' ? 'block' : 'none'); ?>">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Ой
-                                        </label>
-                                        <select name="month" id="month-select"
-                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                            
-                                            <?php if($periodInfo['period'] === 'month'): ?>
-                                                <?php
-                                                    $selectedYearMonths = collect($availablePeriods['months'])
-                                                        ->where('yil', $periodInfo['year'])
-                                                        ->sortBy('oy');
-                                                ?>
-                                                <?php $__empty_1 = true; $__currentLoopData = $selectedYearMonths; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                                                    <option value="<?php echo e($month['oy']); ?>"
-                                                        <?php echo e($periodInfo['month'] == $month['oy'] ? 'selected' : ''); ?>>
-                                                        <?php echo e($month['oy_nomi']); ?>
-
-                                                        (<?php echo e(number_format($month['summa'] / 1000000000, 2)); ?> млрд)
-                                                    </option>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                                                    <option value="">Маълумот йўқ</option>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <?php
-                                                    $oylar = [
-                                                        1 => 'Январь',
-                                                        2 => 'Февраль',
-                                                        3 => 'Март',
-                                                        4 => 'Апрель',
-                                                        5 => 'Май',
-                                                        6 => 'Июнь',
-                                                        7 => 'Июль',
-                                                        8 => 'Август',
-                                                        9 => 'Сентябрь',
-                                                        10 => 'Октябрь',
-                                                        11 => 'Ноябрь',
-                                                        12 => 'Декабрь',
-                                                    ];
-                                                ?>
-                                                <?php $__currentLoopData = $oylar; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $oyRaqam => $oyNomi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                    <option value="<?php echo e($oyRaqam); ?>">
-                                                        <?php echo e($oyNomi); ?>
-
-                                                    </option>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                            <?php endif; ?>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                
-                                <div class="flex justify-end space-x-3">
-                                    <a href="<?php echo e(route('yer-sotuvlar.monitoring')); ?>"
-                                        class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                                        Тозалаш
-                                    </a>
-                                    <button type="submit" onclick="cleanFormBeforeSubmit(event)"
-                                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                        </svg>
-                                        Қидириш
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        
-                        <script>
-                            // Clean form before submit to remove unnecessary parameters
-                            function cleanFormBeforeSubmit(event) {
-                                const periodValue = document.getElementById('period').value;
-
-                                // Disable inputs based on period type
-                                if (periodValue === 'all') {
-                                    // Disable all period selectors
-                                    document.getElementById('year-select').disabled = true;
-                                    document.getElementById('quarter-select').disabled = true;
-                                    document.getElementById('month-select').disabled = true;
-                                } else if (periodValue === 'year') {
-                                    // Only year is needed
-                                    document.getElementById('quarter-select').disabled = true;
-                                    document.getElementById('month-select').disabled = true;
-                                } else if (periodValue === 'quarter') {
-                                    // Year and quarter are needed, disable month
-                                    document.getElementById('month-select').disabled = true;
-                                } else if (periodValue === 'month') {
-                                    // Year and month are needed, disable quarter
-                                    document.getElementById('quarter-select').disabled = true;
-                                }
-                            }
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const periodSelect = document.getElementById('period');
-                                const yearSelector = document.getElementById('year-selector');
-                                const quarterSelector = document.getElementById('quarter-selector');
-                                const monthSelector = document.getElementById('month-selector');
-                                const yearSelect = document.getElementById('year-select');
-                                const quarterSelect = document.getElementById('quarter-select');
-                                const monthSelect = document.getElementById('month-select');
-
-                                // Store period data
-                                let periodData = {
-                                    years: <?php echo json_encode($availablePeriods['years']); ?>,
-                                    quarters: <?php echo json_encode($availablePeriods['quarters']); ?>,
-                                    months: <?php echo json_encode($availablePeriods['months']); ?>
-
-                                };
-
-                                function updateSelectors() {
-                                    const periodValue = periodSelect.value;
-
-                                    // Hide all first
-                                    yearSelector.style.display = 'none';
-                                    quarterSelector.style.display = 'none';
-                                    monthSelector.style.display = 'none';
-
-                                    // Show based on selection
-                                    if (periodValue === 'year') {
-                                        yearSelector.style.display = 'block';
-                                    } else if (periodValue === 'quarter') {
-                                        yearSelector.style.display = 'block';
-                                        quarterSelector.style.display = 'block';
-                                    } else if (periodValue === 'month') {
-                                        yearSelector.style.display = 'block';
-                                        monthSelector.style.display = 'block';
-                                    }
-                                }
-
-                                // Update quarters when year changes (for quarter selection)
-                                yearSelect.addEventListener('change', function() {
-                                    if (periodSelect.value === 'quarter') {
-                                        const selectedYear = parseInt(this.value);
-                                        const quartersForYear = periodData.quarters.filter(q => q.yil === selectedYear);
-
-                                        // Rebuild quarter options
-                                        quarterSelect.innerHTML = '';
-
-                                        if (quartersForYear.length > 0) {
-                                            quartersForYear.forEach(q => {
-                                                const option = document.createElement('option');
-                                                option.value = q.chorak_raqam;
-                                                option.textContent = q.chorak_nomi + ' (' + (q.summa / 1000000000)
-                                                    .toFixed(2) + ' млрд)';
-                                                quarterSelect.appendChild(option);
-                                            });
-                                        } else {
-                                            const option = document.createElement('option');
-                                            option.value = '';
-                                            option.textContent = 'Бу йил учун маълумот йўқ';
-                                            quarterSelect.appendChild(option);
-                                        }
-                                    } else if (periodSelect.value === 'month') {
-                                        const selectedYear = parseInt(this.value);
-                                        const monthsForYear = periodData.months.filter(m => m.yil === selectedYear);
-
-                                        // Rebuild month options
-                                        monthSelect.innerHTML = '';
-
-                                        if (monthsForYear.length > 0) {
-                                            monthsForYear.forEach(m => {
-                                                const option = document.createElement('option');
-                                                option.value = m.oy;
-                                                option.textContent = m.oy_nomi + ' (' + (m.summa / 1000000000).toFixed(
-                                                    2) + ' млрд)';
-                                                monthSelect.appendChild(option);
-                                            });
-                                        } else {
-                                            const option = document.createElement('option');
-                                            option.value = '';
-                                            option.textContent = 'Бу йил учун маълумот йўқ';
-                                            monthSelect.appendChild(option);
-                                        }
-                                    }
-                                });
-
-                                // Initialize on page load
-                                function initializeSelectors() {
-                                    updateSelectors();
-
-                                    // If quarter mode is active, populate quarters for selected year
-                                    if (periodSelect.value === 'quarter') {
-                                        const selectedYear = parseInt(yearSelect.value);
-                                        const quartersForYear = periodData.quarters.filter(q => q.yil === selectedYear);
-                                        const currentQuarter = <?php echo e($periodInfo['quarter']); ?>;
-
-                                        quarterSelect.innerHTML = '';
-                                        quartersForYear.forEach(q => {
-                                            const option = document.createElement('option');
-                                            option.value = q.chorak_raqam;
-                                            option.textContent = q.chorak_nomi + ' (' + (q.summa / 1000000000).toFixed(2) +
-                                                ' млрд)';
-                                            if (q.chorak_raqam === currentQuarter) {
-                                                option.selected = true;
-                                            }
-                                            quarterSelect.appendChild(option);
-                                        });
-                                    }
-
-                                    // If month mode is active, populate months for selected year
-                                    if (periodSelect.value === 'month') {
-                                        const selectedYear = parseInt(yearSelect.value);
-                                        const monthsForYear = periodData.months.filter(m => m.yil === selectedYear);
-                                        const currentMonth = <?php echo e($periodInfo['month']); ?>;
-
-                                        monthSelect.innerHTML = '';
-                                        monthsForYear.forEach(m => {
-                                            const option = document.createElement('option');
-                                            option.value = m.oy;
-                                            option.textContent = m.oy_nomi + ' (' + (m.summa / 1000000000).toFixed(2) +
-                                                ' млрд)';
-                                            if (m.oy === currentMonth) {
-                                                option.selected = true;
-                                            }
-                                            monthSelect.appendChild(option);
-                                        });
-                                    }
-                                }
-
-                                periodSelect.addEventListener('change', updateSelectors);
-                                initializeSelectors(); // Initial call with data population
-                            });
-                        </script>
                     </div>
 
 
@@ -891,7 +953,7 @@
                 <!-- Муддатли эмас Content -->
                 <div id="content-muddatli-emas" class="tab-content">
                     <!-- Statistics Cards - Муддатли эмас (5 cards) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <!-- 1. Soni -->
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(185 28 28);">
@@ -927,7 +989,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд</p>
+                                <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд сўм</p>
                         </div>
 
                         
@@ -947,7 +1009,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-2" style="color: rgb(29 78 216);">
-                                <?php echo e(number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2)); ?> млрд</p>
+                                <?php echo e(number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2)); ?> млрд сўм</p>
                             <div class="flex items-center">
                                 <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                     <div class="h-2.5 rounded-full transition-all duration-500"
@@ -960,16 +1022,12 @@
                         </div>
 
                         <!-- 5. Muddati o'tgan -->
-                        <?php
-                            $muddatiOtganMuddatliEmas = max(
-                                0,
-                                $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
-                            );
-                        ?>
+
                         <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">Аукционда турган маблағ </h3>
+                                <h3 class="font-semibold text-slate-700" style="font-size: 22px">Аукционда турган маблағ
+                                </h3>
                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                                     style="background-color: rgba(185, 28, 28, 0.1);">
                                     <svg class="w-7 h-7" style="color: rgb(185 28 28);" fill="none"
@@ -980,7 +1038,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                <?php echo e(number_format($muddatiOtganMuddatliEmas / 1000000000, 2)); ?> млрд</p>
+                                <?php echo e(number_format($muddatiOtganMuddatliEmas / 1000000000, 2)); ?> млрд сўм</p>
                             <p class="text-1xl text-slate-500">мулкни қабул қилиш тасдиқланмаганлар</p>
                         </div>
                     </div>
