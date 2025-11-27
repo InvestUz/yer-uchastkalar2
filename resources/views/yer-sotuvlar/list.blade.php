@@ -313,7 +313,11 @@
                 </th>
                 <th scope="col"
                     class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Қолдиқ қарз
+                    Қолдиқ маблағ
+                </th>
+                <th scope="col"
+                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                    Муддати ўтган қарздорлик
                 </th>
 
             <th scope="col"
@@ -379,21 +383,53 @@
 
                         // Calculate qoldiq
                         $qoldiq = $expected - $received;
+
+                        // Calculate muddati utgan qarzdorlik (overdue debt)
+                        $muddatiUtganQarz = 0;
+
+                        if ($yer->tolov_turi === 'муддатли') {
+                            // For muddatli: grafik up to last month - fakt (excluding auction payments)
+                            $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
+
+                            $grafikTushadigan = $yer->grafikTolovlar
+                                ->filter(function($grafik) use ($cutoffDate) {
+                                    $grafikDate = $grafik->yil . '-' . str_pad($grafik->oy, 2, '0', STR_PAD_LEFT) . '-01';
+                                    return $grafikDate <= $cutoffDate;
+                                })
+                                ->sum('grafik_summa');
+
+                            $grafikTushgan = $yer->faktTolovlar
+                                ->filter(function($fakt) {
+                                    $tolashNom = $fakt->tolash_nom ?? '';
+                                    return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
+                                })
+                                ->sum('tolov_summa');
+
+                            $muddatiUtganQarz = max(0, $grafikTushadigan - $grafikTushgan);
+                        } elseif ($yer->tolov_turi === 'муддатли эмас') {
+                            // For muddatli emas: qoldiq if positive
+                            $muddatiUtganQarz = max(0, $qoldiq);
+                        }
                     @endphp
 
                     {{-- Тушадиган маблағ --}}
                     <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center">
-                        {{ number_format($expected / 1000000, 1) }} млн
+                        {{ number_format($expected / 1000000000, 2) }} млрд
                     </td>
 
                     {{-- Тушган маблағ --}}
                     <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center ">
-                        {{ number_format($received / 1000000, 1) }} млн
+                        {{ number_format($received / 1000000000, 2) }} млрд
                     </td>
 
                     {{-- Қолдиқ қарз --}}
                     <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center {{ $qoldiq > 0 ? 'text-red-600' : 'text-gray-600' }}">
-                        {{ number_format($qoldiq / 1000000, 1) }} млн
+                        {{ number_format($qoldiq / 1000000000, 2) }} млрд
+                    </td>
+
+                    {{-- Муддати ўтган қарздорлик --}}
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center {{ $muddatiUtganQarz > 0 ? 'text-red-700' : 'text-gray-600' }}">
+                        {{ number_format($muddatiUtganQarz / 1000000000, 2) }} млрд
                     </td>
 
                 <td class="px-3 py-3 whitespace-nowrap text-sm">
