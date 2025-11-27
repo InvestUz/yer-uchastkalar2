@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\GrafikTolov;
 use App\Models\YerSotuv;
 use App\Services\YerSotuvService;
+use App\Services\YerSotuvFilterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class YerSotuvController extends Controller
 {
     protected $yerSotuvService;
+    protected $filterService;
 
-    public function __construct(YerSotuvService $yerSotuvService)
+    public function __construct(YerSotuvService $yerSotuvService, YerSotuvFilterService $filterService)
     {
         $this->yerSotuvService = $yerSotuvService;
+        $this->filterService = $filterService;
     }
 
     /**
@@ -1175,227 +1178,8 @@ public function monitoring(Request $request)
     {
         $query = YerSotuv::query();
 
-        // ✅ CRITICAL: Apply base filters (excludes "Бекор қилинган" lots)
-        $this->yerSotuvService->applyBaseFilters($query);
-
-        // ✅ EXCLUDE "Аукционда турган" lots from list page
-        $query->where(function($q) {
-            $q->where('tolov_turi', 'муддатли')
-              ->orWhere('tolov_turi', 'муддатли эмас');
-        });
-
-        // Lot raqamlari filter (from grafik period filtering)
-        if (!empty($filters['lot_raqamlari']) && is_array($filters['lot_raqamlari'])) {
-            $query->whereIn('lot_raqami', $filters['lot_raqamlari']);
-        }
-
-        // Search filter
-        if (!empty($filters['search'])) {
-            $searchTerm = $filters['search'];
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('lot_raqami', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('tuman', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('mfy', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('manzil', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('unikal_raqam', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('zona', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('golib_nomi', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('auksion_golibi', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('telefon', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('holat', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('asos', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('shartnoma_raqam', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('tolov_turi', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        // Tuman filter
-        if (!empty($filters['tuman'])) {
-            $tumanPatterns = $this->yerSotuvService->getTumanPatterns($filters['tuman']);
-            $query->where(function ($q) use ($tumanPatterns) {
-                foreach ($tumanPatterns as $pattern) {
-                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-                }
-            });
-        }
-
-        // Year filter
-        if (!empty($filters['yil'])) {
-            $query->where('yil', $filters['yil']);
-        }
-
-        // Date filters
-        if (!empty($filters['auksion_sana_from'])) {
-            $query->whereDate('auksion_sana', '>=', $filters['auksion_sana_from']);
-        }
-        if (!empty($filters['auksion_sana_to'])) {
-            $query->whereDate('auksion_sana', '<=', $filters['auksion_sana_to']);
-        }
-        if (!empty($filters['shartnoma_sana_from'])) {
-            $query->whereDate('shartnoma_sana', '>=', $filters['shartnoma_sana_from']);
-        }
-        if (!empty($filters['shartnoma_sana_to'])) {
-            $query->whereDate('shartnoma_sana', '<=', $filters['shartnoma_sana_to']);
-        }
-
-        // Price range filter
-        if (!empty($filters['narx_from'])) {
-            $query->where('sotilgan_narx', '>=', $filters['narx_from']);
-        }
-        if (!empty($filters['narx_to'])) {
-            $query->where('sotilgan_narx', '<=', $filters['narx_to']);
-        }
-
-        // Area range filter
-        if (!empty($filters['maydoni_from'])) {
-            $query->where('maydoni', '>=', $filters['maydoni_from']);
-        }
-        if (!empty($filters['maydoni_to'])) {
-            $query->where('maydoni', '<=', $filters['maydoni_to']);
-        }
-
-        // Special status filters
-        if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
-            $query->where(function ($q) {
-                $q->where('tolov_turi', '!=', 'муддатли')
-                    ->where('tolov_turi', '!=', 'муддатли эмас')
-                    ->orWhereNull('tolov_turi');
-            });
-        } elseif (!empty($filters['toliq_tolangan']) && $filters['toliq_tolangan'] === 'true') {
-            $query->where('tolov_turi', 'муддатли');
-            $query->whereRaw('(
-            (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
-            - (
-                COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
-                + COALESCE(auksion_harajati, 0)
-            )
-        ) <= 0
-        AND (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0)) > 0');
-        } elseif (!empty($filters['nazoratda']) && $filters['nazoratda'] === 'true') {
-            $query->where('tolov_turi', 'муддатли');
-            $query->whereRaw('(
-            (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0))
-            - (
-                COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
-                + COALESCE(auksion_harajati, 0)
-            )
-        ) > 0');
-        } elseif (!empty($filters['grafik_ortda']) && $filters['grafik_ortda'] === 'true') {
-            // ✅ Filter lots with ACTUAL overdue debt (LOT-BY-LOT calculation, EXCLUDING auction org payments)
-            $bugun = $this->yerSotuvService->getGrafikCutoffDate();
-            $query->where('tolov_turi', 'муддатли');
-
-            // Get ALL муддатли lots first
-            $allMuddatliLots = (clone $query)->pluck('lot_raqami')->toArray();
-
-            if (!empty($allMuddatliLots)) {
-                $lotsWithDebt = [];
-
-                // LOT-BY-LOT: Calculate debt for each lot
-                foreach ($allMuddatliLots as $lotRaqami) {
-                    // Get grafik for this lot
-                    $lotGrafikTushadigan = DB::table('grafik_tolovlar')
-                        ->where('lot_raqami', $lotRaqami)
-                        ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
-                        ->sum('grafik_summa');
-
-                    // Get fakt for this lot (EXCLUDING auction org payments)
-                    $lotGrafikTushgan = DB::table('fakt_tolovlar')
-                        ->where('lot_raqami', $lotRaqami)
-                        ->where(function($q) {
-                            $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-                              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-                              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-                              ->orWhereNull('tolash_nom');
-                        })
-                        ->sum('tolov_summa');
-
-                    // Calculate debt for this lot
-                    $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
-
-                    // ✅ Only include lots with positive debt
-                    if ($lotDebt > 0) {
-                        $lotsWithDebt[] = $lotRaqami;
-                    }
-                }
-
-                if (!empty($lotsWithDebt)) {
-                    $query->whereIn('lot_raqami', $lotsWithDebt);
-                } else {
-                    // No lots with debt - return empty result
-                    $query->whereRaw('1 = 0');
-                }
-            } else {
-                $query->whereRaw('1 = 0');
-            }
-        } elseif (!empty($filters['qoldiq_qarz']) && $filters['qoldiq_qarz'] === 'true') {
-            // ✅ FILTER: Auksonda turgan mablagh - shartnoma imzolanmagan lotlar
-
-            \Log::info('===== AUKSONDA TURGAN FILTER DEBUG START =====');
-
-            $query->where('tolov_turi', 'муддатли эмас');
-
-            // ✅ CRITICAL: Filter by holat - only show lots that haven't signed contract yet
-            $query->where(function ($q) {
-                $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
-                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаган%');
-            });
-
-            // Get all filtered lots BEFORE debt calculation
-            $allFilteredLots = (clone $query)->get(['lot_raqami', 'golib_tolagan', 'shartnoma_summasi', 'auksion_harajati', 'holat']);
-
-            \Log::info('auksonda_turgan: Total муддатли эмас lots with pending contract status', [
-                'count' => $allFilteredLots->count(),
-                'sample_holat' => $allFilteredLots->take(5)->pluck('holat')->toArray()
-            ]);
-
-            // ✅ ADDITIONAL FILTER: Show only lots with qoldiq >= 0 (exclude overpayments)
-            $query->whereRaw('(
-        (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
-        >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
-    )');
-
-            // Get final filtered results
-            $filteredLots = (clone $query)->get(['lot_raqami', 'golib_tolagan', 'shartnoma_summasi', 'auksion_harajati', 'holat']);
-
-            // Calculate detailed breakdown
-            $detailedBreakdown = $filteredLots->map(function ($lot) {
-                $expected = ($lot->golib_tolagan ?? 0) + ($lot->shartnoma_summasi ?? 0) - ($lot->auksion_harajati ?? 0);
-
-                $received = DB::table('fakt_tolovlar')
-                    ->where('lot_raqami', $lot->lot_raqami)
-                    ->sum('tolov_summa');
-
-                $qoldiq = $expected - $received;
-
-                return [
-                    'lot_raqami' => $lot->lot_raqami,
-                    'holat' => $lot->holat,
-                    'expected' => round($expected, 2),
-                    'received' => round($received, 2),
-                    'qoldiq' => round($qoldiq, 2),
-                    'status' => $qoldiq > 0.01 ? 'HAS_DEBT' : ($qoldiq >= -0.01 ? 'FULLY_PAID' : 'OVERPAID'),
-                ];
-            });
-
-            // Categorize
-            $hasDebt = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] > 0.01);
-            $fullyPaid = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] >= -0.01 && $lot['qoldiq'] <= 0.01);
-            $overpaid = $detailedBreakdown->filter(fn($lot) => $lot['qoldiq'] < -0.01);
-
-            \Log::info('auksonda_turgan: Final breakdown', [
-                'total_filtered' => $filteredLots->count(),
-                'has_debt_count' => $hasDebt->count(),
-                'fully_paid_count' => $fullyPaid->count(),
-                'overpaid_count' => $overpaid->count(),
-                'sample_lots' => $hasDebt->take(5)->toArray(),
-            ]);
-
-            \Log::info('===== AUKSONDA TURGAN FILTER DEBUG END =====');
-        } elseif (!empty($filters['tolov_turi'])) {
-            $query->where('tolov_turi', $filters['tolov_turi']);
-        }
+        // ✅ Use FilterService for all filtering logic (optimized)
+        $this->filterService->applyFilters($query, $filters);
 
         // Holat filter
         if (!empty($filters['holat'])) {
