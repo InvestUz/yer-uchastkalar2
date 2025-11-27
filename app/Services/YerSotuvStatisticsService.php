@@ -66,6 +66,16 @@ class YerSotuvStatisticsService
                 'bolib_tushadigan' => $this->calculationService->calculateBolibTushadigan($tumanPatterns, $dateFilters),
             ];
 
+            // Calculate bolib_tushgan_all (INCLUDING auction org payments)
+            $bolibLotsAll = $this->dataService->getBolibLotlar($tumanPatterns, $dateFilters);
+            $bolibTushganAll = 0;
+            if (!empty($bolibLotsAll)) {
+                $bolibTushganAll = DB::table('fakt_tolovlar')
+                    ->whereIn('lot_raqami', $bolibLotsAll)
+                    ->sum('tolov_summa');
+            }
+            $stat['bolib_tushgan_all'] = $bolibTushganAll;
+
             // CALCULATE JAMI TUSHADIGAN:
             // bir_yola_tushadigan + bolib_tushadigan + mulk_qabul
             $stat['jami']['tushadigan_mablagh'] =
@@ -109,6 +119,16 @@ class YerSotuvStatisticsService
             'bolib_tushgan' => $this->calculationService->calculateBolibTushgan(null, $dateFilters, $this->dataService),
             'bolib_tushadigan' => $this->calculationService->calculateBolibTushadigan(null, $dateFilters),
         ];
+
+        // Calculate bolib_tushgan_all (INCLUDING auction org payments) for JAMI
+        $bolibLotsAll = $this->dataService->getBolibLotlar(null, $dateFilters);
+        $bolibTushganAll = 0;
+        if (!empty($bolibLotsAll)) {
+            $bolibTushganAll = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $bolibLotsAll)
+                ->sum('tolov_summa');
+        }
+        $jami['bolib_tushgan_all'] = $bolibTushganAll;
 
         // CALCULATE JAMI TUSHADIGAN:
         // bir_yola_tushadigan + bolib_tushadigan + mulk_qabul

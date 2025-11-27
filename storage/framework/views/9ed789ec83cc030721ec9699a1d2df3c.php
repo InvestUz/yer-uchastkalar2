@@ -303,19 +303,19 @@
 
                                     <!-- Col 9: Jami tushgan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900">
-                                        <?php echo e(number_format($statistics['jami']['jami_tushgan_yigindi'] / 1000000000, 1)); ?>
+                                        <?php echo e(number_format(($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / 1000000000, 1)); ?>
 
                                     </td>
 
                                     <!-- Col 10: Qoldiq -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-red-700">
-                                        <?php echo e(number_format(($statistics['jami']['jami']['tushadigan_mablagh'] - $statistics['jami']['jami_tushgan_yigindi']) / 1000000000, 1)); ?>
+                                        <?php echo e(number_format(($statistics['jami']['jami']['tushadigan_mablagh'] - ($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0))) / 1000000000, 1)); ?>
 
                                     </td>
 
                                     <!-- Col 11: Foizda -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <?php echo e($statistics['jami']['jami']['tushadigan_mablagh'] > 0 ? number_format(($statistics['jami']['jami_tushgan_yigindi'] / $statistics['jami']['jami']['tushadigan_mablagh']) * 100, 1) : 0); ?>%
+                                        <?php echo e($statistics['jami']['jami']['tushadigan_mablagh'] > 0 ? number_format((($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / $statistics['jami']['jami']['tushadigan_mablagh']) * 100, 1) : 0); ?>%
                                     </td>
 
                                     <!-- Col 12: Biryola soni -->
@@ -411,17 +411,17 @@
 
                                     <!-- Col 29: Bolib tushgan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900">
-                                        <?php echo e(number_format($statistics['jami']['bolib_tushgan'] / 1000000000, 1)); ?></td>
+                                        <?php echo e(number_format(($statistics['jami']['bolib_tushgan_all'] ?? 0) / 1000000000, 1)); ?></td>
 
                                     <!-- Col 30: Bolib qoldiq -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-red-700">
-                                        <?php echo e(number_format(($statistics['jami']['bolib_tushadigan'] - $statistics['jami']['bolib_tushgan']) / 1000000000, 1)); ?>
+                                        <?php echo e(number_format((($statistics['jami']['bolib_tushadigan'] ?? 0) - ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / 1000000000, 1)); ?>
 
                                     </td>
 
                                     <!-- Col 31: Bolib foiz -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <?php echo e($statistics['jami']['bolib_tushadigan'] > 0 ? number_format(($statistics['jami']['bolib_tushgan'] / $statistics['jami']['bolib_tushadigan']) * 100, 1) : 0); ?>%
+                                        <?php echo e(($statistics['jami']['bolib_tushadigan'] ?? 0) > 0 ? number_format((($statistics['jami']['bolib_tushgan_all'] ?? 0) / $statistics['jami']['bolib_tushadigan']) * 100, 1) : 0); ?>%
                                     </td>
 
                                     <!-- Col 32: Auksonda soni -->
@@ -511,17 +511,17 @@
 
                                         <!-- Col 9: Jami tushgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium">
-                                            <?php echo e(number_format($tuman['jami_tushgan_yigindi'] / 1000000000, 1)); ?></td>
+                                            <?php echo e(number_format(($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0)) / 1000000000, 1)); ?></td>
 
                                         <!-- Col 10: Jami qoldiq -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-red-700 font-medium">
-                                            <?php echo e(number_format(($tuman['jami']['tushadigan_mablagh'] - $tuman['jami_tushgan_yigindi']) / 1000000000, 1)); ?>
+                                            <?php echo e(number_format(($tuman['jami']['tushadigan_mablagh'] - ($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0))) / 1000000000, 1)); ?>
 
                                         </td>
 
                                         <!-- Col 11: Jami foiz -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            <?php echo e($tuman['jami']['tushadigan_mablagh'] > 0 ? number_format(($tuman['jami_tushgan_yigindi'] / $tuman['jami']['tushadigan_mablagh']) * 100, 1) : 0); ?>%
+                                            <?php echo e($tuman['jami']['tushadigan_mablagh'] > 0 ? number_format((($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0)) / $tuman['jami']['tushadigan_mablagh']) * 100, 1) : 0); ?>%
                                         </td>
 
                                         <!-- Col 12: Biryola soni -->
@@ -614,17 +614,17 @@
 
                                         <!-- Col 29: Bolib tushgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium">
-                                            <?php echo e(number_format($tuman['bolib_tushgan'] / 1000000000, 1)); ?></td>
+                                            <?php echo e(number_format(($tuman['bolib_tushgan_all'] ?? 0) / 1000000000, 1)); ?></td>
 
                                         <!-- Col 30: Bolib qoldiq -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-red-700 font-medium">
-                                            <?php echo e(number_format(($tuman['bolib_tushadigan'] - $tuman['bolib_tushgan']) / 1000000000, 1)); ?>
+                                            <?php echo e(number_format((($tuman['bolib_tushadigan'] ?? 0) - ($tuman['bolib_tushgan_all'] ?? 0)) / 1000000000, 1)); ?>
 
                                         </td>
 
                                         <!-- Col 31: Bolib foiz -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            <?php echo e($tuman['bolib_tushadigan'] > 0 ? number_format(($tuman['bolib_tushgan'] / $tuman['bolib_tushadigan']) * 100, 1) : 0); ?>%
+                                            <?php echo e(($tuman['bolib_tushadigan'] ?? 0) > 0 ? number_format((($tuman['bolib_tushgan_all'] ?? 0) / $tuman['bolib_tushadigan']) * 100, 1) : 0); ?>%
                                         </td>
 
                                         <!-- Col 32: Auksonda soni -->

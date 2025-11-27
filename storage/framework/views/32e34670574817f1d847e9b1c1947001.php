@@ -161,10 +161,10 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['jami_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 4: жами тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['jami_tushgan'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format((($jami['biryola_tushgan'] ?? 0) + ($jami['bolib_tushgan_all'] ?? 0)) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 5: қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['jami_qoldiq'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format((($jami['jami_qoldiq'] ?? 0)) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 6: Муддати ўтган қарздорлик (NEW COLUMN) -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['jami_muddati_utgan'] / 1000000000, 2)); ?></td>
@@ -179,10 +179,10 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['biryola_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 9: Бир йўла - тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['biryola_tushgan'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format(($jami['biryola_tushgan'] ?? 0) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 10: Бир йўла - қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['biryola_qoldiq'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format((($jami['biryola_qoldiq'] ?? 0)) / 1000000000, 2)); ?></td>
 
                                 <!-- BOLIB SECTION (7 columns: 11-17) -->
                                 <!-- Col 11: Нархини бўлиб - Сони -->
@@ -194,10 +194,10 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['bolib_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 13: Нархини бўлиб - тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['bolib_tushgan'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format(($jami['bolib_tushgan_all'] ?? 0) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 14: Нархини бўлиб - қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['bolib_qoldiq'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format((($jami['bolib_tushadigan'] ?? 0) - ($jami['bolib_tushgan_all'] ?? 0)) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 15: График б-ча тушадиган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900"><?php echo e(number_format($jami['grafik_tushadigan'] / 1000000000, 2)); ?></td>
@@ -236,10 +236,10 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['jami_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 4: жами тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['jami_tushgan'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format((($stat['biryola_tushgan'] ?? 0) + ($stat['bolib_tushgan_all'] ?? 0)) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 5: қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['jami_qoldiq'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format(($stat['jami_qoldiq'] ?? 0) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 6: Муддати ўтган қарздорлик (NEW COLUMN - placeholder) -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 <?php echo e($stat['jami_muddati_utgan'] > 0 ? 'bg-yellow-50 text-yellow-700 font-semibold' : ''); ?>"><?php echo e(number_format($stat['jami_muddati_utgan'] / 1000000000, 2)); ?></td>
@@ -258,10 +258,10 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['biryola_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 9: Бир йўла - тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['biryola_tushgan'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format(($stat['biryola_tushgan'] ?? 0) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 10: Бир йўла - қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['biryola_qoldiq'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format((($stat['biryola_tushadigan'] ?? 0) - ($stat['biryola_tushgan'] ?? 0)) / 1000000000, 2)); ?></td>
 
                                 <!-- BOLIB SECTION (7 columns: 11-17) -->
                                 <!-- Col 11: Нархини бўлиб - Сони -->
@@ -277,10 +277,10 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['bolib_tushadigan'] / 1000000000, 2)); ?></td>
 
                                 <!-- Col 13: Нархини бўлиб - тушган маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['bolib_tushgan'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format(($stat['bolib_tushgan_all'] ?? 0) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 14: Нархини бўлиб - қолдиқ маблағ -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['bolib_qoldiq'] / 1000000000, 2)); ?></td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format((($stat['bolib_tushadigan'] ?? 0) - ($stat['bolib_tushgan_all'] ?? 0)) / 1000000000, 2)); ?></td>
 
                                 <!-- Col 15: График б-ча тушадиган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700"><?php echo e(number_format($stat['grafik_tushadigan'] / 1000000000, 2)); ?></td>
