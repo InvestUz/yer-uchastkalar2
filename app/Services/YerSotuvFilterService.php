@@ -52,11 +52,8 @@ class YerSotuvFilterService
         // ✅ Exclude "Бекор қилинган" lots
         $this->yerSotuvService->applyBaseFilters($query);
 
-        // ✅ EXCLUDE "Аукционда турган" lots from list page
-        $query->where(function($q) {
-            $q->where('tolov_turi', 'муддатли')
-              ->orWhere('tolov_turi', 'муддатли эмас');
-        });
+        // ✅ EXCLUDE "Аукционда турган" lots from list page ONLY if not explicitly filtering for them
+        // This allows specific tolov_turi filters to work correctly
     }
 
     /**
@@ -169,16 +166,36 @@ class YerSotuvFilterService
      */
     private function applySpecialStatusFilters(Builder $query, array $filters): void
     {
+        // Track if special filter is applied
+        $hasSpecialFilter = false;
+
         if (!empty($filters['auksonda_turgan']) && $filters['auksonda_turgan'] === 'true') {
             $this->applyAuksondaTurganFilter($query);
+            $hasSpecialFilter = true;
         } elseif (!empty($filters['toliq_tolangan']) && $filters['toliq_tolangan'] === 'true') {
             $this->applyToliqTolanganFilter($query);
+            $hasSpecialFilter = true;
         } elseif (!empty($filters['nazoratda']) && $filters['nazoratda'] === 'true') {
             $this->applyNazoratdaFilter($query);
+            $hasSpecialFilter = true;
         } elseif (!empty($filters['grafik_ortda']) && $filters['grafik_ortda'] === 'true') {
-            $this->applyGrafikOrtdaFilter($query);
+            // grafik_ortda can include BOTH муддатли (with overdue grafik) AND муддатли эмас (with qoldiq qarz)
+            $this->applyGrafikOrtdaFilter($query, $filters);
+            $hasSpecialFilter = true;
         } elseif (!empty($filters['qoldiq_qarz']) && $filters['qoldiq_qarz'] === 'true') {
             $this->applyQoldiqQarzFilter($query);
+            $hasSpecialFilter = true;
+        }
+
+        // Apply tolov_turi filter if specified and no special filter overrides it
+        if (!empty($filters['tolov_turi']) && !$hasSpecialFilter) {
+            $query->where('tolov_turi', $filters['tolov_turi']);
+        } elseif (empty($filters['tolov_turi']) && !$hasSpecialFilter) {
+            // Default: exclude auksonda turgan lots if no tolov_turi specified
+            $query->where(function($q) {
+                $q->where('tolov_turi', 'муддатли')
+                  ->orWhere('tolov_turi', 'муддатли эмас');
+            });
         }
     }
 
@@ -227,41 +244,47 @@ class YerSotuvFilterService
 
     /**
      * Filter: Grafik ortda (LOT-BY-LOT calculation with auction org exclusions)
+     * If tolov_turi is specified, only filter that type
+     * If no tolov_turi, include BOTH муддатли (overdue grafik) AND муддатли эмас (qoldiq qarz)
      */
-    private function applyGrafikOrtdaFilter(Builder $query): void
+    private function applyGrafikOrtdaFilter(Builder $query, array $filters): void
     {
         $bugun = $this->yerSotuvService->getGrafikCutoffDate();
+        $tolovTuri = $filters['tolov_turi'] ?? null;
+
+        if ($tolovTuri === 'муддатли') {
+            // Only муддатли with overdue grafik
+            $this->applyMuddatliGrafikOrtda($query, $bugun);
+        } elseif ($tolovTuri === 'муддатли эмас') {
+            // Only муддатли эмас with qoldiq qarz
+            $this->applyQoldiqQarzFilter($query);
+        } else {
+            // BOTH types: муддатли (grafik ortda) + муддатли эмас (qoldiq qarz)
+            $muddatliLots = $this->getMuddatliGrafikOrtdaLots($bugun);
+            $muddatliEmasLots = $this->getQoldiqQarzLots();
+
+            $allOverdueLots = array_merge($muddatliLots, $muddatliEmasLots);
+
+            if (!empty($allOverdueLots)) {
+                $query->whereIn('lot_raqami', $allOverdueLots);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
+    }
+
+    /**
+     * Apply муддатли grafik ortda filter
+     */
+    private function applyMuddatliGrafikOrtda(Builder $query, string $bugun): void
+    {
         $query->where('tolov_turi', 'муддатли');
 
         // Get ALL муддатли lots first
         $allMuddatliLots = (clone $query)->pluck('lot_raqami')->toArray();
 
         if (!empty($allMuddatliLots)) {
-            $lotsWithDebt = [];
-
-            // LOT-BY-LOT: Calculate debt for each lot
-            foreach ($allMuddatliLots as $lotRaqami) {
-                $lotGrafikTushadigan = DB::table('grafik_tolovlar')
-                    ->where('lot_raqami', $lotRaqami)
-                    ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
-                    ->sum('grafik_summa');
-
-                $lotGrafikTushgan = DB::table('fakt_tolovlar')
-                    ->where('lot_raqami', $lotRaqami)
-                    ->where(function($q) {
-                        $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-                          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-                          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-                          ->orWhereNull('tolash_nom');
-                    })
-                    ->sum('tolov_summa');
-
-                $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
-
-                if ($lotDebt > 0) {
-                    $lotsWithDebt[] = $lotRaqami;
-                }
-            }
+            $lotsWithDebt = $this->getMuddatliGrafikOrtdaLots($bugun, $allMuddatliLots);
 
             if (!empty($lotsWithDebt)) {
                 $query->whereIn('lot_raqami', $lotsWithDebt);
@@ -271,6 +294,76 @@ class YerSotuvFilterService
         } else {
             $query->whereRaw('1 = 0');
         }
+    }
+
+    /**
+     * Get муддатли lots with grafik ortda
+     */
+    private function getMuddatliGrafikOrtdaLots(string $bugun, ?array $lotRaqamlari = null): array
+    {
+        if ($lotRaqamlari === null) {
+            // Get all муддатли lots
+            $lotRaqamlari = DB::table('yer_sotuvlar')
+                ->where('tolov_turi', 'муддатли')
+                ->where('holat', '!=', 'Бекор қилинган')
+                ->whereNotNull('holat')
+                ->pluck('lot_raqami')
+                ->toArray();
+        }
+
+        if (empty($lotRaqamlari)) {
+            return [];
+        }
+
+        $lotsWithDebt = [];
+
+        // LOT-BY-LOT: Calculate debt for each lot
+        foreach ($lotRaqamlari as $lotRaqami) {
+            $lotGrafikTushadigan = DB::table('grafik_tolovlar')
+                ->where('lot_raqami', $lotRaqami)
+                ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
+                ->sum('grafik_summa');
+
+            $lotGrafikTushgan = DB::table('fakt_tolovlar')
+                ->where('lot_raqami', $lotRaqami)
+                ->where(function($q) {
+                    $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+                      ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+                      ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+                      ->orWhereNull('tolash_nom');
+                })
+                ->sum('tolov_summa');
+
+            $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
+
+            if ($lotDebt > 0) {
+                $lotsWithDebt[] = $lotRaqami;
+            }
+        }
+
+        return $lotsWithDebt;
+    }
+
+    /**
+     * Get муддатли эмас lots with qoldiq qarz
+     */
+    private function getQoldiqQarzLots(): array
+    {
+        return DB::table('yer_sotuvlar')
+            ->where('tolov_turi', 'муддатли эмас')
+            ->where('holat', '!=', 'Бекор қилинган')
+            ->whereNotNull('holat')
+            ->where(function ($q) {
+                $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаган%');
+            })
+            ->whereRaw('(
+                (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
+                >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+            )')
+            ->pluck('lot_raqami')
+            ->toArray();
     }
 
     /**

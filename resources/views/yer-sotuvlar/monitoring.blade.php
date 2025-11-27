@@ -481,10 +481,13 @@
 
                     <!-- Total Card 5: Муддати ўтган қарздорлик (JAMI - ALL) -->
                     @php
+                        // Calculate muddati utgan for muddatli emas (auksonda turgan)
                         $muddatiOtganMuddatliEmas = max(
                             0,
                             $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
                         );
+                        // Total muddati utgan = muddatli (grafik ortda) + muddatli emas (auksonda turgan)
+                        $totalMuddatiUtganQarz = $muddatiUtganQarz + $muddatiOtganMuddatliEmas;
                     @endphp
                     <a href="{{ route('yer-sotuvlar.list', array_merge(['grafik_ortda' => 'true'], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-4"
@@ -501,7 +504,7 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
-                            {{ number_format(($muddatiOtganMuddatliEmas + $muddatiUtganQarz) / 1000000000, 2) }} млрд сўм
+                            {{ number_format($totalMuddatiUtganQarz / 1000000000, 2) }} млрд сўм
                         </p>
                         <div class="flex items-center mb-3">
                             <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
