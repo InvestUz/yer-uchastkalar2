@@ -6,6 +6,7 @@ use App\Models\GrafikTolov;
 use App\Models\YerSotuv;
 use App\Services\YerSotuvService;
 use App\Services\YerSotuvFilterService;
+use App\Services\YerSotuvMonitoringService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,11 +14,16 @@ class YerSotuvController extends Controller
 {
     protected $yerSotuvService;
     protected $filterService;
+    protected $monitoringService;
 
-    public function __construct(YerSotuvService $yerSotuvService, YerSotuvFilterService $filterService)
-    {
+    public function __construct(
+        YerSotuvService $yerSotuvService,
+        YerSotuvFilterService $filterService,
+        YerSotuvMonitoringService $monitoringService
+    ) {
         $this->yerSotuvService = $yerSotuvService;
         $this->filterService = $filterService;
+        $this->monitoringService = $monitoringService;
     }
 
     /**
@@ -338,176 +344,19 @@ public function monitoring(Request $request)
     $isPeriodFiltered = $periodInfo['period'] !== 'all';
 
     // Get all tumanlar
-    $tumanlar = [
-        'Бектемир тумани',
-        'Мирзо Улуғбек тумани',
-        'Миробод тумани',
-        'Олмазор тумани',
-        'Сирғали тумани',
-        'Учтепа тумани',
-        'Чилонзор тумани',
-        'Шайхонтоҳур тумани',
-        'Юнусобод тумани',
-        'Яккасарой тумани',
-        'Янги ҳаёт тумани',
-        'Яшнобод тумани'
-    ];
+    $tumanlar = $this->monitoringService->getTumanlar();
 
-    // Use the same calculation logic as yigmaMalumot for consistency in summary values
-    // This ensures that the monitoring page shows the same values as the yigma page
+    // Calculate statistics for each tuman using MonitoringService
     $monitoringStatistics = [];
-
     foreach ($tumanlar as $tuman) {
         $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
-
-        // Get all data for this tuman using the same approach as yigmaMalumot
-        // Bir yola data
-        $biryolaData = $this->yerSotuvService->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters);
-        $biryolaFakt = $this->yerSotuvService->calculateBiryolaFakt($tumanPatterns, $dateFilters);
-        $biryolaQoldiq = $biryolaData['tushadigan_mablagh'] - $biryolaFakt;
-
-        // Bolib data
-        $bolibData = $this->yerSotuvService->getTumanData($tumanPatterns, 'муддатли', $dateFilters);
-        $bolibTushgan = $this->yerSotuvService->calculateBolibTushgan($tumanPatterns, $dateFilters);
-        $bolibTushadigan = $this->yerSotuvService->calculateBolibTushadigan($tumanPatterns, $dateFilters);
-
-        // Calculate bolib tushgan WITH ALL payments (for Амалда тушган маблағ)
-        $bolibTushganAll = 0;
-        $bolibLotsAll = $this->yerSotuvService->getBolibLotlar($tumanPatterns, $dateFilters);
-        if (!empty($bolibLotsAll)) {
-            $bolibTushganAll = DB::table('fakt_tolovlar')
-                ->whereIn('lot_raqami', $bolibLotsAll)
-                ->sum('tolov_summa');
-        }
-
-        // Calculate график bo'yicha data (up to last month)
-        $bolibLots = $this->yerSotuvService->getBolibLotlar($tumanPatterns, $dateFilters);
-        $bugun = $this->yerSotuvService->getGrafikCutoffDate();
-
-        $grafikTushadigan = 0;
-        $grafikTushgan = 0;
-        $bolibMuddatiUtgan = 0;
-
-        if (!empty($bolibLots)) {
-            // ✅ Calculate LOT-BY-LOT overdue debt
-            $bolibMuddatiUtgan = 0;
-            $grafikTushadigan = 0;
-            $grafikTushgan = 0;
-
-            foreach ($bolibLots as $lotRaqami) {
-                // Get grafik for this lot
-                $lotGrafikTushadigan = DB::table('grafik_tolovlar')
-                    ->where('lot_raqami', $lotRaqami)
-                    ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
-                    ->sum('grafik_summa');
-
-                // Get fakt for this lot (EXCLUDING auction org payments)
-                $lotGrafikTushgan = DB::table('fakt_tolovlar')
-                    ->where('lot_raqami', $lotRaqami)
-                    ->where(function($q) {
-                        $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-                          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-                          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-                          ->orWhereNull('tolash_nom');
-                    })
-                    ->sum('tolov_summa');
-
-                // Calculate debt for this lot
-                $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
-
-                // ✅ Only add to total if debt is positive (> 0)
-                if ($lotDebt > 0) {
-                    $bolibMuddatiUtgan += $lotDebt;
-                }
-
-                // Add to totals for display
-                $grafikTushadigan += $lotGrafikTushadigan;
-                $grafikTushgan += $lotGrafikTushgan;
-            }
-        }
-
-        $grafikFoiz = $grafikTushadigan > 0 ? round(($grafikTushgan / $grafikTushadigan) * 100, 1) : 0;
-
-        // CRITICAL: Calculate JAMI soni correctly
-        // T (Total) = Bn (Muddatli emas) + Nn (Muddatli)
-        // Note: Бекор қилинган lots are EXCLUDED via applyBaseFilters
-        $jamiSoni = $biryolaData['soni'] + $bolibData['soni'];
-
-        // CRITICAL: Calculate JAMI муддати ўтган қарздорлик (Column 6)
-        // This is the TOTAL overdue debt across ALL payment types
-        // For муддатли эмас: qoldiq represents overdue only if positive (tushadigan - tushgan)
-        // For муддатли: use график-based calculation (grafik_tushadigan - grafik_tushgan)
-        $biryolaMuddatiUtgan = max(0, $biryolaQoldiq); // Only count if positive (overdue)
-        $jamiMuddatiUtgan = $biryolaMuddatiUtgan + $bolibMuddatiUtgan;
-
-        // Calculate combined totals
-        $jamiTushgan = $biryolaFakt + $bolibTushgan;
-        $jamiQoldiq = $biryolaData['tushadigan_mablagh'] + $bolibTushadigan - $jamiTushgan;
-
-        $monitoringStatistics[] = [
-            'tuman' => $tuman,
-
-            // JAMI (T = Bn + Nn) - EXCLUDES bekor qilinganlar
-            'jami_soni' => $jamiSoni,
-            'jami_tushadigan' => $biryolaData['tushadigan_mablagh'] + $bolibTushadigan,
-            'jami_tushgan' => $jamiTushgan,
-            'jami_qoldiq' => $jamiQoldiq,
-            'jami_muddati_utgan' => $jamiMuddatiUtgan, // NEW: Total overdue (Column 6)
-
-            // BIR YOLA
-            'biryola_soni' => $biryolaData['soni'],
-            'biryola_tushadigan' => $biryolaData['tushadigan_mablagh'],
-            'biryola_tushgan' => $biryolaFakt,
-            'biryola_qoldiq' => $biryolaQoldiq,
-
-            // BOLIB
-            'bolib_soni' => $bolibData['soni'],
-            'bolib_tushadigan' => $bolibTushadigan,
-            'bolib_tushgan' => $bolibTushgan,
-            'bolib_tushgan_all' => $bolibTushganAll, // ✅ ALL payments (with auction org)
-            'bolib_qoldiq' => $bolibTushadigan - $bolibTushgan,
-            'grafik_tushadigan' => $grafikTushadigan,
-            'grafik_tushgan' => $grafikTushgan,
-            'muddati_utgan_qarz' => $bolibMuddatiUtgan, // муддатли overdue only (Column 17)
-            'grafik_foiz' => $grafikFoiz,
-        ];
+        $stat = $this->monitoringService->calculateTumanStatistics($tumanPatterns, $dateFilters, false);
+        $stat['tuman'] = $tuman;
+        $monitoringStatistics[] = $stat;
     }
 
-    // Calculate JAMI totals across all tumans (same approach as yigmaMalumot)
-    $jami = [
-        'jami_soni' => 0,
-        'jami_tushadigan' => 0,
-        'jami_tushgan' => 0,
-        'jami_qoldiq' => 0,
-        'jami_muddati_utgan' => 0, // NEW (Column 6)
-
-        'biryola_soni' => 0,
-        'biryola_tushadigan' => 0,
-        'biryola_tushgan' => 0,
-        'biryola_qoldiq' => 0,
-
-        'bolib_soni' => 0,
-        'bolib_tushadigan' => 0,
-        'bolib_tushgan' => 0,
-        'bolib_tushgan_all' => 0, // ✅ ALL payments (with auction org)
-        'bolib_qoldiq' => 0,
-        'grafik_tushadigan' => 0,
-        'grafik_tushgan' => 0,
-        'muddati_utgan_qarz' => 0, // (Column 17)
-    ];
-
-    foreach ($monitoringStatistics as $stat) {
-        foreach ($jami as $key => $value) {
-            if ($key !== 'grafik_foiz') {
-                $jami[$key] += $stat[$key];
-            }
-        }
-    }
-
-    // Calculate overall grafik foiz
-    $jami['grafik_foiz'] = $jami['grafik_tushadigan'] > 0
-        ? round(($jami['grafik_tushgan'] / $jami['grafik_tushadigan']) * 100, 1)
-        : 0;
+    // Calculate JAMI totals
+    $jami = $this->monitoringService->calculateJamiTotals($monitoringStatistics);
 
     // Map data to monitoring page variables for backward compatibility
     $summaryTotal = [
@@ -1527,189 +1376,18 @@ public function monitoring(Request $request)
             'auksion_sana_to' => $request->auksion_sana_to ?? now()->toDateString(),
         ];
 
-        $tumanlar = [
-            'Бектемир тумани',
-            'Мирзо Улуғбек тумани',
-            'Миробод тумани',
-            'Олмазор тумани',
-            'Сирғали тумани',
-            'Учтепа тумани',
-            'Чилонзор тумани',
-            'Шайхонтоҳур тумани',
-            'Юнусобод тумани',
-            'Яккасарой тумани',
-            'Янги ҳаёт тумани',
-            'Яшнобод тумани'
-        ];
-
+        $tumanlar = $this->monitoringService->getTumanlar();
         $statistics = [];
 
         foreach ($tumanlar as $tuman) {
             $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
-
-            // Get all data for this tuman
-            $jamiData = $this->yerSotuvService->getTumanData($tumanPatterns, null, $dateFilters);
-
-            // Bir yola data
-            $biryolaData = $this->yerSotuvService->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters);
-            $biryolaFakt = $this->yerSotuvService->calculateBiryolaFakt($tumanPatterns, $dateFilters);
-            $biryolaQoldiq = $biryolaData['tushadigan_mablagh'] - $biryolaFakt;
-
-            // Bolib data
-            $bolibData = $this->yerSotuvService->getTumanData($tumanPatterns, 'муддатли', $dateFilters);
-            $bolibTushgan = $this->yerSotuvService->calculateBolibTushgan($tumanPatterns, $dateFilters);
-            $bolibTushadigan = $this->yerSotuvService->calculateBolibTushadigan($tumanPatterns, $dateFilters);
-
-            // Calculate график bo'yicha data (up to last month)
-            $bolibLots = $this->yerSotuvService->getBolibLotlar($tumanPatterns, $dateFilters);
-            $bugun = $this->yerSotuvService->getGrafikCutoffDate();
-
-            $grafikTushadigan = 0;
-            $grafikTushgan = 0;
-            $bolibMuddatiUtgan = 0;
-
-            if (!empty($bolibLots)) {
-                // ✅ Calculate LOT-BY-LOT overdue debt (same as monitoring)
-                $bolibMuddatiUtgan = 0;
-                $grafikTushadigan = 0;
-                $grafikTushgan = 0;
-
-                foreach ($bolibLots as $lotRaqami) {
-                    // Get grafik for this lot
-                    $lotGrafikTushadigan = DB::table('grafik_tolovlar')
-                        ->where('lot_raqami', $lotRaqami)
-                        ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
-                        ->sum('grafik_summa');
-
-                    // Get fakt for this lot (EXCLUDING auction org payments)
-                    $lotGrafikTushgan = DB::table('fakt_tolovlar')
-                        ->where('lot_raqami', $lotRaqami)
-                        ->where(function($q) {
-                            $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-                              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-                              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-                              ->orWhereNull('tolash_nom');
-                        })
-                        ->sum('tolov_summa');
-
-                    // Calculate debt for this lot
-                    $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
-
-                    // ✅ Only add to total if debt is positive (> 0)
-                    if ($lotDebt > 0) {
-                        $bolibMuddatiUtgan += $lotDebt;
-                    }
-
-                    // Add to totals for display
-                    $grafikTushadigan += $lotGrafikTushadigan;
-                    $grafikTushgan += $lotGrafikTushgan;
-                }
-            }
-
-            $grafikFoiz = $grafikTushadigan > 0 ? round(($grafikTushgan / $grafikTushadigan) * 100, 1) : 0;
-
-            // Get bекор qilinganlar count FIRST
-            $bekorQuery = YerSotuv::query();
-            $this->yerSotuvService->applyTumanFilter($bekorQuery, $tumanPatterns);
-            $bekorQuery->where('holat', 'Бекор қилинган');
-            $this->yerSotuvService->applyDateFilters($bekorQuery, $dateFilters);
-            $bekorQilinganlar = $bekorQuery->count();
-
-
-
-            // Calculate tolangan mablagh from fakt_tolovlar for bekor qilinganlar
-            $bekorQilinganlarPayments = $this->yerSotuvService->calculateBekorQilinganlarPayments($tumanPatterns, $dateFilters);
-
-            // CRITICAL: Calculate JAMI soni correctly
-            // T (Total) = Bkn (Bekor) + Bn (Muddatli emas) + Nn (Muddatli)
-            $jamiSoni = $bekorQilinganlar + $biryolaData['soni'] + $bolibData['soni'];
-
-            // CRITICAL: Calculate JAMI муддати ўтган қарздорлик (Column 6)
-            // This is the TOTAL overdue debt across ALL payment types
-            // For муддатли эмас: qoldiq represents overdue only if positive (tushadigan - tushgan)
-            // For муддатли: use график-based calculation (grafik_tushadigan - grafik_tushgan)
-            $biryolaMuddatiUtgan = max(0, $biryolaQoldiq); // Only count if positive (overdue)
-            $jamiMuddatiUtgan = $biryolaMuddatiUtgan + $bolibMuddatiUtgan;
-
-            // Calculate combined totals
-            $jamiTushgan = $biryolaFakt + $bolibTushgan;
-            $jamiQoldiq = $biryolaData['tushadigan_mablagh'] + $bolibTushadigan - $jamiTushgan;
-
-            // Calculate return amounts (qaytarilgan is the bekor payments)
-            $tolanganMablagh = $bekorQilinganlarPayments; // Payments from BEKOR lots
-            $qaytarilganMablagh = $bekorQilinganlarPayments; // Same as tolangan for bekor lots
-
-            $statistics[] = [
-                'tuman' => $tuman,
-
-                // JAMI (T = Bkn + Bn + Nn)
-                'jami_soni' => $jamiSoni,
-                'jami_tushadigan' => $biryolaData['tushadigan_mablagh'] + $bolibTushadigan,
-                'jami_tushgan' => $jamiTushgan,
-                'jami_qoldiq' => $jamiQoldiq,
-                'jami_muddati_utgan' => $jamiMuddatiUtgan, // NEW: Total overdue (Column 6)
-
-                // BIR YOLA
-                'biryola_soni' => $biryolaData['soni'],
-                'biryola_tushadigan' => $biryolaData['tushadigan_mablagh'],
-                'biryola_tushgan' => $biryolaFakt,
-                'biryola_qoldiq' => $biryolaQoldiq,
-
-                // BOLIB
-                'bolib_soni' => $bolibData['soni'],
-                'bolib_tushadigan' => $bolibTushadigan,
-                'bolib_tushgan' => $bolibTushgan,
-                'bolib_qoldiq' => $bolibTushadigan - $bolibTushgan,
-                'grafik_tushadigan' => $grafikTushadigan,
-                'grafik_tushgan' => $grafikTushgan,
-                'muddati_utgan_qarz' => $bolibMuddatiUtgan, // муддатли overdue only (Column 17)
-                'grafik_foiz' => $grafikFoiz,
-
-                // BEKOR QILINGANLAR
-                'bekor_soni' => $bekorQilinganlar,
-                'tolangan_mablagh' => $tolanganMablagh,
-                'qaytarilgan_mablagh' => $qaytarilganMablagh,
-            ];
+            $stat = $this->monitoringService->calculateTumanStatistics($tumanPatterns, $dateFilters, true);
+            $stat['tuman'] = $tuman;
+            $statistics[] = $stat;
         }
 
-        // Calculate JAMI totals across all tumans
-        $jami = [
-            'jami_soni' => 0,
-            'jami_tushadigan' => 0,
-            'jami_tushgan' => 0,
-            'jami_qoldiq' => 0,
-            'jami_muddati_utgan' => 0, // NEW (Column 6)
-
-            'biryola_soni' => 0,
-            'biryola_tushadigan' => 0,
-            'biryola_tushgan' => 0,
-            'biryola_qoldiq' => 0,
-
-            'bolib_soni' => 0,
-            'bolib_tushadigan' => 0,
-            'bolib_tushgan' => 0,
-            'bolib_qoldiq' => 0,
-            'grafik_tushadigan' => 0,
-            'grafik_tushgan' => 0,
-            'muddati_utgan_qarz' => 0, // (Column 17)
-
-            'bekor_soni' => 0,
-            'tolangan_mablagh' => 0,
-            'qaytarilgan_mablagh' => 0,
-        ];
-
-        foreach ($statistics as $stat) {
-            foreach ($jami as $key => $value) {
-                if ($key !== 'grafik_foiz') {
-                    $jami[$key] += $stat[$key];
-                }
-            }
-        }
-
-        // Calculate overall grafik foiz
-        $jami['grafik_foiz'] = $jami['grafik_tushadigan'] > 0
-            ? round(($jami['grafik_tushgan'] / $jami['grafik_tushadigan']) * 100, 1)
-            : 0;
+        // Calculate JAMI totals with bekor qilinganlar
+        $jami = $this->monitoringService->calculateJamiTotalsWithBekor($statistics);
 
         return view('yer-sotuvlar.yigma', compact('statistics', 'jami', 'dateFilters'));
     }
