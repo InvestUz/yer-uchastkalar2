@@ -97,6 +97,7 @@ class YerSotuvController extends Controller
             'nazoratda' => $request->nazoratda,
             'qoldiq_qarz' => $request->qoldiq_qarz,
             'include_all' => $request->include_all, // ✅ Include all lots (cancelled + auksonda)
+            'include_bekor' => $request->include_bekor, // ✅ Include cancelled lots only (exclude auksonda)
 
         ];
 

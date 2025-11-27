@@ -50,9 +50,12 @@ class YerSotuvFilterService
     private function applyBaseFilters(Builder $query, array $filters = []): void
     {
         // ✅ Check if include_all parameter is set to skip cancelled lot exclusion
+        // OR if include_bekor is set to only skip cancelled exclusion (but keep auksonda exclusion)
         if (empty($filters['include_all']) || $filters['include_all'] !== 'true') {
-            // ✅ Exclude "Бекор қилинган" lots
-            $this->yerSotuvService->applyBaseFilters($query);
+            if (empty($filters['include_bekor']) || $filters['include_bekor'] !== 'true') {
+                // ✅ Exclude "Бекор қилинган" lots
+                $this->yerSotuvService->applyBaseFilters($query);
+            }
         }
 
         // ✅ EXCLUDE "Аукционда турган" lots from list page ONLY if not explicitly filtering for them
@@ -193,8 +196,8 @@ class YerSotuvFilterService
         // Apply tolov_turi filter if specified and no special filter overrides it
         if (!empty($filters['tolov_turi']) && !$hasSpecialFilter) {
             $query->where('tolov_turi', $filters['tolov_turi']);
-        } elseif (empty($filters['tolov_turi']) && !$hasSpecialFilter && (empty($filters['include_all']) || $filters['include_all'] !== 'true')) {
-            // Default: exclude auksonda turgan lots if no tolov_turi specified AND not include_all
+        } elseif (empty($filters['tolov_turi']) && !$hasSpecialFilter && (empty($filters['include_all']) || $filters['include_all'] !== 'true') && (empty($filters['include_bekor']) || $filters['include_bekor'] !== 'true')) {
+            // Default: exclude auksonda turgan lots if no tolov_turi specified AND not include_all AND not include_bekor
             $query->where(function($q) {
                 $q->where('tolov_turi', 'муддатли')
                   ->orWhere('tolov_turi', 'муддатли эмас');

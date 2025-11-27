@@ -28,6 +28,13 @@ class YerSotuvDataService
 
         if ($tolovTuri) {
             $query->where('tolov_turi', $tolovTuri);
+        } else {
+            // ✅ When tolov_turi is null (JAMI count), exclude auksonda turgan lots
+            // Only count муддатли and муддатли эмас
+            $query->where(function($q) {
+                $q->where('tolov_turi', 'муддатли')
+                  ->orWhere('tolov_turi', 'муддатли эмас');
+            });
         }
 
         $this->queryService->applyDateFilters($query, $dateFilters);
