@@ -157,7 +157,9 @@
                                 </td>
 
                                 <!-- Col 2: Сони -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ $jami['jami_soni'] }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
+                                    <a href="{{ route('yer-sotuvlar.list') }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['jami_soni'] }}</a>
+                                </td>
 
                                 <!-- Col 3: Сотилган ер нархи бўйича тушадиган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['jami_tushadigan'] / 1000000000, 2) }}</td>
@@ -212,7 +214,9 @@
 
                                 <!-- BEKOR SECTION (3 columns: 18-20) -->
                                 <!-- Col 18: Бекор қилинганлар сони -->
-                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ $jami['bekor_soni'] }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
+                                    <a href="{{ route('yer-sotuvlar.list', ['holat' => 'Бекор қилинган']) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['bekor_soni'] }}</a>
+                                </td>
 
                                 <!-- Col 19: Тўланған маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">{{ number_format($jami['tolangan_mablagh'] / 1000000000, 2) }}</td>
@@ -232,7 +236,13 @@
 
                                 <!-- SOTILGAN YER SECTION (5 columns: 2-6) -->
                                 <!-- Col 2: Сони -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ $stat['jami_soni'] }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
+                                    @if($stat['jami_soni'] > 0)
+                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['jami_soni'] }}</a>
+                                    @else
+                                        <span class="text-slate-400">0</span>
+                                    @endif
+                                </td>
 
                                 <!-- Col 3: Сотилган ер нархи бўйича тушадиган маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['jami_tushadigan'] / 1000000000, 2) }}</td>
@@ -297,7 +307,13 @@
 
                                 <!-- BEKOR SECTION (3 columns: 18-20) -->
                                 <!-- Col 18: Бекор қилинганлар сони -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ $stat['bekor_soni'] }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
+                                    @if($stat['bekor_soni'] > 0)
+                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'holat' => 'Бекор қилинган']) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['bekor_soni'] }}</a>
+                                    @else
+                                        <span class="text-slate-400">0</span>
+                                    @endif
+                                </td>
 
                                 <!-- Col 19: Тўланған маблағ -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['tolangan_mablagh'] / 1000000000, 2) }}</td>
