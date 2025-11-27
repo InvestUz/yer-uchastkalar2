@@ -304,15 +304,15 @@
 
             {{-- ✅ NEW COLUMNS: Only show for qoldiq_qarz filter --}}
                 <th scope="col"
-                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-blue-800">
+                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                     Тушадиган маблағ
                 </th>
                 <th scope="col"
-                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-green-800">
+                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                     Тушган маблағ
                 </th>
                 <th scope="col"
-                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider bg-red-800">
+                    class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                     Қолдиқ қарз
                 </th>
 
@@ -382,17 +382,17 @@
                     @endphp
 
                     {{-- Тушадиган маблағ --}}
-                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center bg-blue-50">
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center">
                         {{ number_format($expected / 1000000, 1) }} млн
                     </td>
 
                     {{-- Тушган маблағ --}}
-                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center bg-green-50">
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center ">
                         {{ number_format($received / 1000000, 1) }} млн
                     </td>
 
                     {{-- Қолдиқ қарз --}}
-                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center {{ $qoldiq > 0 ? 'text-red-600 bg-red-50' : 'text-gray-600 bg-gray-50' }}">
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center {{ $qoldiq > 0 ? 'text-red-600' : 'text-gray-600' }}">
                         {{ number_format($qoldiq / 1000000, 1) }} млн
                     </td>
 

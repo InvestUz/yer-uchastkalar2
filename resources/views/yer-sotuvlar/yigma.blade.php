@@ -244,7 +244,7 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format(($stat['jami_qoldiq'] ?? 0) / 1000000000, 2) }}</td>
 
                                 <!-- Col 6: Муддати ўтган қарздорлик (NEW COLUMN - placeholder) -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 {{ $stat['jami_muddati_utgan'] > 0 ? 'bg-yellow-50 text-yellow-700 font-semibold' : '' }}">{{ number_format($stat['jami_muddati_utgan'] / 1000000000, 2) }}</td>
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 {{ $stat['jami_muddati_utgan'] > 0 ? 'text-yellow-700 font-semibold' : '' }}">{{ number_format($stat['jami_muddati_utgan'] / 1000000000, 2) }}</td>
 
                                 <!-- BIR YOLA SECTION (4 columns: 7-10) -->
                                 <!-- Col 7: Бир йўла - Сони -->
@@ -291,7 +291,7 @@
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">{{ number_format($stat['grafik_tushgan'] / 1000000000, 2) }}</td>
 
                                 <!-- Col 17: Муддати ўтган қарздорлик -->
-                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 {{ $stat['muddati_utgan_qarz'] > 0 ? 'bg-red-50 text-red-700 font-semibold' : '' }}">
+                                <td class="border border-slate-300 px-2 py-2 text-right text-slate-700 {{ $stat['muddati_utgan_qarz'] > 0 ? 'text-red-700 font-semibold' : '' }}">
                                     {{ number_format($stat['muddati_utgan_qarz'] / 1000000000, 2) }}
                                 </td>
 
