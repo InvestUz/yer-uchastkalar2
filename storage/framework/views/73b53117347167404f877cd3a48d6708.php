@@ -35,6 +35,38 @@
 
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 border-b border-gray-200">
+                <?php
+                    // Calculate muddati utgan qarzdorlik (overdue debt)
+                    $muddatiUtganQarz = 0;
+
+                    if ($yer->tolov_turi === 'муддатли') {
+                        // For muddatli: grafik up to last month - fakt (excluding auction payments)
+                        $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
+
+                        $grafikTushadigan = $yer->grafikTolovlar
+                            ->filter(function($grafik) use ($cutoffDate) {
+                                $grafikDate = $grafik->yil . '-' . str_pad($grafik->oy, 2, '0', STR_PAD_LEFT) . '-01';
+                                return $grafikDate <= $cutoffDate;
+                            })
+                            ->sum('grafik_summa');
+
+                        $grafikTushgan = $yer->faktTolovlar
+                            ->filter(function($fakt) {
+                                $tolashNom = $fakt->tolash_nom ?? '';
+                                return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
+                            })
+                            ->sum('tolov_summa');
+
+                        $muddatiUtganQarz = max(0, $grafikTushadigan - $grafikTushgan);
+                    } elseif ($yer->tolov_turi === 'муддатли эмас') {
+                        // For muddatli emas: qoldiq if positive
+                        $expected = ($yer->golib_tolagan ?? 0) + ($yer->shartnoma_summasi ?? 0) - ($yer->auksion_harajati ?? 0);
+                        $received = $yer->faktTolovlar->sum('tolov_summa');
+                        $qoldiq = $expected - $received;
+                        $muddatiUtganQarz = max(0, $qoldiq);
+                    }
+                ?>
+
                 <div class="text-center p-3 bg-white rounded border border-gray-200">
                     <div class="text-xs text-gray-600">ер майдони</div>
 
@@ -81,6 +113,14 @@
                     <?php echo e(number_format($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2)); ?>
 
                     сўм
+                </div>
+
+                
+                <div class="text-center p-3 bg-white rounded border <?php echo e($muddatiUtganQarz > 0 ? 'border-red-200' : 'border-gray-200'); ?>">
+                    <div class="text-xs text-gray-600">Муддати ўтган қарздорлик</div>
+                    <div class="text-lg font-bold <?php echo e($muddatiUtganQarz > 0 ? 'text-red-700' : 'text-gray-900'); ?>">
+                        <?php echo e(number_format($muddatiUtganQarz, 2)); ?> сўм
+                    </div>
                 </div>
             </div>
         </div>
