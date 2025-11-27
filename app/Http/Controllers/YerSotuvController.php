@@ -1048,6 +1048,63 @@ public function monitoring(Request $request)
         // Calculate statistics using service
         $statistics = $this->yerSotuvService->getListStatistics(clone $query);
 
+        // ✅ Calculate additional statistics for new cards
+        $yerlarForStats = (clone $query)->with(['faktTolovlar', 'grafikTolovlar'])->get();
+
+        $totalExpected = 0;
+        $totalReceived = 0;
+        $totalQoldiq = 0;
+        $totalMuddatiUtgan = 0;
+
+        foreach ($yerlarForStats as $yer) {
+            // Calculate expected amount
+            $expected = ($yer->golib_tolagan ?? 0) + ($yer->shartnoma_summasi ?? 0) - ($yer->auksion_harajati ?? 0);
+
+            // Get received amount
+            $received = $yer->faktTolovlar->sum('tolov_summa');
+
+            // Calculate qoldiq
+            $qoldiq = $expected - $received;
+
+            // Calculate muddati utgan qarzdorlik
+            $muddatiUtganQarz = 0;
+
+            if ($yer->tolov_turi === 'муддатли') {
+                // For muddatli: grafik up to last month - fakt (excluding auction payments)
+                $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
+
+                $grafikTushadigan = $yer->grafikTolovlar
+                    ->filter(function($grafik) use ($cutoffDate) {
+                        $grafikDate = $grafik->yil . '-' . str_pad($grafik->oy, 2, '0', STR_PAD_LEFT) . '-01';
+                        return $grafikDate <= $cutoffDate;
+                    })
+                    ->sum('grafik_summa');
+
+                $grafikTushgan = $yer->faktTolovlar
+                    ->filter(function($fakt) {
+                        $tolashNom = $fakt->tolash_nom ?? '';
+                        return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
+                    })
+                    ->sum('tolov_summa');
+
+                $muddatiUtganQarz = max(0, $grafikTushadigan - $grafikTushgan);
+            } elseif ($yer->tolov_turi === 'муддатли эмас') {
+                // For muddatli emas: qoldiq if positive
+                $muddatiUtganQarz = max(0, $qoldiq);
+            }
+
+            $totalExpected += $expected;
+            $totalReceived += $received;
+            $totalQoldiq += $qoldiq;
+            $totalMuddatiUtgan += $muddatiUtganQarz;
+        }
+
+        // Add to statistics array
+        $statistics['total_expected'] = $totalExpected;
+        $statistics['total_received'] = $totalReceived;
+        $statistics['total_qoldiq'] = $totalQoldiq;
+        $statistics['total_muddati_utgan'] = $totalMuddatiUtgan;
+
         // Sorting
         $sortField = $request->get('sort', 'auksion_sana');
         $sortDirection = $request->get('direction', 'desc');

@@ -208,12 +208,34 @@
                         <div class="text-center p-3 bg-white rounded border border-gray-200">
                             <div class="text-xs text-gray-600">Бошланғич нархи</div>
                             <div class="text-lg font-bold text-gray-900">
-                                <?php echo e(number_format($statistics['boshlangich_narx'], 2)); ?> сўм</div>
+                                <?php echo e(number_format($statistics['boshlangich_narx'] / 1000000000, 2)); ?> млрд</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded border border-gray-200">
                             <div class="text-xs text-gray-600">Сотилган нархи</div>
                             <div class="text-lg font-bold text-gray-900">
-                                <?php echo e(number_format($statistics['total_price'], 2)); ?> сўм</div>
+                                <?php echo e(number_format($statistics['total_price'] / 1000000000, 2)); ?> млрд</div>
+                        </div>
+
+                        
+                        <div class="text-center p-3 bg-white rounded border border-blue-200">
+                            <div class="text-xs text-gray-600">Тушадиган маблағ</div>
+                            <div class="text-lg font-bold text-blue-600">
+                                <?php echo e(number_format($statistics['total_expected'] / 1000000000, 2)); ?> млрд</div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded border border-green-200">
+                            <div class="text-xs text-gray-600">Тушган маблағ</div>
+                            <div class="text-lg font-bold text-green-600">
+                                <?php echo e(number_format($statistics['total_received'] / 1000000000, 2)); ?> млрд</div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded border border-orange-200">
+                            <div class="text-xs text-gray-600">Қолдиқ маблағ</div>
+                            <div class="text-lg font-bold text-orange-600">
+                                <?php echo e(number_format($statistics['total_qoldiq'] / 1000000000, 2)); ?> млрд</div>
+                        </div>
+                        <div class="text-center p-3 bg-white rounded border border-red-200">
+                            <div class="text-xs text-gray-600">Муддати ўтган қарздорлик</div>
+                            <div class="text-lg font-bold text-red-700">
+                                <?php echo e(number_format($statistics['total_muddati_utgan'] / 1000000000, 2)); ?> млрд</div>
                         </div>
 
                         
@@ -297,7 +319,7 @@
                 </th>
                 <th scope="col"
                     class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Қолдиқ қарз
+                    Қолдиқ маблағ
                 </th>
                 <th scope="col"
                     class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
