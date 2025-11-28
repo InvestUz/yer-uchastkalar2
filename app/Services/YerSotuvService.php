@@ -77,6 +77,11 @@ class YerSotuvService
         return $this->dataService->getBiryolaLotlar($tumanPatterns, $dateFilters);
     }
 
+    public function getQoldiqQarzLotlar(?array $tumanPatterns = null, array $dateFilters = []): array
+    {
+        return $this->dataService->getQoldiqQarzLotlar($tumanPatterns, $dateFilters);
+    }
+
     public function getListStatistics($query): array
     {
         return $this->dataService->getListStatistics($query);

@@ -39,10 +39,31 @@ class YerSotuvMonitoringService
      */
     public function calculateTumanStatistics(?array $tumanPatterns, array $dateFilters, bool $includeBekor = false): array
     {
-        // Bir yola data
+        // ✅ Use qoldiq_qarz specific method for "Аукционда турган маблағ"
+        $qoldiqQarzLots = $this->yerSotuvService->getQoldiqQarzLotlar($tumanPatterns, $dateFilters);
+
+        // Calculate expected amount for qoldiq qarz lots
+        $biryolaQoldiqData = ['tushadigan_mablagh' => 0, 'soni' => count($qoldiqQarzLots)];
+        if (!empty($qoldiqQarzLots)) {
+            $qoldiqSum = \DB::table('yer_sotuvlar')
+                ->whereIn('lot_raqami', $qoldiqQarzLots)
+                ->selectRaw('SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0)) as expected')
+                ->first();
+            $biryolaQoldiqData['tushadigan_mablagh'] = $qoldiqSum->expected ?? 0;
+        }
+
+        // Calculate received amount for qoldiq qarz lots
+        $biryolaQoldiqFakt = 0;
+        if (!empty($qoldiqQarzLots)) {
+            $biryolaQoldiqFakt = \DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $qoldiqQarzLots)
+                ->sum('tolov_summa');
+        }
+        $biryolaQoldiq = $biryolaQoldiqData['tushadigan_mablagh'] - $biryolaQoldiqFakt;
+
+        // ✅ Keep original biryola data for other calculations
         $biryolaData = $this->yerSotuvService->getTumanData($tumanPatterns, 'муддатли эмас', $dateFilters);
         $biryolaFakt = $this->yerSotuvService->calculateBiryolaFakt($tumanPatterns, $dateFilters);
-        $biryolaQoldiq = $biryolaData['tushadigan_mablagh'] - $biryolaFakt;
 
         // Bolib data
         $bolibData = $this->yerSotuvService->getTumanData($tumanPatterns, 'муддатли', $dateFilters);

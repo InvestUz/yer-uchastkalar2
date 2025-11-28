@@ -236,6 +236,44 @@ class YerSotuvDataService
     }
 
     /**
+     * Get lot numbers for bir yo'la to'lash by tuman (ONLY qoldiq_qarz statuses)
+     * ✅ Uses same logic as qoldiq_qarz filter - includes "Бекор қилинған", excludes "Лот якунланди"
+     */
+    public function getQoldiqQarzLotlar(?array $tumanPatterns = null, array $dateFilters = []): array
+    {
+        $query = YerSotuv::query();
+
+        // ✅ Do NOT apply base filters - we want to include "Бекор қилинған"
+        $this->queryService->applyTumanFilter($query, $tumanPatterns);
+        $query->where('tolov_turi', 'муддатли эмас');
+
+        // ✅ ONLY include qoldiq_qarz statuses (same as filter logic)
+        $query->whereNotNull('holat');
+        $query->where(function ($q) {
+            $q->where(function ($sq) {
+                    $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                        ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                        ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                        ->orWhere('holat', 'like', '%Бекор қилинған%');
+            })
+            // ✅ OR include specific "Лот якунланди" lots
+            ->orWhereIn('lot_raqami', ['19092338', '19227515']);
+        });
+
+        // ✅ Only include lots with positive qoldiq
+        $query->whereRaw('(
+            (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
+            >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+        )');
+
+        // ✅ CRITICAL: Do NOT apply date filters for qoldiq_qarz calculation
+        // This ensures ALL lots with remaining debt are included, regardless of auction date
+        // $this->queryService->applyDateFilters($query, $dateFilters);
+
+        return $query->pluck('lot_raqami')->toArray();
+    }
+
+    /**
      * Get lot numbers for bir yo'la to'lash by tuman (excluding mulk qabul)
      */
     public function getBiryolaLotlar(?array $tumanPatterns = null, array $dateFilters = []): array

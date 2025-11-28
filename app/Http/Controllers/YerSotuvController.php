@@ -74,6 +74,9 @@ class YerSotuvController extends Controller
             }
         }
 
+        // ✅ Check if qoldiq_qarz filter is active
+        $isQoldiqQarzFilter = !empty($request->qoldiq_qarz) && $request->qoldiq_qarz === 'true';
+
         // Standard filtering by auction date or other filters
         $filters = [
             'search' => $request->search,
@@ -82,9 +85,9 @@ class YerSotuvController extends Controller
             'tolov_turi' => $request->tolov_turi,
             'holat' => $request->holat,
             'asos' => $request->asos,
-            // DEFAULT: From 01.01.2024 to today if not specified
-            'auksion_sana_from' => $request->auksion_sana_from ?? '2024-01-01',
-            'auksion_sana_to' => $request->auksion_sana_to ?? now()->toDateString(),
+            // ✅ ONLY apply default date filters if NOT qoldiq_qarz filter
+            'auksion_sana_from' => $request->auksion_sana_from ?? ($isQoldiqQarzFilter ? null : '2024-01-01'),
+            'auksion_sana_to' => $request->auksion_sana_to ?? ($isQoldiqQarzFilter ? null : now()->toDateString()),
             'shartnoma_sana_from' => $request->shartnoma_sana_from,
             'shartnoma_sana_to' => $request->shartnoma_sana_to,
             'narx_from' => $request->narx_from,
@@ -97,9 +100,15 @@ class YerSotuvController extends Controller
             'nazoratda' => $request->nazoratda,
             'qoldiq_qarz' => $request->qoldiq_qarz,
             'include_all' => $request->include_all, // ✅ Include all lots (cancelled + auksonda)
-            'include_bekor' => $request->include_bekor, // ✅ Include cancelled lots only (exclude auksonda)
+            'include_bekor' => $isQoldiqQarzFilter ? 'true' : $request->include_bekor, // ✅ AUTO-include cancelled lots for qoldiq_qarz
 
         ];
+
+        \Log::info('List Filters Applied', [
+            'qoldiq_qarz' => $filters['qoldiq_qarz'],
+            'include_bekor' => $filters['include_bekor'],
+            'tolov_turi' => $filters['tolov_turi']
+        ]);
 
         return $this->showFilteredData($request, $filters);
     }
@@ -1043,6 +1052,13 @@ public function monitoring(Request $request)
         // Asos filter
         if (!empty($filters['asos'])) {
             $query->where('asos', 'like', '%' . $filters['asos'] . '%');
+        }
+
+        // ✅ DEBUG: Log the final query for qoldiq_qarz
+        if (!empty($filters['qoldiq_qarz']) && $filters['qoldiq_qarz'] === 'true') {
+            $sql = $query->toSql();
+            $bindings = $query->getBindings();
+            \Log::info('Qoldiq Qarz Final Query', ['sql' => $sql, 'bindings' => $bindings]);
         }
 
         // Calculate statistics using service
