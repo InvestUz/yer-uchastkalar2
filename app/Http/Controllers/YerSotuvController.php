@@ -60,7 +60,7 @@ class YerSotuvController extends Controller
 
     /**
      * Display filtered list of land sales
-     * DEFAULT: Show active lots only (exclude cancelled and auction lots, no date filters)
+     * DEFAULT: Show active lots from 2024-01-01 to today (matching other statistics pages)
      * FILTERED: When clicking from other pages, preserve their filters
      */
     public function list(Request $request)
@@ -79,17 +79,8 @@ class YerSotuvController extends Controller
         // ✅ Check if qoldiq_qarz filter is active
         $isQoldiqQarzFilter = !empty($request->qoldiq_qarz) && $request->qoldiq_qarz === 'true';
 
-        // ✅ Check if ANY filter is active (means user clicked from another page)
-        $hasAnyFilter = $request->has('auksion_sana_from')
-            || $request->has('tolov_turi')
-            || $request->has('holat')
-            || $request->has('asos')
-            || $request->has('tuman')
-            || $request->has('include_all')
-            || $isQoldiqQarzFilter;
-
-        // ✅ DEFAULT: Show active lots (exclude cancelled + auction lots)
-        // ✅ NO DEFAULT DATE FILTERS - show all time periods
+        // ✅ DEFAULT: Show active lots from 2024-01-01 to today (matching statistics pages)
+        // ✅ When coming from other pages, preserve their date filters
         $filters = [
             'search' => $request->search,
             'tuman' => $request->tuman,
@@ -97,9 +88,9 @@ class YerSotuvController extends Controller
             'tolov_turi' => $request->tolov_turi,
             'holat' => $request->holat,
             'asos' => $request->asos,
-            // ✅ NO DEFAULT DATE FILTERS - only apply if explicitly passed
-            'auksion_sana_from' => $request->auksion_sana_from,
-            'auksion_sana_to' => $request->auksion_sana_to,
+            // ✅ DEFAULT DATE FILTERS: 2024-01-01 to today (matching statistics pages)
+            'auksion_sana_from' => $request->auksion_sana_from ?? ($isQoldiqQarzFilter ? null : '2024-01-01'),
+            'auksion_sana_to' => $request->auksion_sana_to ?? ($isQoldiqQarzFilter ? null : now()->toDateString()),
             'shartnoma_sana_from' => $request->shartnoma_sana_from,
             'shartnoma_sana_to' => $request->shartnoma_sana_to,
             'narx_from' => $request->narx_from,
@@ -116,9 +107,9 @@ class YerSotuvController extends Controller
         ];
 
         \Log::info('List Filters Applied', [
-            'has_any_filter' => $hasAnyFilter,
             'qoldiq_qarz' => $filters['qoldiq_qarz'],
             'include_bekor' => $filters['include_bekor'],
+            'include_all' => $filters['include_all'],
             'tolov_turi' => $filters['tolov_turi'],
             'auksion_sana_from' => $filters['auksion_sana_from'],
             'auksion_sana_to' => $filters['auksion_sana_to']
