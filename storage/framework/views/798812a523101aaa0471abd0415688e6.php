@@ -174,6 +174,28 @@
                 </div>
             </div>
 
+            <!-- User Info Section -->
+            <?php if(auth()->guard()->check()): ?>
+            <div class="p-4 border-b border-gray-200 bg-blue-50">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                            <span class="text-white font-bold text-sm"><?php echo e(strtoupper(substr(auth()->user()->name, 0, 2))); ?></span>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 truncate nav-text"><?php echo e(auth()->user()->name); ?></p>
+                        <p class="text-xs text-gray-600 truncate nav-text"><?php echo e(auth()->user()->email); ?></p>
+                        <?php if(auth()->user()->isSuperAdmin()): ?>
+                            <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded nav-text">Администратор</span>
+                        <?php else: ?>
+                            <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold text-white bg-blue-600 rounded nav-text">Худуд</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Navigation -->
             <nav class="flex-1 overflow-y-auto p-3">
                 <div class="space-y-1">
@@ -293,6 +315,21 @@
 
 
             </nav>
+
+            <!-- Logout Button -->
+            <?php if(auth()->guard()->check()): ?>
+            <div class="p-3 border-t border-gray-200">
+                <form method="POST" action="<?php echo e(route('logout')); ?>" id="logoutForm">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-red-50 text-red-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span class="nav-text text-sm font-medium">Чиқиш</span>
+                    </button>
+                </form>
+            </div>
+            <?php endif; ?>
 
             <!-- Footer Info -->
             <div class="p-4 border-t border-gray-200">

@@ -6,6 +6,7 @@ use App\Models\YerSotuv;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class YerSotuvStatisticsService
 {
@@ -25,27 +26,36 @@ class YerSotuvStatisticsService
 
     /**
      * Get complete statistics for main page (SVOD1)
+     * AUTOMATIC DISTRICT FILTERING: District users only see their own data
      */
     public function getDetailedStatistics(array $dateFilters = []): array
     {
         Log::info('========== STARTING DETAILED STATISTICS CALCULATION (SVOD1) ==========', [
-            'date_filters' => $dateFilters
+            'date_filters' => $dateFilters,
+            'user' => Auth::user()->email ?? 'guest',
+            'role' => Auth::user()->role ?? 'none'
         ]);
 
-        $tumanlar = [
-            'Бектемир тумани',
-            'Мирзо Улуғбек тумани',
-            'Миробод тумани',
-            'Олмазор тумани',
-            'Сирғали тумани',
-            'Учтепа тумани',
-            'Чилонзор тумани',
-            'Шайхонтоҳур тумани',
-            'Юнусобод тумани',
-            'Яккасарой тумани',
-            'Янги ҳаёт тумани',
-            'Яшнобод тумани'
-        ];
+        // CRITICAL: If district user, only process their district
+        if (Auth::check() && Auth::user()->isDistrict()) {
+            $tumanlar = [Auth::user()->tuman];
+            Log::info('DISTRICT USER: Filtering to single district', ['tuman' => Auth::user()->tuman]);
+        } else {
+            $tumanlar = [
+                'Бектемир тумани',
+                'Мирзо Улуғбек тумани',
+                'Миробод тумани',
+                'Олмазор тумани',
+                'Сирғали тумани',
+                'Учтепа тумани',
+                'Чилонзор тумани',
+                'Шайхонтоҳур тумани',
+                'Юнусобод тумани',
+                'Яккасарой тумани',
+                'Янги ҳаёт тумани',
+                'Яшнобод тумани'
+            ];
+        }
 
         $statistics = [];
 
@@ -167,23 +177,29 @@ class YerSotuvStatisticsService
 
     /**
      * Get complete statistics for SVOD3 page
+     * AUTOMATIC DISTRICT FILTERING: District users only see their own data
      */
     public function getSvod3Statistics(array $dateFilters = []): array
     {
-        $tumanlar = [
-            'Бектемир тумани',
-            'Мирзо Улуғбек тумани',
-            'Миробод тумани',
-            'Олмазор тумани',
-            'Сирғали тумани',
-            'Учтепа тумани',
-            'Чилонзор тумани',
-            'Шайхонтоҳур тумани',
-            'Юнусобод тумани',
-            'Яккасарой тумани',
-            'Янги ҳаёт тумани',
-            'Яшнобод тумани'
-        ];
+        // CRITICAL: If district user, only process their district
+        if (Auth::check() && Auth::user()->isDistrict()) {
+            $tumanlar = [Auth::user()->tuman];
+        } else {
+            $tumanlar = [
+                'Бектемир тумани',
+                'Мирзо Улуғбек тумани',
+                'Миробод тумани',
+                'Олмазор тумани',
+                'Сирғали тумани',
+                'Учтепа тумани',
+                'Чилонзор тумани',
+                'Шайхонтоҳур тумани',
+                'Юнусобод тумани',
+                'Яккасарой тумани',
+                'Янги ҳаёт тумани',
+                'Яшнобод тумани'
+            ];
+        }
 
         $result = [
             'jami' => $this->initializeSvod3Total(),
@@ -342,23 +358,29 @@ class YerSotuvStatisticsService
     /**
      * Get monthly comparative data for monitoring_mirzayev
      * Uses fakt_tolovlar ONLY for actual payment calculations
+     * AUTOMATIC DISTRICT FILTERING: District users only see their own data
      */
     public function getMonthlyComparativeData(array $filters = []): array
     {
-        $tumanlar = [
-            'Бектемир тумани',
-            'Мирзо Улуғбек тумани',
-            'Миробод тумани',
-            'Олмазор тумани',
-            'Сирғали тумани',
-            'Учтепа тумани',
-            'Чилонзор тумани',
-            'Шайхонтоҳур тумани',
-            'Юнусобод тумани',
-            'Яккасарой тумани',
-            'Янги ҳаёт тумани',
-            'Яшнобод тумани'
-        ];
+        // CRITICAL: If district user, only process their district
+        if (Auth::check() && Auth::user()->isDistrict()) {
+            $tumanlar = [Auth::user()->tuman];
+        } else {
+            $tumanlar = [
+                'Бектемир тумани',
+                'Мирзо Улуғбек тумани',
+                'Миробод тумани',
+                'Олмазор тумани',
+                'Сирғали тумани',
+                'Учтепа тумани',
+                'Чилонзор тумани',
+                'Шайхонтоҳур тумани',
+                'Юнусобод тумани',
+                'Яккасарой тумани',
+                'Янги ҳаёт тумани',
+                'Яшнобод тумани'
+            ];
+        }
 
         // Use last completed month by default
         $lastMonth = now()->subMonth()->endOfMonth();

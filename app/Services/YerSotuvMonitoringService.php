@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class YerSotuvMonitoringService
 {
@@ -15,9 +16,16 @@ class YerSotuvMonitoringService
 
     /**
      * Get list of all tumanlar
+     * AUTOMATIC DISTRICT FILTERING: District users only see their district
      */
     public function getTumanlar(): array
     {
+        // CRITICAL: If district user, return only their district
+        if (Auth::check() && Auth::user()->isDistrict()) {
+            return [Auth::user()->tuman];
+        }
+
+        // Super admin sees all districts
         return [
             'Бектемир тумани',
             'Мирзо Улуғбек тумани',

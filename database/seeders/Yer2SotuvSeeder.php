@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class Yer2SotuvSeeder extends Seeder
 {
@@ -273,7 +274,7 @@ class Yer2SotuvSeeder extends Seeder
 
     // Add logging for verification in production
     if ($shartnomaSummasi > 0) {
-        \Log::info("LOT {$lotRaqami} shartnoma_summasi calculated", [
+        Log::info("LOT {$lotRaqami} shartnoma_summasi calculated", [
             'lot' => $lotRaqami,
             'shartnoma_summasi' => $shartnomaSummasi,
             'tolov_turi' => $data['tolov_turi']
@@ -453,7 +454,15 @@ private function calculateShartnomaSummasiFromGrafik($row): float
                 continue;
             }
 
-            $lotRaqami = $this->extractLotRaqami($row[7] ?? '');
+            // LOT is directly in column 7 (index 7) - no regex needed
+            $lotRaqami = $this->cleanValue($row[7] ?? '');
+
+            // Clean and validate LOT number
+            if ($lotRaqami) {
+                $lotRaqami = trim($lotRaqami);
+                // Remove any non-numeric characters
+                $lotRaqami = preg_replace('/[^0-9]/', '', $lotRaqami);
+            }
 
             if (!$lotRaqami || !isset($existingLotsFlipped[$lotRaqami])) {
                 if ($lotRaqami && !in_array($lotRaqami, $this->notFoundLots)) {
@@ -541,27 +550,33 @@ private function calculateShartnomaSummasiFromGrafik($row): float
 
         $text = trim($text);
 
-        // Pattern 1: L{number}L (most common)
+        // Pattern 1: Number at the END of string (most common in your CSV)
+        // Matches 6-9 digit numbers at the end, possibly after tab or special chars
+        if (preg_match('/(\d{6,9})\s*$/', $text, $matches)) {
+            return $matches[1];
+        }
+
+        // Pattern 2: L{number}L
         if (preg_match('/L(\d+)L/i', $text, $matches)) {
             return $matches[1];
         }
 
-        // Pattern 2: L{number}
+        // Pattern 3: L{number}
         if (preg_match('/L(\d+)/i', $text, $matches)) {
             return $matches[1];
         }
 
-        // Pattern 3: {number}L
+        // Pattern 4: {number}L
         if (preg_match('/(\d+)L/i', $text, $matches)) {
             return $matches[1];
         }
 
-        // Pattern 4: LOT {number}
+        // Pattern 5: LOT {number}
         if (preg_match('/LOT\s*[:\-]?\s*(\d+)/i', $text, $matches)) {
             return $matches[1];
         }
 
-        // Pattern 5: 6+ digit number
+        // Pattern 6: Any 6+ digit number (fallback)
         if (preg_match('/\b(\d{6,})\b/', $text, $matches)) {
             return $matches[1];
         }

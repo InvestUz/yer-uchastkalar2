@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * YerSotuvQueryService
@@ -65,9 +66,18 @@ class YerSotuvQueryService
 
     /**
      * Apply tuman filter to query
+     * AUTOMATIC DISTRICT FILTERING: District users only see their own data
      */
     public function applyTumanFilter($query, ?array $tumanPatterns)
     {
+        // CRITICAL: Apply automatic district filtering for district users
+        if (Auth::check() && Auth::user()->isDistrict()) {
+            $userDistrict = Auth::user()->tuman;
+            if ($userDistrict) {
+                $tumanPatterns = $this->getTumanPatterns($userDistrict);
+            }
+        }
+
         if ($tumanPatterns !== null && !empty($tumanPatterns)) {
             $query->where(function ($q) use ($tumanPatterns) {
                 foreach ($tumanPatterns as $pattern) {

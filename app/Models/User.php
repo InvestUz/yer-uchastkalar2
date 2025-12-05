@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'tuman',
+        'can_edit',
+        'is_active',
     ];
 
     /**
@@ -41,5 +45,39 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'can_edit' => 'boolean',
+        'is_active' => 'boolean',
     ];
+
+    /**
+     * Check if user is super admin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    /**
+     * Check if user is district user
+     */
+    public function isDistrict(): bool
+    {
+        return $this->role === 'district';
+    }
+
+    /**
+     * Check if user can edit
+     */
+    public function canEdit(): bool
+    {
+        return $this->can_edit;
+    }
+
+    /**
+     * Get user's district filter
+     */
+    public function getDistrictFilter(): ?string
+    {
+        return $this->isDistrict() ? $this->tuman : null;
+    }
 }

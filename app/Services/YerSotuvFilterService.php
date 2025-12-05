@@ -99,16 +99,17 @@ class YerSotuvFilterService
 
     /**
      * Apply tuman filter
+     * AUTOMATIC DISTRICT FILTERING: Uses QueryService which checks user role
      */
     private function applyTumanFilter(Builder $query, array $filters): void
     {
         if (!empty($filters['tuman'])) {
             $tumanPatterns = $this->yerSotuvService->getTumanPatterns($filters['tuman']);
-            $query->where(function ($q) use ($tumanPatterns) {
-                foreach ($tumanPatterns as $pattern) {
-                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
-                }
-            });
+            // Use QueryService which has automatic district filtering
+            $this->queryService->applyTumanFilter($query, $tumanPatterns);
+        } else {
+            // No tuman filter specified - apply automatic district filtering
+            $this->queryService->applyTumanFilter($query, null);
         }
     }
 
