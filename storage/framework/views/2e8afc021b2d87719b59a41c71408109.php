@@ -192,7 +192,7 @@
 
                                     <!-- Narhini bolib tolash - 5 columns -->
                                     <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли'])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                             <?php echo e($statistics['jami']['narhini_bolib']['soni']); ?>
 
@@ -217,7 +217,7 @@
 
                                     <!-- Toliq tolanganlar - 5 columns -->
                                     <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true'])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                             <?php echo e($statistics['jami']['toliq_tolanganlar']['soni']); ?>
 
@@ -246,7 +246,7 @@
 
                                     <!-- Nazoratdagilar - 6 columns -->
                                     <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'nazoratda' => 'true'])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'nazoratda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                             <?php echo e($statistics['jami']['nazoratdagilar']['soni']); ?>
 
@@ -279,7 +279,7 @@
 
                                     <!-- Grafik ortda - 5 columns -->
                                     <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline transition-all">
                                             <?php echo e($statistics['jami']['grafik_ortda']['soni']); ?>
 
@@ -321,7 +321,7 @@
                                         <!-- Narhini bolib tolash - 5 columns -->
                                         <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                             <?php if($tuman['narhini_bolib']['soni'] > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли'])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
                                                     <?php echo e($tuman['narhini_bolib']['soni']); ?>
 
@@ -350,7 +350,7 @@
                                         <!-- Toliq tolanganlar - 5 columns -->
                                         <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                             <?php if(($tuman['toliq_tolanganlar']['soni'] ?? 0) > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true'])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'toliq_tolangan' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
                                                     <?php echo e($tuman['toliq_tolanganlar']['soni']); ?>
 
@@ -383,7 +383,7 @@
                                         <!-- Nazoratdagilar - 6 columns -->
                                         <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                             <?php if(($tuman['nazoratdagilar']['soni'] ?? 0) > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'nazoratda' => 'true'])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'nazoratda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
                                                     <?php echo e($tuman['nazoratdagilar']['soni']); ?>
 
@@ -420,7 +420,7 @@
                                         <!-- Grafik ortda - 5 columns -->
                                         <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                             <?php if(($tuman['grafik_ortda']['soni'] ?? 0) > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'grafik_ortda' => 'true'])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'grafik_ortda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-all">
                                                     <?php echo e($tuman['grafik_ortda']['soni']); ?>
 

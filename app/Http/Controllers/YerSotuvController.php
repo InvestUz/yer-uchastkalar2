@@ -60,7 +60,7 @@ class YerSotuvController extends Controller
 
     /**
      * Display filtered list of land sales
-     * DEFAULT: Show active lots from 2024-01-01 to today (matching other statistics pages)
+     * DEFAULT: Show ALL statuses from 2024-01-01 to today (NO status/type filters)
      * FILTERED: When clicking from other pages, preserve their filters
      */
     public function list(Request $request)
@@ -79,8 +79,8 @@ class YerSotuvController extends Controller
         // ✅ Check if qoldiq_qarz filter is active
         $isQoldiqQarzFilter = !empty($request->qoldiq_qarz) && $request->qoldiq_qarz === 'true';
 
-        // ✅ DEFAULT: Show active lots from 2024-01-01 to today (matching statistics pages)
-        // ✅ When coming from other pages, preserve their date filters
+        // ✅ DEFAULT: Show ALL statuses with ONLY date filter (2024-01-01 to today)
+        // ✅ When coming from other pages, preserve their specific filters
         $filters = [
             'search' => $request->search,
             'tuman' => $request->tuman,
@@ -88,7 +88,7 @@ class YerSotuvController extends Controller
             'tolov_turi' => $request->tolov_turi,
             'holat' => $request->holat,
             'asos' => $request->asos,
-            // ✅ DEFAULT DATE FILTERS: 2024-01-01 to today (matching statistics pages)
+            // ✅ DEFAULT DATE FILTERS: 2024-01-01 to today
             'auksion_sana_from' => $request->auksion_sana_from ?? ($isQoldiqQarzFilter ? null : '2024-01-01'),
             'auksion_sana_to' => $request->auksion_sana_to ?? ($isQoldiqQarzFilter ? null : now()->toDateString()),
             'shartnoma_sana_from' => $request->shartnoma_sana_from,
@@ -102,8 +102,9 @@ class YerSotuvController extends Controller
             'toliq_tolangan' => $request->toliq_tolangan,
             'nazoratda' => $request->nazoratda,
             'qoldiq_qarz' => $request->qoldiq_qarz,
-            'include_all' => $request->include_all, // ✅ Include all lots (cancelled + auksonda)
-            'include_bekor' => $isQoldiqQarzFilter ? 'true' : $request->include_bekor, // ✅ AUTO-include cancelled lots for qoldiq_qarz
+            // ✅ DEFAULT: Show ALL statuses (include cancelled + auction lots)
+            'include_all' => $request->include_all ?? 'true', // Default to showing everything
+            'include_bekor' => $isQoldiqQarzFilter ? 'true' : $request->include_bekor,
         ];
 
         \Log::info('List Filters Applied', [
@@ -1160,7 +1161,7 @@ public function monitoring(Request $request)
         $query->select('yer_sotuvlar.*');
 
         // Paginate results
-        $yerlar = $query->with('faktTolovlar')->paginate(50)->withQueryString();
+        $yerlar = $query->with('faktTolovlar')->paginate(8)->withQueryString();
 
         // Get dropdown options
         $tumanlar = YerSotuv::select('tuman')

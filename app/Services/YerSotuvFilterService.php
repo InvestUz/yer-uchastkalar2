@@ -55,6 +55,7 @@ class YerSotuvFilterService
             if (empty($filters['include_bekor']) || $filters['include_bekor'] !== 'true') {
                 // ✅ Exclude "Бекор қилинган" lots
                 $this->yerSotuvService->applyBaseFilters($query);
+                \Log::info('FilterService: Applied applyBaseFilters (exclude Бекор қилинган)');
             }
         }
 
@@ -197,12 +198,14 @@ class YerSotuvFilterService
         // Apply tolov_turi filter if specified and no special filter overrides it
         if (!empty($filters['tolov_turi']) && !$hasSpecialFilter) {
             $query->where('tolov_turi', $filters['tolov_turi']);
+            \Log::info('FilterService: Applied tolov_turi filter', ['tolov_turi' => $filters['tolov_turi']]);
         } elseif (empty($filters['tolov_turi']) && !$hasSpecialFilter && (empty($filters['include_all']) || $filters['include_all'] !== 'true') && (empty($filters['include_bekor']) || $filters['include_bekor'] !== 'true')) {
             // Default: exclude auksonda turgan lots if no tolov_turi specified AND not include_all AND not include_bekor
             $query->where(function($q) {
                 $q->where('tolov_turi', 'муддатли')
                   ->orWhere('tolov_turi', 'муддатли эмас');
             });
+            \Log::info('FilterService: Applied DEFAULT filter (exclude Аукционда турган - only муддатли + муддатли эмас)');
         }
     }
 

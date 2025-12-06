@@ -265,7 +265,7 @@
 
                                     <!-- Col 2: Soni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['include_all' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($statistics['jami']['jami']['soni']); ?></a>
                                     </td>
 
@@ -320,7 +320,7 @@
 
                                     <!-- Col 12: Biryola soni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас', 'include_all' => 'true'])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($statistics['jami']['bir_yola']['soni']); ?></a>
                                     </td>
 
@@ -375,7 +375,7 @@
 
                                     <!-- Col 22: Bolib soni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'include_all' => 'true'])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($statistics['jami']['bolib']['soni']); ?></a>
                                     </td>
 
@@ -426,7 +426,7 @@
 
                                     <!-- Col 32: Auksonda soni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['auksonda_turgan' => 'true', 'include_all' => 'true'])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['auksonda_turgan' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($statistics['jami']['auksonda']['soni']); ?></a>
                                     </td>
 
@@ -447,7 +447,7 @@
                                     </td>
                                     <!-- JAMI - Col 36: Mulk qabul soni (ALL lots) -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida', 'include_all' => 'true'])); ?>"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline">
                                             <?php echo e($statistics['jami']['mulk_qabul']['total_records'] ?? 0); ?>
 
@@ -478,7 +478,7 @@
                                         <!-- Col 2: Jami soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                             <?php if($tuman['jami']['soni'] > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'include_all' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['jami']['soni']); ?></a>
                                             <?php else: ?>
                                                 0
@@ -527,7 +527,7 @@
                                         <!-- Col 12: Biryola soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                             <?php if($tuman['bir_yola']['soni'] > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли эмас', 'include_all' => 'true'])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['bir_yola']['soni']); ?></a>
                                             <?php else: ?>
                                                 0
@@ -582,7 +582,7 @@
                                         <!-- Col 22: Bolib soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                             <?php if($tuman['bolib']['soni'] > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'include_all' => 'true'])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['bolib']['soni']); ?></a>
                                             <?php else: ?>
                                                 0
@@ -630,7 +630,7 @@
                                         <!-- Col 32: Auksonda soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                             <?php if($tuman['auksonda']['soni'] > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'auksonda_turgan' => 'true', 'include_all' => 'true'])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'auksonda_turgan' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['auksonda']['soni']); ?></a>
                                             <?php else: ?>
                                                 0
@@ -654,7 +654,7 @@
                                         <!-- Col 36: Mulk qabul soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
                                             <?php if(($tuman['mulk_qabul']['total_records'] ?? 0) > 0): ?>
-                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida', 'include_all' => 'true'])); ?>"
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                                     class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['mulk_qabul']['total_records']); ?></a>
                                             <?php else: ?>
                                                 0
