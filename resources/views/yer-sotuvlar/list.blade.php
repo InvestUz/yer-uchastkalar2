@@ -112,10 +112,6 @@
                             @if (request('search'))
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
                                     Қидирув: {{ Str::limit(request('search'), 30) }}
                                 </span>
                             @endif
@@ -170,7 +166,7 @@
                             @if (request('auksion_sana_from') || request('auksion_sana_to'))
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-pink-100 text-pink-800">
-                                    📅 {{ request('auksion_sana_from') ?? '...' }} -
+                                    {{ request('auksion_sana_from') ?? '...' }} -
                                     {{ request('auksion_sana_to') ?? '...' }}
                                 </span>
                             @endif
@@ -178,7 +174,7 @@
                             @if (request('narx_from') || request('narx_to'))
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
-                                    💰 {{ request('narx_from') ? number_format(request('narx_from')) : '0' }} -
+                                    {{ request('narx_from') ? number_format(request('narx_from')) : '0' }} -
                                     {{ request('narx_to') ? number_format(request('narx_to')) : '∞' }}
                                 </span>
                             @endif
@@ -186,56 +182,56 @@
                             @if (request('maydoni_from') || request('maydoni_to'))
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
-                                    📏 {{ request('maydoni_from') ?? '0' }} - {{ request('maydoni_to') ?? '∞' }} га
+                                    {{ request('maydoni_from') ?? '0' }} - {{ request('maydoni_to') ?? '∞' }} га
                                 </span>
                             @endif
 
                             @if (request('include_all') === 'true')
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cyan-100 text-cyan-800">
-                                    🔧 Барча статуслар
+                                    Барча статуслар
                                 </span>
                             @endif
 
                             @if (request('include_bekor') === 'true')
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                    ❌ Бекор қилинганлар ҳам
+                                    Бекор қилинганлар ҳам
                                 </span>
                             @endif
 
                             @if (request('grafik_ortda') === 'true')
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                    ⏰ График ортда
+                                    График ортда
                                 </span>
                             @endif
 
                             @if (request('toliq_tolangan') === 'true')
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
-                                    ✅ Тўлиқ тўланган
+                                    Тўлиқ тўланган
                                 </span>
                             @endif
 
                             @if (request('nazoratda') === 'true')
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                    👁️ Назоратда
+                                    Назоратда
                                 </span>
                             @endif
 
                             @if (request('qoldiq_qarz') === 'true')
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
-                                    💵 Қолдиқ қарз
+                                    Қолдиқ қарз
                                 </span>
                             @endif
 
                             @if (request('auksonda_turgan') === 'true')
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-violet-100 text-violet-800">
-                                    🎯 Аукционда турган
+                                    Аукционда турган
                                 </span>
                             @endif
                         </div>
