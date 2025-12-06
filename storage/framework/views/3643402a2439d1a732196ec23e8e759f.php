@@ -96,9 +96,29 @@
                         'narx_to',
                         'maydoni_from',
                         'maydoni_to',
+                        'include_all',
+                        'include_bekor',
+                        'grafik_ortda',
+                        'toliq_tolangan',
+                        'nazoratda',
+                        'qoldiq_qarz',
+                        'auksonda_turgan',
+                        'search',
                     ])): ?>
                     <div class="bg-white px-6 py-4 border-b border-gray-200">
                         <div class="flex flex-wrap gap-2">
+                            <?php if(request('search')): ?>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    Қидирув: <?php echo e(Str::limit(request('search'), 30)); ?>
+
+                                </span>
+                            <?php endif; ?>
+
                             <?php if(request('tuman')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
@@ -173,6 +193,55 @@
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
                                     📏 <?php echo e(request('maydoni_from') ?? '0'); ?> - <?php echo e(request('maydoni_to') ?? '∞'); ?> га
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('include_all') === 'true'): ?>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cyan-100 text-cyan-800">
+                                    🔧 Барча статуслар
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('include_bekor') === 'true'): ?>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    ❌ Бекор қилинганлар ҳам
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('grafik_ortda') === 'true'): ?>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    ⏰ График ортда
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('toliq_tolangan') === 'true'): ?>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
+                                    ✅ Тўлиқ тўланган
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('nazoratda') === 'true'): ?>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    👁️ Назоратда
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('qoldiq_qarz') === 'true'): ?>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                                    💵 Қолдиқ қарз
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('auksonda_turgan') === 'true'): ?>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-violet-100 text-violet-800">
+                                    🎯 Аукционда турган
                                 </span>
                             <?php endif; ?>
                         </div>

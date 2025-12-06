@@ -158,7 +158,7 @@
 
                                 <!-- Col 2: Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['jami_soni'] }}</a>
+                                    <a href="{{ route('yer-sotuvlar.list', ['include_bekor' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['jami_soni'] }}</a>
                                 </td>
 
                                 <!-- Col 3: Сотилган ер нархи бўйича тушадиган маблағ -->
@@ -176,7 +176,7 @@
                                 <!-- BIR YOLA SECTION (4 columns: 7-10) -->
                                 <!-- Col 7: Бир йўла - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['biryola_soni'] }}</a>
+                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас', 'include_bekor' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['biryola_soni'] }}</a>
                                 </td>
 
                                 <!-- Col 8: Бир йўла - Сотилган ер нархи... -->
@@ -191,7 +191,7 @@
                                 <!-- BOLIB SECTION (7 columns: 11-17) -->
                                 <!-- Col 11: Нархини бўлиб - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right font-bold text-slate-900">
-                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['bolib_soni'] }}</a>
+                                    <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'include_bekor' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-700 hover:text-blue-900 hover:underline">{{ $jami['bolib_soni'] }}</a>
                                 </td>
 
                                 <!-- Col 12: Нархини бўлиб - Сотилган ер нархи... -->
@@ -238,7 +238,7 @@
                                 <!-- Col 2: Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                     @if($stat['jami_soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['jami_soni'] }}</a>
+                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'include_bekor' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['jami_soni'] }}</a>
                                     @else
                                         <span class="text-slate-400">0</span>
                                     @endif
@@ -260,7 +260,7 @@
                                 <!-- Col 7: Бир йўла - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                     @if($stat['biryola_soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['biryola_soni'] }}</a>
+                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли эмас', 'include_bekor' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['biryola_soni'] }}</a>
                                     @else
                                         <span class="text-slate-400">0</span>
                                     @endif
@@ -279,7 +279,7 @@
                                 <!-- Col 11: Нархини бўлиб - Сони -->
                                 <td class="border border-slate-300 px-2 py-2 text-right text-slate-700">
                                     @if($stat['bolib_soni'] > 0)
-                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['bolib_soni'] }}</a>
+                                        <a href="{{ route('yer-sotuvlar.list', ['tuman' => $stat['tuman'], 'tolov_turi' => 'муддатли', 'include_bekor' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $stat['bolib_soni'] }}</a>
                                     @else
                                         <span class="text-slate-400">0</span>
                                     @endif

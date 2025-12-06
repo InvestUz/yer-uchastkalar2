@@ -102,8 +102,9 @@ class YerSotuvController extends Controller
             'toliq_tolangan' => $request->toliq_tolangan,
             'nazoratda' => $request->nazoratda,
             'qoldiq_qarz' => $request->qoldiq_qarz,
-            // ✅ DEFAULT: Show ALL statuses (include cancelled + auction lots)
-            'include_all' => $request->include_all ?? 'true', // Default to showing everything
+            // ✅ DEFAULT: Show ALL statuses ONLY if not using include_bekor
+            // If include_bekor is set, don't default to include_all
+            'include_all' => $request->include_all ?? (!empty($request->include_bekor) ? null : 'true'),
             'include_bekor' => $isQoldiqQarzFilter ? 'true' : $request->include_bekor,
         ];
 
@@ -113,7 +114,9 @@ class YerSotuvController extends Controller
             'include_all' => $filters['include_all'],
             'tolov_turi' => $filters['tolov_turi'],
             'auksion_sana_from' => $filters['auksion_sana_from'],
-            'auksion_sana_to' => $filters['auksion_sana_to']
+            'auksion_sana_to' => $filters['auksion_sana_to'],
+            'request_include_bekor' => $request->include_bekor,
+            'request_include_all' => $request->include_all
         ]);
 
         return $this->showFilteredData($request, $filters);
