@@ -13,7 +13,7 @@
         <div class="text-center mb-8">
             <div class="bg-white rounded-2xl shadow-2xl p-6 mb-6">
                 <h1 class="text-2xl md:text-3xl font-bold text-blue-900 mb-2">
-                    Yer.toshkentinvest.uz
+                    yer.toshkentinvest.uz
                 </h1>
                 <p class="text-base md:text-lg text-slate-600 font-semibold">
                     тизимидан фойдаланишга рухсат бериладиганлар рўйхати
@@ -130,7 +130,7 @@
 
         <!-- Footer -->
         <div class="text-center mt-6 text-slate-600 text-sm">
-            <p>© {{ date('Y') }} Дав актив Тошкент ш бошқарма</p>
+            <p>© {{ date('Y') }} Тошкент Инвест </p>
         </div>
     </div>
 
