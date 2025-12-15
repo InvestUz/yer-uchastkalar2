@@ -358,7 +358,7 @@ class YerSotuvFilterService
 
     /**
      * Get муддатли эмас lots with qoldiq qarz
-     * ✅ Includes specific "Лот якунланди" lots (19092338, 19227515)
+     * ✅ ONLY returns lots with actual debt (qoldiq > 0)
      */
     private function getQoldiqQarzLots(): array
     {
@@ -366,19 +366,17 @@ class YerSotuvFilterService
             ->where('tolov_turi', 'муддатли эмас')
             ->whereNotNull('holat')
             ->where(function ($q) {
-                $q->where(function ($sq) {
-                    $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                        ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
-                        ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
-                        ->orWhere('holat', 'like', '%Бекор қилинган%')
-                        ->orWhere('holat', 'like', '%Иштирокчи ва Буюртмачи келишуви%');
-                })
-                // ✅ OR include specific "Лот якунланди" lots
-                ->orWhereIn('lot_raqami', ['19092338', '19227515']);
+                $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                    ->orWhere('holat', 'like', '%Бекор қилинган%');
+                    // ✅ Do NOT include "Иштирокчи ва Буюртмачи келишуви" - excluded
+                    // ✅ Do NOT include "Лот якунланди" - these are completed
             })
+            // ✅ CRITICAL: Only include lots with POSITIVE debt (qoldiq > 0.01)
             ->whereRaw('(
                 (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
-                >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+                > COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) + 0.01
             )')
             ->pluck('lot_raqami')
             ->toArray();
@@ -386,28 +384,26 @@ class YerSotuvFilterService
 
     /**
      * Filter: Qoldiq qarz (Auksonda turgan mablagh)
-     * ✅ Includes specific "Лот якунланди" lots (19092338, 19227515)
+     * ✅ ONLY shows lots with actual debt (qoldiq > 0)
      */
     private function applyQoldiqQarzFilter(Builder $query): void
     {
         $query->where('tolov_turi', 'муддатли эмас');
 
-        // ✅ Include specific statuses OR specific lot numbers
+        // ✅ Include specific statuses (exclude specific completed lots without debt)
         $query->where(function ($q) {
-            $q->where(function ($sq) {
-                $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
-                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
-                    ->orWhere('holat', 'like', '%Бекор қилинган%');
-                    // ✅ Do NOT include "Иштирокчи ва Буюртмачи келишуви" - excluded from qoldiq_qarz
-            })
-            // ✅ OR include specific "Лот якунланди" lots with qoldiq
-            ->orWhereIn('lot_raqami', ['19092338', '19227515']);
+            $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                ->orWhere('holat', 'like', '%Бекор қилинган%');
+                // ✅ Do NOT include "Иштирокчи ва Буюртмачи келишуви" - excluded from qoldiq_qarz
+                // ✅ Do NOT include "Лот якунланди" - these are completed and should have 0 debt
         });
 
+        // ✅ CRITICAL: Only include lots with POSITIVE debt (qoldiq > 0.01)
         $query->whereRaw('(
         (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
-        >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+        > COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) + 0.01
     )');
     }
 }
