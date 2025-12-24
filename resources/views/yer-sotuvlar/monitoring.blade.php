@@ -779,14 +779,6 @@
                         </a>
 
                         <!-- 5. Аукционда турган маблағ (Qoldiq qarz - to'lanmagan lotlar) -->
-                        @php
-                            // Calculate "Аукционда турган маблағ" from summaryMuddatliEmas
-                            // Only show if >= 0 (has debt or fully paid, exclude overpayments)
-                            $muddatiOtganMuddatliEmas = max(
-                                0,
-                                $summaryMuddatliEmas['expected_amount'] - $summaryMuddatliEmas['received_amount'],
-                            );
-                        @endphp
                         <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'qoldiq_qarz' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
@@ -803,9 +795,9 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                {{ number_format($muddatiOtganMuddatliEmas / 1000000000, 2) }} млрд сўм
+                                {{ number_format($qoldiqQarzData['qoldiq_amount'] / 1000000000, 2) }} млрд сўм
                             </p>
-                            <p class="text-1xl text-slate-500">мулкни қабул қилиш тасдиқланмаганлар</p>
+                            <p class="text-1xl text-slate-500">{{ $qoldiqQarzData['count'] }} та лот - мулкни қабул қилиш тасдиқланмаганлар</p>
                         </a>
                     </div>
                 </div>

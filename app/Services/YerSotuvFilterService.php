@@ -39,6 +39,8 @@ class YerSotuvFilterService
         $this->applyDateFilters($query, $filters);
         $this->applyPriceRangeFilter($query, $filters);
         $this->applyAreaRangeFilter($query, $filters);
+        $this->applyHolatFilter($query, $filters);
+        $this->applyAsosFilter($query, $filters);
         $this->applySpecialStatusFilters($query, $filters);
 
         return $query;
@@ -171,6 +173,27 @@ class YerSotuvFilterService
     }
 
     /**
+     * Apply holat (status) filter
+     */
+    private function applyHolatFilter(Builder $query, array $filters): void
+    {
+        if (!empty($filters['holat'])) {
+            // Use LIKE for partial match
+            $query->where('holat', 'like', '%' . $filters['holat'] . '%');
+        }
+    }
+
+    /**
+     * Apply asos (basis) filter
+     */
+    private function applyAsosFilter(Builder $query, array $filters): void
+    {
+        if (!empty($filters['asos'])) {
+            $query->where('asos', $filters['asos']);
+        }
+    }
+
+    /**
      * Apply special status filters
      */
     private function applySpecialStatusFilters(Builder $query, array $filters): void
@@ -200,14 +223,35 @@ class YerSotuvFilterService
         if (!empty($filters['tolov_turi']) && !$hasSpecialFilter) {
             $query->where('tolov_turi', $filters['tolov_turi']);
             \Log::info('FilterService: Applied tolov_turi filter', ['tolov_turi' => $filters['tolov_turi']]);
-        } elseif (empty($filters['tolov_turi']) && !$hasSpecialFilter && (empty($filters['include_all']) || $filters['include_all'] !== 'true')) {
-            // Default: exclude auksonda turgan lots if no tolov_turi specified AND not include_all
-            // NOTE: include_bekor only affects cancelled lots, NOT auction lots
-            $query->where(function($q) {
-                $q->where('tolov_turi', 'муддатли')
-                  ->orWhere('tolov_turi', 'муддатли эмас');
-            });
-            \Log::info('FilterService: Applied DEFAULT filter (exclude Аукционда турган - only муддатли + муддатли эмас)');
+        } elseif (empty($filters['tolov_turi']) && !$hasSpecialFilter) {
+            // ✅ Check if include_auksonda is true OR include_all is true
+            $includeAuksonda = (!empty($filters['include_auksonda']) && $filters['include_auksonda'] === 'true')
+                            || (!empty($filters['include_all']) && $filters['include_all'] === 'true');
+
+            // ✅ Check if include_bekor is true - need special handling for cancelled lots
+            $includeBekor = !empty($filters['include_bekor']) && $filters['include_bekor'] === 'true';
+
+            if (!$includeAuksonda) {
+                if ($includeBekor) {
+                    // ✅ include_bekor=true: Include муддатли + муддатли эмас + ALL Бекор қилинган (regardless of tolov_turi)
+                    // This matches how yigma calculates: biryola + bolib + all bekor
+                    $query->where(function($q) {
+                        $q->whereIn('tolov_turi', ['муддатли', 'муддатли эмас'])
+                          ->orWhere('holat', 'Бекор қилинган');
+                    });
+                    \Log::info('FilterService: Applied include_bekor filter (муддатли + муддатли эмас + ALL Бекор қилинган)');
+                } else {
+                    // Default: exclude auksonda turgan lots if no tolov_turi specified
+                    // AND neither include_auksonda nor include_all is set
+                    $query->where(function($q) {
+                        $q->where('tolov_turi', 'муддатли')
+                          ->orWhere('tolov_turi', 'муддатли эмас');
+                    });
+                    \Log::info('FilterService: Applied DEFAULT filter (exclude Аукционда турган - only муддатли + муддатли эмас)');
+                }
+            } else {
+                \Log::info('FilterService: Including Аукционда турган lots (include_auksonda or include_all is true)');
+            }
         }
     }
 
@@ -358,7 +402,8 @@ class YerSotuvFilterService
 
     /**
      * Get муддатли эмас lots with qoldiq qarz
-     * ✅ ONLY returns lots with actual debt (qoldiq > 0)
+     * ✅ SYNCHRONIZED with YerSotuvDataService::getQoldiqQarzLotlar
+     * ✅ Includes specific "Лот якунланди" lots and uses same >= condition
      */
     private function getQoldiqQarzLots(): array
     {
@@ -366,17 +411,19 @@ class YerSotuvFilterService
             ->where('tolov_turi', 'муддатли эмас')
             ->whereNotNull('holat')
             ->where(function ($q) {
-                $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
-                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
-                    ->orWhere('holat', 'like', '%Бекор қилинган%');
-                    // ✅ Do NOT include "Иштирокчи ва Буюртмачи келишуви" - excluded
-                    // ✅ Do NOT include "Лот якунланди" - these are completed
+                $q->where(function ($sq) {
+                    $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                        ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                        ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                        ->orWhere('holat', 'like', '%Бекор қилинған%');
+                })
+                // ✅ Include specific "Лот якунланди" lots (same as DataService)
+                ->orWhereIn('lot_raqami', ['19092338', '19227515']);
             })
-            // ✅ CRITICAL: Only include lots with POSITIVE debt (qoldiq > 0.01)
+            // ✅ SYNCHRONIZED: Use same condition as DataService (>= ... - 0.01)
             ->whereRaw('(
                 (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
-                > COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) + 0.01
+                >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
             )')
             ->pluck('lot_raqami')
             ->toArray();
@@ -384,26 +431,29 @@ class YerSotuvFilterService
 
     /**
      * Filter: Qoldiq qarz (Auksonda turgan mablagh)
-     * ✅ ONLY shows lots with actual debt (qoldiq > 0)
+     * ✅ SYNCHRONIZED with YerSotuvDataService::getQoldiqQarzLotlar
+     * ✅ Uses exact same logic to ensure count matches
      */
     private function applyQoldiqQarzFilter(Builder $query): void
     {
         $query->where('tolov_turi', 'муддатли эмас');
 
-        // ✅ Include specific statuses (exclude specific completed lots without debt)
+        // ✅ SYNCHRONIZED: Same status filter as DataService
         $query->where(function ($q) {
-            $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
-                ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
-                ->orWhere('holat', 'like', '%Бекор қилинган%');
-                // ✅ Do NOT include "Иштирокчи ва Буюртмачи келишуви" - excluded from qoldiq_qarz
-                // ✅ Do NOT include "Лот якунланди" - these are completed and should have 0 debt
+            $q->where(function ($sq) {
+                $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                    ->orWhere('holat', 'like', '%Бекор қилинған%');
+            })
+            // ✅ Include specific "Лот якунланди" lots (same as DataService)
+            ->orWhereIn('lot_raqami', ['19092338', '19227515']);
         });
 
-        // ✅ CRITICAL: Only include lots with POSITIVE debt (qoldiq > 0.01)
+        // ✅ SYNCHRONIZED: Use same condition as DataService (>= ... - 0.01)
         $query->whereRaw('(
-        (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
-        > COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) + 0.01
-    )');
+            (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
+            >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+        )');
     }
 }

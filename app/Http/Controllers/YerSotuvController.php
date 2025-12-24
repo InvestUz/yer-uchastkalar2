@@ -102,9 +102,11 @@ class YerSotuvController extends Controller
             'toliq_tolangan' => $request->toliq_tolangan,
             'nazoratda' => $request->nazoratda,
             'qoldiq_qarz' => $request->qoldiq_qarz,
-            // ✅ DEFAULT: Show ALL statuses ONLY if not using include_bekor
-            // If include_bekor is set, don't default to include_all
-            'include_all' => $request->include_all ?? (!empty($request->include_bekor) ? null : 'true'),
+            // ✅ include_auksonda: Include auksonda turgan lots (without affecting cancelled lot exclusion)
+            'include_auksonda' => $request->include_auksonda,
+            // ✅ DEFAULT: Show ALL statuses ONLY if not using include_bekor or include_auksonda
+            // If include_bekor or include_auksonda is set, don't default to include_all
+            'include_all' => $request->include_all ?? ((!empty($request->include_bekor) || !empty($request->include_auksonda)) ? null : 'true'),
             'include_bekor' => $isQoldiqQarzFilter ? 'true' : $request->include_bekor,
         ];
 
@@ -409,6 +411,9 @@ public function monitoring(Request $request)
     $grafikBoyichaTushgan = $jami['grafik_tushgan'];
     $muddatiUtganQarz = $jami['muddati_utgan_qarz'];
 
+    // ✅ Calculate qoldiq_qarz specific data (for "Аукционда турган маблағ" card)
+    $qoldiqQarzData = $this->calculateQoldiqQarzData($dateFilters);
+
     // Get tuman statistics with period-aware calculations (existing functionality)
     $tumanStatsMuddatli = [];
     foreach ($tumanlar as $tuman) {
@@ -475,7 +480,8 @@ public function monitoring(Request $request)
         'nazoratdagilar',
         'grafikBoyichaTushgan',
         'muddatiUtganQarz',
-        'availablePeriods'
+        'availablePeriods',
+        'qoldiqQarzData'
     ));
 }
 
@@ -903,6 +909,66 @@ public function monitoring(Request $request)
             ];
         }
     }
+
+    /**
+     * Calculate qoldiq_qarz specific data for monitoring page
+     * ✅ SYNCHRONIZED with YerSotuvFilterService::applyQoldiqQarzFilter
+     */
+    private function calculateQoldiqQarzData(array $dateFilters): array
+    {
+        // Get qoldiq_qarz lots using the same logic as FilterService
+        $qoldiqQarzLots = DB::table('yer_sotuvlar')
+            ->where('tolov_turi', 'муддатли эмас')
+            ->whereNotNull('holat')
+            ->where('holat', '!=', 'Бекор қилинган')
+            ->where(function ($q) {
+                $q->where(function ($sq) {
+                    $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                        ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                        ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                        ->orWhere('holat', 'like', '%Бекор қилинған%');
+                })
+                // Include specific "Лот якунланди" lots (same as FilterService)
+                ->orWhereIn('lot_raqami', ['19092338', '19227515']);
+            })
+            // Same condition as FilterService (>= ... - 0.01)
+            ->whereRaw('(
+                (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
+                >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+            )')
+            ->pluck('lot_raqami')
+            ->toArray();
+
+        $count = count($qoldiqQarzLots);
+        $expectedAmount = 0;
+        $receivedAmount = 0;
+
+        if (!empty($qoldiqQarzLots)) {
+            $data = DB::table('yer_sotuvlar')
+                ->whereIn('lot_raqami', $qoldiqQarzLots)
+                ->selectRaw('
+                    SUM(COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0)) as expected
+                ')
+                ->first();
+
+            $expectedAmount = $data->expected ?? 0;
+
+            $receivedAmount = DB::table('fakt_tolovlar')
+                ->whereIn('lot_raqami', $qoldiqQarzLots)
+                ->sum('tolov_summa');
+        }
+
+        $qoldiqAmount = max(0, $expectedAmount - $receivedAmount);
+
+        return [
+            'count' => $count,
+            'expected_amount' => $expectedAmount,
+            'received_amount' => $receivedAmount,
+            'qoldiq_amount' => $qoldiqAmount,
+            'lot_raqamlari' => $qoldiqQarzLots
+        ];
+    }
+
     /**
      * Prepare chart data
      */

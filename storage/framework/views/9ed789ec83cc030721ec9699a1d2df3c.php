@@ -1,7 +1,5 @@
-@extends('layouts.app')
-
-@section('title', 'Йиғма маълумот')
-@section('content')
+<?php $__env->startSection('title', 'Йиғма маълумот'); ?>
+<?php $__env->startSection('content'); ?>
     <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
         <div class="max-w-[98%] mx-auto">
             <!-- Premium Government Header -->
@@ -267,381 +265,409 @@
 
                                     <!-- Col 2: Soni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="{{ route('yer-sotuvlar.list', ['include_auksonda' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                            class="text-blue-700 hover:text-blue-900 hover:underline">{{ $statistics['jami']['jami']['soni'] }}</a>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['include_auksonda' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                            class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($statistics['jami']['jami']['soni']); ?></a>
                                     </td>
 
                                     <!-- Col 3: Maydoni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['jami']['maydoni'], 2) }}</td>
+                                        <?php echo e(number_format($statistics['jami']['jami']['maydoni'], 2)); ?></td>
 
                                     <!-- Col 4: Boshlangich narxi -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['jami']['boshlangich_narx'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['jami']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 5: Sotilgan narxi -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['jami']['sotilgan_narx'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['jami']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 6: Chegirma -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['jami']['chegirma'] / 1000000000, 1) }}</td>
+                                        <?php echo e(number_format($statistics['jami']['jami']['chegirma'] / 1000000000, 1)); ?></td>
 
                                     <!-- Col 7: Auksion harajati -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['jami']['auksion_harajati'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['jami']['auksion_harajati'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 8: Tushadigan mablagh -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['jami']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['jami']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 9: Jami tushgan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900">
-                                        {{ number_format(($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / 1000000000, 1) }}
+                                        <?php echo e(number_format(($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 10: Qoldiq -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-red-700">
-                                        {{ number_format(($statistics['jami']['jami']['tushadigan_mablagh'] - ($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0))) / 1000000000, 1) }}
+                                        <?php echo e(number_format(($statistics['jami']['jami']['tushadigan_mablagh'] - ($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0))) / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 11: Foizda -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ $statistics['jami']['jami']['tushadigan_mablagh'] > 0 ? number_format((($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / $statistics['jami']['jami']['tushadigan_mablagh']) * 100, 1) : 0 }}%
+                                        <?php echo e($statistics['jami']['jami']['tushadigan_mablagh'] > 0 ? number_format((($statistics['jami']['biryola_fakt'] + ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / $statistics['jami']['jami']['tushadigan_mablagh']) * 100, 1) : 0); ?>%
                                     </td>
 
                                     <!-- Col 12: Biryola soni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                            class="text-blue-700 hover:text-blue-900 hover:underline">{{ $statistics['jami']['bir_yola']['soni'] }}</a>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                            class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($statistics['jami']['bir_yola']['soni']); ?></a>
                                     </td>
 
                                     <!-- Col 13: Biryola maydoni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bir_yola']['maydoni'], 2) }}</td>
+                                        <?php echo e(number_format($statistics['jami']['bir_yola']['maydoni'], 2)); ?></td>
 
                                     <!-- Col 14: Biryola boshlangich -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bir_yola']['boshlangich_narx'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['bir_yola']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 15: Biryola sotilgan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bir_yola']['sotilgan_narx'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['bir_yola']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 16: Biryola chegirma -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bir_yola']['chegirma'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['bir_yola']['chegirma'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 17: Biryola auksion harajat -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bir_yola']['auksion_harajati'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['bir_yola']['auksion_harajati'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 18: Biryola tushadigan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, decimals: 1) }}
+                                        <?php echo e(number_format($statistics['jami']['bir_yola']['tushadigan_mablagh'] / 1000000000, decimals: 1)); ?>
+
                                     </td>
 
                                     <!-- Col 19: Biryola tushgan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900">
-                                        {{ number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1) }}</td>
+                                        <?php echo e(number_format($statistics['jami']['biryola_fakt'] / 1000000000, 1)); ?></td>
 
                                     <!-- Col 20: Biryola qoldiq -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-red-700">
-                                        {{ number_format(($statistics['jami']['bir_yola']['tushadigan_mablagh'] - $statistics['jami']['biryola_fakt']) / 1000000000, 1) }}
+                                        <?php echo e(number_format(($statistics['jami']['bir_yola']['tushadigan_mablagh'] - $statistics['jami']['biryola_fakt']) / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 21: Biryola foiz -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ $statistics['jami']['bir_yola']['tushadigan_mablagh'] > 0 ? number_format(($statistics['jami']['biryola_fakt'] / $statistics['jami']['bir_yola']['tushadigan_mablagh']) * 100, 1) : 0 }}%
+                                        <?php echo e($statistics['jami']['bir_yola']['tushadigan_mablagh'] > 0 ? number_format(($statistics['jami']['biryola_fakt'] / $statistics['jami']['bir_yola']['tushadigan_mablagh']) * 100, 1) : 0); ?>%
                                     </td>
 
                                     <!-- Col 22: Bolib soni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="{{ route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                            class="text-blue-700 hover:text-blue-900 hover:underline">{{ $statistics['jami']['bolib']['soni'] }}</a>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                            class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($statistics['jami']['bolib']['soni']); ?></a>
                                     </td>
 
                                     <!-- Col 23: Bolib maydoni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bolib']['maydoni'], 2) }}</td>
+                                        <?php echo e(number_format($statistics['jami']['bolib']['maydoni'], 2)); ?></td>
 
                                     <!-- Col 24: Bolib boshlangich -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bolib']['boshlangich_narx'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['bolib']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 25: Bolib sotilgan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bolib']['sotilgan_narx'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['bolib']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 26: Bolib chegirma -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bolib']['chegirma'] / 1000000000, 1) }}</td>
+                                        <?php echo e(number_format($statistics['jami']['bolib']['chegirma'] / 1000000000, 1)); ?></td>
 
                                     <!-- Col 27: Bolib auksion harajat -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bolib']['auksion_harajati'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['bolib']['auksion_harajati'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 28: Bolib tushadigan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1) }}</td>
+                                        <?php echo e(number_format($statistics['jami']['bolib_tushadigan'] / 1000000000, 1)); ?></td>
 
                                     <!-- Col 29: Bolib tushgan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-blue-900">
-                                        {{ number_format(($statistics['jami']['bolib_tushgan_all'] ?? 0) / 1000000000, 1) }}</td>
+                                        <?php echo e(number_format(($statistics['jami']['bolib_tushgan_all'] ?? 0) / 1000000000, 1)); ?></td>
 
                                     <!-- Col 30: Bolib qoldiq -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-red-700">
-                                        {{ number_format((($statistics['jami']['bolib_tushadigan'] ?? 0) - ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / 1000000000, 1) }}
+                                        <?php echo e(number_format((($statistics['jami']['bolib_tushadigan'] ?? 0) - ($statistics['jami']['bolib_tushgan_all'] ?? 0)) / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 31: Bolib foiz -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ ($statistics['jami']['bolib_tushadigan'] ?? 0) > 0 ? number_format((($statistics['jami']['bolib_tushgan_all'] ?? 0) / $statistics['jami']['bolib_tushadigan']) * 100, 1) : 0 }}%
+                                        <?php echo e(($statistics['jami']['bolib_tushadigan'] ?? 0) > 0 ? number_format((($statistics['jami']['bolib_tushgan_all'] ?? 0) / $statistics['jami']['bolib_tushadigan']) * 100, 1) : 0); ?>%
                                     </td>
 
                                     <!-- Col 32: Auksonda soni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="{{ route('yer-sotuvlar.list', ['auksonda_turgan' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                            class="text-blue-700 hover:text-blue-900 hover:underline">{{ $statistics['jami']['auksonda']['soni'] }}</a>
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['auksonda_turgan' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                            class="text-blue-700 hover:text-blue-900 hover:underline"><?php echo e($statistics['jami']['auksonda']['soni']); ?></a>
                                     </td>
 
                                     <!-- Col 33: Auksonda maydoni -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['auksonda']['maydoni'], 2) }}</td>
+                                        <?php echo e(number_format($statistics['jami']['auksonda']['maydoni'], 2)); ?></td>
 
                                     <!-- Col 34: Auksonda boshlangich -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['auksonda']['boshlangich_narx'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['auksonda']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                     </td>
 
                                     <!-- Col 35: Auksonda sotilgan -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format($statistics['jami']['auksonda']['sotilgan_narx'] / 1000000000, 1) }}
+                                        <?php echo e(number_format($statistics['jami']['auksonda']['sotilgan_narx'] / 1000000000, 1)); ?>
+
                                     </td>
                                     <!-- JAMI - Col 36: Mulk qabul soni (ALL lots) -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        <a href="{{ route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida', 'asos' => 'ПФ-135', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
+                                        <a href="<?php echo e(route('yer-sotuvlar.list', ['holat' => 'Ishtirokchi roziligini kutish jarayonida', 'asos' => 'ПФ-135', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
                                             class="text-blue-700 hover:text-blue-900 hover:underline">
-                                            {{ $statistics['jami']['mulk_qabul']['total_records'] ?? 0 }}
+                                            <?php echo e($statistics['jami']['mulk_qabul']['total_records'] ?? 0); ?>
+
                                         </a>
                                     </td>
 
                                     <!-- JAMI - Col 37: Mulk qabul mablagh (only муддатли эмас amounts) -->
                                     <td class="border border-slate-400 px-3 py-3 text-right font-bold text-slate-900">
-                                        {{ number_format(($statistics['jami']['mulk_qabul']['total_auksion_mablagh'] ?? 0) / 1000000000, 1) }}
+                                        <?php echo e(number_format(($statistics['jami']['mulk_qabul']['total_auksion_mablagh'] ?? 0) / 1000000000, 1)); ?>
+
                                     </td>
                                 </tr>
 
                                 <!-- TUMANLAR ROWS -->
-                                @foreach ($statistics['tumanlar'] as $index => $tuman)
+                                <?php $__currentLoopData = $statistics['tumanlar']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $tuman): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <tr
-                                        class="hover:bg-blue-50 transition-colors duration-150 {{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50' }}">
+                                        class="hover:bg-blue-50 transition-colors duration-150 <?php echo e($index % 2 == 0 ? 'bg-white' : 'bg-slate-50'); ?>">
                                         <!-- Col 0: Row number -->
                                         <td
                                             class="sticky-col border border-slate-400 px-3 py-3 text-center align-middle font-medium text-slate-700">
-                                            {{ $index + 1 }}</td>
+                                            <?php echo e($index + 1); ?></td>
 
                                         <!-- Col 1: Tuman name -->
                                         <td
                                             class="sticky-col-2 border border-slate-400 px-3 py-3 align-middle font-semibold text-slate-800">
-                                            {{ $tuman['tuman'] }}</td>
+                                            <?php echo e($tuman['tuman']); ?></td>
 
                                         <!-- Col 2: Jami soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            @if ($tuman['jami']['soni'] > 0)
-                                                <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'include_auksonda' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium">{{ $tuman['jami']['soni'] }}</a>
-                                            @else
+                                            <?php if($tuman['jami']['soni'] > 0): ?>
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'include_auksonda' => 'true', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['jami']['soni']); ?></a>
+                                            <?php else: ?>
                                                 0
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
 
                                         <!-- Col 3: Jami maydoni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['jami']['maydoni'], 2) }}</td>
+                                            <?php echo e(number_format($tuman['jami']['maydoni'], 2)); ?></td>
 
                                         <!-- Col 4: Jami boshlangich -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['jami']['boshlangich_narx'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['jami']['boshlangich_narx'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 5: Jami sotilgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['jami']['sotilgan_narx'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['jami']['sotilgan_narx'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 6: Jami chegirma -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['jami']['chegirma'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['jami']['chegirma'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 7: Jami auksion harajat -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['jami']['auksion_harajati'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['jami']['auksion_harajati'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 8: Jami tushadigan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['jami']['tushadigan_mablagh'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['jami']['tushadigan_mablagh'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 9: Jami tushgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium">
-                                            {{ number_format(($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0)) / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format(($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0)) / 1000000000, 1)); ?></td>
 
                                         <!-- Col 10: Jami qoldiq -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-red-700 font-medium">
-                                            {{ number_format(($tuman['jami']['tushadigan_mablagh'] - ($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0))) / 1000000000, 1) }}
+                                            <?php echo e(number_format(($tuman['jami']['tushadigan_mablagh'] - ($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0))) / 1000000000, 1)); ?>
+
                                         </td>
 
                                         <!-- Col 11: Jami foiz -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ $tuman['jami']['tushadigan_mablagh'] > 0 ? number_format((($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0)) / $tuman['jami']['tushadigan_mablagh']) * 100, 1) : 0 }}%
+                                            <?php echo e($tuman['jami']['tushadigan_mablagh'] > 0 ? number_format((($tuman['biryola_fakt'] + ($tuman['bolib_tushgan_all'] ?? 0)) / $tuman['jami']['tushadigan_mablagh']) * 100, 1) : 0); ?>%
                                         </td>
 
                                         <!-- Col 12: Biryola soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            @if ($tuman['bir_yola']['soni'] > 0)
-                                                <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium">{{ $tuman['bir_yola']['soni'] }}</a>
-                                            @else
+                                            <?php if($tuman['bir_yola']['soni'] > 0): ?>
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['bir_yola']['soni']); ?></a>
+                                            <?php else: ?>
                                                 0
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
 
                                         <!-- Col 13: Biryola maydoni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bir_yola']['maydoni'], 2) }}</td>
+                                            <?php echo e(number_format($tuman['bir_yola']['maydoni'], 2)); ?></td>
 
                                         <!-- Col 14: Biryola boshlangich -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bir_yola']['boshlangich_narx'] / 1000000000, 1) }}
+                                            <?php echo e(number_format($tuman['bir_yola']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                         </td>
 
                                         <!-- Col 15: Biryola sotilgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bir_yola']['sotilgan_narx'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['bir_yola']['sotilgan_narx'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 16: Biryola chegirma -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bir_yola']['chegirma'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['bir_yola']['chegirma'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 17: Biryola auksion harajat -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bir_yola']['auksion_harajati'] / 1000000000, 1) }}
+                                            <?php echo e(number_format($tuman['bir_yola']['auksion_harajati'] / 1000000000, 1)); ?>
+
                                         </td>
 
                                         <!-- Col 18: Biryola tushadigan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1) }}
+                                            <?php echo e(number_format($tuman['bir_yola']['tushadigan_mablagh'] / 1000000000, 1)); ?>
+
                                         </td>
 
                                         <!-- Col 19: Biryola tushgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium">
-                                            {{ number_format($tuman['biryola_fakt'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['biryola_fakt'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 20: Biryola qoldiq -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-red-700 font-medium">
-                                            {{ number_format(($tuman['bir_yola']['tushadigan_mablagh'] - $tuman['biryola_fakt']) / 1000000000, 1) }}
+                                            <?php echo e(number_format(($tuman['bir_yola']['tushadigan_mablagh'] - $tuman['biryola_fakt']) / 1000000000, 1)); ?>
+
                                         </td>
 
                                         <!-- Col 21: Biryola foiz -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ $tuman['bir_yola']['tushadigan_mablagh'] > 0 ? number_format(($tuman['biryola_fakt'] / $tuman['bir_yola']['tushadigan_mablagh']) * 100, 1) : 0 }}%
+                                            <?php echo e($tuman['bir_yola']['tushadigan_mablagh'] > 0 ? number_format(($tuman['biryola_fakt'] / $tuman['bir_yola']['tushadigan_mablagh']) * 100, 1) : 0); ?>%
                                         </td>
 
                                         <!-- Col 22: Bolib soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            @if ($tuman['bolib']['soni'] > 0)
-                                                <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium">{{ $tuman['bolib']['soni'] }}</a>
-                                            @else
+                                            <?php if($tuman['bolib']['soni'] > 0): ?>
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['bolib']['soni']); ?></a>
+                                            <?php else: ?>
                                                 0
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
 
                                         <!-- Col 23: Bolib maydoni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bolib']['maydoni'], 2) }}</td>
+                                            <?php echo e(number_format($tuman['bolib']['maydoni'], 2)); ?></td>
 
                                         <!-- Col 24: Bolib boshlangich -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bolib']['boshlangich_narx'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['bolib']['boshlangich_narx'] / 1000000000, 1)); ?></td>
                                         <!-- Col 25: Bolib sotilgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bolib']['sotilgan_narx'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['bolib']['sotilgan_narx'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 26: Bolib chegirma -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bolib']['chegirma'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['bolib']['chegirma'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 27: Bolib auksion harajat -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bolib']['auksion_harajati'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['bolib']['auksion_harajati'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 28: Bolib tushadigan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['bolib_tushadigan'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['bolib_tushadigan'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 29: Bolib tushgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-blue-700 font-medium">
-                                            {{ number_format(($tuman['bolib_tushgan_all'] ?? 0) / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format(($tuman['bolib_tushgan_all'] ?? 0) / 1000000000, 1)); ?></td>
 
                                         <!-- Col 30: Bolib qoldiq -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-red-700 font-medium">
-                                            {{ number_format((($tuman['bolib_tushadigan'] ?? 0) - ($tuman['bolib_tushgan_all'] ?? 0)) / 1000000000, 1) }}
+                                            <?php echo e(number_format((($tuman['bolib_tushadigan'] ?? 0) - ($tuman['bolib_tushgan_all'] ?? 0)) / 1000000000, 1)); ?>
+
                                         </td>
 
                                         <!-- Col 31: Bolib foiz -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ ($tuman['bolib_tushadigan'] ?? 0) > 0 ? number_format((($tuman['bolib_tushgan_all'] ?? 0) / $tuman['bolib_tushadigan']) * 100, 1) : 0 }}%
+                                            <?php echo e(($tuman['bolib_tushadigan'] ?? 0) > 0 ? number_format((($tuman['bolib_tushgan_all'] ?? 0) / $tuman['bolib_tushadigan']) * 100, 1) : 0); ?>%
                                         </td>
 
                                         <!-- Col 32: Auksonda soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            @if ($tuman['auksonda']['soni'] > 0)
-                                                <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'auksonda_turgan' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium">{{ $tuman['auksonda']['soni'] }}</a>
-                                            @else
+                                            <?php if($tuman['auksonda']['soni'] > 0): ?>
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'auksonda_turgan' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['auksonda']['soni']); ?></a>
+                                            <?php else: ?>
                                                 0
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
 
                                         <!-- Col 33: Auksonda maydoni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['auksonda']['maydoni'], 2) }}</td>
+                                            <?php echo e(number_format($tuman['auksonda']['maydoni'], 2)); ?></td>
 
                                         <!-- Col 34: Auksonda boshlangich -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['auksonda']['boshlangich_narx'] / 1000000000, 1) }}
+                                            <?php echo e(number_format($tuman['auksonda']['boshlangich_narx'] / 1000000000, 1)); ?>
+
                                         </td>
 
                                         <!-- Col 35: Auksonda sotilgan -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format($tuman['auksonda']['sotilgan_narx'] / 1000000000, 1) }}</td>
+                                            <?php echo e(number_format($tuman['auksonda']['sotilgan_narx'] / 1000000000, 1)); ?></td>
 
                                         <!-- Col 36: Mulk qabul soni -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            @if (($tuman['mulk_qabul']['total_records'] ?? 0) > 0)
-                                                <a href="{{ route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida', 'asos' => 'ПФ-135', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']]) }}"
-                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium">{{ $tuman['mulk_qabul']['total_records'] }}</a>
-                                            @else
+                                            <?php if(($tuman['mulk_qabul']['total_records'] ?? 0) > 0): ?>
+                                                <a href="<?php echo e(route('yer-sotuvlar.list', ['tuman' => $tuman['tuman'], 'holat' => 'Ishtirokchi roziligini kutish jarayonida', 'asos' => 'ПФ-135', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']])); ?>"
+                                                    class="text-blue-600 hover:text-blue-800 hover:underline font-medium"><?php echo e($tuman['mulk_qabul']['total_records']); ?></a>
+                                            <?php else: ?>
                                                 0
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
 
                                         <!-- Col 37: Mulk qabul mablagh -->
                                         <td class="border border-slate-400 px-3 py-3 text-right text-slate-700">
-                                            {{ number_format(($tuman['mulk_qabul']['total_auksion_mablagh'] ?? 0) / 1000000000, 1) }}
+                                            <?php echo e(number_format(($tuman['mulk_qabul']['total_auksion_mablagh'] ?? 0) / 1000000000, 1)); ?>
+
                                         </td>
                                     </tr>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                         </table>
                     </div>
@@ -651,19 +677,19 @@
             <!-- Filter Section -->
             <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-t-4 border-blue-600 mt-6">
                 <div class="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
-                    <form method="GET" action="{{ route('yer-sotuvlar.index') }}">
+                    <form method="GET" action="<?php echo e(route('yer-sotuvlar.index')); ?>">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Бошланғич санаси:</label>
                                 <input type="date" name="auksion_sana_from"
                                     class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                                    value="{{ request('auksion_sana_from') }}">
+                                    value="<?php echo e(request('auksion_sana_from')); ?>">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Тугаш санаси:</label>
                                 <input type="date" name="auksion_sana_to"
                                     class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                                    value="{{ request('auksion_sana_to') }}">
+                                    value="<?php echo e(request('auksion_sana_to')); ?>">
                             </div>
                         </div>
                         <div class="flex gap-4 mt-6">
@@ -675,7 +701,7 @@
                                 </svg>
                                 Қидириш
                             </button>
-                            <a href="{{ route('yer-sotuvlar.index') }}"
+                            <a href="<?php echo e(route('yer-sotuvlar.index')); ?>"
                                 class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -735,4 +761,6 @@
             }
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/statistics.blade.php ENDPATH**/ ?>
