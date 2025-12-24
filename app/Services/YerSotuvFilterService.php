@@ -402,8 +402,7 @@ class YerSotuvFilterService
 
     /**
      * Get муддатли эмас lots with qoldiq qarz
-     * ✅ SYNCHRONIZED with YerSotuvDataService::getQoldiqQarzLotlar
-     * ✅ Includes specific "Лот якунланди" lots and uses same >= condition
+     * ✅ Only includes lots where Қолдиқ маблағ > 0 (excluding fully paid lots)
      */
     private function getQoldiqQarzLots(): array
     {
@@ -411,19 +410,17 @@ class YerSotuvFilterService
             ->where('tolov_turi', 'муддатли эмас')
             ->whereNotNull('holat')
             ->where(function ($q) {
-                $q->where(function ($sq) {
-                    $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                        ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
-                        ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
-                        ->orWhere('holat', 'like', '%Бекор қилинған%');
-                })
-                // ✅ Include specific "Лот якунланди" lots (same as DataService)
-                ->orWhereIn('lot_raqami', ['19092338', '19227515']);
+                $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                    ->orWhere('holat', 'like', '%Бекор қилинған%');
             })
-            // ✅ SYNCHRONIZED: Use same condition as DataService (>= ... - 0.01)
+            // ✅ Only include lots where Қолдиқ маблағ > 0
+            // Formula: expected - paid > 0.01
             ->whereRaw('(
                 (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
-                >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+                - COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
+                > 0.01
             )')
             ->pluck('lot_raqami')
             ->toArray();
@@ -431,29 +428,26 @@ class YerSotuvFilterService
 
     /**
      * Filter: Qoldiq qarz (Auksonda turgan mablagh)
-     * ✅ SYNCHRONIZED with YerSotuvDataService::getQoldiqQarzLotlar
-     * ✅ Uses exact same logic to ensure count matches
+     * ✅ Only shows lots where Қолдиқ маблағ > 0 (excluding fully paid lots)
      */
     private function applyQoldiqQarzFilter(Builder $query): void
     {
         $query->where('tolov_turi', 'муддатли эмас');
 
-        // ✅ SYNCHRONIZED: Same status filter as DataService
+        // ✅ Include only qoldiq_qarz statuses (no Лот якунланди)
         $query->where(function ($q) {
-            $q->where(function ($sq) {
-                $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
-                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
-                    ->orWhere('holat', 'like', '%Бекор қилинған%');
-            })
-            // ✅ Include specific "Лот якунланди" lots (same as DataService)
-            ->orWhereIn('lot_raqami', ['19092338', '19227515']);
+            $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                ->orWhere('holat', 'like', '%Бекор қилинған%');
         });
 
-        // ✅ SYNCHRONIZED: Use same condition as DataService (>= ... - 0.01)
+        // ✅ Only include lots where Қолдиқ маблағ > 0
+        // Formula: expected - paid > 0.01
         $query->whereRaw('(
             (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
-            >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+            - COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
+            > 0.01
         )');
     }
 }
