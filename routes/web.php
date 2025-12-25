@@ -28,6 +28,7 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::prefix('export')->name('export.')->group(function () {
         Route::get('/full', [ExportController::class, 'exportToExcel'])->name('full');
         Route::get('/summary', [ExportController::class, 'exportWithFaktSummary'])->name('summary');
+        Route::get('/filtered', [ExportController::class, 'exportFiltered'])->name('filtered');
     });
 
     // Qoldiq management - Super Admin only
