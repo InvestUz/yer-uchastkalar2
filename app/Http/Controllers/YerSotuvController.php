@@ -913,11 +913,12 @@ public function monitoring(Request $request)
     /**
      * Calculate qoldiq_qarz specific data for monitoring page
      * ✅ SYNCHRONIZED with YerSotuvFilterService::applyQoldiqQarzFilter
+     * ✅ AUTOMATIC DISTRICT FILTERING: District users only see their own data
      */
     private function calculateQoldiqQarzData(array $dateFilters): array
     {
         // Get qoldiq_qarz lots using the same logic as FilterService
-        $qoldiqQarzLots = DB::table('yer_sotuvlar')
+        $query = DB::table('yer_sotuvlar')
             ->where('tolov_turi', 'муддатли эмас')
             ->whereNotNull('holat')
             ->where('holat', '!=', 'Бекор қилинган')
@@ -935,9 +936,22 @@ public function monitoring(Request $request)
             ->whereRaw('(
                 (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
                 >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
-            )')
-            ->pluck('lot_raqami')
-            ->toArray();
+            )');
+
+        // ✅ AUTOMATIC DISTRICT FILTERING: District users only see their own data
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->isDistrict()) {
+            $userDistrict = \Illuminate\Support\Facades\Auth::user()->tuman;
+            if ($userDistrict) {
+                $tumanPatterns = $this->yerSotuvService->getTumanPatterns($userDistrict);
+                $query->where(function ($q) use ($tumanPatterns) {
+                    foreach ($tumanPatterns as $pattern) {
+                        $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                    }
+                });
+            }
+        }
+
+        $qoldiqQarzLots = $query->pluck('lot_raqami')->toArray();
 
         $count = count($qoldiqQarzLots);
         $expectedAmount = 0;
