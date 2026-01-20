@@ -917,25 +917,22 @@ public function monitoring(Request $request)
      */
     private function calculateQoldiqQarzData(array $dateFilters): array
     {
-        // Get qoldiq_qarz lots using the same logic as FilterService
+        // Get qoldiq_qarz lots using the EXACT same logic as FilterService
         $query = DB::table('yer_sotuvlar')
             ->where('tolov_turi', 'муддатли эмас')
             ->whereNotNull('holat')
-            ->where('holat', '!=', 'Бекор қилинган')
             ->where(function ($q) {
-                $q->where(function ($sq) {
-                    $sq->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
-                        ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
-                        ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
-                        ->orWhere('holat', 'like', '%Бекор қилинған%');
-                })
-                // Include specific "Лот якунланди" lots (same as FilterService)
-                ->orWhereIn('lot_raqami', ['19092338', '19227515']);
+                $q->where('holat', 'like', '%Ishtirokchi roziligini kutish jarayonida%')
+                    ->orWhere('holat', 'like', '%G`olib shartnoma imzolashga rozilik bildirdi%')
+                    ->orWhere('holat', 'like', '%Ишл. кечикт. туф. мулкни қабул қил. тасдиқланмаған%')
+                    ->orWhere('holat', 'like', '%Бекор қилинған%');
             })
-            // Same condition as FilterService (>= ... - 0.01)
+            // ✅ Only include lots where Қолдиқ маблағ > 0
+            // Formula: expected - paid > 0.01 (same as FilterService)
             ->whereRaw('(
                 (COALESCE(golib_tolagan, 0) + COALESCE(shartnoma_summasi, 0) - COALESCE(auksion_harajati, 0))
-                >= COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0) - 0.01
+                - COALESCE((SELECT SUM(tolov_summa) FROM fakt_tolovlar WHERE fakt_tolovlar.lot_raqami = yer_sotuvlar.lot_raqami), 0)
+                > 0.01
             )');
 
         // ✅ AUTOMATIC DISTRICT FILTERING: District users only see their own data
