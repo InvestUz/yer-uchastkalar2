@@ -375,7 +375,22 @@
                 <!-- Page Title -->
                 <div>
                     <h1 class="text-lg font-bold text-gray-900">@yield('page_title', 'Ер Участкалари')</h1>
-                    <p class="text-sm text-gray-500">@yield('page_subtitle', 'Маълумотлар тизими')</p>
+                    @php
+                        // Latest payment date from fakt_tolovlar
+                        $latestPaymentDate = \DB::table('fakt_tolovlar')->max('tolov_sana');
+
+                        // Latest lot auction date from yer_sotuvlar
+                        $latestLotDate = \DB::table('yer_sotuvlar')->max('auksion_sana');
+                    @endphp
+                    <p class="text-sm text-gray-500">
+                        @yield('page_subtitle', 'Маълумотлар тизими')
+                        @if($latestLotDate)
+                            <span class="text-emerald-600 font-medium">| Лот: {{ \Carbon\Carbon::parse($latestLotDate)->format('d.m.Y') }}</span>
+                        @endif
+                        @if($latestPaymentDate)
+                            <span class="text-blue-600 font-medium">| Тўлов: {{ \Carbon\Carbon::parse($latestPaymentDate)->format('d.m.Y') }}</span>
+                        @endif
+                    </p>
                 </div>
 
                 <!-- User Info -->
