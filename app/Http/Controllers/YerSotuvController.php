@@ -368,9 +368,27 @@ public function monitoring(Request $request)
     // Get all tumanlar
     $tumanlar = $this->monitoringService->getTumanlar();
 
+    // ✅ Handle tuman filter (Admin dropdown OR District user auto-filter)
+    $selectedTuman = null;
+    $filteredTumanlar = $tumanlar;
+
+    if (auth()->check()) {
+        if (auth()->user()->isSuperAdmin() && $request->filled('tuman')) {
+            // Admin selected a specific tuman from dropdown
+            $selectedTuman = $request->tuman;
+            $filteredTumanlar = [$selectedTuman];
+        } elseif (auth()->user()->isDistrict()) {
+            // District user: auto-filter by their tuman
+            $selectedTuman = auth()->user()->tuman;
+            if ($selectedTuman) {
+                $filteredTumanlar = [$selectedTuman];
+            }
+        }
+    }
+
     // Calculate statistics for each tuman using MonitoringService
     $monitoringStatistics = [];
-    foreach ($tumanlar as $tuman) {
+    foreach ($filteredTumanlar as $tuman) {
         $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
         $stat = $this->monitoringService->calculateTumanStatistics($tumanPatterns, $dateFilters, false);
         $stat['tuman'] = $tuman;
@@ -412,11 +430,16 @@ public function monitoring(Request $request)
     $muddatiUtganQarz = $jami['muddati_utgan_qarz'];
 
     // ✅ Calculate qoldiq_qarz specific data (for "Аукционда турган маблағ" card)
-    $qoldiqQarzData = $this->calculateQoldiqQarzData($dateFilters);
+    // Pass tuman patterns if admin selected a tuman
+    $qoldiqTumanPatterns = null;
+    if ($selectedTuman) {
+        $qoldiqTumanPatterns = $this->yerSotuvService->getTumanPatterns($selectedTuman);
+    }
+    $qoldiqQarzData = $this->calculateQoldiqQarzData($dateFilters, $qoldiqTumanPatterns);
 
     // Get tuman statistics with period-aware calculations (existing functionality)
     $tumanStatsMuddatli = [];
-    foreach ($tumanlar as $tuman) {
+    foreach ($filteredTumanlar as $tuman) {
         $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
 
         // Use period-aware method
@@ -440,7 +463,7 @@ public function monitoring(Request $request)
 
     // Get tuman statistics for муддатли эмас with period-aware calculations
     $tumanStatsMuddatliEmas = [];
-    foreach ($tumanlar as $tuman) {
+    foreach ($filteredTumanlar as $tuman) {
         $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
 
         // Use period-aware method
@@ -481,7 +504,9 @@ public function monitoring(Request $request)
         'grafikBoyichaTushgan',
         'muddatiUtganQarz',
         'availablePeriods',
-        'qoldiqQarzData'
+        'qoldiqQarzData',
+        'tumanlar',
+        'selectedTuman'
     ));
 }
 
@@ -913,9 +938,9 @@ public function monitoring(Request $request)
     /**
      * Calculate qoldiq_qarz specific data for monitoring page
      * ✅ SYNCHRONIZED with YerSotuvFilterService::applyQoldiqQarzFilter
-     * ✅ AUTOMATIC DISTRICT FILTERING: District users only see their own data
+     * ✅ SUPPORTS TUMAN FILTERING: Both admin filter and district user auto-filter
      */
-    private function calculateQoldiqQarzData(array $dateFilters): array
+    private function calculateQoldiqQarzData(array $dateFilters, ?array $tumanPatterns = null): array
     {
         // Get qoldiq_qarz lots using the EXACT same logic as FilterService
         $query = DB::table('yer_sotuvlar')
@@ -935,13 +960,20 @@ public function monitoring(Request $request)
                 > 0.01
             )');
 
-        // ✅ AUTOMATIC DISTRICT FILTERING: District users only see their own data
-        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->isDistrict()) {
+        // ✅ TUMAN FILTERING: Apply if tuman patterns provided (admin filter or district user)
+        if ($tumanPatterns !== null && !empty($tumanPatterns)) {
+            $query->where(function ($q) use ($tumanPatterns) {
+                foreach ($tumanPatterns as $pattern) {
+                    $q->orWhere('tuman', 'like', '%' . $pattern . '%');
+                }
+            });
+        } elseif (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->isDistrict()) {
+            // Fallback: Auto-filter for district users if no explicit filter provided
             $userDistrict = \Illuminate\Support\Facades\Auth::user()->tuman;
             if ($userDistrict) {
-                $tumanPatterns = $this->yerSotuvService->getTumanPatterns($userDistrict);
-                $query->where(function ($q) use ($tumanPatterns) {
-                    foreach ($tumanPatterns as $pattern) {
+                $districtPatterns = $this->yerSotuvService->getTumanPatterns($userDistrict);
+                $query->where(function ($q) use ($districtPatterns) {
+                    foreach ($districtPatterns as $pattern) {
                         $q->orWhere('tuman', 'like', '%' . $pattern . '%');
                     }
                 });
