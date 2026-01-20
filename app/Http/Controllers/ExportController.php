@@ -26,28 +26,34 @@ class ExportController extends Controller
     /**
      * Export filtered data based on current query parameters
      * ✅ Exports only the filtered data (same as list page shows)
+     * ✅ Uses same default filters as list controller
      */
     public function exportFiltered(Request $request)
     {
         ini_set('memory_limit', '512M');
         set_time_limit(300);
 
-        // Get all filter parameters from request
+        // ✅ Check if qoldiq_qarz filter is active (same as list controller)
+        $isQoldiqQarzFilter = !empty($request->qoldiq_qarz) && $request->qoldiq_qarz === 'true';
+
+        // Get all filter parameters from request with SAME DEFAULTS as list controller
         $filters = [
             'tuman' => $request->tuman,
             'yil' => $request->yil,
             'tolov_turi' => $request->tolov_turi,
             'holat' => $request->holat,
             'asos' => $request->asos,
-            'auksion_sana_from' => $request->auksion_sana_from,
-            'auksion_sana_to' => $request->auksion_sana_to,
+            // ✅ SAME DEFAULT DATE FILTERS as list controller: 2024-01-01 to today
+            'auksion_sana_from' => $request->auksion_sana_from ?? ($isQoldiqQarzFilter ? null : '2024-01-01'),
+            'auksion_sana_to' => $request->auksion_sana_to ?? ($isQoldiqQarzFilter ? null : now()->toDateString()),
             'narx_from' => $request->narx_from,
             'narx_to' => $request->narx_to,
             'maydoni_from' => $request->maydoni_from,
             'maydoni_to' => $request->maydoni_to,
             'search' => $request->search,
-            'include_all' => $request->include_all,
-            'include_bekor' => $request->include_bekor,
+            // ✅ SAME include_all logic as list controller
+            'include_all' => $request->include_all ?? ((!empty($request->include_bekor) || !empty($request->include_auksonda)) ? null : 'true'),
+            'include_bekor' => $isQoldiqQarzFilter ? 'true' : $request->include_bekor,
             'include_auksonda' => $request->include_auksonda,
             'grafik_ortda' => $request->grafik_ortda,
             'toliq_tolangan' => $request->toliq_tolangan,
@@ -57,8 +63,20 @@ class ExportController extends Controller
         ];
 
         // Build query with filters (same as list page)
+        // FilterService already handles automatic district filtering via QueryService
         $query = YerSotuv::query()->with(['faktTolovlar', 'grafikTolovlar']);
         $this->filterService->applyFilters($query, $filters);
+
+        // ✅ Apply same additional holat/asos filters as list controller
+        if (!empty($filters['holat'])) {
+            $query->where('holat', 'like', '%' . $filters['holat'] . '%');
+            if (strpos($filters['holat'], '(34)') !== false) {
+                $query->where('asos', 'ПФ-135');
+            }
+        }
+        if (!empty($filters['asos'])) {
+            $query->where('asos', 'like', '%' . $filters['asos'] . '%');
+        }
 
         // Get sorting
         $sortField = $request->get('sort', 'auksion_sana');
