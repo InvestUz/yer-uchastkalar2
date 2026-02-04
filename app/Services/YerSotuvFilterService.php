@@ -380,19 +380,15 @@ class YerSotuvFilterService
                 ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
                 ->sum('grafik_summa');
 
+            // Use ALL payments (not excluding auction org)
+            // 5-cent threshold: treat small debts as fully paid
             $lotGrafikTushgan = DB::table('fakt_tolovlar')
                 ->where('lot_raqami', $lotRaqami)
-                ->where(function($q) {
-                    $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-                      ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-                      ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-                      ->orWhereNull('tolash_nom');
-                })
                 ->sum('tolov_summa');
 
             $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
 
-            if ($lotDebt > 0) {
+            if ($lotDebt > 0.05) {
                 $lotsWithDebt[] = $lotRaqami;
             }
         }

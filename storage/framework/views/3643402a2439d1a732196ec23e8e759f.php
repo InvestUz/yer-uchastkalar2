@@ -471,11 +471,11 @@
                         // Calculate qoldiq
                         $qoldiq = $expected - $received;
 
-                        // Calculate muddati utgan qarzdorlik (overdue debt)
+                        // Calculate muddati utgan qarzdorlik - ONLY for муддатли
                         $muddatiUtganQarz = 0;
 
                         if ($yer->tolov_turi === 'муддатли') {
-                            // For muddatli: grafik up to last month - fakt (excluding auction payments)
+                            // Formula: Шартнома графиги б-ча тўлов - Ғолиб тўлаган маблағ (ALL payments)
                             $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
 
                             $grafikTushadigan = $yer->grafikTolovlar
@@ -485,18 +485,14 @@
                                 })
                                 ->sum('grafik_summa');
 
-                            $grafikTushgan = $yer->faktTolovlar
-                                ->filter(function($fakt) {
-                                    $tolashNom = $fakt->tolash_nom ?? '';
-                                    return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
-                                })
-                                ->sum('tolov_summa');
+                            // Use ALL payments (not excluding auction org)
+                            $grafikTushgan = $yer->faktTolovlar->sum('tolov_summa');
 
-                            $muddatiUtganQarz = max(0, $grafikTushadigan - $grafikTushgan);
-                        } elseif ($yer->tolov_turi === 'муддатли эмас') {
-                            // For muddatli emas: qoldiq if positive
-                            $muddatiUtganQarz = max(0, $qoldiq);
+                            $lotDiff = $grafikTushadigan - $grafikTushgan;
+                            // 5-cent threshold: treat small debts as fully paid
+                            $muddatiUtganQarz = $lotDiff > 0.05 ? $lotDiff : 0;
                         }
+                        // Note: муддатли эмас does not have overdue debt calculation
                     ?>
 
                     

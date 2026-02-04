@@ -142,9 +142,10 @@ class ExportController extends Controller
             $received = $yer->faktTolovlar->sum('tolov_summa');
             $qoldiq = $expected - $received;
 
-            // Calculate muddati utgan qarzdorlik
+            // Calculate muddati utgan qarzdorlik - ONLY for муддатли
             $muddatiUtganQarz = 0;
             if ($yer->tolov_turi === 'муддатли') {
+                // Formula: Шартнома графиги б-ча тўлов - Ғолиб тўлаган маблағ (ALL payments)
                 $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
                 $grafikTushadigan = $yer->grafikTolovlar
                     ->filter(function($grafik) use ($cutoffDate) {
@@ -152,16 +153,13 @@ class ExportController extends Controller
                         return $grafikDate <= $cutoffDate;
                     })
                     ->sum('grafik_summa');
-                $grafikTushgan = $yer->faktTolovlar
-                    ->filter(function($fakt) {
-                        $tolashNom = $fakt->tolash_nom ?? '';
-                        return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
-                    })
-                    ->sum('tolov_summa');
-                $muddatiUtganQarz = max(0, $grafikTushadigan - $grafikTushgan);
-            } elseif ($yer->tolov_turi === 'муддатли эмас') {
-                $muddatiUtganQarz = max(0, $qoldiq);
+                // Use ALL payments (not excluding auction org)
+                $grafikTushgan = $yer->faktTolovlar->sum('tolov_summa');
+                $lotDiff = $grafikTushadigan - $grafikTushgan;
+                // 5-cent threshold: treat small debts as fully paid
+                $muddatiUtganQarz = $lotDiff > 0.05 ? $lotDiff : 0;
             }
+            // Note: муддатли эмас does not have overdue debt calculation
 
             $total_tolov = $yer->faktTolovlar->sum('tolov_summa');
             $golib_total = $yer->golib_tolagan + $total_tolov;

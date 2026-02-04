@@ -487,6 +487,8 @@ class YerSotuvDataService
 
     /**
      * SVOD3: Get grafik ortda statistics
+     * Formula: Шартнома графиги б-ча тўлов - Ғолиб тўлаган маблағ (ALL payments)
+     * Positive = overdue debt, Negative = overpaid
      */
     public function getGrafikOrtda(?array $tumanPatterns = null, array $dateFilters = []): array
     {
@@ -509,46 +511,47 @@ class YerSotuvDataService
                 'maydoni' => 0,
                 'grafik_summa' => 0,
                 'fakt_summa' => 0,
-                'muddati_utgan_qarz' => 0
+                'muddati_utgan_qarz' => 0,
+                'ortiqcha_tolangan' => 0
             ];
         }
 
-        // ✅ Calculate LOT-BY-LOT with auction org exclusion
+        // Calculate LOT-BY-LOT
         $soniWithDebt = 0;
+        $soniOverpaid = 0;
         $totalMaydoni = 0;
         $grafikSumma = 0;
         $faktSumma = 0;
         $muddatiUtganQarz = 0;
+        $ortiqchaTolangan = 0;
 
         foreach ($lotRaqamlari as $lotRaqami) {
-            // Get grafik for this lot
+            // Get grafik for this lot (scheduled payments up to cutoff)
             $lotGrafikSumma = DB::table('grafik_tolovlar')
                 ->where('lot_raqami', $lotRaqami)
                 ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
                 ->sum('grafik_summa');
 
-            // Get fakt for this lot (EXCLUDING auction org payments)
+            // Get ALL fakt payments for this lot (not excluding auction org)
             $lotFaktSumma = DB::table('fakt_tolovlar')
                 ->where('lot_raqami', $lotRaqami)
-                ->where(function($q) {
-                    $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-                      ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-                      ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-                      ->orWhereNull('tolash_nom');
-                })
                 ->sum('tolov_summa');
 
-            // Calculate debt for this lot
-            $lotDebt = $lotGrafikSumma - $lotFaktSumma;
+            // Calculate difference for this lot
+            // Positive = overdue debt, Negative = overpaid
+            // 5-cent threshold: treat small debts as fully paid
+            $lotDifference = $lotGrafikSumma - $lotFaktSumma;
 
-            // ✅ Only count lots with positive debt
-            if ($lotDebt > 0) {
+            if ($lotDifference > 0.05) {
                 $soniWithDebt++;
-                $muddatiUtganQarz += $lotDebt;
+                $muddatiUtganQarz += $lotDifference;
 
                 // Get maydoni for this lot
                 $lotMaydoni = YerSotuv::where('lot_raqami', $lotRaqami)->value('maydoni');
                 $totalMaydoni += $lotMaydoni ?? 0;
+            } elseif ($lotDifference < -0.05) {
+                $soniOverpaid++;
+                $ortiqchaTolangan += abs($lotDifference);
             }
 
             // Add to totals for display (all lots)
@@ -557,11 +560,13 @@ class YerSotuvDataService
         }
 
         return [
-            'soni' => $soniWithDebt, // ✅ Count of lots with debt > 0 only
+            'soni' => $soniWithDebt, // Count of lots with debt > 0 only
+            'soni_overpaid' => $soniOverpaid,
             'maydoni' => $totalMaydoni,
             'grafik_summa' => $grafikSumma,
             'fakt_summa' => $faktSumma,
-            'muddati_utgan_qarz' => $muddatiUtganQarz
+            'muddati_utgan_qarz' => $muddatiUtganQarz,
+            'ortiqcha_tolangan' => $ortiqchaTolangan
         ];
     }
 
@@ -631,19 +636,11 @@ class YerSotuvDataService
             $tushadiganMablagh = $grafikQuery->sum('grafik_summa');
         }
 
-        // Calculate tushgan for SELECTED PERIOD from fakt_tolovlar (EXCLUDING auction org)
+        // Calculate tushgan for SELECTED PERIOD from fakt_tolovlar (ALL payments)
         $tushganSumma = 0;
         if (!empty($lotRaqamlari)) {
             $faktQuery = DB::table('fakt_tolovlar')
                 ->whereIn('lot_raqami', $lotRaqamlari);
-
-            // EXCLUDE auction organization payments
-            $faktQuery->where(function($q) {
-                $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-                  ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-                  ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-                  ->where('tolash_nom', 'NOT LIKE', '%ГУП "ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI"%');
-            });
 
             // Apply date filters
             if (!empty($dateFilters['auksion_sana_from'])) {
@@ -733,17 +730,9 @@ class YerSotuvDataService
 
         $grafikSumma = $grafikQuery->sum('grafik_summa');
 
-        // Calculate fakt for SELECTED PERIOD (EXCLUDING auction org)
+        // Calculate fakt for SELECTED PERIOD (ALL payments)
         $faktQuery = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari);
-
-        // EXCLUDE auction organization payments
-        $faktQuery->where(function($q) {
-            $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-              ->where('tolash_nom', 'NOT LIKE', '%ГУП "ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI"%');
-        });
 
         if (!empty($dateFilters['auksion_sana_from'])) {
             $faktQuery->whereDate('tolov_sana', '>=', $dateFilters['auksion_sana_from']);

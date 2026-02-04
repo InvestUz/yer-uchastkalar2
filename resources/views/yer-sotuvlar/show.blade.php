@@ -32,41 +32,60 @@
                             {{ $yer->unikal_raqam }}</p>
                     </div>
 
+                    {{-- Date Filter Form --}}
+                    <form method="GET" action="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}" class="flex items-center gap-2 mt-3 md:mt-0">
+                        <input type="date" name="date_to" value="{{ $dateFilters['date_to'] }}"
+                            class="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <button type="submit" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Қӯллаш
+                        </button>
+                        @if(request('date_to'))
+                            <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}" class="px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                                Бугун
+                            </a>
+                        @endif
+                    </form>
                 </div>
             </div>
 
             {{-- Quick Stats Grid --}}
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 border-b border-gray-200">
                 @php
-                    // Calculate muddati utgan qarzdorlik (overdue debt)
+                    // Use date filter (default: today)
+                    $filterDate = $dateFilters['date_to'];
+                    $filterDateCarbon = \Carbon\Carbon::parse($filterDate);
+
+                    // For grafik cutoff: use end of previous month from filter date
+                    $cutoffDate = $filterDateCarbon->copy()->subMonth()->endOfMonth()->format('Y-m-01');
+
+                    // Filter grafik payments up to the selected date (for display)
+                    $filteredGrafikTolovlar = $yer->grafikTolovlar->filter(function($grafik) use ($cutoffDate) {
+                        $grafikDate = $grafik->yil . '-' . str_pad($grafik->oy, 2, '0', STR_PAD_LEFT) . '-01';
+                        return $grafikDate <= $cutoffDate;
+                    });
+                    $totalGrafikByDate = $filteredGrafikTolovlar->sum('grafik_summa');
+
+                    // Filter fakt payments up to the selected date
+                    $filteredFaktTolovlar = $yer->faktTolovlar->filter(function($fakt) use ($filterDate) {
+                        return $fakt->tolov_sana <= $filterDate;
+                    });
+
+                    // Calculate muddati utgan qarzdorlik (overdue debt) - ONLY for муддатли (Bo'lib to'lash)
                     $muddatiUtganQarz = 0;
+                    $isMuddatli = $yer->tolov_turi === 'муддатли';
 
-                    if ($yer->tolov_turi === 'муддатли') {
-                        // For muddatli: grafik up to last month - fakt (excluding auction payments)
-                        $cutoffDate = now()->subMonth()->endOfMonth()->format('Y-m-01');
+                    if ($isMuddatli) {
+                        // Formula: Шартнома графиги б-ча тўлов - Ғолиб тўлаган маблағ
+                        $grafikTushadigan = $totalGrafikByDate;
+                        $grafikTushgan = $filteredFaktTolovlar->sum('tolov_summa'); // Use ALL payments (same as displayed)
 
-                        $grafikTushadigan = $yer->grafikTolovlar
-                            ->filter(function($grafik) use ($cutoffDate) {
-                                $grafikDate = $grafik->yil . '-' . str_pad($grafik->oy, 2, '0', STR_PAD_LEFT) . '-01';
-                                return $grafikDate <= $cutoffDate;
-                            })
-                            ->sum('grafik_summa');
-
-                        $grafikTushgan = $yer->faktTolovlar
-                            ->filter(function($fakt) {
-                                $tolashNom = $fakt->tolash_nom ?? '';
-                                return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
-                            })
-                            ->sum('tolov_summa');
-
-                        $muddatiUtganQarz = max(0, $grafikTushadigan - $grafikTushgan);
-                    } elseif ($yer->tolov_turi === 'муддатли эмас') {
-                        // For muddatli emas: qoldiq if positive
-                        $expected = ($yer->golib_tolagan ?? 0) + ($yer->shartnoma_summasi ?? 0) - ($yer->auksion_harajati ?? 0);
-                        $received = $yer->faktTolovlar->sum('tolov_summa');
-                        $qoldiq = $expected - $received;
-                        $muddatiUtganQarz = max(0, $qoldiq);
+                        // Allow negative values (negative = overpaid / ортиқча тўланган)
+                        $muddatiUtganQarz = $grafikTushadigan - $grafikTushgan;
                     }
+
+                    // Calculate totals using filtered data
+                    $totalFaktTolangan = $filteredFaktTolovlar->sum('tolov_summa');
+                    $qoldiqQiymat = ($yer->shartnoma_summasi ?? 0) + ($yer->golib_tolagan ?? 0) - ($totalFaktTolangan + ($yer->auksion_harajati ?? 0));
                 @endphp
 
                 <div class="text-center p-3 bg-white rounded border border-gray-200">
@@ -95,31 +114,44 @@
                 </div>
                 <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
                     <div class="text-xs">Шартнома графиги б-ча тўлов</div>
-                    <div class="text-lg font-bold">{{ number_format($yer->shartnoma_summasi, 2) }} сўм
+                    <div class="text-lg font-bold">{{ number_format($totalGrafikByDate, 2) }} сўм
                     </div>
                 </div>
 
                 <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                    <div class="text-xs">Амалда тўланган қиймат</div>
+                    <div class="text-xs">Ғолиб тўлаган маблағ</div>
                     <div class="text-lg font-bold">
-                        {{ number_format($yer->faktTolovlar->sum('tolov_summa'), 2) }}
+                        {{ number_format($totalFaktTolangan, 2) }}
                         сўм</div>
                 </div>
 
                 <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
 
                     <div class="text-xs">Тўланиши лозим бўлган қолдик қиймат</div>
-                    {{ number_format($yer->shartnoma_summasi + $yer->golib_tolagan - ($yer->faktTolovlar->sum('tolov_summa') + $yer->auksion_harajati), 2) }}
+                    {{ number_format($qoldiqQiymat, 2) }}
                     сўм
                 </div>
 
-                {{-- Муддати ўтган қарздорлик --}}
-                <div class="text-center p-3 bg-white rounded border {{ $muddatiUtganQarz > 0 ? 'border-red-200' : 'border-gray-200' }}">
-                    <div class="text-xs text-gray-600">Муддати ўтган қарздорлик</div>
-                    <div class="text-lg font-bold {{ $muddatiUtganQarz > 0 ? 'text-red-700' : 'text-gray-900' }}">
-                        {{ number_format($muddatiUtganQarz, 2) }} сўм
-                    </div>
+                {{-- Муддати ўтган қарздорлик / Ортиқча тўланган - ONLY for муддатли --}}
+                {{-- 5-cent threshold: treat small debts as fully paid --}}
+                @if($isMuddatli)
+                <div class="text-center p-3 bg-white rounded border {{ $muddatiUtganQarz > 0.05 ? 'border-red-200' : ($muddatiUtganQarz < -0.05 ? 'border-green-200' : 'border-gray-200') }}">
+                    @if($muddatiUtganQarz > 0.05)
+                        <div class="text-xs text-gray-600">Муддати ўтган қарздорлик</div>
+                        <div class="text-lg font-bold text-red-700">
+                            {{ number_format($muddatiUtganQarz, 2) }} сўм
+                        </div>
+                    @elseif($muddatiUtganQarz < -0.05)
+                        <div class="text-xs text-gray-600">Ортиқча тўланган қиймат</div>
+                        <div class="text-lg font-bold text-green-700">
+                            {{ number_format(abs($muddatiUtganQarz), 2) }} сўм
+                        </div>
+                    @else
+                        <div class="text-xs text-gray-600">Қарздорлик йўқ</div>
+                        <div class="text-lg font-bold text-gray-900">0.00 сўм</div>
+                    @endif
                 </div>
+                @endif
             </div>
         </div>
     </div>

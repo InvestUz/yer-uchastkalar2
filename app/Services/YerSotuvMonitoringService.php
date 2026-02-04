@@ -60,7 +60,7 @@ class YerSotuvMonitoringService
             $biryolaQoldiqData['tushadigan_mablagh'] = $qoldiqSum->expected ?? 0;
         }
 
-        // Calculate received amount for qoldiq qarz lots
+        // Calculate received amount for qoldiq qarz lots (ALL payments)
         $biryolaQoldiqFakt = 0;
         if (!empty($qoldiqQarzLots)) {
             $biryolaQoldiqFakt = \DB::table('fakt_tolovlar')
@@ -95,7 +95,8 @@ class YerSotuvMonitoringService
         $jamiQoldiq = $biryolaData['tushadigan_mablagh'] + $bolibTushadigan - $jamiTushgan;
 
         // Calculate JAMI муддати ўтган қарздорлик
-        $biryolaMuddatiUtgan = max(0, $biryolaQoldiq);
+        // 5-cent threshold: treat small debts as fully paid
+        $biryolaMuddatiUtgan = $biryolaQoldiq > 0.05 ? $biryolaQoldiq : 0;
         $jamiMuddatiUtgan = $biryolaMuddatiUtgan + $grafikData['muddati_utgan_qarz'];
 
         $result = [
@@ -136,6 +137,8 @@ class YerSotuvMonitoringService
 
     /**
      * Calculate график bo'yicha data (up to last month)
+     * Formula: Шартнома графиги б-ча тўлов - Ғолиб тўлаган маблағ
+     * Positive = overdue debt, Negative = overpaid
      */
     private function calculateGrafikData(?array $tumanPatterns, array $dateFilters): array
     {
@@ -145,32 +148,30 @@ class YerSotuvMonitoringService
         $grafikTushadigan = 0;
         $grafikTushgan = 0;
         $muddatiUtganQarz = 0;
+        $ortiqchaTolangan = 0;
 
         if (!empty($bolibLots)) {
             foreach ($bolibLots as $lotRaqami) {
-                // Get grafik for this lot
+                // Get grafik for this lot (scheduled payments up to cutoff)
                 $lotGrafikTushadigan = DB::table('grafik_tolovlar')
                     ->where('lot_raqami', $lotRaqami)
                     ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
                     ->sum('grafik_summa');
 
-                // Get fakt for this lot (EXCLUDING auction org payments)
+                // Get ALL fakt payments for this lot (not excluding auction org)
                 $lotGrafikTushgan = DB::table('fakt_tolovlar')
                     ->where('lot_raqami', $lotRaqami)
-                    ->where(function($q) {
-                        $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-                          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-                          ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-                          ->orWhereNull('tolash_nom');
-                    })
                     ->sum('tolov_summa');
 
-                // Calculate debt for this lot
-                $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
+                // Calculate difference for this lot
+                // Positive = overdue debt, Negative = overpaid
+                // 5-cent threshold: treat small debts as fully paid
+                $lotDifference = $lotGrafikTushadigan - $lotGrafikTushgan;
 
-                // Only add to total if debt is positive
-                if ($lotDebt > 0) {
-                    $muddatiUtganQarz += $lotDebt;
+                if ($lotDifference > 0.05) {
+                    $muddatiUtganQarz += $lotDifference;
+                } elseif ($lotDifference < -0.05) {
+                    $ortiqchaTolangan += abs($lotDifference);
                 }
 
                 // Add to totals for display
@@ -185,6 +186,7 @@ class YerSotuvMonitoringService
             'grafik_tushadigan' => $grafikTushadigan,
             'grafik_tushgan' => $grafikTushgan,
             'muddati_utgan_qarz' => $muddatiUtganQarz,
+            'ortiqcha_tolangan' => $ortiqchaTolangan,
             'grafik_foiz' => $grafikFoiz,
         ];
     }

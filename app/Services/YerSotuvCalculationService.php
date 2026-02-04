@@ -98,7 +98,8 @@ class YerSotuvCalculationService
 
     /**
      * Calculate bolib_tushgan: ONLY actual payments from fakt_tolovlar for bo'lib to'lash
-     * CRITICAL: Must use fakt_tolovlar table ONLY
+     * Uses ALL payments (not excluding auction org) to match the formula:
+     * Шартнома графиги б-ча тўлов - Ғолиб тўлаган маблағ
      */
     public function calculateBolibTushgan(?array $tumanPatterns = null, array $dateFilters = [], YerSotuvDataService $dataService): float
     {
@@ -114,19 +115,10 @@ class YerSotuvCalculationService
             return 0;
         }
 
-        // Get ONLY from fakt_tolovlar, EXCLUDING auction org payments
-        $faktQuery = DB::table('fakt_tolovlar')
-            ->whereIn('lot_raqami', $bolibLots);
-
-        // EXCLUDE auction organization payments
-        $faktQuery->where(function($q) {
-            $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-              ->where('tolash_nom', 'NOT LIKE', '%ГУП "ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI"%');
-        });
-
-        $faktSum = $faktQuery->sum('tolov_summa');
+        // Get ALL payments from fakt_tolovlar (not excluding auction org)
+        $faktSum = DB::table('fakt_tolovlar')
+            ->whereIn('lot_raqami', $bolibLots)
+            ->sum('tolov_summa');
 
         return $faktSum;
     }
@@ -224,17 +216,9 @@ class YerSotuvCalculationService
             return 0;
         }
 
-        // Build fakt query with period filters
+        // Build fakt query with period filters (ALL payments)
         $faktQuery = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari);
-
-        // EXCLUDE auction organization payments
-        $faktQuery->where(function($q) {
-            $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
-              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
-              ->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
-              ->where('tolash_nom', 'NOT LIKE', '%ГУП "ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI"%');
-        });
 
         // Apply date filters to tolov_sana
         if (!empty($dateFilters['auksion_sana_from'])) {
@@ -316,6 +300,7 @@ class YerSotuvCalculationService
     /**
      * Get total payments made to auction organizations
      * These should be excluded from "tushadigan" calculations
+     * Uses single dynamic pattern to match all auction org variations
      */
     private function getAuksionOrganizationPayments(array $lotRaqamlari, array $dateFilters = []): float
     {
@@ -323,19 +308,12 @@ class YerSotuvCalculationService
             return 0;
         }
 
-        $auksionOrganizations = [
-            'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ',
-            'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ',
-            'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI'
-        ];
+        // Single dynamic pattern to match all auction organization variations
+        $auksionPattern = '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH%';
 
         $query = DB::table('fakt_tolovlar')
             ->whereIn('lot_raqami', $lotRaqamlari)
-            ->where(function($q) use ($auksionOrganizations) {
-                foreach ($auksionOrganizations as $org) {
-                    $q->orWhere('tolash_nom', 'LIKE', '%' . $org . '%');
-                }
-            });
+            ->where('tolash_nom', 'LIKE', $auksionPattern);
 
         // Apply date filters if provided
         if (!empty($dateFilters['auksion_sana_from'])) {
@@ -350,7 +328,7 @@ class YerSotuvCalculationService
         \Log::info('Auction Organization Payments Excluded', [
             'lots_count' => count($lotRaqamlari),
             'date_filters' => $dateFilters,
-            'organizations' => $auksionOrganizations,
+            'pattern' => $auksionPattern,
             'total_excluded' => $totalAuksionPayments
         ]);
 

@@ -61,6 +61,15 @@ class YerSotuvQueryService
             $patterns[] = $altBase . ' тумани';
         }
 
+        // Handle space variations (e.g., "Янги ҳаёт" vs "Янгиҳаёт")
+        if (mb_strpos($base, ' ') !== false) {
+            $noSpaceBase = str_replace(' ', '', $base);
+            $patterns[] = $noSpaceBase;
+            $patterns[] = $noSpaceBase . ' т.';
+            $patterns[] = $noSpaceBase . ' тумани';
+            $patterns[] = $noSpaceBase . 'тумани'; // Also without space before тумани
+        }
+
         return array_unique($patterns);
     }
 
