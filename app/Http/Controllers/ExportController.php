@@ -153,8 +153,13 @@ class ExportController extends Controller
                         return $grafikDate <= $cutoffDate;
                     })
                     ->sum('grafik_summa');
-                // Use ALL payments (not excluding auction org)
-                $grafikTushgan = $yer->faktTolovlar->sum('tolov_summa');
+                // Get fakt payments EXCLUDING auction org
+                $grafikTushgan = $yer->faktTolovlar
+                    ->filter(function($fakt) {
+                        $tolashNom = $fakt->tolash_nom ?? '';
+                        return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
+                    })
+                    ->sum('tolov_summa') - ($yer->auksion_harajati ?? 0);
                 $lotDiff = $grafikTushadigan - $grafikTushgan;
                 // 5-cent threshold: treat small debts as fully paid
                 $muddatiUtganQarz = $lotDiff > 0.05 ? $lotDiff : 0;

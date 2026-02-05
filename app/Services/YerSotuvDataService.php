@@ -532,10 +532,18 @@ class YerSotuvDataService
                 ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
                 ->sum('grafik_summa');
 
-            // Get ALL fakt payments for this lot (not excluding auction org)
+            // Get fakt payments for this lot EXCLUDING auction org
             $lotFaktSumma = DB::table('fakt_tolovlar')
                 ->where('lot_raqami', $lotRaqami)
+                ->where(function($q) {
+                    $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH%')
+                      ->orWhereNull('tolash_nom');
+                })
                 ->sum('tolov_summa');
+
+            // Subtract auction fee
+            $auksionHarajati = YerSotuv::where('lot_raqami', $lotRaqami)->value('auksion_harajati') ?? 0;
+            $lotFaktSumma -= $auksionHarajati;
 
             // Calculate difference for this lot
             // Positive = overdue debt, Negative = overpaid
