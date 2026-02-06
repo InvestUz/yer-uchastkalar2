@@ -153,11 +153,14 @@ class ExportController extends Controller
                         return $grafikDate <= $cutoffDate;
                     })
                     ->sum('grafik_summa');
-                // Get fakt payments EXCLUDING auction org
+                // Get fakt payments EXCLUDING auction org (only if name STARTS with ELEKTRON pattern)
                 $grafikTushgan = $yer->faktTolovlar
                     ->filter(function($fakt) {
                         $tolashNom = $fakt->tolash_nom ?? '';
-                        return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
+                        return !str_starts_with($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ')
+                            && !str_starts_with($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ')
+                            && !str_starts_with($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI')
+                            && !str_starts_with($tolashNom, 'ГУП');
                     })
                     ->sum('tolov_summa');
                 $lotDiff = $grafikTushadigan - $grafikTushgan;

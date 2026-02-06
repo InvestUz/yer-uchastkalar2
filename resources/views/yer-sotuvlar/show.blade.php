@@ -70,10 +70,13 @@
                         return $fakt->tolov_sana <= $filterDate;
                     });
 
-                    // Filter fakt payments EXCLUDING auction org (for overdue calculation)
+                    // Filter fakt payments EXCLUDING auction org (only if name STARTS with ELEKTRON pattern)
                     $filteredFaktExcludingAuction = $filteredFaktTolovlar->filter(function($fakt) {
                         $tolashNom = $fakt->tolash_nom ?? '';
-                        return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
+                        return !str_starts_with($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ')
+                            && !str_starts_with($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ')
+                            && !str_starts_with($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI')
+                            && !str_starts_with($tolashNom, 'ГУП');
                     });
 
                     // Calculate muddati utgan qarzdorlik (overdue debt) - ONLY for муддатли (Bo'lib to'lash)

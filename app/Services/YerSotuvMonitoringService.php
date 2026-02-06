@@ -158,11 +158,14 @@ class YerSotuvMonitoringService
                     ->whereRaw('CONCAT(yil, "-", LPAD(oy, 2, "0"), "-01") <= ?', [$bugun])
                     ->sum('grafik_summa');
 
-                // Get ALL fakt payments for this lot EXCLUDING auction org
+                // Get fakt payments EXCLUDING auction org (only if name STARTS with ELEKTRON pattern)
                 $lotGrafikTushgan = DB::table('fakt_tolovlar')
                     ->where('lot_raqami', $lotRaqami)
                     ->where(function($q) {
-                        $q->where('tolash_nom', 'NOT LIKE', '%ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH%')
+                        $q->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+                          ->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+                          ->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+                          ->where('tolash_nom', 'NOT LIKE', 'ГУП%ELEKTRON ONLAYN-AUKSIONLARNI%')
                           ->orWhereNull('tolash_nom');
                     })
                     ->sum('tolov_summa');
