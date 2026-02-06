@@ -541,10 +541,6 @@ class YerSotuvDataService
                 })
                 ->sum('tolov_summa');
 
-            // Subtract auction fee
-            $auksionHarajati = YerSotuv::where('lot_raqami', $lotRaqami)->value('auksion_harajati') ?? 0;
-            $lotFaktSumma -= $auksionHarajati;
-
             // Calculate difference for this lot
             // Positive = overdue debt, Negative = overpaid
             // 5-cent threshold: treat small debts as fully paid

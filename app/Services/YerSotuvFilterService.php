@@ -389,10 +389,6 @@ class YerSotuvFilterService
                 })
                 ->sum('tolov_summa');
 
-            // Subtract auction fee
-            $auksionHarajati = DB::table('yer_sotuvlar')->where('lot_raqami', $lotRaqami)->value('auksion_harajati') ?? 0;
-            $lotGrafikTushgan -= $auksionHarajati;
-
             $lotDebt = $lotGrafikTushadigan - $lotGrafikTushgan;
 
             // 5-cent threshold: treat small debts as fully paid

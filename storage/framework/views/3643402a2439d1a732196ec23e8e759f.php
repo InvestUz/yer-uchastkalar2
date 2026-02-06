@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Филтрланган маълумотлар'); ?>
 
-@section('title', 'Филтрланган маълумотлар')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
 
         <!-- Header Section with Search -->
@@ -14,15 +12,15 @@
         </h1>
     </div>
     <div class="flex items-center space-x-3">
-        {{-- Export Button - exports only filtered data --}}
-        <a href="{{ route('export.filtered', request()->query()) }}"
+        
+        <a href="<?php echo e(route('export.filtered', request()->query())); ?>"
            class="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            <span>Excel юклаб олиш ({{ $yerlar->total() }} та)</span>
+            <span>Excel юклаб олиш (<?php echo e($yerlar->total()); ?> та)</span>
         </a>
-        <a href="{{ route('yer-sotuvlar.create') }}"
+        <a href="<?php echo e(route('yer-sotuvlar.create')); ?>"
            class="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -45,7 +43,7 @@
                             </h1>
                             <p class="text-gray-600 text-sm mt-1">Барча ер участкалари рўйхати</p>
                         </div>
-                        <a href="{{ route('yer-sotuvlar.index') }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.index')); ?>"
                             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -58,11 +56,11 @@
 
                 <!-- Global Search Bar -->
                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <form method="GET" action="{{ route('yer-sotuvlar.list') }}" class="w-full">
+                    <form method="GET" action="<?php echo e(route('yer-sotuvlar.list')); ?>" class="w-full">
                         <!-- Preserve existing filters -->
-                        @foreach (request()->except(['search', 'page']) as $key => $value)
-                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                        @endforeach
+                        <?php $__currentLoopData = request()->except(['search', 'page']); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <input type="hidden" name="<?php echo e($key); ?>" value="<?php echo e($value); ?>">
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                         <div class="flex gap-3">
                             <div class="flex-1 relative">
@@ -75,7 +73,7 @@
                                 </div>
                                 <input type="text" name="search"
                                     class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    value="{{ request('search') }}"
+                                    value="<?php echo e(request('search')); ?>"
                                     placeholder="Лот рақами, туман, манзил, ғолиб номи ёки бошқа маълумот қидириш...">
                             </div>
                             <button type="submit"
@@ -85,18 +83,18 @@
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </button>
-                            @if (request('search'))
-                                <a href="{{ route('yer-sotuvlar.list', request()->except(['search', 'page'])) }}"
+                            <?php if(request('search')): ?>
+                                <a href="<?php echo e(route('yer-sotuvlar.list', request()->except(['search', 'page']))); ?>"
                                     class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors">
                                     Тозалаш
                                 </a>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </form>
                 </div>
 
                 <!-- Active Filters Display -->
-                @if (request()->hasAny([
+                <?php if(request()->hasAny([
                         'tuman',
                         'yil',
                         'tolov_turi',
@@ -116,140 +114,148 @@
                         'qoldiq_qarz',
                         'auksonda_turgan',
                         'search',
-                    ]))
+                    ])): ?>
                     <div class="bg-white px-6 py-4 border-b border-gray-200">
                         <div class="flex flex-wrap gap-2">
-                            @if (request('search'))
+                            <?php if(request('search')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                                    Қидирув: {{ Str::limit(request('search'), 30) }}
-                                </span>
-                            @endif
+                                    Қидирув: <?php echo e(Str::limit(request('search'), 30)); ?>
 
-                            @if (request('tuman'))
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('tuman')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     </svg>
-                                    {{ request('tuman') }}
-                                </span>
-                            @endif
+                                    <?php echo e(request('tuman')); ?>
 
-                            @if (request('yil'))
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('yil')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    {{ request('yil') }}
-                                </span>
-                            @endif
+                                    <?php echo e(request('yil')); ?>
 
-                            @if (request('tolov_turi'))
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('tolov_turi')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
-                                    {{ request('tolov_turi') }}
-                                </span>
-                            @endif
+                                    <?php echo e(request('tolov_turi')); ?>
 
-                            @if (request('holat'))
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('holat')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                                    Ҳолат: {{ Str::limit(request('holat'), 30) }}
-                                </span>
-                            @endif
+                                    Ҳолат: <?php echo e(Str::limit(request('holat'), 30)); ?>
 
-                            @if (request('asos'))
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('asos')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                                    Асос: {{ request('asos') }}
-                                </span>
-                            @endif
+                                    Асос: <?php echo e(request('asos')); ?>
 
-                            @if (request('auksion_sana_from') || request('auksion_sana_to'))
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('auksion_sana_from') || request('auksion_sana_to')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-pink-100 text-pink-800">
-                                    {{ request('auksion_sana_from') ?? '...' }} -
-                                    {{ request('auksion_sana_to') ?? '...' }}
-                                </span>
-                            @endif
+                                    <?php echo e(request('auksion_sana_from') ?? '...'); ?> -
+                                    <?php echo e(request('auksion_sana_to') ?? '...'); ?>
 
-                            @if (request('narx_from') || request('narx_to'))
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('narx_from') || request('narx_to')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
-                                    {{ request('narx_from') ? number_format(request('narx_from')) : '0' }} -
-                                    {{ request('narx_to') ? number_format(request('narx_to')) : '∞' }}
-                                </span>
-                            @endif
+                                    <?php echo e(request('narx_from') ? number_format(request('narx_from')) : '0'); ?> -
+                                    <?php echo e(request('narx_to') ? number_format(request('narx_to')) : '∞'); ?>
 
-                            @if (request('maydoni_from') || request('maydoni_to'))
+                                </span>
+                            <?php endif; ?>
+
+                            <?php if(request('maydoni_from') || request('maydoni_to')): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
-                                    {{ request('maydoni_from') ?? '0' }} - {{ request('maydoni_to') ?? '∞' }} га
+                                    <?php echo e(request('maydoni_from') ?? '0'); ?> - <?php echo e(request('maydoni_to') ?? '∞'); ?> га
                                 </span>
-                            @endif
+                            <?php endif; ?>
 
-                            @if (request('include_all') === 'true')
+                            <?php if(request('include_all') === 'true'): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-cyan-100 text-cyan-800">
                                     Барча статуслар
                                 </span>
-                            @endif
+                            <?php endif; ?>
 
-                            @if (request('include_bekor') === 'true')
+                            <?php if(request('include_bekor') === 'true'): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
                                     Бекор қилинганлар ҳам
                                 </span>
-                            @endif
+                            <?php endif; ?>
 
-                            @if (request('grafik_ortda') === 'true')
+                            <?php if(request('grafik_ortda') === 'true'): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
                                     График ортда
                                 </span>
-                            @endif
+                            <?php endif; ?>
 
-                            @if (request('toliq_tolangan') === 'true')
+                            <?php if(request('toliq_tolangan') === 'true'): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
                                     Тўлиқ тўланган
                                 </span>
-                            @endif
+                            <?php endif; ?>
 
-                            @if (request('nazoratda') === 'true')
+                            <?php if(request('nazoratda') === 'true'): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                     Назоратда
                                 </span>
-                            @endif
+                            <?php endif; ?>
 
-                            @if (request('qoldiq_qarz') === 'true')
+                            <?php if(request('qoldiq_qarz') === 'true'): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
                                     Қолдиқ қарз
                                 </span>
-                            @endif
+                            <?php endif; ?>
 
-                            @if (request('auksonda_turgan') === 'true')
+                            <?php if(request('auksonda_turgan') === 'true'): ?>
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-violet-100 text-violet-800">
                                     Аукционда турган
                                 </span>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
 
                 <!-- Statistics Summary -->
-                {{-- Main Header Card --}}
+                
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div class="bg-white px-6 py-4">
                         <div class="flex flex-col md:flex-row md:justify-between md:items-center">
@@ -260,76 +266,54 @@
                         </div>
                     </div>
 
-                    {{-- Quick Stats Grid --}}
+                    
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gray-50 border-b border-gray-200">
                         <div class="text-center p-3 bg-white rounded border border-gray-200">
                             <div class="text-xs text-gray-600">Умумий лотлар сони</div>
-                            <div class="text-lg font-bold text-gray-900">{{ number_format($statistics['total_lots']) }}
+                            <div class="text-lg font-bold text-gray-900"><?php echo e(number_format($statistics['total_lots'])); ?>
+
                             </div>
                         </div>
                         <div class="text-center p-3 bg-white rounded border border-gray-200">
                             <div class="text-xs text-gray-600">Умумий майдон</div>
-                            <div class="text-lg font-bold text-gray-900">{{ number_format($statistics['total_area'], 2) }}
+                            <div class="text-lg font-bold text-gray-900"><?php echo e(number_format($statistics['total_area'], 2)); ?>
+
                                 га</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded border border-gray-200">
                             <div class="text-xs text-gray-600">Бошланғич нархи</div>
                             <div class="text-lg font-bold text-gray-900">
-                                {{ number_format($statistics['boshlangich_narx'] / 1000000000, 2) }} млрд</div>
+                                <?php echo e(number_format($statistics['boshlangich_narx'] / 1000000000, 2)); ?> млрд</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded border border-gray-200">
                             <div class="text-xs text-gray-600">Сотилган нархи</div>
                             <div class="text-lg font-bold text-gray-900">
-                                {{ number_format($statistics['total_price'] / 1000000000, 2) }} млрд</div>
+                                <?php echo e(number_format($statistics['total_price'] / 1000000000, 2)); ?> млрд</div>
                         </div>
 
-                        {{-- NEW CARDS --}}
+                        
                         <div class="text-center p-3 bg-white rounded border border-blue-200">
                             <div class="text-xs text-gray-600">Тушадиган маблағ</div>
                             <div class="text-lg font-bold text-blue-600">
-                                {{ number_format($statistics['total_expected'] / 1000000000, 2) }} млрд</div>
+                                <?php echo e(number_format($statistics['total_expected'] / 1000000000, 2)); ?> млрд</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded border border-green-200">
                             <div class="text-xs text-gray-600">Тушган маблағ</div>
                             <div class="text-lg font-bold text-green-600">
-                                {{ number_format($statistics['total_received'] / 1000000000, 2) }} млрд</div>
+                                <?php echo e(number_format($statistics['total_received'] / 1000000000, 2)); ?> млрд</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded border border-orange-200">
                             <div class="text-xs text-gray-600">Қолдиқ маблағ</div>
                             <div class="text-lg font-bold text-orange-600">
-                                {{ number_format($statistics['total_qoldiq'] / 1000000000, 2) }} млрд</div>
+                                <?php echo e(number_format($statistics['total_qoldiq'] / 1000000000, 2)); ?> млрд</div>
                         </div>
                         <div class="text-center p-3 bg-white rounded border border-red-200">
                             <div class="text-xs text-gray-600">Муддати ўтган қарздорлик</div>
                             <div class="text-lg font-bold text-red-700">
-                                {{ number_format($statistics['total_muddati_utgan'] / 1000000000, 2) }} млрд</div>
+                                <?php echo e(number_format($statistics['total_muddati_utgan'] / 1000000000, 2)); ?> млрд</div>
                         </div>
 
-                        {{-- <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Аукцион хизмат ҳақи 1 фоиз</div>
-                            {{ number_format($statistics['auksion_harajati'], 2) }} сўм
-                        </div>
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Сотилган ер тўлови бўйича тушадиган қиймат</div>
-                            {{ number_format($statistics['shartnoma_summasi'] + $statistics['golib_tolagan'] - $statistics['auksion_harajati'], 2) }}
-                            сўм
-                        </div>
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Шартнома графиги б-ча тўлов</div>
-                            <div class="text-lg font-bold">{{ number_format($statistics['shartnoma_summasi'], 2) }} сўм
-                            </div>
-                        </div>
-
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Амалда тўланган қиймат</div>
-                            <div class="text-lg font-bold">{{ number_format($statistics['fakt_tolangan'], 2) }} сўм</div>
-                        </div>
-
-                        <div class="text-center p-3 bg-white text-gray-600 rounded font-bold">
-                            <div class="text-xs">Тўланиши лозим бўлган қолдик қиймат</div>
-                            {{ number_format(($statistics['shartnoma_summasi'] + $statistics['golib_tolagan'] - ($statistics['fakt_tolangan'] + $statistics['auksion_harajati'])), 2) }}
-                            сўм
-                        </div> --}}
+                        
                     </div>
                 </div>
 
@@ -340,7 +324,7 @@
                         <table class="min-w-full divide-y divide-gray-200">
     <thead class="bg-gray-700">
         <tr>
-            @php
+            <?php
                 function sortableColumn($field, $label)
                 {
                     $currentSort = request('sort', 'auksion_sana');
@@ -382,23 +366,24 @@
                     'golib_tolagan' => 'Ғолиб аукционга тўлаган сумма',
                     'golib' => 'Ғолиб',
                 ];
-            @endphp
+            ?>
 
-            @foreach ($columns as $field => $label)
-                @php $col = sortableColumn($field, $label); @endphp
+            <?php $__currentLoopData = $columns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php $col = sortableColumn($field, $label); ?>
                 <th scope="col" style="text-align: center !important;"
                     class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider cursor-pointer hover:bg-gray-600 transition-colors">
-                    <a href="{{ $col['url'] }}">
-                        <span>{{ $col['label'] }}</span>
+                    <a href="<?php echo e($col['url']); ?>">
+                        <span><?php echo e($col['label']); ?></span>
                         <span
-                            class="ml-2 {{ $col['isActive'] ? 'text-yellow-300' : 'text-gray-400 group-hover:text-gray-300' }}">
-                            {{ $col['arrow'] }}
+                            class="ml-2 <?php echo e($col['isActive'] ? 'text-yellow-300' : 'text-gray-400 group-hover:text-gray-300'); ?>">
+                            <?php echo e($col['arrow']); ?>
+
                         </span>
                     </a>
                 </th>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-            {{-- ✅ NEW COLUMNS: Only show for qoldiq_qarz filter --}}
+            
                 <th scope="col"
                     class="px-3 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                     Тушадиган маблағ
@@ -427,50 +412,56 @@
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
-        @forelse($yerlar as $yer)
+        <?php $__empty_1 = true; $__currentLoopData = $yerlar; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $yer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
             <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-3 py-3 whitespace-nowrap text-sm font-medium">
-                    <a href="{{ route('yer-sotuvlar.show', $yer->lot_raqami) }}"
+                    <a href="<?php echo e(route('yer-sotuvlar.show', $yer->lot_raqami)); ?>"
                         class="font-semibold text-blue-600 hover:text-blue-800 hover:underline">
-                        {{ $yer->lot_raqami }}
+                        <?php echo e($yer->lot_raqami); ?>
+
                     </a>
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                    {{ $yer->tuman }}
+                    <?php echo e($yer->tuman); ?>
+
                 </td>
                 <td class="px-3 py-3 text-sm text-gray-900 max-w-xs"
-                    title="{{ $yer->manzil }}">
-                    {{ Str::limit($yer->manzil, 40) }}
+                    title="<?php echo e($yer->manzil); ?>">
+                    <?php echo e(Str::limit($yer->manzil, 40)); ?>
+
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {{ number_format($yer->maydoni, 4) }}
+                    <?php echo e(number_format($yer->maydoni, 4)); ?>
+
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {{ number_format($yer->boshlangich_narx / 1000000, 1) }} млн
+                    <?php echo e(number_format($yer->boshlangich_narx / 1000000, 1)); ?> млн
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">
-                    {{ $yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '-' }}
+                    <?php echo e($yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '-'); ?>
+
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center">
-                    {{ number_format($yer->sotilgan_narx / 1000000, 1) }} млн
+                    <?php echo e(number_format($yer->sotilgan_narx / 1000000, 1)); ?> млн
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {{ number_format($yer->chegirma / 1000000, 1) }} млн
+                    <?php echo e(number_format($yer->chegirma / 1000000, 1)); ?> млн
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center">
-                    @php
+                    <?php
                         $total_tolov = $yer->faktTolovlar->sum('tolov_summa');
                         $golib_total = $yer->golib_tolagan + $total_tolov;
-                    @endphp
-                    {{ number_format($golib_total / 1000000, 1) }} млн
+                    ?>
+                    <?php echo e(number_format($golib_total / 1000000, 1)); ?> млн
                 </td>
                 <td class="px-3 py-3 text-sm text-gray-900 max-w-xs"
-                    title="{{ $yer->golib_nomi }}">
-                    {{ Str::limit($yer->golib_nomi, 30) }}
+                    title="<?php echo e($yer->golib_nomi); ?>">
+                    <?php echo e(Str::limit($yer->golib_nomi, 30)); ?>
+
                 </td>
 
-                {{-- ✅ NEW COLUMNS DATA: Only show for qoldiq_qarz filter --}}
-                    @php
+                
+                    <?php
                         // Calculate expected amount
                         $expected = ($yer->golib_tolagan ?? 0) + ($yer->shartnoma_summasi ?? 0) - ($yer->auksion_harajati ?? 0);
 
@@ -507,49 +498,50 @@
                             $muddatiUtganQarz = $lotDiff > 0.05 ? $lotDiff : 0;
                         }
                         // Note: муддатли эмас does not have overdue debt calculation
-                    @endphp
+                    ?>
 
-                    {{-- Тушадиган маблағ --}}
+                    
                     <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-blue-600 text-center">
-                        {{ number_format($expected / 1000000000, 2) }} млрд
+                        <?php echo e(number_format($expected / 1000000000, 2)); ?> млрд
                     </td>
 
-                    {{-- Тушган маблағ --}}
+                    
                     <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-green-600 text-center ">
-                        {{ number_format($received / 1000000000, 2) }} млрд
+                        <?php echo e(number_format($received / 1000000000, 2)); ?> млрд
                     </td>
 
-                    {{-- Қолдиқ қарз --}}
-                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center {{ $qoldiq > 0 ? 'text-red-600' : 'text-gray-600' }}">
-                        {{ number_format($qoldiq / 1000000000, 2) }} млрд
+                    
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center <?php echo e($qoldiq > 0 ? 'text-red-600' : 'text-gray-600'); ?>">
+                        <?php echo e(number_format($qoldiq / 1000000000, 2)); ?> млрд
                     </td>
 
-                    {{-- Муддати ўтган қарздорлик --}}
-                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center {{ $muddatiUtganQarz > 0 ? 'text-red-700' : 'text-gray-600' }}">
-                        {{ number_format($muddatiUtganQarz / 1000000000, 2) }} млрд
+                    
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-center <?php echo e($muddatiUtganQarz > 0 ? 'text-red-700' : 'text-gray-600'); ?>">
+                        <?php echo e(number_format($muddatiUtganQarz / 1000000000, 2)); ?> млрд
                     </td>
 
                 <td class="px-3 py-3 whitespace-nowrap text-sm">
-                    @if ($yer->tolov_turi === 'муддатли')
+                    <?php if($yer->tolov_turi === 'муддатли'): ?>
                         <span
                             class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                             Муддатли
                         </span>
-                    @elseif($yer->tolov_turi === 'муддатли эмас')
+                    <?php elseif($yer->tolov_turi === 'муддатли эмас'): ?>
                         <span
                             class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                             Муддатли эмас
                         </span>
-                    @else
+                    <?php else: ?>
                         <span class="text-gray-400">-</span>
-                    @endif
+                    <?php endif; ?>
                 </td>
                 <td class="px-3 py-3 text-sm text-gray-600 max-w-sm"
-                    title="{{ $yer->holat }}">
-                    {{ Str::limit($yer->holat, 50) }}
+                    title="<?php echo e($yer->holat); ?>">
+                    <?php echo e(Str::limit($yer->holat, 50)); ?>
+
                 </td>
             </tr>
-        @empty
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
             <tr>
                 <td colspan="" class="px-4 py-8 text-center text-gray-500">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none"
@@ -561,26 +553,27 @@
                     <p class="mt-1 text-sm">Филтр параметрларини ўзгартириб кўринг</p>
                 </td>
             </tr>
-        @endforelse
+        <?php endif; ?>
     </tbody>
 </table>
                         </div>
 
                         <!-- Pagination -->
-                        @if ($yerlar->hasPages())
+                        <?php if($yerlar->hasPages()): ?>
                             <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 sm:px-6">
                                 <div class="flex items-center justify-between">
                                     <div class="text-sm text-gray-700">
-                                        Кўрсатилмоқда: <span class="font-semibold">{{ $yerlar->firstItem() }}</span> -
-                                        <span class="font-semibold">{{ $yerlar->lastItem() }}</span> /
-                                        <span class="font-semibold">{{ $yerlar->total() }}</span>
+                                        Кўрсатилмоқда: <span class="font-semibold"><?php echo e($yerlar->firstItem()); ?></span> -
+                                        <span class="font-semibold"><?php echo e($yerlar->lastItem()); ?></span> /
+                                        <span class="font-semibold"><?php echo e($yerlar->total()); ?></span>
                                     </div>
                                     <div>
-                                        {{ $yerlar->links() }}
+                                        <?php echo e($yerlar->links()); ?>
+
                                     </div>
                                 </div>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -597,7 +590,7 @@
                             </h2>
                         </div>
 
-                        <form method="GET" action="{{ route('yer-sotuvlar.list') }}" class="bg-gray-50 px-6 py-5">
+                        <form method="GET" action="<?php echo e(route('yer-sotuvlar.list')); ?>" class="bg-gray-50 px-6 py-5">
 
                             <!-- Advanced Filters Grid -->
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -608,12 +601,13 @@
                                     <select name="tuman"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="">Барчаси</option>
-                                        @foreach ($tumanlar as $tuman)
-                                            <option value="{{ $tuman }}"
-                                                {{ request('tuman') == $tuman ? 'selected' : '' }}>
-                                                {{ $tuman }}
+                                        <?php $__currentLoopData = $tumanlar; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tuman): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($tuman); ?>"
+                                                <?php echo e(request('tuman') == $tuman ? 'selected' : ''); ?>>
+                                                <?php echo e($tuman); ?>
+
                                             </option>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
 
@@ -623,12 +617,13 @@
                                     <select name="yil"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="">Барчаси</option>
-                                        @foreach ($yillar as $yil)
-                                            <option value="{{ $yil }}"
-                                                {{ request('yil') == $yil ? 'selected' : '' }}>
-                                                {{ $yil }}
+                                        <?php $__currentLoopData = $yillar; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $yil): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($yil); ?>"
+                                                <?php echo e(request('yil') == $yil ? 'selected' : ''); ?>>
+                                                <?php echo e($yil); ?>
+
                                             </option>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
 
@@ -639,10 +634,10 @@
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="">Барчаси</option>
                                         <option value="муддатли"
-                                            {{ request('tolov_turi') == 'муддатли' ? 'selected' : '' }}>
+                                            <?php echo e(request('tolov_turi') == 'муддатли' ? 'selected' : ''); ?>>
                                             Муддатли</option>
                                         <option value="муддатли эмас"
-                                            {{ request('tolov_turi') == 'муддатли эмас' ? 'selected' : '' }}>
+                                            <?php echo e(request('tolov_turi') == 'муддатли эмас' ? 'selected' : ''); ?>>
                                             Муддатли эмас</option>
                                     </select>
                                 </div>
@@ -653,20 +648,20 @@
                                     <select name="sort"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="auksion_sana"
-                                            {{ request('sort') == 'auksion_sana' ? 'selected' : '' }}>
+                                            <?php echo e(request('sort') == 'auksion_sana' ? 'selected' : ''); ?>>
                                             Аукцион санаси</option>
                                         <option value="sotilgan_narx"
-                                            {{ request('sort') == 'sotilgan_narx' ? 'selected' : '' }}>
+                                            <?php echo e(request('sort') == 'sotilgan_narx' ? 'selected' : ''); ?>>
                                             Сотилган нарх</option>
                                         <option value="boshlangich_narx"
-                                            {{ request('sort') == 'boshlangich_narx' ? 'selected' : '' }}>
+                                            <?php echo e(request('sort') == 'boshlangich_narx' ? 'selected' : ''); ?>>
                                             Бошланғич нарх</option>
-                                        <option value="maydoni" {{ request('sort') == 'maydoni' ? 'selected' : '' }}>
+                                        <option value="maydoni" <?php echo e(request('sort') == 'maydoni' ? 'selected' : ''); ?>>
                                             Майдон</option>
-                                        <option value="tuman" {{ request('sort') == 'tuman' ? 'selected' : '' }}>Туман
+                                        <option value="tuman" <?php echo e(request('sort') == 'tuman' ? 'selected' : ''); ?>>Туман
                                         </option>
                                         <option value="lot_raqami"
-                                            {{ request('sort') == 'lot_raqami' ? 'selected' : '' }}>Лот рақами</option>
+                                            <?php echo e(request('sort') == 'lot_raqami' ? 'selected' : ''); ?>>Лот рақами</option>
                                     </select>
                                 </div>
 
@@ -676,7 +671,7 @@
                                         (дан)</label>
                                     <input type="date" name="auksion_sana_from"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value="{{ request('auksion_sana_from') }}">
+                                        value="<?php echo e(request('auksion_sana_from')); ?>">
                                 </div>
 
                                 <!-- Auksion Date To -->
@@ -685,7 +680,7 @@
                                         (гача)</label>
                                     <input type="date" name="auksion_sana_to"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value="{{ request('auksion_sana_to') }}">
+                                        value="<?php echo e(request('auksion_sana_to')); ?>">
                                 </div>
 
                                 <!-- Holat Filter -->
@@ -693,7 +688,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Ҳолат</label>
                                     <input type="text" name="holat"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value="{{ request('holat') }}" placeholder="Ҳолат қидириш">
+                                        value="<?php echo e(request('holat')); ?>" placeholder="Ҳолат қидириш">
                                 </div>
 
                                 <!-- Asos Filter -->
@@ -701,7 +696,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Асос</label>
                                     <input type="text" name="asos"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value="{{ request('asos') }}" placeholder="Асос қидириш">
+                                        value="<?php echo e(request('asos')); ?>" placeholder="Асос қидириш">
                                 </div>
 
                                 <!-- Sort Direction -->
@@ -709,9 +704,9 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Тартиб</label>
                                     <select name="direction"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="desc" {{ request('direction') == 'desc' ? 'selected' : '' }}>
+                                        <option value="desc" <?php echo e(request('direction') == 'desc' ? 'selected' : ''); ?>>
                                             Камайиш ↓</option>
-                                        <option value="asc" {{ request('direction') == 'asc' ? 'selected' : '' }}>Ўсиш
+                                        <option value="asc" <?php echo e(request('direction') == 'asc' ? 'selected' : ''); ?>>Ўсиш
                                             ↑</option>
                                     </select>
                                 </div>
@@ -721,7 +716,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Нарх (дан)</label>
                                     <input type="number" name="narx_from"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value="{{ request('narx_from') }}" placeholder="0">
+                                        value="<?php echo e(request('narx_from')); ?>" placeholder="0">
                                 </div>
 
                                 <!-- Price To -->
@@ -729,7 +724,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Нарх (гача)</label>
                                     <input type="number" name="narx_to"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value="{{ request('narx_to') }}" placeholder="∞">
+                                        value="<?php echo e(request('narx_to')); ?>" placeholder="∞">
                                 </div>
 
                                 <!-- Area From -->
@@ -737,7 +732,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Майдон (дан) га</label>
                                     <input type="number" step="0.01" name="maydoni_from"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value="{{ request('maydoni_from') }}" placeholder="0">
+                                        value="<?php echo e(request('maydoni_from')); ?>" placeholder="0">
                                 </div>
 
                                 <!-- Area To -->
@@ -745,7 +740,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Майдон (гача) га</label>
                                     <input type="number" step="0.01" name="maydoni_to"
                                         class="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value="{{ request('maydoni_to') }}" placeholder="∞">
+                                        value="<?php echo e(request('maydoni_to')); ?>" placeholder="∞">
                                 </div>
                             </div>
 
@@ -761,7 +756,7 @@
                                     Қидириш
                                 </button>
 
-                                <a href="{{ route('yer-sotuvlar.list') }}"
+                                <a href="<?php echo e(route('yer-sotuvlar.list')); ?>"
                                     class="flex-1 text-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -799,4 +794,6 @@
                     background: #555;
                 }
             </style>
-        @endsection
+        <?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/list.blade.php ENDPATH**/ ?>

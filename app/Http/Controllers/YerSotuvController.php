@@ -1225,7 +1225,7 @@ public function monitoring(Request $request)
                         $tolashNom = $fakt->tolash_nom ?? '';
                         return !str_contains($tolashNom, 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH');
                     })
-                    ->sum('tolov_summa') - ($yer->auksion_harajati ?? 0);
+                    ->sum('tolov_summa');
 
                 // Allow negative (overpaid), but only add positive debt to total
                 // 5-cent threshold: treat small debts as fully paid

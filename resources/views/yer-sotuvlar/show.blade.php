@@ -81,9 +81,9 @@
                     $isMuddatli = $yer->tolov_turi === 'муддатли';
 
                     if ($isMuddatli) {
-                        // Formula: Шартнома графиги б-ча тўлов - (Ғолиб тўлаган маблағ - ELEKTRON - Аукцион ҳаражати)
+                        // Formula: Шартнома графиги б-ча тўлов - (Ғолиб тўлаган маблағ - ELEKTRON)
                         $grafikTushadigan = $totalGrafikByDate;
-                        $grafikTushgan = $filteredFaktExcludingAuction->sum('tolov_summa') - ($yer->auksion_harajati ?? 0);
+                        $grafikTushgan = $filteredFaktExcludingAuction->sum('tolov_summa');
 
                         // Allow negative values (negative = overpaid / ортиқча тўланган)
                         $muddatiUtganQarz = $grafikTushadigan - $grafikTushgan;
