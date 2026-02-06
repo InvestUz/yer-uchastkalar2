@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GrafikTolov;
 use App\Models\YerSotuv;
+use App\Models\FaktTolov;
 use App\Services\YerSotuvService;
 use App\Services\YerSotuvFilterService;
 use App\Services\YerSotuvMonitoringService;
@@ -1595,5 +1596,79 @@ public function monitoring(Request $request)
         $jami = $this->monitoringService->calculateJamiTotalsWithBekor($statistics);
 
         return view('yer-sotuvlar.yigma', compact('statistics', 'jami', 'dateFilters'));
+    }
+
+    /**
+     * Get detailed grafik payments (API endpoint)
+     */
+    public function getGrafikDetail(Request $request)
+    {
+        $dateFrom = $request->date_from ?? '2024-01-01';
+        $dateTo = $request->date_to ?? now()->toDateString();
+        $tuman = $request->tuman ?? null;
+
+        $dateFilters = [
+            'auksion_sana_from' => $dateFrom,
+            'auksion_sana_to' => $dateTo
+        ];
+
+        // Get tuman patterns if tuman specified
+        $tumanPatterns = null;
+        if ($tuman) {
+            $tumanPatterns = $this->yerSotuvService->getTumanPatterns($tuman);
+        }
+
+        // Use same logic as monitoring service
+        $lots = $this->yerSotuvService->getBolibLotlar($tumanPatterns, $dateFilters);
+        $bugun = now()->format('Y-m') . '-01';
+
+        $payments = [];
+        $total = 0;
+
+        foreach ($lots as $lotRaqami) {
+            // Get fakt payments EXCLUDING ELEKTRON
+            $faktSum = DB::table('fakt_tolovlar')
+                ->where('lot_raqami', $lotRaqami)
+                ->where(function($q) {
+                    $q->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+                      ->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+                      ->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+                      ->where('tolash_nom', 'NOT LIKE', 'ГУП%ELEKTRON ONLAYN-AUKSIONLARNI%')
+                      ->orWhereNull('tolash_nom');
+                })
+                ->sum('tolov_summa');
+
+            $total += $faktSum;
+
+            // Get payer name
+            $tolashNom = DB::table('fakt_tolovlar')
+                ->where('lot_raqami', $lotRaqami)
+                ->where(function($q) {
+                    $q->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZ%')
+                      ->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH AJ%')
+                      ->where('tolash_nom', 'NOT LIKE', 'ELEKTRON ONLAYN-AUKSIONLARNI TASHKIL ETISH MARKAZI%')
+                      ->where('tolash_nom', 'NOT LIKE', 'ГУП%ELEKTRON ONLAYN-AUKSIONLARNI%')
+                      ->whereNotNull('tolash_nom');
+                })
+                ->value('tolash_nom');
+
+            if ($faktSum > 0) {
+                $payments[] = [
+                    'lot_raqami' => $lotRaqami,
+                    'tolash_nom' => $tolashNom ?? '-',
+                    'tolov_summa' => $faktSum
+                ];
+            }
+        }
+
+        // Sort by amount descending
+        usort($payments, function($a, $b) {
+            return $b['tolov_summa'] <=> $a['tolov_summa'];
+        });
+
+        return response()->json([
+            'total' => $total,
+            'payments' => $payments
+        ]);
     }
 }

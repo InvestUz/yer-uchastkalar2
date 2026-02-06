@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Мониторинг ва Аналитика'); ?>
 
-@section('title', 'Мониторинг ва Аналитика')
-
-@php
+<?php
     // Define month names for reuse
     $monthNames = [
         1 => 'Январь',
@@ -18,9 +16,9 @@
         11 => 'Ноябрь',
         12 => 'Декабрь',
     ];
-@endphp
+?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 py-8">
         <div class="mx-auto px-6">
 
@@ -40,8 +38,8 @@
                     <h2 class="text-xl font-bold text-slate-800">Ҳисобот даври</h2>
                     <div class="flex items-center gap-3">
                         <!-- Clear Button -->
-                        @if ($periodInfo['period'] !== 'all')
-                            <a href="{{ route('yer-sotuvlar.monitoring') }}"
+                        <?php if($periodInfo['period'] !== 'all'): ?>
+                            <a href="<?php echo e(route('yer-sotuvlar.monitoring')); ?>"
                                 class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 shadow-md hover:shadow-lg">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -49,53 +47,53 @@
                                 </svg>
                                 Тозалаш
                             </a>
-                        @endif
+                        <?php endif; ?>
 
                         <!-- Period Display -->
                         <span class="text-sm text-slate-500 bg-slate-100 px-4 py-2 rounded-lg font-semibold">
-                            @if ($periodInfo['period'] === 'month')
-                                {{ $monthNames[$periodInfo['month']] ?? '' }} {{ $periodInfo['year'] }} ойи ҳолатига
-                            @elseif($periodInfo['period'] === 'quarter')
-                                {{ $periodInfo['quarter'] }}-чорак ҳолатига {{ $periodInfo['year'] }} й
-                            @elseif($periodInfo['period'] === 'year')
-                                {{ $periodInfo['year'] }} йил ҳолатига
-                            @else
+                            <?php if($periodInfo['period'] === 'month'): ?>
+                                <?php echo e($monthNames[$periodInfo['month']] ?? ''); ?> <?php echo e($periodInfo['year']); ?> ойи ҳолатига
+                            <?php elseif($periodInfo['period'] === 'quarter'): ?>
+                                <?php echo e($periodInfo['quarter']); ?>-чорак ҳолатига <?php echo e($periodInfo['year']); ?> й
+                            <?php elseif($periodInfo['period'] === 'year'): ?>
+                                <?php echo e($periodInfo['year']); ?> йил ҳолатига
+                            <?php else: ?>
                                 Барча давр
-                            @endif
+                            <?php endif; ?>
                         </span>
                     </div>
                 </div>
 
                 <!-- Main Period Filter -->
                 <div class="flex gap-0 border border-gray-300 rounded-lg overflow-hidden mb-6">
-                    <a href="{{ route('yer-sotuvlar.monitoring', ['period' => 'month', 'year' => $periodInfo['year'], 'month' => now()->subMonth()->month]) }}"
-                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ $periodInfo['period'] === 'month' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
+                    <a href="<?php echo e(route('yer-sotuvlar.monitoring', ['period' => 'month', 'year' => $periodInfo['year'], 'month' => now()->subMonth()->month])); ?>"
+                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 <?php echo e($periodInfo['period'] === 'month' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'); ?>"
                         id="btn-month">
                         Ойлик ҳисобот
                     </a>
-                    <a href="{{ route('yer-sotuvlar.monitoring', ['period' => 'quarter', 'year' => $periodInfo['year'], 'quarter' => ceil(now()->month / 3)]) }}"
-                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ $periodInfo['period'] === 'quarter' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
+                    <a href="<?php echo e(route('yer-sotuvlar.monitoring', ['period' => 'quarter', 'year' => $periodInfo['year'], 'quarter' => ceil(now()->month / 3)])); ?>"
+                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 <?php echo e($periodInfo['period'] === 'quarter' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'); ?>"
                         id="btn-quarter">
                         Чораклик ҳисобот
                     </a>
-                    <a href="{{ route('yer-sotuvlar.monitoring', ['period' => 'year', 'year' => now()->year]) }}"
-                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 {{ $periodInfo['period'] === 'year' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
+                    <a href="<?php echo e(route('yer-sotuvlar.monitoring', ['period' => 'year', 'year' => now()->year])); ?>"
+                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all border-r border-gray-300 <?php echo e($periodInfo['period'] === 'year' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'); ?>"
                         id="btn-year">
                         Йиллик ҳисобот
                     </a>
-                    <a href="{{ route('yer-sotuvlar.monitoring', ['period' => 'all']) }}"
-                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all {{ $periodInfo['period'] === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
+                    <a href="<?php echo e(route('yer-sotuvlar.monitoring', ['period' => 'all'])); ?>"
+                        class="flex-1 px-6 py-3 text-sm font-semibold period-filter-btn transition-all <?php echo e($periodInfo['period'] === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'); ?>"
                         id="btn-all">
                         Умумий ҳисобот
                     </a>
                 </div>
 
-                {{-- Period Filter Section --}}
+                
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <form method="GET" action="{{ route('yer-sotuvlar.monitoring') }}" class="space-y-4">
+                    <form method="GET" action="<?php echo e(route('yer-sotuvlar.monitoring')); ?>" class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                            {{-- Tuman Selector (Admin only) --}}
-                            @if(auth()->check() && auth()->user()->isSuperAdmin())
+                            
+                            <?php if(auth()->check() && auth()->user()->isSuperAdmin()): ?>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Туман
@@ -103,108 +101,111 @@
                                 <select name="tuman" id="tuman-select"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                     <option value="">Барча туманлар</option>
-                                    @foreach($tumanlar as $tuman)
-                                        <option value="{{ $tuman }}" {{ $selectedTuman == $tuman ? 'selected' : '' }}>
-                                            {{ $tuman }}
+                                    <?php $__currentLoopData = $tumanlar; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tuman): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($tuman); ?>" <?php echo e($selectedTuman == $tuman ? 'selected' : ''); ?>>
+                                            <?php echo e($tuman); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
-                            @endif
+                            <?php endif; ?>
 
-                            {{-- Period Type Selector --}}
+                            
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Давр тури
                                 </label>
                                 <select name="period" id="period"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    <option value="all" {{ $periodInfo['period'] === 'all' ? 'selected' : '' }}>
+                                    <option value="all" <?php echo e($periodInfo['period'] === 'all' ? 'selected' : ''); ?>>
                                         Барчаси (умумий)
                                     </option>
-                                    <option value="year" {{ $periodInfo['period'] === 'year' ? 'selected' : '' }}>
+                                    <option value="year" <?php echo e($periodInfo['period'] === 'year' ? 'selected' : ''); ?>>
                                         Йил бўйича
                                     </option>
-                                    <option value="quarter" {{ $periodInfo['period'] === 'quarter' ? 'selected' : '' }}>
+                                    <option value="quarter" <?php echo e($periodInfo['period'] === 'quarter' ? 'selected' : ''); ?>>
                                         Чорак бўйича
                                     </option>
-                                    <option value="month" {{ $periodInfo['period'] === 'month' ? 'selected' : '' }}>
+                                    <option value="month" <?php echo e($periodInfo['period'] === 'month' ? 'selected' : ''); ?>>
                                         Ой бўйича
                                     </option>
                                 </select>
                             </div>
 
-                            {{-- Year Selector --}}
+                            
                             <div id="year-selector"
-                                style="display: {{ in_array($periodInfo['period'], ['year', 'quarter', 'month']) ? 'block' : 'none' }}">
+                                style="display: <?php echo e(in_array($periodInfo['period'], ['year', 'quarter', 'month']) ? 'block' : 'none'); ?>">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Йил
                                 </label>
                                 <select name="year" id="year-select"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    @foreach ($availablePeriods['years'] as $year)
-                                        <option value="{{ $year }}"
-                                            {{ $periodInfo['year'] == $year ? 'selected' : '' }}>
-                                            {{ $year }} йил
+                                    <?php $__currentLoopData = $availablePeriods['years']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($year); ?>"
+                                            <?php echo e($periodInfo['year'] == $year ? 'selected' : ''); ?>>
+                                            <?php echo e($year); ?> йил
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
 
-                            {{-- Quarter Selector --}}
+                            
                             <div id="quarter-selector"
-                                style="display: {{ $periodInfo['period'] === 'quarter' ? 'block' : 'none' }}">
+                                style="display: <?php echo e($periodInfo['period'] === 'quarter' ? 'block' : 'none'); ?>">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Чорак
                                 </label>
                                 <select name="quarter" id="quarter-select"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    @if ($periodInfo['period'] === 'quarter')
-                                        @php
+                                    <?php if($periodInfo['period'] === 'quarter'): ?>
+                                        <?php
                                             $selectedYearQuarters = collect($availablePeriods['quarters'])
                                                 ->where('yil', $periodInfo['year'])
                                                 ->sortBy('chorak_raqam');
-                                        @endphp
-                                        @forelse($selectedYearQuarters as $quarter)
-                                            <option value="{{ $quarter['chorak_raqam'] }}"
-                                                {{ $periodInfo['quarter'] == $quarter['chorak_raqam'] ? 'selected' : '' }}>
-                                                {{ $quarter['chorak_nomi'] }}
-                                                ({{ number_format($quarter['summa'] / 1000000000, 2) }} млрд)
+                                        ?>
+                                        <?php $__empty_1 = true; $__currentLoopData = $selectedYearQuarters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $quarter): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                            <option value="<?php echo e($quarter['chorak_raqam']); ?>"
+                                                <?php echo e($periodInfo['quarter'] == $quarter['chorak_raqam'] ? 'selected' : ''); ?>>
+                                                <?php echo e($quarter['chorak_nomi']); ?>
+
+                                                (<?php echo e(number_format($quarter['summa'] / 1000000000, 2)); ?> млрд)
                                             </option>
-                                        @empty
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                             <option value="">Маълумот йўқ</option>
-                                        @endforelse
-                                    @else
+                                        <?php endif; ?>
+                                    <?php else: ?>
                                         <option value="1">1-чорак (Январь - Март)</option>
-                                    @endif
+                                    <?php endif; ?>
                                 </select>
                             </div>
 
-                            {{-- Month Selector --}}
+                            
                             <div id="month-selector"
-                                style="display: {{ $periodInfo['period'] === 'month' ? 'block' : 'none' }}">
+                                style="display: <?php echo e($periodInfo['period'] === 'month' ? 'block' : 'none'); ?>">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Ой
                                 </label>
                                 <select name="month" id="month-select"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    @if ($periodInfo['period'] === 'month')
-                                        @php
+                                    <?php if($periodInfo['period'] === 'month'): ?>
+                                        <?php
                                             $selectedYearMonths = collect($availablePeriods['months'])
                                                 ->where('yil', $periodInfo['year'])
                                                 ->sortBy('oy');
-                                        @endphp
-                                        @forelse($selectedYearMonths as $month)
-                                            <option value="{{ $month['oy'] }}"
-                                                {{ $periodInfo['month'] == $month['oy'] ? 'selected' : '' }}>
-                                                {{ $month['oy_nomi'] }}
-                                                ({{ number_format($month['summa'] / 1000000000, 2) }} млрд)
+                                        ?>
+                                        <?php $__empty_1 = true; $__currentLoopData = $selectedYearMonths; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                            <option value="<?php echo e($month['oy']); ?>"
+                                                <?php echo e($periodInfo['month'] == $month['oy'] ? 'selected' : ''); ?>>
+                                                <?php echo e($month['oy_nomi']); ?>
+
+                                                (<?php echo e(number_format($month['summa'] / 1000000000, 2)); ?> млрд)
                                             </option>
-                                        @empty
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                             <option value="">Маълумот йўқ</option>
-                                        @endforelse
-                                    @else
-                                        @php
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <?php
                                             $oylar = [
                                                 1 => 'Январь',
                                                 2 => 'Февраль',
@@ -219,20 +220,21 @@
                                                 11 => 'Ноябрь',
                                                 12 => 'Декабрь',
                                             ];
-                                        @endphp
-                                        @foreach ($oylar as $oyRaqam => $oyNomi)
-                                            <option value="{{ $oyRaqam }}">
-                                                {{ $oyNomi }}
+                                        ?>
+                                        <?php $__currentLoopData = $oylar; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $oyRaqam => $oyNomi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($oyRaqam); ?>">
+                                                <?php echo e($oyNomi); ?>
+
                                             </option>
-                                        @endforeach
-                                    @endif
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                         </div>
 
-                        {{-- Action Buttons --}}
+                        
                         <div class="flex justify-end space-x-3">
-                            <a href="{{ route('yer-sotuvlar.monitoring') }}"
+                            <a href="<?php echo e(route('yer-sotuvlar.monitoring')); ?>"
                                 class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
                                 Тозалаш
                             </a>
@@ -249,7 +251,7 @@
                     </form>
                 </div>
 
-                {{-- JavaScript for Dynamic Form --}}
+                
                 <script>
                     function cleanFormBeforeSubmit(event) {
                         const periodValue = document.getElementById('period').value;
@@ -278,9 +280,10 @@
                         const monthSelect = document.getElementById('month-select');
 
                         let periodData = {
-                            years: {!! json_encode($availablePeriods['years']) !!},
-                            quarters: {!! json_encode($availablePeriods['quarters']) !!},
-                            months: {!! json_encode($availablePeriods['months']) !!}
+                            years: <?php echo json_encode($availablePeriods['years']); ?>,
+                            quarters: <?php echo json_encode($availablePeriods['quarters']); ?>,
+                            months: <?php echo json_encode($availablePeriods['months']); ?>
+
                         };
 
                         function updateSelectors() {
@@ -351,7 +354,7 @@
                             if (periodSelect.value === 'quarter') {
                                 const selectedYear = parseInt(yearSelect.value);
                                 const quartersForYear = periodData.quarters.filter(q => q.yil === selectedYear);
-                                const currentQuarter = {{ $periodInfo['quarter'] }};
+                                const currentQuarter = <?php echo e($periodInfo['quarter']); ?>;
 
                                 quarterSelect.innerHTML = '';
                                 quartersForYear.forEach(q => {
@@ -369,7 +372,7 @@
                             if (periodSelect.value === 'month') {
                                 const selectedYear = parseInt(yearSelect.value);
                                 const monthsForYear = periodData.months.filter(m => m.yil === selectedYear);
-                                const currentMonth = {{ $periodInfo['month'] }};
+                                const currentMonth = <?php echo e($periodInfo['month']); ?>;
 
                                 monthSelect.innerHTML = '';
                                 monthsForYear.forEach(m => {
@@ -403,7 +406,7 @@
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Total Card 1: Жами лотлар сони -->
-                    <a href="{{ route('yer-sotuvlar.list', array_merge(['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                    <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                         style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
@@ -419,11 +422,11 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                            {{ number_format($summaryTotal['total_lots']) }} та</p>
+                            <?php echo e(number_format($summaryTotal['total_lots'])); ?> та</p>
                     </a>
 
                     <!-- Total Card 2: Тушадиган маблағ -->
-                    <a href="{{ route('yer-sotuvlar.list', array_merge(['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                    <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                         style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
@@ -439,11 +442,11 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                            {{ number_format($summaryTotal['expected_amount'] / 1000000000, 2) }} млрд сўм</p>
+                            <?php echo e(number_format($summaryTotal['expected_amount'] / 1000000000, 2)); ?> млрд сўм</p>
                     </a>
 
                     <!-- Total Card 3: Амалда тушган маблағ -->
-                    <a href="{{ route('yer-sotuvlar.list', array_merge(['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                    <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                         style="border-color: rgb(29 78 216);">
                         <div class="flex items-center justify-between mb-3">
@@ -459,18 +462,18 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                            {{ number_format($summaryTotal['received_amount'] / 1000000000, 2) }} млрд сўм</p>
+                            <?php echo e(number_format($summaryTotal['received_amount'] / 1000000000, 2)); ?> млрд сўм</p>
                     </a>
 
                     <!-- Total Card 4: Қолдиқ маблағ -->
-                    @php
+                    <?php
                         $totalQoldiq = $summaryTotal['expected_amount'] - $summaryTotal['received_amount'];
                         $totalQoldiqFoizi =
                             $summaryTotal['expected_amount'] > 0
                                 ? ($totalQoldiq / $summaryTotal['expected_amount']) * 100
                                 : 0;
-                    @endphp
-                    <a href="{{ route('yer-sotuvlar.list', array_merge(['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                    ?>
+                    <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                         style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
@@ -485,20 +488,20 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
-                            {{ number_format($totalQoldiq / 1000000000, 2) }} млрд сўм</p>
+                            <?php echo e(number_format($totalQoldiq / 1000000000, 2)); ?> млрд сўм</p>
                         <div class="flex items-center mb-3">
                             <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                 <div class="h-2.5 rounded-full transition-all duration-500"
-                                    style="width: {{ min(100, $totalQoldiqFoizi) }}%; background-color: rgb(185 28 28);">
+                                    style="width: <?php echo e(min(100, $totalQoldiqFoizi)); ?>%; background-color: rgb(185 28 28);">
                                 </div>
                             </div>
                             <span class="text-sm font-bold"
-                                style="color: rgb(185 28 28);">{{ number_format($totalQoldiqFoizi, 1) }}%</span>
+                                style="color: rgb(185 28 28);"><?php echo e(number_format($totalQoldiqFoizi, 1)); ?>%</span>
                         </div>
                     </a>
 
                     <!-- Total Card 5: Муддати ўтган қарздорлик (JAMI - ALL) -->
-                    @php
+                    <?php
                         // Calculate muddati utgan for muddatli emas (auksonda turgan)
                         $muddatiOtganMuddatliEmas = max(
                             0,
@@ -506,8 +509,8 @@
                         );
                         // Total muddati utgan = muddatli (grafik ortda) + muddatli emas (auksonda turgan)
                         $totalMuddatiUtganQarz = $muddatiUtganQarz + $muddatiOtganMuddatliEmas;
-                    @endphp
-                    <a href="{{ route('yer-sotuvlar.list', array_merge(['grafik_ortda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                    ?>
+                    <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['grafik_ortda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                         class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-4"
                         style="border-color: rgb(185 28 28);">
                         <div class="flex items-center justify-between mb-3">
@@ -522,16 +525,16 @@
                             </div>
                         </div>
                         <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
-                            {{ number_format($totalMuddatiUtganQarz / 1000000000, 2) }} млрд сўм
+                            <?php echo e(number_format($totalMuddatiUtganQarz / 1000000000, 2)); ?> млрд сўм
                         </p>
                         <div class="flex items-center mb-3">
                             <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                 <div class="h-2.5 rounded-full transition-all duration-500"
-                                    style="width: {{ min(100, $totalQoldiqFoizi) }}%; background-color: rgb(185 28 28);">
+                                    style="width: <?php echo e(min(100, $totalQoldiqFoizi)); ?>%; background-color: rgb(185 28 28);">
                                 </div>
                             </div>
                             <span class="text-sm font-bold"
-                                style="color: rgb(185 28 28);">{{ number_format($totalQoldiqFoizi, 1) }}%</span>
+                                style="color: rgb(185 28 28);"><?php echo e(number_format($totalQoldiqFoizi, 1)); ?>%</span>
                         </div>
                     </a>
                 </div>
@@ -554,7 +557,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
                         <!-- Card 1: Жами лотлар сони -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
@@ -570,11 +573,11 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                {{ number_format($summaryMuddatli['total_lots']) }} та</p>
+                                <?php echo e(number_format($summaryMuddatli['total_lots'])); ?> та</p>
                         </a>
 
                         <!-- Card 2: Тушадиган маблағ -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -590,11 +593,11 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                {{ number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2) }} млрд сўм</p>
+                                <?php echo e(number_format($nazoratdagilar['tushadigan_mablagh'] / 1000000000, 2)); ?> млрд сўм</p>
                         </a>
 
                         <!-- Card 3: Амалда тушган маблағ -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -610,11 +613,11 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                {{ number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2) }} млрд сўм</p>
+                                <?php echo e(number_format($nazoratdagilar['tushgan_summa'] / 1000000000, 2)); ?> млрд сўм</p>
                         </a>
 
                         <!-- Card 4: Қолдиқ маблағ -->
-                        @php
+                        <?php
                             $qoldiqMablagh = $nazoratdagilar['tushadigan_mablagh'] - $nazoratdagilar['tushgan_summa'];
                             $qoldiqFoizi =
                                 $nazoratdagilar['tushadigan_mablagh'] > 0
@@ -622,8 +625,8 @@
                                             $nazoratdagilar['tushadigan_mablagh']) *
                                         100
                                     : 0;
-                        @endphp
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        ?>
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'nazoratda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
@@ -638,20 +641,20 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-2" style="color: rgb(185 28 28);">
-                                {{ number_format($qoldiqMablagh / 1000000000, 2) }} млрд сўм</p>
+                                <?php echo e(number_format($qoldiqMablagh / 1000000000, 2)); ?> млрд сўм</p>
                             <div class="flex items-center mb-3">
                                 <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                     <div class="h-2.5 rounded-full transition-all duration-500"
-                                        style="width: {{ 100 - min(100, $qoldiqFoizi) }}%; background-color: rgb(185 28 28);">
+                                        style="width: <?php echo e(100 - min(100, $qoldiqFoizi)); ?>%; background-color: rgb(185 28 28);">
                                     </div>
                                 </div>
                                 <span class="text-sm font-bold"
-                                    style="color: rgb(185 28 28);">{{ number_format(100 - $qoldiqFoizi, 1) }}%</span>
+                                    style="color: rgb(185 28 28);"><?php echo e(number_format(100 - $qoldiqFoizi, 1)); ?>%</span>
                             </div>
                         </a>
 
                         <!-- Card 5: График б-ча тушадиган маблағ -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-2"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -667,7 +670,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                {{ number_format($grafikTushadiganMuddatli / 1000000000, 2) }} млрд сўм</p>
+                                <?php echo e(number_format($grafikTushadiganMuddatli / 1000000000, 2)); ?> млрд сўм</p>
                         </a>
 
                         <!-- Card 6: График бўйича тушган -->
@@ -685,7 +688,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                {{ number_format($grafikBoyichaTushgan / 1000000000, 2) }} млрд сўм
+                                <?php echo e(number_format($grafikBoyichaTushgan / 1000000000, 2)); ?> млрд сўм
                             </p>
                             <button onclick="showGrafikDetail()"
                                 class="mt-3 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
@@ -694,7 +697,7 @@
                         </div>
 
                         <!-- Card 7: Муддати ўтган қарздорлик (Муддатли only) -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли', 'grafik_ortda' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1 lg:col-start-4"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
@@ -711,7 +714,7 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                {{ number_format($muddatiUtganQarz / 1000000000, 2) }} млрд сўм
+                                <?php echo e(number_format($muddatiUtganQarz / 1000000000, 2)); ?> млрд сўм
                             </p>
                         </a>
                     </div>
@@ -732,7 +735,7 @@
                     <!-- Statistics Cards - Муддатли эмас -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <!-- 1. Soni -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
@@ -748,11 +751,11 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                {{ number_format($summaryMuddatliEmas['total_lots']) }} та</p>
+                                <?php echo e(number_format($summaryMuddatliEmas['total_lots'])); ?> та</p>
                         </a>
 
                         <!-- 2. Tushadigan mablag' -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -768,11 +771,11 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(29 78 216);">
-                                {{ number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2) }} млрд сўм</p>
+                                <?php echo e(number_format($summaryMuddatliEmas['expected_amount'] / 1000000000, 2)); ?> млрд сўм</p>
                         </a>
 
                         <!-- 4. Amalda to'langan -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(29 78 216);">
                             <div class="flex items-center justify-between mb-3">
@@ -787,20 +790,20 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-2" style="color: rgb(29 78 216);">
-                                {{ number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2) }} млрд сўм</p>
+                                <?php echo e(number_format($summaryMuddatliEmas['received_amount'] / 1000000000, 2)); ?> млрд сўм</p>
                             <div class="flex items-center">
                                 <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
                                     <div class="h-2.5 rounded-full transition-all duration-500"
-                                        style="width: {{ min(100, $summaryMuddatliEmas['payment_percentage']) }}%; background-color: rgb(29 78 216);">
+                                        style="width: <?php echo e(min(100, $summaryMuddatliEmas['payment_percentage'])); ?>%; background-color: rgb(29 78 216);">
                                     </div>
                                 </div>
                                 <span class="text-sm font-bold"
-                                    style="color: rgb(29 78 216);">{{ number_format($summaryMuddatliEmas['payment_percentage'], 1) }}%</span>
+                                    style="color: rgb(29 78 216);"><?php echo e(number_format($summaryMuddatliEmas['payment_percentage'], 1)); ?>%</span>
                             </div>
                         </a>
 
                         <!-- 5. Аукционда турган маблағ (Qoldiq qarz - to'lanmagan lotlar) -->
-                        <a href="{{ route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'qoldiq_qarz' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : [])) }}"
+                        <a href="<?php echo e(route('yer-sotuvlar.list', array_merge(['tolov_turi' => 'муддатли эмас', 'qoldiq_qarz' => 'true', 'include_all' => 'false', 'auksion_sana_from' => $dateFilters['auksion_sana_from'], 'auksion_sana_to' => $dateFilters['auksion_sana_to']], $periodInfo['period'] !== 'all' ? ['period' => $periodInfo['period'], 'year' => $periodInfo['year'], 'quarter' => $periodInfo['quarter'] ?? null, 'month' => $periodInfo['month'] ?? null] : []))); ?>"
                             class="block bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-2xl transition-all transform hover:-translate-y-1"
                             style="border-color: rgb(185 28 28);">
                             <div class="flex items-center justify-between mb-3">
@@ -816,9 +819,9 @@
                                 </div>
                             </div>
                             <p class="text-3xl font-bold mb-1" style="color: rgb(185 28 28);">
-                                {{ number_format($qoldiqQarzData['qoldiq_amount'] / 1000000000, 2) }} млрд сўм
+                                <?php echo e(number_format($qoldiqQarzData['qoldiq_amount'] / 1000000000, 2)); ?> млрд сўм
                             </p>
-                            <p class="text-1xl text-slate-500">{{ $qoldiqQarzData['count'] }} та лот - мулкни қабул қилиш тасдиқланмаганлар</p>
+                            <p class="text-1xl text-slate-500"><?php echo e($qoldiqQarzData['count']); ?> та лот - мулкни қабул қилиш тасдиқланмаганлар</p>
                         </a>
                     </div>
                 </div>
@@ -898,11 +901,11 @@
 
         <script>
         function showGrafikDetail() {
-            const dateFrom = '{{ $dateFilters["auksion_sana_from"] }}';
-            const dateTo = '{{ $dateFilters["auksion_sana_to"] }}';
-            const tuman = '{{ $selectedTuman ?? "" }}';
+            const dateFrom = '<?php echo e($dateFilters["auksion_sana_from"]); ?>';
+            const dateTo = '<?php echo e($dateFilters["auksion_sana_to"]); ?>';
+            const tuman = '<?php echo e($selectedTuman ?? ""); ?>';
 
-            console.log('Card shows: {{ number_format($grafikBoyichaTushgan / 1000000000, 2) }} млрд');
+            console.log('Card shows: <?php echo e(number_format($grafikBoyichaTushgan / 1000000000, 2)); ?> млрд');
 
             let url = `/api/grafik-detail?date_from=${dateFrom}&date_to=${dateTo}`;
             if (tuman) {
@@ -913,9 +916,9 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log('API returns: ' + (data.total / 1000000000).toFixed(2) + ' млрд');
-                    console.log('Card value:', {{ $grafikBoyichaTushgan }});
+                    console.log('Card value:', <?php echo e($grafikBoyichaTushgan); ?>);
                     console.log('API value:', data.total);
-                    console.log('Match:', Math.abs({{ $grafikBoyichaTushgan }} - data.total) < 1 ? 'YES' : 'NO');
+                    console.log('Match:', Math.abs(<?php echo e($grafikBoyichaTushgan); ?> - data.total) < 1 ? 'YES' : 'NO');
 
                     let html = `
                         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="this.remove()">
@@ -980,4 +983,6 @@
                 });
         }
         </script>
-    @endsection
+    <?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/monitoring.blade.php ENDPATH**/ ?>

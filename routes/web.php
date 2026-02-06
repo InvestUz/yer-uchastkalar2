@@ -31,6 +31,11 @@ Route::middleware(['auth', 'role'])->group(function () {
         Route::get('/filtered', [ExportController::class, 'exportFiltered'])->name('filtered');
     });
 
+    // API routes
+    Route::prefix('api')->group(function () {
+        Route::get('/grafik-detail', [YerSotuvController::class, 'getGrafikDetail'])->name('api.grafik-detail');
+    });
+
     // Qoldiq management - Super Admin only
     Route::prefix('qoldiq')->name('qoldiq.')->middleware('role:super_admin')->group(function () {
         Route::get('/', [GlobalQoldiqController::class, 'index'])->name('index');
