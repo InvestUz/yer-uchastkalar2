@@ -28,7 +28,7 @@
                 <div class="flex flex-col md:flex-row md:justify-between md:items-center">
                     <div>
                         <h1 class="text-xl font-bold text-gray-600">Лот № {{ $yer->lot_raqami }}</h1>
-                        <p class="text-gray-600 text-sm mt-1">{{ $yer->tuman }} • {{ $yer->mfy }} •
+                        <p class="text-gray-600 text-sm mt-1" style="font-weight:bold;">{{ $yer->tuman }} • {{ $yer->mfy }} •
                             {{ $yer->unikal_raqam }}</p>
                     </div>
 
