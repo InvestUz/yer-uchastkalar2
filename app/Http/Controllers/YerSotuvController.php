@@ -1714,6 +1714,10 @@ public function monitoring(Request $request)
 
             if ($district !== '') {
                 $rows = array_values(array_filter($rows, static function ($row) use ($district) {
+                    if ($district === 'Бошқа') {
+                        return ($row['district_original'] ?? $row['district']) === 'Бошқа';
+                    }
+
                     return $row['district'] === $district;
                 }));
             }
@@ -1777,6 +1781,8 @@ public function monitoring(Request $request)
 
         $districtPatterns = $this->getFinXisobotDistrictPatterns();
         $categoryDistrictFallbacks = $this->getFinXisobotCategoryDistrictFallbacks();
+        $canonicalDistricts = $this->getFinXisobotCanonicalDistricts($districtPatterns);
+        $lotLookup = $this->buildFinXisobotLotLookup();
 
         $districtData = [];
         $recipientTotals = [];
@@ -1786,6 +1792,7 @@ public function monitoring(Request $request)
         $districtCategoryCounts = [];
         $totalAmount = 0;
         $financialData = [];
+        $unresolvedIndexes = [];
 
         foreach ($records as $record) {
             $recipient = $record->recipient_name ?? 'Белгисиз';
@@ -1804,20 +1811,9 @@ public function monitoring(Request $request)
             $categoryTotals[$category] = ($categoryTotals[$category] ?? 0) + $amount;
             $categoryCounts[$category] = ($categoryCounts[$category] ?? 0) + 1;
 
-            if (!isset($districtData[$district])) {
-                $districtData[$district] = array_merge(['Жами' => 0], $paymentCategories);
-            }
-            $districtData[$district]['Жами'] += $amount;
-            if (isset($districtData[$district][$category])) {
-                $districtData[$district][$category] += $amount;
-            }
+            $lotMatch = $this->resolveFinXisobotLotForRecord($record, $lotLookup);
 
-            $districtCounts[$district] = ($districtCounts[$district] ?? 0) + 1;
-            if (!isset($districtCategoryCounts[$district])) {
-                $districtCategoryCounts[$district] = array_fill_keys(array_keys($paymentCategories), 0);
-            }
-            $districtCategoryCounts[$district][$category] = ($districtCategoryCounts[$district][$category] ?? 0) + 1;
-
+            $nextIndex = count($financialData);
             $financialData[] = [
                 'id' => $record->id,
                 'date' => $record->doc_date ? $record->doc_date->format('d.m.Y') : '',
@@ -1827,8 +1823,38 @@ public function monitoring(Request $request)
                 'amount' => $amount,
                 'details' => $record->details ?? '',
                 'district' => $district,
+                'district_original' => $district,
                 'category' => $category,
+                'lot_raqami' => $lotMatch['lot_raqami'],
+                'lot_match_source' => $lotMatch['source'],
             ];
+
+            if ($district === 'Бошқа') {
+                $unresolvedIndexes[] = $nextIndex;
+                continue;
+            }
+
+            $this->appendFinXisobotDistrictTotals(
+                $district,
+                $category,
+                $amount,
+                $districtData,
+                $districtCounts,
+                $districtCategoryCounts,
+                $paymentCategories
+            );
+        }
+
+        if (!empty($unresolvedIndexes)) {
+            $this->distributeUnresolvedFinXisobotRows(
+                $financialData,
+                $unresolvedIndexes,
+                $districtData,
+                $districtCounts,
+                $districtCategoryCounts,
+                $paymentCategories,
+                $canonicalDistricts
+            );
         }
 
         $activeDistrictData = [];
@@ -1855,6 +1881,321 @@ public function monitoring(Request $request)
             'totalAmount' => $totalAmount,
             'transactionCount' => count($financialData),
         ];
+    }
+
+    private function getFinXisobotCanonicalDistricts(array $districtPatterns): array
+    {
+        $districts = [];
+        foreach ($districtPatterns as $districtName) {
+            if (!in_array($districtName, $districts, true)) {
+                $districts[] = $districtName;
+            }
+        }
+
+        return $districts;
+    }
+
+    private function appendFinXisobotDistrictTotals(
+        string $district,
+        string $category,
+        float $amount,
+        array &$districtData,
+        array &$districtCounts,
+        array &$districtCategoryCounts,
+        array $paymentCategories
+    ): void {
+        if (!isset($districtData[$district])) {
+            $districtData[$district] = array_merge(['Жами' => 0], $paymentCategories);
+        }
+        $districtData[$district]['Жами'] += $amount;
+        if (isset($districtData[$district][$category])) {
+            $districtData[$district][$category] += $amount;
+        }
+
+        $districtCounts[$district] = ($districtCounts[$district] ?? 0) + 1;
+        if (!isset($districtCategoryCounts[$district])) {
+            $districtCategoryCounts[$district] = array_fill_keys(array_keys($paymentCategories), 0);
+        }
+        $districtCategoryCounts[$district][$category] = ($districtCategoryCounts[$district][$category] ?? 0) + 1;
+    }
+
+    private function distributeUnresolvedFinXisobotRows(
+        array &$financialData,
+        array $unresolvedIndexes,
+        array &$districtData,
+        array &$districtCounts,
+        array &$districtCategoryCounts,
+        array $paymentCategories,
+        array $canonicalDistricts
+    ): void {
+        if (empty($canonicalDistricts)) {
+            return;
+        }
+
+        $overallReference = [];
+        foreach ($canonicalDistricts as $district) {
+            $overallReference[$district] = (float)($districtData[$district]['Жами'] ?? 0);
+        }
+
+        $overallReferenceSum = array_sum($overallReference);
+        if ($overallReferenceSum <= 0) {
+            $overallReference = array_fill_keys($canonicalDistricts, 1.0);
+            $overallReferenceSum = (float)count($canonicalDistricts);
+        }
+
+        $categoryUnresolved = [];
+        foreach ($unresolvedIndexes as $index) {
+            $category = (string)($financialData[$index]['category'] ?? '');
+            $categoryUnresolved[$category][] = $index;
+        }
+
+        foreach ($categoryUnresolved as $category => $indexes) {
+            usort($indexes, function ($leftIndex, $rightIndex) use ($financialData) {
+                $leftAmount = (float)($financialData[$leftIndex]['amount'] ?? 0);
+                $rightAmount = (float)($financialData[$rightIndex]['amount'] ?? 0);
+
+                if ($leftAmount === $rightAmount) {
+                    return ($financialData[$leftIndex]['id'] ?? 0) <=> ($financialData[$rightIndex]['id'] ?? 0);
+                }
+
+                return $rightAmount <=> $leftAmount;
+            });
+
+            $reference = [];
+            foreach ($canonicalDistricts as $district) {
+                $reference[$district] = (float)($districtData[$district][$category] ?? 0);
+            }
+
+            $referenceSum = array_sum($reference);
+            if ($referenceSum <= 0) {
+                $reference = $overallReference;
+                $referenceSum = $overallReferenceSum;
+            }
+
+            if ($referenceSum <= 0) {
+                $reference = array_fill_keys($canonicalDistricts, 1.0);
+                $referenceSum = (float)count($canonicalDistricts);
+            }
+
+            $unresolvedTotal = 0.0;
+            foreach ($indexes as $index) {
+                $unresolvedTotal += (float)($financialData[$index]['amount'] ?? 0);
+            }
+
+            $remainingTargets = [];
+            foreach ($canonicalDistricts as $district) {
+                $remainingTargets[$district] = $unresolvedTotal * ($reference[$district] / $referenceSum);
+            }
+
+            foreach ($indexes as $index) {
+                $selectedDistrict = $this->pickFinXisobotDistrictByRemainingTarget(
+                    $remainingTargets,
+                    $reference,
+                    $canonicalDistricts
+                );
+
+                if ($selectedDistrict === null) {
+                    continue;
+                }
+
+                $amount = (float)($financialData[$index]['amount'] ?? 0);
+                $financialData[$index]['district'] = $selectedDistrict;
+
+                $this->appendFinXisobotDistrictTotals(
+                    $selectedDistrict,
+                    $category,
+                    $amount,
+                    $districtData,
+                    $districtCounts,
+                    $districtCategoryCounts,
+                    $paymentCategories
+                );
+
+                $remainingTargets[$selectedDistrict] -= $amount;
+            }
+        }
+    }
+
+    private function pickFinXisobotDistrictByRemainingTarget(
+        array $remainingTargets,
+        array $reference,
+        array $canonicalDistricts
+    ): ?string {
+        $selectedDistrict = null;
+        $bestRemaining = -INF;
+        $bestReference = -INF;
+
+        foreach ($canonicalDistricts as $district) {
+            $currentRemaining = (float)($remainingTargets[$district] ?? 0);
+            $currentReference = (float)($reference[$district] ?? 0);
+
+            if ($currentRemaining > $bestRemaining) {
+                $bestRemaining = $currentRemaining;
+                $bestReference = $currentReference;
+                $selectedDistrict = $district;
+                continue;
+            }
+
+            if ($currentRemaining === $bestRemaining) {
+                if ($currentReference > $bestReference) {
+                    $bestReference = $currentReference;
+                    $selectedDistrict = $district;
+                    continue;
+                }
+
+                if ($currentReference === $bestReference && $selectedDistrict !== null && strcmp($district, $selectedDistrict) < 0) {
+                    $selectedDistrict = $district;
+                }
+            }
+        }
+
+        return $selectedDistrict;
+    }
+
+    private function buildFinXisobotLotLookup(): array
+    {
+        $lookup = [
+            'lot' => [],
+            'doc' => [],
+            'contract' => [],
+            'amount' => [],
+            'amount_date' => [],
+        ];
+
+        FaktTolov::query()
+            ->with('yerSotuv:lot_raqami,shartnoma_raqam')
+            ->select(['lot_raqami', 'tolov_sana', 'hujjat_raqam', 'tolov_summa'])
+            ->chunk(1000, function ($payments) use (&$lookup) {
+                foreach ($payments as $payment) {
+                    $lotRaqami = trim((string)$payment->lot_raqami);
+                    if ($lotRaqami === '') {
+                        continue;
+                    }
+
+                    $lotToken = preg_replace('/\D+/u', '', $lotRaqami) ?? '';
+                    if ($lotToken !== '' && strlen($lotToken) >= 6 && strlen($lotToken) <= 8) {
+                        $lookup['lot'][$lotToken][$lotRaqami] = true;
+                    }
+
+                    $docToken = preg_replace('/\D+/u', '', (string)$payment->hujjat_raqam) ?? '';
+                    if ($docToken !== '' && strlen($docToken) >= 6) {
+                        $lookup['doc'][$docToken][$lotRaqami] = true;
+                    }
+
+                    $contractToken = $this->normalizeFinXisobotText($payment->yerSotuv?->shartnoma_raqam ?? '');
+                    if ($contractToken !== '' && mb_strlen($contractToken, 'UTF-8') >= 3) {
+                        $lookup['contract'][$contractToken][$lotRaqami] = true;
+                    }
+
+                    $amountCents = (int)round(((float)$payment->tolov_summa) * 100);
+                    if ($amountCents <= 0) {
+                        continue;
+                    }
+
+                    $lookup['amount'][$amountCents][$lotRaqami] = true;
+
+                    if ($payment->tolov_sana) {
+                        $paymentDate = $payment->tolov_sana->format('Y-m-d');
+                        $lookup['amount_date'][$paymentDate . '|' . $amountCents][$lotRaqami] = true;
+                    }
+                }
+            });
+
+        return $lookup;
+    }
+
+    private function resolveFinXisobotLotForRecord(DavaktivRasxod $record, array $lotLookup): array
+    {
+        $detailsText = (string)($record->details ?? '');
+        $detailsNormalized = $this->normalizeFinXisobotText($detailsText);
+
+        // 1) Lot tokens in details text
+        $lotCandidates = [];
+        preg_match_all('/\d{6,8}/u', $detailsText, $lotMatches);
+        foreach (array_unique($lotMatches[0] ?? []) as $token) {
+            if (isset($lotLookup['lot'][$token])) {
+                $this->addFinXisobotLotCandidates($lotCandidates, $lotLookup['lot'][$token]);
+            }
+        }
+        $lotFromToken = $this->resolveUniqueFinXisobotLot($lotCandidates);
+        if ($lotFromToken !== null) {
+            return ['lot_raqami' => $lotFromToken, 'source' => 'details_lot'];
+        }
+
+        // 2) Direct document number -> FaktTolov.hujjat_raqam
+        $docNumberToken = preg_replace('/\D+/u', '', (string)($record->doc_number ?? '')) ?? '';
+        if ($docNumberToken !== '' && isset($lotLookup['doc'][$docNumberToken])) {
+            $lotFromDoc = $this->resolveUniqueFinXisobotLot($lotLookup['doc'][$docNumberToken]);
+            if ($lotFromDoc !== null) {
+                return ['lot_raqami' => $lotFromDoc, 'source' => 'doc_number'];
+            }
+        }
+
+        // 3) Numeric tokens in details -> FaktTolov.hujjat_raqam
+        $docCandidates = [];
+        preg_match_all('/\d{6,12}/u', $detailsText, $docMatches);
+        foreach (array_unique($docMatches[0] ?? []) as $token) {
+            if (isset($lotLookup['doc'][$token])) {
+                $this->addFinXisobotLotCandidates($docCandidates, $lotLookup['doc'][$token]);
+            }
+        }
+        $lotFromDetailsDoc = $this->resolveUniqueFinXisobotLot($docCandidates);
+        if ($lotFromDetailsDoc !== null) {
+            return ['lot_raqami' => $lotFromDetailsDoc, 'source' => 'details_doc'];
+        }
+
+        // 4) Contract number token in details -> YerSotuv.shartnoma_raqam
+        if ($detailsNormalized !== '') {
+            $contractCandidates = [];
+            foreach ($lotLookup['contract'] as $contractToken => $lotSet) {
+                if (strpos($detailsNormalized, $contractToken) !== false) {
+                    $this->addFinXisobotLotCandidates($contractCandidates, $lotSet);
+                }
+            }
+            $lotFromContract = $this->resolveUniqueFinXisobotLot($contractCandidates);
+            if ($lotFromContract !== null) {
+                return ['lot_raqami' => $lotFromContract, 'source' => 'contract'];
+            }
+        }
+
+        // 5) Exact amount (and date when available)
+        $amountCents = (int)round((float)($record->amount ?? 0));
+        if ($amountCents > 0) {
+            if ($record->doc_date) {
+                $amountDateKey = $record->doc_date->format('Y-m-d') . '|' . $amountCents;
+                if (isset($lotLookup['amount_date'][$amountDateKey])) {
+                    $lotFromAmountDate = $this->resolveUniqueFinXisobotLot($lotLookup['amount_date'][$amountDateKey]);
+                    if ($lotFromAmountDate !== null) {
+                        return ['lot_raqami' => $lotFromAmountDate, 'source' => 'amount_date'];
+                    }
+                }
+            }
+
+            if (isset($lotLookup['amount'][$amountCents])) {
+                $lotFromAmount = $this->resolveUniqueFinXisobotLot($lotLookup['amount'][$amountCents]);
+                if ($lotFromAmount !== null) {
+                    return ['lot_raqami' => $lotFromAmount, 'source' => 'amount'];
+                }
+            }
+        }
+
+        return ['lot_raqami' => null, 'source' => null];
+    }
+
+    private function addFinXisobotLotCandidates(array &$target, array $lotSet): void
+    {
+        foreach (array_keys($lotSet) as $lotRaqami) {
+            $target[$lotRaqami] = true;
+        }
+    }
+
+    private function resolveUniqueFinXisobotLot(array $lotSet): ?string
+    {
+        if (count($lotSet) !== 1) {
+            return null;
+        }
+
+        return array_key_first($lotSet);
     }
 
     private function getFinXisobotPaymentCategories(): array
