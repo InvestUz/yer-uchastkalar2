@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             Yer2SotuvSeeder::class,
+            DavaktivRasxodSeeder::class,
         ]);
     }
 }
-

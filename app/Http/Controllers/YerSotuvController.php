@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GrafikTolov;
 use App\Models\YerSotuv;
 use App\Models\FaktTolov;
+use App\Models\DavaktivRasxod;
 use App\Services\YerSotuvService;
 use App\Services\YerSotuvFilterService;
 use App\Services\YerSotuvMonitoringService;
@@ -1670,5 +1671,293 @@ public function monitoring(Request $request)
             'total' => $total,
             'payments' => $payments
         ]);
+    }
+
+    /**
+     * Display financial report (Fin-Xisobot) with data from davaktiv_rasxod table
+     */
+    public function finXisobot(Request $request)
+    {
+        try {
+            return view('yer-sotuvlar.fin-xisobot', $this->buildFinXisobotSummary());
+        } catch (\Exception $e) {
+            \Log::error('Error reading financial data: ' . $e->getMessage());
+            return view('yer-sotuvlar.fin-xisobot', [
+                'financialData' => [],
+                'recipients' => [],
+                'districts' => [],
+                'districtData' => [],
+                'categoryTotals' => [],
+                'categoryCounts' => [],
+                'districtCounts' => [],
+                'districtCategoryCounts' => [],
+                'paymentCategories' => [],
+                'totalAmount' => 0,
+                'transactionCount' => 0,
+                'error' => 'Маълумотларни ўқишда хато: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Display detail list for selected district/category from Fin-Xisobot table.
+     */
+    public function finXisobotDetails(Request $request)
+    {
+        try {
+            $summary = $this->buildFinXisobotSummary();
+
+            $district = trim((string)$request->query('district', ''));
+            $category = trim((string)$request->query('category', ''));
+
+            $rows = $summary['financialData'];
+
+            if ($district !== '') {
+                $rows = array_values(array_filter($rows, static function ($row) use ($district) {
+                    return $row['district'] === $district;
+                }));
+            }
+
+            if ($category !== '') {
+                $rows = array_values(array_filter($rows, static function ($row) use ($category) {
+                    return $row['category'] === $category;
+                }));
+            }
+
+            usort($rows, static function ($a, $b) {
+                return $b['amount'] <=> $a['amount'];
+            });
+
+            $detailTotal = 0;
+            foreach ($rows as $row) {
+                $detailTotal += (float)$row['amount'];
+            }
+
+            return view('yer-sotuvlar.fin-xisobot-details', [
+                'rows' => $rows,
+                'rawDistrict' => $district,
+                'rawCategory' => $category,
+                'selectedDistrict' => $district !== '' ? $district : 'Барча ҳудудлар',
+                'selectedCategory' => $category !== '' ? $category : 'Барча тоифалар',
+                'recordCount' => count($rows),
+                'totalAmount' => $detailTotal,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error reading fin-xisobot details: ' . $e->getMessage());
+            return redirect()->route('yer-sotuvlar.fin-xisobot')
+                ->with('error', 'Детал маълумотларини очишда хато: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Build summary data for Fin-Xisobot and keep one source of truth
+     * for category and district classification.
+     */
+    private function buildFinXisobotSummary(): array
+    {
+        $records = DavaktivRasxod::all();
+
+        $paymentCategories = $this->getFinXisobotPaymentCategories();
+
+        if ($records->isEmpty()) {
+            return [
+                'financialData' => [],
+                'recipients' => [],
+                'districts' => [],
+                'districtData' => [],
+                'categoryTotals' => $paymentCategories,
+                'categoryCounts' => array_fill_keys(array_keys($paymentCategories), 0),
+                'districtCounts' => [],
+                'districtCategoryCounts' => [],
+                'paymentCategories' => $paymentCategories,
+                'totalAmount' => 0,
+                'transactionCount' => 0,
+            ];
+        }
+
+        $districtPatterns = $this->getFinXisobotDistrictPatterns();
+        $categoryDistrictFallbacks = $this->getFinXisobotCategoryDistrictFallbacks();
+
+        $districtData = [];
+        $recipientTotals = [];
+        $categoryTotals = $paymentCategories;
+        $categoryCounts = array_fill_keys(array_keys($paymentCategories), 0);
+        $districtCounts = [];
+        $districtCategoryCounts = [];
+        $totalAmount = 0;
+        $financialData = [];
+
+        foreach ($records as $record) {
+            $recipient = $record->recipient_name ?? 'Белгисиз';
+            $articleName = $record->article ?? 'Тошкент шахар махаллий бюджетига';
+            $amount = (float)($record->amount ?? 0);
+
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $category = $this->resolveFinXisobotCategory($articleName, $paymentCategories);
+            $district = $this->resolveFinXisobotDistrict($record, $category, $districtPatterns, $categoryDistrictFallbacks);
+
+            $totalAmount += $amount;
+            $recipientTotals[$recipient] = ($recipientTotals[$recipient] ?? 0) + $amount;
+            $categoryTotals[$category] = ($categoryTotals[$category] ?? 0) + $amount;
+            $categoryCounts[$category] = ($categoryCounts[$category] ?? 0) + 1;
+
+            if (!isset($districtData[$district])) {
+                $districtData[$district] = array_merge(['Жами' => 0], $paymentCategories);
+            }
+            $districtData[$district]['Жами'] += $amount;
+            if (isset($districtData[$district][$category])) {
+                $districtData[$district][$category] += $amount;
+            }
+
+            $districtCounts[$district] = ($districtCounts[$district] ?? 0) + 1;
+            if (!isset($districtCategoryCounts[$district])) {
+                $districtCategoryCounts[$district] = array_fill_keys(array_keys($paymentCategories), 0);
+            }
+            $districtCategoryCounts[$district][$category] = ($districtCategoryCounts[$district][$category] ?? 0) + 1;
+
+            $financialData[] = [
+                'id' => $record->id,
+                'date' => $record->doc_date ? $record->doc_date->format('d.m.Y') : '',
+                'doc_num' => $record->doc_number ?? '',
+                'recipient' => $recipient,
+                'article' => $articleName,
+                'amount' => $amount,
+                'details' => $record->details ?? '',
+                'district' => $district,
+                'category' => $category,
+            ];
+        }
+
+        $activeDistrictData = [];
+        foreach ($districtData as $dist => $data) {
+            if ($data['Жами'] > 0) {
+                $activeDistrictData[$dist] = $data;
+            }
+        }
+
+        uasort($activeDistrictData, static function ($a, $b) {
+            return $b['Жами'] <=> $a['Жами'];
+        });
+
+        return [
+            'financialData' => $financialData,
+            'recipients' => $recipientTotals,
+            'districts' => array_keys($activeDistrictData),
+            'districtData' => $activeDistrictData,
+            'categoryTotals' => $categoryTotals,
+            'categoryCounts' => $categoryCounts,
+            'districtCounts' => $districtCounts,
+            'districtCategoryCounts' => $districtCategoryCounts,
+            'paymentCategories' => $paymentCategories,
+            'totalAmount' => $totalAmount,
+            'transactionCount' => count($financialData),
+        ];
+    }
+
+    private function getFinXisobotPaymentCategories(): array
+    {
+        return [
+            'Чегирма' => 0,
+            'Харидорларга қайтарилган маблағлар' => 0,
+            'Тошкент ш. қурилиш бошкармасига (1%)' => 0,
+            'Давлат кадастрлар палатасига' => 0,
+            'Геоахборот шахарсозлик кадастрига' => 0,
+            'Солиқ қўмитаси хузуридаги Кадастр агентлигига' => 0,
+            'Тошкент шахар махаллий бюджетига' => 0,
+            'Жамғармага' => 0,
+            'Туманга' => 0,
+            'ЯнгиХаёт индустриал технопарки дирекциясига' => 0,
+            'Шайҳонтохур туманига' => 0,
+            'Тошкент сити дирекциясига' => 0,
+        ];
+    }
+
+    private function getFinXisobotDistrictPatterns(): array
+    {
+        return [
+            'бектемир' => 'Бектемир',
+            'миробод' => 'Миробод',
+            'олмазор' => 'Олмазор',
+            'сергели' => 'Сергели',
+            'сирғали' => 'Сергели',
+            'сиргали' => 'Сергели',
+            'учтепа' => 'Учтепа',
+            'шайҳонтохур' => 'Шайҳонтохур',
+            'шайхонтохур' => 'Шайҳонтохур',
+            'шайхонтахур' => 'Шайҳонтохур',
+            'шайхонтаур' => 'Шайҳонтохур',
+            'юнусобод' => 'Юнусобод',
+            'яккасарой' => 'Яккасарой',
+            'чилонзор' => 'Чилонзор',
+            'мирзоулугбек' => 'Мирзо Улугбек',
+            'мирзоулубек' => 'Мирзо Улугбек',
+            'мирзоулуғбек' => 'Мирзо Улугбек',
+            'яшнобод' => 'Яшнобод',
+            'янгихаёт' => 'Янги Хаёт',
+            'янгиҳаёт' => 'Янги Хаёт',
+            'янгихает' => 'Янги Хаёт',
+        ];
+    }
+
+    private function getFinXisobotCategoryDistrictFallbacks(): array
+    {
+        return [
+            'ЯнгиХаёт индустриал технопарки дирекциясига' => 'Янги Хаёт',
+            'Шайҳонтохур туманига' => 'Шайҳонтохур',
+        ];
+    }
+
+    private function resolveFinXisobotCategory(string $articleName, array $paymentCategories): string
+    {
+        if (isset($paymentCategories[$articleName])) {
+            return $articleName;
+        }
+
+        foreach (array_keys($paymentCategories) as $catKey) {
+            if (stripos($articleName, $catKey) !== false || stripos($catKey, $articleName) !== false) {
+                return $catKey;
+            }
+        }
+
+        return 'Тошкент шахар махаллий бюджетига';
+    }
+
+    private function resolveFinXisobotDistrict(
+        DavaktivRasxod $record,
+        string $category,
+        array $districtPatterns,
+        array $categoryDistrictFallbacks
+    ): string {
+        if (!empty($record->district)) {
+            return $record->district;
+        }
+
+        $normalizedDetails = $this->normalizeFinXisobotText($record->details ?? '');
+        foreach ($districtPatterns as $pattern => $districtName) {
+            if ($normalizedDetails !== '' && strpos($normalizedDetails, $pattern) !== false) {
+                return $districtName;
+            }
+        }
+
+        if (isset($categoryDistrictFallbacks[$category])) {
+            return $categoryDistrictFallbacks[$category];
+        }
+
+        return 'Бошқа';
+    }
+
+    private function normalizeFinXisobotText(?string $text): string
+    {
+        if ($text === null || $text === '') {
+            return '';
+        }
+
+        $lower = mb_strtolower($text, 'UTF-8');
+        $clean = preg_replace('/[^\p{L}\p{N}]+/u', '', $lower);
+
+        return $clean ?? $lower;
     }
 }

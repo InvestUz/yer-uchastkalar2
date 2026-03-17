@@ -258,6 +258,23 @@
                             class="nav-text text-sm font-medium {{ request()->routeIs('yer-sotuvlar.list') ? 'text-white' : 'text-gray-700' }}">Рўйхат</span>
                     </a>
 
+                    <!-- Moliya bo'lim -->
+                    <div class="px-3 py-2 mt-4">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider nav-text">Молия</p>
+                    </div>
+
+@if(auth()->user()->email == 'admin@toshkentinvest.uz')
+                    <a href="{{ route('yer-sotuvlar.fin-xisobot') }}"
+                        class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('yer-sotuvlar.fin-xisobot') ? 'active' : '' }}">
+                        <svg class="w-5 h-5 {{ request()->routeIs('yer-sotuvlar.fin-xisobot') ? 'text-white' : 'text-gray-600' }}"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span
+                            class="nav-text text-sm font-medium {{ request()->routeIs('yer-sotuvlar.fin-xisobot') ? 'text-white' : 'text-gray-700' }}">Молиявий Хисобот</span>
+                    </a>
+@endif
 
 
                     <!-- Sozlamalar bo'limi -->

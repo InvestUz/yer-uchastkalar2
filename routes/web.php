@@ -23,6 +23,8 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('/get-period-options', [YerSotuvController::class, 'getPeriodOptions'])->name('yer-sotuvlar.period-options');
     Route::get('/monitoring_mirzayev', [YerSotuvController::class, 'monitoring_mirzayev'])->name('yer-sotuvlar.monitoring_mirzayev');
     Route::get('/yigma-malumot', [YerSotuvController::class, 'yigmaMalumot'])->name('yer-sotuvlar.yigma');
+    Route::get('/fin-xisobot', [YerSotuvController::class, 'finXisobot'])->name('yer-sotuvlar.fin-xisobot');
+    Route::get('/fin-xisobot/details', [YerSotuvController::class, 'finXisobotDetails'])->name('yer-sotuvlar.fin-xisobot.details');
 
     // Export routes
     Route::prefix('export')->name('export.')->group(function () {
