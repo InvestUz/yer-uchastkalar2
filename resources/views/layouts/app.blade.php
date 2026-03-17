@@ -174,27 +174,7 @@
                 </div>
             </div>
 
-            <!-- User Info Section -->
-            @auth
-            <div class="p-4 border-b border-gray-200 bg-blue-50">
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0">
-                        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
-                            <span class="text-white font-bold text-sm">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</span>
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-gray-900 truncate nav-text">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-gray-600 truncate nav-text">{{ auth()->user()->email }}</p>
-                        @if(auth()->user()->isSuperAdmin())
-                            <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold text-white bg-green-600 rounded nav-text">Администратор</span>
-                        @else
-                            <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold text-white bg-blue-600 rounded nav-text">Худуд</span>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            @endauth
+
 
             <!-- Navigation -->
             <nav class="flex-1 overflow-y-auto p-3">
@@ -395,9 +375,11 @@
 
                 <!-- User Info -->
                 <div class="flex items-center space-x-3">
+            @auth
+
                     <div class="hidden md:block text-right">
-                        <p class="text-sm font-semibold text-gray-900">Админ</p>
-                        <p class="text-xs text-gray-500">Тошкент Инвест</p>
+                        <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
                     </div>
                     <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -405,6 +387,10 @@
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                     </div>
+            @endauth
+
+
+
                 </div>
             </div>
         </div>
