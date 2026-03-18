@@ -145,6 +145,7 @@ class DavaktivRasxodSeeder extends Seeder
                             $matchedByFakt++;
                         } else {
                             $stillUnmatched++;
+                            $district = 'Номалум';
                         }
                     }
 

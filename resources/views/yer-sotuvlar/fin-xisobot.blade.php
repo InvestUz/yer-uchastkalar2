@@ -5,15 +5,7 @@
 @section('content')
     @php
         $fmt = function ($amount) {
-            if ($amount >= 1_000_000_000_000) {
-                return number_format($amount / 1_000_000_000_000, 2, '.', ',') . ' трлн';
-            } elseif ($amount >= 1_000_000_000) {
-                return number_format($amount / 1_000_000_000, 1, '.', ',') . ' млрд';
-            } elseif ($amount >= 1_000_000) {
-                return number_format($amount / 1_000_000, 0, '.', ',') . ' млн';
-            }
-
-            return number_format($amount, 0, '.', ',');
+            return number_format(((float)$amount) / 1_000_000_000, 1, '.', ',') . ' млрд';
         };
 
         $filters = $filters ?? [
@@ -91,7 +83,7 @@
                                         Ҳудудлар
                                     </th>
                                     <th rowspan="2" class="total-amount-col border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="font-size:11px;">
-                                        Жами (сум)
+                                        Жами (млрд сўм)
                                     </th>
                                     @foreach($paymentCategories as $category => $value)
                                         <th
@@ -101,13 +93,17 @@
                                         >{{ $category }}
                                         </th>
                                     @endforeach
+                                    <th class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
+                                        style="min-width: 120px; font-size:11px;">
+                                        Қолдиқ (млрд сўм)
+                                    </th>
                                 </tr>
                             </thead>
 
                             <tbody class="bg-white">
                                 @if(empty($districtData) || count($districtData) === 0)
                                     <tr>
-                                        <td colspan="{{ 3 + count($paymentCategories) }}" class="border border-slate-300 px-4 py-6 text-center text-slate-700">
+                                        <td colspan="{{ 4 + count($paymentCategories) }}" class="border border-slate-300 px-4 py-6 text-center text-slate-700">
                                             Маълумотлар топилмади.
                                         </td>
                                     </tr>
@@ -136,6 +132,24 @@
                                                 @endif
                                             </td>
                                         @endforeach
+
+                                        @php
+                                            $jamiCategorySum = 0.0;
+                                            foreach ($paymentCategories as $categoryName => $categoryValue) {
+                                                $jamiCategorySum += (float)($categoryTotals[$categoryName] ?? 0);
+                                            }
+                                            $jamiQoldiq = (float)$totalAmount - $jamiCategorySum;
+                                            if (abs($jamiQoldiq) < 0.01) {
+                                                $jamiQoldiq = 0.0;
+                                            }
+                                        @endphp
+                                        <td class="border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
+                                            @if($jamiQoldiq > 0)
+                                                <span class="font-semibold text-rose-700">{{ $fmt($jamiQoldiq) }}</span>
+                                            @else
+                                                <span class="text-slate-300">—</span>
+                                            @endif
+                                        </td>
                                     </tr>
 
                                     @foreach($districtData as $district => $values)
@@ -171,6 +185,24 @@
                                                     @endif
                                                 </td>
                                             @endforeach
+
+                                            @php
+                                                $districtCategorySum = 0.0;
+                                                foreach ($paymentCategories as $categoryName => $categoryValue) {
+                                                    $districtCategorySum += (float)($values[$categoryName] ?? 0);
+                                                }
+                                                $districtQoldiq = (float)$districtTotal - $districtCategorySum;
+                                                if (abs($districtQoldiq) < 0.01) {
+                                                    $districtQoldiq = 0.0;
+                                                }
+                                            @endphp
+                                            <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
+                                                @if($districtQoldiq > 0)
+                                                    <span class="font-semibold text-rose-700">{{ $fmt($districtQoldiq) }}</span>
+                                                @else
+                                                    <span class="text-slate-300">—</span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endif

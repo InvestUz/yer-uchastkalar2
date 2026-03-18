@@ -1740,8 +1740,8 @@ public function monitoring(Request $request)
 
             if ($district !== '') {
                 $rows = array_values(array_filter($rows, static function ($row) use ($district) {
-                    if ($district === 'Бошқа') {
-                        return ($row['district_original'] ?? $row['district']) === 'Бошқа';
+                    if ($district === 'Бошқа' || $district === 'Номалум') {
+                        return ($row['district_original'] ?? $row['district']) === $district;
                     }
 
                     return $row['district'] === $district;
@@ -1810,7 +1810,6 @@ public function monitoring(Request $request)
 
         $districtPatterns = $this->getFinXisobotDistrictPatterns();
         $categoryDistrictFallbacks = $this->getFinXisobotCategoryDistrictFallbacks();
-        $canonicalDistricts = $this->getFinXisobotCanonicalDistricts($districtPatterns);
         $lotLookup = $this->buildFinXisobotLotLookup();
 
         $districtData = [];
@@ -1821,7 +1820,6 @@ public function monitoring(Request $request)
         $districtCategoryCounts = [];
         $totalAmount = 0;
         $financialData = [];
-        $unresolvedIndexes = [];
 
         foreach ($records as $record) {
             if (!$this->passesFinXisobotFilters($record, $filters)) {
@@ -1846,7 +1844,6 @@ public function monitoring(Request $request)
 
             $lotMatch = $this->resolveFinXisobotLotForRecord($record, $lotLookup);
 
-            $nextIndex = count($financialData);
             $financialData[] = [
                 'id' => $record->id,
                 'date' => $record->doc_date ? $record->doc_date->format('d.m.Y') : '',
@@ -1862,11 +1859,6 @@ public function monitoring(Request $request)
                 'lot_match_source' => $lotMatch['source'],
             ];
 
-            if ($district === 'Бошқа') {
-                $unresolvedIndexes[] = $nextIndex;
-                continue;
-            }
-
             $this->appendFinXisobotDistrictTotals(
                 $district,
                 $category,
@@ -1875,18 +1867,6 @@ public function monitoring(Request $request)
                 $districtCounts,
                 $districtCategoryCounts,
                 $paymentCategories
-            );
-        }
-
-        if (!empty($unresolvedIndexes)) {
-            $this->distributeUnresolvedFinXisobotRows(
-                $financialData,
-                $unresolvedIndexes,
-                $districtData,
-                $districtCounts,
-                $districtCategoryCounts,
-                $paymentCategories,
-                $canonicalDistricts
             );
         }
 
@@ -1916,7 +1896,7 @@ public function monitoring(Request $request)
         ];
 
         if (!empty($filters['district_restrict'])) {
-            return $this->filterFinXisobotSummaryByDistrict(
+            $summary = $this->filterFinXisobotSummaryByDistrict(
                 $summary,
                 (string)$filters['district_restrict'],
                 $districtPatterns,
@@ -1924,7 +1904,12 @@ public function monitoring(Request $request)
             );
         }
 
-        return $summary;
+        return $this->applyFinXisobotUmumiyTotals(
+            $summary,
+            $filters,
+            $districtPatterns,
+            $paymentCategories
+        );
     }
 
     private function normalizeFinXisobotFilters(Request $request): array
@@ -2147,7 +2132,7 @@ public function monitoring(Request $request)
 
         foreach ($filteredRows as $row) {
             $recipient = (string)($row['recipient'] ?? 'Белгисиз');
-            $district = (string)($row['district'] ?? 'Бошқа');
+            $district = (string)($row['district'] ?? 'Номалум');
             $category = (string)($row['category'] ?? 'Тошкент шахар махаллий бюджетига');
             $amount = (float)($row['amount'] ?? 0);
 
@@ -2200,6 +2185,133 @@ public function monitoring(Request $request)
             'paymentCategories' => $paymentCategories,
             'totalAmount' => $totalAmount,
             'transactionCount' => count($filteredRows),
+        ];
+    }
+
+    private function applyFinXisobotUmumiyTotals(
+        array $summary,
+        array $filters,
+        array $districtPatterns,
+        array $paymentCategories
+    ): array {
+        $receivedTotals = $this->getFinXisobotUmumiyReceivedTotals($filters, $districtPatterns);
+
+        if ($receivedTotals['total'] !== null) {
+            $summary['totalAmount'] = (float)$receivedTotals['total'];
+        }
+
+        foreach ($receivedTotals['district_totals'] as $district => $receivedAmount) {
+            if (!isset($summary['districtData'][$district])) {
+                $summary['districtData'][$district] = array_merge(['Жами' => 0], $paymentCategories);
+            }
+
+            $summary['districtData'][$district]['Жами'] = (float)$receivedAmount;
+
+            if (!isset($summary['districtCounts'][$district])) {
+                $summary['districtCounts'][$district] = 0;
+            }
+
+            if (!isset($summary['districtCategoryCounts'][$district])) {
+                $summary['districtCategoryCounts'][$district] = array_fill_keys(array_keys($paymentCategories), 0);
+            }
+        }
+
+        $activeDistrictData = [];
+        foreach (($summary['districtData'] ?? []) as $district => $values) {
+            $jami = (float)($values['Жами'] ?? 0);
+            $count = (int)($summary['districtCounts'][$district] ?? 0);
+            if ($jami > 0 || $count > 0) {
+                $activeDistrictData[$district] = $values;
+            }
+        }
+
+        uasort($activeDistrictData, static function ($left, $right) {
+            return ((float)($right['Жами'] ?? 0)) <=> ((float)($left['Жами'] ?? 0));
+        });
+
+        $summary['districtData'] = $activeDistrictData;
+        $summary['districts'] = array_keys($activeDistrictData);
+
+        return $summary;
+    }
+
+    private function getFinXisobotUmumiyReceivedTotals(array $filters, array $districtPatterns): array
+    {
+        try {
+            $dateFilters = $this->buildFinXisobotUmumiyDateFilters($filters);
+            $statistics = $this->yerSotuvService->getDetailedStatistics($dateFilters);
+
+            $overallReceived = (float)(
+                (float)($statistics['jami']['biryola_fakt'] ?? 0)
+                + (float)($statistics['jami']['bolib_tushgan_all'] ?? 0)
+            );
+
+            $districtTotals = [];
+            foreach (($statistics['tumanlar'] ?? []) as $tumanData) {
+                $tumanName = trim((string)($tumanData['tuman'] ?? ''));
+                if ($tumanName === '') {
+                    continue;
+                }
+
+                $canonicalDistrict = $this->resolveFinXisobotDistrictRestrictCanonical($tumanName, $districtPatterns);
+                if ($canonicalDistrict === null) {
+                    $canonicalDistrict = 'Номалум';
+                }
+
+                $received = (float)(
+                    (float)($tumanData['biryola_fakt'] ?? 0)
+                    + (float)($tumanData['bolib_tushgan_all'] ?? 0)
+                );
+
+                $districtTotals[$canonicalDistrict] = ($districtTotals[$canonicalDistrict] ?? 0) + $received;
+            }
+
+            return [
+                'total' => $overallReceived,
+                'district_totals' => $districtTotals,
+            ];
+        } catch (\Throwable $e) {
+            \Log::warning('Fin-Xisobot umumiy totals fallback: ' . $e->getMessage());
+
+            return [
+                'total' => null,
+                'district_totals' => [],
+            ];
+        }
+    }
+
+    private function buildFinXisobotUmumiyDateFilters(array $filters): array
+    {
+        $from = '2024-01-01';
+        $to = now()->toDateString();
+
+        if (!empty($filters['date_from']) || !empty($filters['date_to'])) {
+            $from = $filters['date_from'] ?? $from;
+            $to = $filters['date_to'] ?? $to;
+        } elseif (!empty($filters['year']) && !empty($filters['month'])) {
+            $year = (int)$filters['year'];
+            $month = (int)$filters['month'];
+            if ($year >= 2000 && $year <= 2100 && $month >= 1 && $month <= 12) {
+                $start = \Carbon\Carbon::createFromDate($year, $month, 1)->startOfMonth();
+                $end = $start->copy()->endOfMonth();
+                $from = $start->format('Y-m-d');
+                $to = $end->format('Y-m-d');
+            }
+        } elseif (!empty($filters['year'])) {
+            $year = (int)$filters['year'];
+            if ($year >= 2000 && $year <= 2100) {
+                $from = sprintf('%04d-01-01', $year);
+                $to = sprintf('%04d-12-31', $year);
+            }
+        }
+
+        if ($from > $to) {
+            [$from, $to] = [$to, $from];
+        }
+
+        return [
+            'auksion_sana_from' => $from,
+            'auksion_sana_to' => $to,
         ];
     }
 
@@ -2571,7 +2683,7 @@ public function monitoring(Request $request)
             return $categoryDistrictFallbacks[$category];
         }
 
-        return 'Бошқа';
+        return 'Номалум';
     }
 
     private function resolveFinXisobotDistrictRestrictCanonical(string $districtRestrict, array $districtPatterns): ?string

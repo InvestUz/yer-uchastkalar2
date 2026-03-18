@@ -3,15 +3,7 @@
 <?php $__env->startSection('content'); ?>
     <?php
         $fmt = function ($amount) {
-            if ($amount >= 1_000_000_000_000) {
-                return number_format($amount / 1_000_000_000_000, 2, '.', ',') . ' трлн';
-            } elseif ($amount >= 1_000_000_000) {
-                return number_format($amount / 1_000_000_000, 1, '.', ',') . ' млрд';
-            } elseif ($amount >= 1_000_000) {
-                return number_format($amount / 1_000_000, 0, '.', ',') . ' млн';
-            }
-
-            return number_format($amount, 0, '.', ',');
+            return number_format(((float)$amount) / 1_000_000_000, 1, '.', ',') . ' млрд';
         };
 
         $filters = $filters ?? [
@@ -89,25 +81,28 @@
                                         Ҳудудлар
                                     </th>
                                     <th rowspan="2" class="total-amount-col border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="font-size:11px;">
-                                        Жами (сум)
+                                        Жами (млрд сўм)
                                     </th>
                                     <?php $__currentLoopData = $paymentCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <th
                                             class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
                                             style="min-width: 100px; font-size:11px;"
                                             title="<?php echo e($category); ?>"
-                                        >
-                                            <?php echo e(\Illuminate\Support\Str::limit($category, 15, '...')); ?>
+                                        ><?php echo e($category); ?>
 
                                         </th>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <th class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
+                                        style="min-width: 120px; font-size:11px;">
+                                        Қолдиқ (млрд сўм)
+                                    </th>
                                 </tr>
                             </thead>
 
                             <tbody class="bg-white">
                                 <?php if(empty($districtData) || count($districtData) === 0): ?>
                                     <tr>
-                                        <td colspan="<?php echo e(3 + count($paymentCategories)); ?>" class="border border-slate-300 px-4 py-6 text-center text-slate-700">
+                                        <td colspan="<?php echo e(4 + count($paymentCategories)); ?>" class="border border-slate-300 px-4 py-6 text-center text-slate-700">
                                             Маълумотлар топилмади.
                                         </td>
                                     </tr>
@@ -136,6 +131,24 @@
                                                 <?php endif; ?>
                                             </td>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                                        <?php
+                                            $jamiCategorySum = 0.0;
+                                            foreach ($paymentCategories as $categoryName => $categoryValue) {
+                                                $jamiCategorySum += (float)($categoryTotals[$categoryName] ?? 0);
+                                            }
+                                            $jamiQoldiq = (float)$totalAmount - $jamiCategorySum;
+                                            if (abs($jamiQoldiq) < 0.01) {
+                                                $jamiQoldiq = 0.0;
+                                            }
+                                        ?>
+                                        <td class="border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
+                                            <?php if($jamiQoldiq > 0): ?>
+                                                <span class="font-semibold text-rose-700"><?php echo e($fmt($jamiQoldiq)); ?></span>
+                                            <?php else: ?>
+                                                <span class="text-slate-300">—</span>
+                                            <?php endif; ?>
+                                        </td>
                                     </tr>
 
                                     <?php $__currentLoopData = $districtData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district => $values): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -173,6 +186,24 @@
                                                     <?php endif; ?>
                                                 </td>
                                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                                            <?php
+                                                $districtCategorySum = 0.0;
+                                                foreach ($paymentCategories as $categoryName => $categoryValue) {
+                                                    $districtCategorySum += (float)($values[$categoryName] ?? 0);
+                                                }
+                                                $districtQoldiq = (float)$districtTotal - $districtCategorySum;
+                                                if (abs($districtQoldiq) < 0.01) {
+                                                    $districtQoldiq = 0.0;
+                                                }
+                                            ?>
+                                            <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
+                                                <?php if($districtQoldiq > 0): ?>
+                                                    <span class="font-semibold text-rose-700"><?php echo e($fmt($districtQoldiq)); ?></span>
+                                                <?php else: ?>
+                                                    <span class="text-slate-300">—</span>
+                                                <?php endif; ?>
+                                            </td>
                                         </tr>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 <?php endif; ?>
