@@ -14,6 +14,31 @@ $fmt = function($amount) {
     }
     return number_format($amount, 0, '.', ',');
 };
+
+$filters = $filters ?? [
+    'year' => null,
+    'month' => null,
+    'date_from' => null,
+    'date_to' => null,
+];
+$activeFilterParams = $activeFilterParams ?? [];
+$monthOptions = $monthOptions ?? [];
+
+$periodParts = [];
+if (!empty($filters['year'])) {
+    $periodParts[] = 'Йил: ' . $filters['year'];
+}
+if (!empty($filters['month'])) {
+    $monthNo = (int)$filters['month'];
+    $periodParts[] = 'Ой: ' . ($monthOptions[$monthNo] ?? $monthNo);
+}
+if (!empty($filters['date_from'])) {
+    $periodParts[] = 'Санадан: ' . $filters['date_from'];
+}
+if (!empty($filters['date_to'])) {
+    $periodParts[] = 'Санага: ' . $filters['date_to'];
+}
+$activeFilterText = !empty($periodParts) ? implode(' | ', $periodParts) : 'Барча давр';
 ?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
     <div class="max-w-[98%] mx-auto space-y-6">
@@ -28,8 +53,11 @@ $fmt = function($amount) {
                             /
                             <span class="font-semibold"><?php echo e($selectedCategory); ?></span>
                         </p>
+                        <p class="text-xs text-blue-700 mt-1">
+                            Давр фильтри: <span class="font-semibold"><?php echo e($activeFilterText); ?></span>
+                        </p>
                     </div>
-                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot')); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot', $activeFilterParams)); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                         Орқага
                     </a>
                 </div>
@@ -106,4 +134,4 @@ $fmt = function($amount) {
 </div>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/fin-xisobot-details.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views\yer-sotuvlar\fin-xisobot-details.blade.php ENDPATH**/ ?>

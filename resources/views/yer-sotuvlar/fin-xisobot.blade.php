@@ -4,70 +4,81 @@
 
 @section('content')
     @php
-    $fmt = function($amount) {
-        if ($amount >= 1_000_000_000_000) {
-            return number_format($amount / 1_000_000_000_000, 2, '.', ',') . ' трлн';
-        } elseif ($amount >= 1_000_000_000) {
-            return number_format($amount / 1_000_000_000, 1, '.', ',') . ' млрд';
-        } elseif ($amount >= 1_000_000) {
-            return number_format($amount / 1_000_000, 0, '.', ',') . ' млн';
+        $fmt = function ($amount) {
+            if ($amount >= 1_000_000_000_000) {
+                return number_format($amount / 1_000_000_000_000, 2, '.', ',') . ' трлн';
+            } elseif ($amount >= 1_000_000_000) {
+                return number_format($amount / 1_000_000_000, 1, '.', ',') . ' млрд';
+            } elseif ($amount >= 1_000_000) {
+                return number_format($amount / 1_000_000, 0, '.', ',') . ' млн';
+            }
+
+            return number_format($amount, 0, '.', ',');
+        };
+
+        $filters = $filters ?? [
+            'year' => null,
+            'month' => null,
+            'date_from' => null,
+            'date_to' => null,
+        ];
+        $activeFilterParams = $activeFilterParams ?? [];
+        $availableYears = $availableYears ?? [];
+        $monthOptions = $monthOptions ?? [];
+        $districtRestrict = $filters['district_restrict'] ?? null;
+
+        $yearSelectOptions = [];
+        if (!empty($availableYears)) {
+            $minYear = (int)min($availableYears);
+            $maxYear = (int)max($availableYears);
+            if ($minYear <= $maxYear) {
+                $yearSelectOptions = range($maxYear, $minYear);
+            }
         }
-        return number_format($amount, 0, '.', ',');
-    };
 
-    $filters = $filters ?? [
-        'year' => null,
-        'month' => null,
-        'date_from' => null,
-        'date_to' => null,
-    ];
-    $activeFilterParams = $activeFilterParams ?? [];
-    $availableYears = $availableYears ?? [];
-    $monthOptions = $monthOptions ?? [];
-
-    $periodParts = [];
-    if (!empty($filters['year'])) {
-        $periodParts[] = 'Йил: ' . $filters['year'];
-    }
-    if (!empty($filters['month'])) {
-        $monthNo = (int)$filters['month'];
-        $periodParts[] = 'Ой: ' . ($monthOptions[$monthNo] ?? $monthNo);
-    }
-    if (!empty($filters['date_from'])) {
-        $periodParts[] = 'Санадан: ' . $filters['date_from'];
-    }
-    if (!empty($filters['date_to'])) {
-        $periodParts[] = 'Санага: ' . $filters['date_to'];
-    }
-    $hasActiveFilters = !empty($periodParts);
-    $activeFilterText = $hasActiveFilters ? implode(' | ', $periodParts) : 'Барча давр';
+        $periodParts = [];
+        if ($districtRestrict) {
+            $periodParts[] = 'Ҳудуд: ' . $districtRestrict;
+        }
+        if (!empty($filters['year'])) {
+            $periodParts[] = 'Йил: ' . $filters['year'];
+        }
+        if (!empty($filters['month'])) {
+            $monthNo = (int)$filters['month'];
+            $periodParts[] = 'Ой: ' . ($monthOptions[$monthNo] ?? $monthNo);
+        }
+        if (!empty($filters['date_from'])) {
+            $periodParts[] = 'Санадан: ' . $filters['date_from'];
+        }
+        if (!empty($filters['date_to'])) {
+            $periodParts[] = 'Санага: ' . $filters['date_to'];
+        }
+        $hasActiveFilters = !empty($periodParts);
+        $activeFilterText = $hasActiveFilters ? implode(' | ', $periodParts) : 'Барча давр';
     @endphp
-    <!-- Main Content -->
-            <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
+
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
         <div class="max-w-[98%] mx-auto">
-            <!-- Premium Government Header -->
+
             <div class="bg-white rounded-xl shadow-2xl overflow-hidden mb-6 border-t-4 border-blue-600">
                 <div class="bg-white px-8 py-6">
-                    <div class="flex items-center justify-center space-x-4">
-                        <div class="text-center">
-                            <h1 class="text-lg font-bold text-blue tracking-wide mb-1">
-                                Тошкент шаҳрида аукцион савдоларида бўлиб тўлаш шарти билан сотилган ер участкалари
-                                тўғрисида
-                            </h1>
-                            <h2 class="text-base font-semibold text-blue">
-                                ЙИҒМА МАЪЛУМОТ
-                            </h2>
-                            <p class="text-xs text-slate-500 mt-1">
-                                Сумма ёки сони устига босинг: тизим танланган ҳудуд/тоифа бўйича детал рўйхатни очади.
+                    <div class="text-center">
+                        <h1 class="text-lg font-bold text-blue tracking-wide mb-1">
+                            Тошкент шаҳрида аукцион савдоларида бўлиб тўлаш шарти билан сотилган ер участкалари тўғрисида
+                        </h1>
+                        <h2 class="text-base font-semibold text-blue">ЙИҒМА МАЪЛУМОТ</h2>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Сумма ёки сони устига босинг: тизим танланган ҳудуд/тоифа бўйича детал рўйхатни очади.
+                        </p>
+                        <p class="text-xs text-blue-700 mt-1">Амалдаги фильтр: {{ $activeFilterText }}</p>
+                        @if($districtRestrict)
+                            <p class="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-300 rounded px-3 py-1 mt-2 inline-block">
+                                Сиз фақат <strong>{{ $districtRestrict }}</strong> тумани маълумотларини кўряпсиз
                             </p>
-                            <p class="text-xs text-blue-700 mt-1">
-                                Амалдаги фильтр: {{ $activeFilterText }}
-                            </p>
-                        </div>
+                        @endif
                     </div>
                 </div>
 
-                <!-- Statistics Table -->
                 <div class="p-0">
                     <div class="overflow-x-auto">
                         <table class="border-collapse statistics-table">
@@ -82,16 +93,15 @@
                                     <th rowspan="2" class="total-amount-col border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="font-size:11px;">
                                         Жами (сум)
                                     </th>
-
-                          @foreach($paymentCategories as $category => $value)
-    <th
-                                    class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
-                                    style="min-width: 100px; font-size:11px;"
-                                    title="{{ $category }}"
-                                >
-                                    {{ \Illuminate\Support\Str::limit($category, 15, '...') }}
-                                </th>
-                            @endforeach
+                                    @foreach($paymentCategories as $category => $value)
+                                        <th
+                                            class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
+                                            style="min-width: 100px; font-size:11px;"
+                                            title="{{ $category }}"
+                                        >
+                                            {{ \Illuminate\Support\Str::limit($category, 15, '...') }}
+                                        </th>
+                                    @endforeach
                                 </tr>
                             </thead>
 
@@ -169,18 +179,21 @@
                         </table>
                     </div>
                 </div>
+            </div>
 
-            <!-- Premium Filter Section -->
             <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-t-4 border-blue-600">
-
-                <div class="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
-                    <form method="GET" action="{{ route('yer-sotuvlar.fin-xisobot') }}">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
+                <div class="p-5 bg-gradient-to-br from-slate-50 to-blue-50">
+                    <form method="GET" action="{{ route('yer-sotuvlar.fin-xisobot') }}" id="fin-filter-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Йил:</label>
-                                <select name="year" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Йил</label>
+                                <select
+                                    name="year"
+                                    onchange="this.form.submit()"
+                                    class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                >
                                     <option value="">Барча йиллар</option>
-                                    @foreach($availableYears as $yearOption)
+                                    @foreach($yearSelectOptions as $yearOption)
                                         <option value="{{ $yearOption }}" @selected((int)($filters['year'] ?? 0) === (int)$yearOption)>
                                             {{ $yearOption }}
                                         </option>
@@ -189,47 +202,85 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Ой:</label>
-                                <select name="month" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
-                                    <option value="">Барча ойлар</option>
-                                    @foreach($monthOptions as $monthNumber => $monthLabel)
-                                        <option value="{{ $monthNumber }}" @selected((int)($filters['month'] ?? 0) === (int)$monthNumber)>
-                                            {{ $monthLabel }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Ой</label>
+                                @if(!empty($filters['year']))
+                                    <select
+                                        name="month"
+                                        onchange="this.form.submit()"
+                                        class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    >
+                                        <option value="">Барча ойлар</option>
+                                        @foreach($monthOptions as $monthNumber => $monthLabel)
+                                            <option value="{{ $monthNumber }}" @selected((int)($filters['month'] ?? 0) === (int)$monthNumber)>
+                                                {{ $monthLabel }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <div class="w-full px-3 py-2 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-500 bg-white">
+                                        Ой фильтри йил танлангандан кейин чиқади
+                                    </div>
+                                @endif
                             </div>
 
-                            <!-- Date From -->
-                            <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Бошланғич санаси:</label>
-                                <input type="date" name="date_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ $filters['date_from'] ?? '' }}">
-                            </div>
-
-                            <!-- Date To -->
-                            <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Тугаш санаси:</label>
-                                <input type="date" name="date_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="{{ $filters['date_to'] ?? '' }}">
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="flex gap-4 mt-6">
-                                <button type="submit" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                    Қидириш
+                            <div class="flex gap-2">
+                                <button
+                                    type="submit"
+                                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-3 rounded-lg shadow transition-all"
+                                >
+                                    Қўллаш
                                 </button>
-                                <a href="{{ route('yer-sotuvlar.fin-xisobot') }}" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                    </svg>
+                                <a
+                                    href="{{ route('yer-sotuvlar.fin-xisobot') }}"
+                                    class="flex-1 bg-slate-500 hover:bg-slate-600 text-white text-sm font-bold py-2 px-3 rounded-lg shadow transition-all text-center"
+                                >
                                     Тозалаш
                                 </a>
                             </div>
                         </div>
 
+                        <details class="group pt-2" {{ (!empty($filters['date_from']) || !empty($filters['date_to'])) ? 'open' : '' }}>
+                            <summary class="flex items-center gap-2 text-xs font-bold text-slate-500 cursor-pointer select-none hover:text-blue-600 transition-colors list-none">
+                                <svg class="w-3.5 h-3.5 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                                <span class="uppercase tracking-wide">Батафсил фильтр: бошланғич ва тугаш сана</span>
+                                @if(!empty($filters['date_from']) || !empty($filters['date_to']))
+                                    <span class="ml-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-bold">Амалдаги</span>
+                                @endif
+                            </summary>
 
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">Бошланғич сана</label>
+                                    <input
+                                        type="date"
+                                        name="date_from"
+                                        value="{{ $filters['date_from'] ?? '' }}"
+                                        class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">Тугаш сана</label>
+                                    <input
+                                        type="date"
+                                        name="date_to"
+                                        value="{{ $filters['date_to'] ?? '' }}"
+                                        class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    >
+                                </div>
+
+                                <div class="flex items-end">
+                                    <button
+                                        type="submit"
+                                        class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-lg shadow transition-all"
+                                    >
+                                        Сана фильтрини қўллаш
+                                    </button>
+                                </div>
+                            </div>
+                        </details>
                     </form>
                 </div>
             </div>
@@ -237,7 +288,6 @@
     </div>
 
     <style>
-        /* Sticky columns for horizontal scroll */
         .statistics-table {
             --index-col-width: 40px;
             --district-col-width: 150px;
@@ -307,16 +357,11 @@
             white-space: nowrap;
         }
 
-        .statistics-table td {
-            font-size: 11px;
-        }
-
         .statistics-table a:hover {
             background-color: rgba(219, 234, 254, 0.4);
             border-radius: 4px;
         }
 
-        /* Smooth scrollbar */
         .overflow-x-auto::-webkit-scrollbar {
             height: 12px;
         }
@@ -335,9 +380,7 @@
             background: linear-gradient(to right, #475569, #334155);
         }
 
-        /* Print styles */
         @media print {
-
             .sticky-col,
             .sticky-col-2,
             .sticky-col-total {
@@ -349,7 +392,5 @@
             }
         }
     </style>
-
-
 @endsection
 

@@ -1680,6 +1680,10 @@ public function monitoring(Request $request)
     {
         try {
             $filters = $this->normalizeFinXisobotFilters($request);
+            // District users automatically see only their own district
+            if (auth()->check() && auth()->user()->isDistrict() && auth()->user()->tuman) {
+                $filters['district_restrict'] = auth()->user()->tuman;
+            }
             $summary = $this->buildFinXisobotSummary($filters);
 
             return view('yer-sotuvlar.fin-xisobot', array_merge($summary, [
@@ -1723,6 +1727,10 @@ public function monitoring(Request $request)
     {
         try {
             $filters = $this->normalizeFinXisobotFilters($request);
+            // District users automatically see only their own district
+            if (auth()->check() && auth()->user()->isDistrict() && auth()->user()->tuman) {
+                $filters['district_restrict'] = auth()->user()->tuman;
+            }
             $summary = $this->buildFinXisobotSummary($filters);
 
             $district = trim((string)$request->query('district', ''));
@@ -1830,6 +1838,19 @@ public function monitoring(Request $request)
 
             $category = $this->resolveFinXisobotCategory($articleName, $paymentCategories);
             $district = $this->resolveFinXisobotDistrict($record, $category, $districtPatterns, $categoryDistrictFallbacks);
+
+            // Enforce district restriction for district-role users
+            if (!empty($filters['district_restrict'])) {
+                $normalizedRestrict = mb_strtolower(trim($filters['district_restrict']));
+                // Resolve the user's tuman to canonical district name via patterns
+                $canonicalRestrict = $districtPatterns[$normalizedRestrict] ?? null;
+                $districtMatches = $canonicalRestrict !== null
+                    ? $district === $canonicalRestrict
+                    : mb_strtolower($district) === $normalizedRestrict;
+                if (!$districtMatches) {
+                    continue;
+                }
+            }
 
             $totalAmount += $amount;
             $recipientTotals[$recipient] = ($recipientTotals[$recipient] ?? 0) + $amount;
@@ -1948,6 +1969,7 @@ public function monitoring(Request $request)
 
     private function getFinXisobotActiveFilterParams(array $filters): array
     {
+        // district_restrict is derived from auth, never exposed in URLs
         return array_filter([
             'year' => $filters['year'] ?? null,
             'month' => $filters['month'] ?? null,
