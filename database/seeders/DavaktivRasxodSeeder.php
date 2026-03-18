@@ -184,9 +184,47 @@ class DavaktivRasxodSeeder extends Seeder
             return 0;
         }
 
-        // Remove spaces, commas, and convert to float
-        $amount = (string)$amountStr;
-        $amount = str_replace([' ', ','], '', $amount);
+        $amount = trim((string)$amountStr);
+        if ($amount === '') {
+            return 0;
+        }
+
+        // Normalize regular and non-breaking spaces used as thousand separators.
+        $amount = str_replace(["\xC2\xA0", "\xE2\x80\xAF", ' '], '', $amount);
+        $amount = preg_replace('/[^0-9,\.\-]/u', '', $amount) ?? '';
+
+        if ($amount === '' || $amount === '-' || $amount === ',' || $amount === '.') {
+            return 0;
+        }
+
+        $lastCommaPos = strrpos($amount, ',');
+        $lastDotPos = strrpos($amount, '.');
+
+        if ($lastCommaPos !== false && $lastDotPos !== false) {
+            if ($lastCommaPos > $lastDotPos) {
+                // Example: 1.234.567,89
+                $amount = str_replace('.', '', $amount);
+                $amount = str_replace(',', '.', $amount);
+            } else {
+                // Example: 1,234,567.89
+                $amount = str_replace(',', '', $amount);
+            }
+        } elseif ($lastCommaPos !== false) {
+            $fractionLength = strlen($amount) - $lastCommaPos - 1;
+            if ($fractionLength <= 2) {
+                // Example: 14549588074,80
+                $amount = str_replace(',', '.', $amount);
+            } else {
+                // Example: 1,234,567
+                $amount = str_replace(',', '', $amount);
+            }
+        } elseif ($lastDotPos !== false) {
+            $fractionLength = strlen($amount) - $lastDotPos - 1;
+            if ($fractionLength > 2) {
+                // Example: 1.234.567
+                $amount = str_replace('.', '', $amount);
+            }
+        }
 
         return (float)$amount;
     }
@@ -361,7 +399,7 @@ class DavaktivRasxodSeeder extends Seeder
         }
 
         // 5) Try exact amount match by date first, then amount only
-        $amountCents = (int)round($amount);
+        $amountCents = (int)round($amount * 100);
         if ($amountCents > 0) {
             if ($docDate !== null) {
                 $amountDateKey = $docDate . '|' . $amountCents;
