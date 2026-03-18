@@ -78,7 +78,9 @@ class DavaktivRasxodSeeder extends Seeder
 
                 // Set headers from first row
                 if ($rowNum === 1) {
-                    $headers = array_map('trim', $row);
+                    $headers = array_map(function ($header) {
+                        return $this->normalizeCsvHeader((string)$header);
+                    }, $row);
                     continue;
                 }
 
@@ -93,14 +95,30 @@ class DavaktivRasxodSeeder extends Seeder
                     $record[$header] = isset($row[$idx]) ? trim($row[$idx]) : null;
                 }
 
-                // Parse data
-                $amount = $this->parseAmount($record['Сумма'] ?? 0);
+                // Parse data (fallback to fixed column indexes if header keys are inconsistent)
+                $docDateRaw = $record['Дата документа'] ?? ($row[0] ?? null);
+                $monthRaw = $record['месяц'] ?? ($row[1] ?? null);
+                $docNumberRaw = $record['№ документа'] ?? ($row[2] ?? null);
+                $recipientRaw = $record['Наименование получателя'] ?? ($row[3] ?? null);
+                $articleRaw = $record['Статья'] ?? ($row[4] ?? null);
+                $accountRaw = $record['Счет получателя'] ?? ($row[5] ?? null);
+                $bankCodeRaw = $record['Код банка получателя'] ?? ($row[6] ?? null);
+                $amountRaw = $record['Сумма'] ?? ($row[7] ?? 0);
+                $detailsRaw = $record['Детали документа'] ?? ($row[8] ?? null);
+                $byArticlesRaw = $record['По статьям'] ?? ($row[9] ?? null);
+
+                $amount = $this->parseAmount($amountRaw);
 
                 if ($amount > 0) {
-                    $docDate = $this->parseDocDate($record['Дата документа'] ?? null);
-                    $docNumber = $record['№ документа'] ?? null;
-                    $article = $record['Статья'] ?? null;
-                    $details = $record['Детали документа'] ?? null;
+                    $docDate = $this->parseDocDate($docDateRaw);
+                    $docNumber = $docNumberRaw !== null ? trim((string)$docNumberRaw) : null;
+                    $article = $articleRaw !== null ? trim((string)$articleRaw) : null;
+                    $details = $detailsRaw !== null ? trim((string)$detailsRaw) : null;
+                    $month = $monthRaw !== null ? trim((string)$monthRaw) : null;
+                    $recipient = $recipientRaw !== null ? trim((string)$recipientRaw) : null;
+                    $accountNumber = $accountRaw !== null ? trim((string)$accountRaw) : null;
+                    $bankCode = $bankCodeRaw !== null ? trim((string)$bankCodeRaw) : null;
+                    $byArticles = $byArticlesRaw !== null ? trim((string)$byArticlesRaw) : null;
 
                     // 1) Text/category detection
                     $district = $this->detectDistrict($details, $article);
@@ -132,15 +150,15 @@ class DavaktivRasxodSeeder extends Seeder
 
                     $batchData[] = [
                         'doc_date' => $docDate,
-                        'month' => $record['месяц'] ?? null,
+                        'month' => $month,
                         'doc_number' => $docNumber,
-                        'recipient_name' => $record['Наименование получателя'] ?? null,
+                        'recipient_name' => $recipient,
                         'article' => $article,
-                        'account_number' => $record['Счет получателя'] ?? null,
-                        'bank_code' => $record['Код банка получателя'] ?? null,
+                        'account_number' => $accountNumber,
+                        'bank_code' => $bankCode,
                         'amount' => $amount,
                         'details' => $details,
-                        'by_articles' => $record['По статьям'] ?? null,
+                        'by_articles' => $byArticles,
                         'district' => $district,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -235,11 +253,33 @@ class DavaktivRasxodSeeder extends Seeder
             return null;
         }
 
-        try {
-            return Carbon::createFromFormat('d.m.Y', $date)->format('Y-m-d');
-        } catch (\Exception $e) {
+        $rawDate = trim((string)$date);
+        if ($rawDate === '') {
             return null;
         }
+
+        $formats = ['d.m.Y', 'd,m,Y', 'Y-m-d'];
+        try {
+            foreach ($formats as $format) {
+                try {
+                    return Carbon::createFromFormat($format, $rawDate)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // Try next format.
+                }
+            }
+        } catch (\Exception $e) {
+            // Keep null when parsing fails.
+        }
+
+        return null;
+    }
+
+    private function normalizeCsvHeader(string $header): string
+    {
+        $header = preg_replace('/^\xEF\xBB\xBF/u', '', $header) ?? $header;
+        $header = str_replace(["\xC2\xA0", "\xE2\x80\xAF"], ' ', $header);
+
+        return trim($header);
     }
 
     private function detectDistrict(?string $details, ?string $article): ?string

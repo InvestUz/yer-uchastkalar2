@@ -1679,7 +1679,15 @@ public function monitoring(Request $request)
     public function finXisobot(Request $request)
     {
         try {
-            return view('yer-sotuvlar.fin-xisobot', $this->buildFinXisobotSummary());
+            $filters = $this->normalizeFinXisobotFilters($request);
+            $summary = $this->buildFinXisobotSummary($filters);
+
+            return view('yer-sotuvlar.fin-xisobot', array_merge($summary, [
+                'filters' => $filters,
+                'activeFilterParams' => $this->getFinXisobotActiveFilterParams($filters),
+                'availableYears' => $this->getFinXisobotAvailableYears(),
+                'monthOptions' => $this->getFinXisobotMonthOptions(),
+            ]));
         } catch (\Exception $e) {
             \Log::error('Error reading financial data: ' . $e->getMessage());
             return view('yer-sotuvlar.fin-xisobot', [
@@ -1694,6 +1702,15 @@ public function monitoring(Request $request)
                 'paymentCategories' => [],
                 'totalAmount' => 0,
                 'transactionCount' => 0,
+                'filters' => [
+                    'year' => null,
+                    'month' => null,
+                    'date_from' => null,
+                    'date_to' => null,
+                ],
+                'activeFilterParams' => [],
+                'availableYears' => $this->getFinXisobotAvailableYears(),
+                'monthOptions' => $this->getFinXisobotMonthOptions(),
                 'error' => 'Маълумотларни ўқишда хато: ' . $e->getMessage()
             ]);
         }
@@ -1705,7 +1722,8 @@ public function monitoring(Request $request)
     public function finXisobotDetails(Request $request)
     {
         try {
-            $summary = $this->buildFinXisobotSummary();
+            $filters = $this->normalizeFinXisobotFilters($request);
+            $summary = $this->buildFinXisobotSummary($filters);
 
             $district = trim((string)$request->query('district', ''));
             $category = trim((string)$request->query('category', ''));
@@ -1745,6 +1763,9 @@ public function monitoring(Request $request)
                 'selectedCategory' => $category !== '' ? $category : 'Барча тоифалар',
                 'recordCount' => count($rows),
                 'totalAmount' => $detailTotal,
+                'filters' => $filters,
+                'activeFilterParams' => $this->getFinXisobotActiveFilterParams($filters),
+                'monthOptions' => $this->getFinXisobotMonthOptions(),
             ]);
         } catch (\Exception $e) {
             \Log::error('Error reading fin-xisobot details: ' . $e->getMessage());
@@ -1757,7 +1778,7 @@ public function monitoring(Request $request)
      * Build summary data for Fin-Xisobot and keep one source of truth
      * for category and district classification.
      */
-    private function buildFinXisobotSummary(): array
+    private function buildFinXisobotSummary(array $filters = []): array
     {
         $records = DavaktivRasxod::all();
 
@@ -1795,6 +1816,10 @@ public function monitoring(Request $request)
         $unresolvedIndexes = [];
 
         foreach ($records as $record) {
+            if (!$this->passesFinXisobotFilters($record, $filters)) {
+                continue;
+            }
+
             $recipient = $record->recipient_name ?? 'Белгисиз';
             $articleName = $record->article ?? 'Тошкент шахар махаллий бюджетига';
             $amount = (float)($record->amount ?? 0);
@@ -1881,6 +1906,156 @@ public function monitoring(Request $request)
             'totalAmount' => $totalAmount,
             'transactionCount' => count($financialData),
         ];
+    }
+
+    private function normalizeFinXisobotFilters(Request $request): array
+    {
+        $yearInput = trim((string)$request->query('year', ''));
+        $monthInput = trim((string)$request->query('month', ''));
+        $dateFromInput = trim((string)$request->query('date_from', ''));
+        $dateToInput = trim((string)$request->query('date_to', ''));
+
+        $year = null;
+        if ($yearInput !== '' && ctype_digit($yearInput)) {
+            $parsedYear = (int)$yearInput;
+            if ($parsedYear >= 2000 && $parsedYear <= 2100) {
+                $year = $parsedYear;
+            }
+        }
+
+        $month = null;
+        if ($monthInput !== '' && ctype_digit($monthInput)) {
+            $parsedMonth = (int)$monthInput;
+            if ($parsedMonth >= 1 && $parsedMonth <= 12) {
+                $month = $parsedMonth;
+            }
+        }
+
+        $dateFrom = preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFromInput) ? $dateFromInput : null;
+        $dateTo = preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateToInput) ? $dateToInput : null;
+
+        if ($dateFrom !== null && $dateTo !== null && $dateFrom > $dateTo) {
+            [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
+        }
+
+        return [
+            'year' => $year,
+            'month' => $month,
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+        ];
+    }
+
+    private function getFinXisobotActiveFilterParams(array $filters): array
+    {
+        return array_filter([
+            'year' => $filters['year'] ?? null,
+            'month' => $filters['month'] ?? null,
+            'date_from' => $filters['date_from'] ?? null,
+            'date_to' => $filters['date_to'] ?? null,
+        ], static function ($value) {
+            return $value !== null && $value !== '';
+        });
+    }
+
+    private function getFinXisobotAvailableYears(): array
+    {
+        $years = [];
+
+        DavaktivRasxod::query()
+            ->select(['doc_date', 'month'])
+            ->chunk(1000, function ($rows) use (&$years) {
+                foreach ($rows as $row) {
+                    $effectiveDate = $this->getFinXisobotRecordDate($row);
+                    if ($effectiveDate !== null) {
+                        $years[(int)$effectiveDate->year] = true;
+                    }
+                }
+            });
+
+        $availableYears = array_map('intval', array_keys($years));
+        rsort($availableYears, SORT_NUMERIC);
+
+        return array_values($availableYears);
+    }
+
+    private function getFinXisobotMonthOptions(): array
+    {
+        return [
+            1 => 'Январ',
+            2 => 'Феврал',
+            3 => 'Март',
+            4 => 'Апрел',
+            5 => 'Май',
+            6 => 'Июн',
+            7 => 'Июл',
+            8 => 'Август',
+            9 => 'Сентябр',
+            10 => 'Октябр',
+            11 => 'Ноябр',
+            12 => 'Декабр',
+        ];
+    }
+
+    private function getFinXisobotRecordDate(DavaktivRasxod $record): ?\Carbon\Carbon
+    {
+        if ($record->doc_date) {
+            return $record->doc_date instanceof \Carbon\Carbon
+                ? $record->doc_date->copy()->startOfDay()
+                : \Carbon\Carbon::parse($record->doc_date)->startOfDay();
+        }
+
+        $monthValue = trim((string)($record->month ?? ''));
+        if ($monthValue === '') {
+            return null;
+        }
+
+        foreach (['d.m.Y', 'd,m,Y', 'Y-m-d'] as $format) {
+            try {
+                return \Carbon\Carbon::createFromFormat($format, $monthValue)->startOfDay();
+            } catch (\Exception $e) {
+                // Try next format.
+            }
+        }
+
+        try {
+            return \Carbon\Carbon::parse($monthValue)->startOfDay();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function passesFinXisobotFilters(DavaktivRasxod $record, array $filters): bool
+    {
+        $effectiveDate = $this->getFinXisobotRecordDate($record);
+
+        if (!empty($filters['year'])) {
+            if ($effectiveDate === null || (int)$effectiveDate->year !== (int)$filters['year']) {
+                return false;
+            }
+        }
+
+        if (!empty($filters['month'])) {
+            if ($effectiveDate === null || (int)$effectiveDate->month !== (int)$filters['month']) {
+                return false;
+            }
+        }
+
+        if (!empty($filters['date_from'])) {
+            $fromDate = \Carbon\Carbon::createFromFormat('Y-m-d', $filters['date_from'])->startOfDay();
+            if ($effectiveDate === null || $effectiveDate->lt($fromDate)) {
+                return false;
+            }
+        }
+
+        if (!empty($filters['date_to'])) {
+            $toDate = \Carbon\Carbon::createFromFormat('Y-m-d', $filters['date_to'])->endOfDay();
+            if ($effectiveDate === null || $effectiveDate->gt($toDate)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function getFinXisobotCanonicalDistricts(array $districtPatterns): array
@@ -2159,7 +2334,7 @@ public function monitoring(Request $request)
         }
 
         // 5) Exact amount (and date when available)
-        $amountCents = (int)round((float)($record->amount ?? 0));
+        $amountCents = (int)round(((float)($record->amount ?? 0)) * 100);
         if ($amountCents > 0) {
             if ($record->doc_date) {
                 $amountDateKey = $record->doc_date->format('Y-m-d') . '|' . $amountCents;

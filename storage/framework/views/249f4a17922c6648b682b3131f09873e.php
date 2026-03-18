@@ -12,6 +12,33 @@
         }
         return number_format($amount, 0, '.', ',');
     };
+
+    $filters = $filters ?? [
+        'year' => null,
+        'month' => null,
+        'date_from' => null,
+        'date_to' => null,
+    ];
+    $activeFilterParams = $activeFilterParams ?? [];
+    $availableYears = $availableYears ?? [];
+    $monthOptions = $monthOptions ?? [];
+
+    $periodParts = [];
+    if (!empty($filters['year'])) {
+        $periodParts[] = 'Йил: ' . $filters['year'];
+    }
+    if (!empty($filters['month'])) {
+        $monthNo = (int)$filters['month'];
+        $periodParts[] = 'Ой: ' . ($monthOptions[$monthNo] ?? $monthNo);
+    }
+    if (!empty($filters['date_from'])) {
+        $periodParts[] = 'Санадан: ' . $filters['date_from'];
+    }
+    if (!empty($filters['date_to'])) {
+        $periodParts[] = 'Санага: ' . $filters['date_to'];
+    }
+    $hasActiveFilters = !empty($periodParts);
+    $activeFilterText = $hasActiveFilters ? implode(' | ', $periodParts) : 'Барча давр';
     ?>
     <!-- Main Content -->
             <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
@@ -30,6 +57,10 @@
                             </h2>
                             <p class="text-xs text-slate-500 mt-1">
                                 Сумма ёки сони устига босинг: тизим танланган ҳудуд/тоифа бўйича детал рўйхатни очади.
+                            </p>
+                            <p class="text-xs text-blue-700 mt-1">
+                                Амалдаги фильтр: <?php echo e($activeFilterText); ?>
+
                             </p>
                         </div>
                     </div>
@@ -51,12 +82,16 @@
                                         Жами (сум)
                                     </th>
 
-                                    <?php $__currentLoopData = $paymentCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <th class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="min-width: 100px; font-size:11px;">
-                                            <?php echo e($category); ?>
+                          <?php $__currentLoopData = $paymentCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <th
+                                    class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
+                                    style="min-width: 100px; font-size:11px;"
+                                    title="<?php echo e($category); ?>"
+                                >
+                                    <?php echo e(\Illuminate\Support\Str::limit($category, 15, '...')); ?>
 
-                                        </th>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </th>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tr>
                             </thead>
 
@@ -73,7 +108,7 @@
                                             ЖАМИ:
                                         </td>
                                         <td class="total-amount-col border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
-                                            <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details')); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline">
+                                            <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', $activeFilterParams)); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline">
                                                 <span class="font-semibold"><?php echo e($fmt($totalAmount)); ?></span><br>
                                                 <span class="text-slate-400"><?php echo e($transactionCount ?? 0); ?> та</span>
                                             </a>
@@ -83,7 +118,7 @@
                                             <td class="border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
                                                 <?php $catTotal = $categoryTotals[$category] ?? 0; ?>
                                                 <?php if($catTotal > 0): ?>
-                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', ['category' => $category])); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
+                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $category]))); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
                                                         <span class="font-semibold"><?php echo e($fmt($catTotal)); ?></span><br>
                                                         <span class="text-slate-400"><?php echo e($categoryCounts[$category] ?? 0); ?> та</span>
                                                     </a>
@@ -107,7 +142,7 @@
                                             <td class="total-amount-col border border-slate-300 px-2 py-1 text-right text-slate-700">
                                                 <?php $districtTotal = $values['Жами'] ?? 0; ?>
                                                 <?php if($districtTotal > 0): ?>
-                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', ['district' => $district])); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
+                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district]))); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
                                                         <span class="font-semibold"><?php echo e($fmt($districtTotal)); ?></span><br>
                                                         <span class="text-slate-400"><?php echo e($districtCounts[$district] ?? 0); ?> та</span>
                                                     </a>
@@ -120,7 +155,7 @@
                                                 <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
                                                     <?php $cellAmount = $values[$category] ?? 0; ?>
                                                     <?php if($cellAmount > 0): ?>
-                                                        <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', ['district' => $district, 'category' => $category])); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
+                                                        <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district, 'category' => $category]))); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
                                                             <span class="font-semibold"><?php echo e($fmt($cellAmount)); ?></span><br>
                                                             <span class="text-slate-400"><?php echo e($districtCategoryCounts[$district][$category] ?? 0); ?> та</span>
                                                         </a>
@@ -141,20 +176,44 @@
             <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-t-4 border-blue-600">
 
                 <div class="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
-                    <form method="GET" action="http://127.0.0.1:8000/svod3">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <form method="GET" action="<?php echo e(route('yer-sotuvlar.fin-xisobot')); ?>">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Йил:</label>
+                                <select name="year" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                                    <option value="">Барча йиллар</option>
+                                    <?php $__currentLoopData = $availableYears; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $yearOption): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($yearOption); ?>" <?php if((int)($filters['year'] ?? 0) === (int)$yearOption): echo 'selected'; endif; ?>>
+                                            <?php echo e($yearOption); ?>
 
+                                        </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Ой:</label>
+                                <select name="month" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                                    <option value="">Барча ойлар</option>
+                                    <?php $__currentLoopData = $monthOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $monthNumber => $monthLabel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($monthNumber); ?>" <?php if((int)($filters['month'] ?? 0) === (int)$monthNumber): echo 'selected'; endif; ?>>
+                                            <?php echo e($monthLabel); ?>
+
+                                        </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </div>
 
                             <!-- Date From -->
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Бошланғич санаси:</label>
-                                <input type="date" name="auksion_sana_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="">
+                                <input type="date" name="date_from" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="<?php echo e($filters['date_from'] ?? ''); ?>">
                             </div>
 
                             <!-- Date To -->
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Тугаш санаси:</label>
-                                <input type="date" name="auksion_sana_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="">
+                                <input type="date" name="date_to" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" value="<?php echo e($filters['date_to'] ?? ''); ?>">
                             </div>
 
                             <!-- Action Buttons -->
@@ -165,7 +224,7 @@
                                     </svg>
                                     Қидириш
                                 </button>
-                                <a href="http://127.0.0.1:8000/umumiy" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
+                                <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot')); ?>" class="flex-1 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                     </svg>
