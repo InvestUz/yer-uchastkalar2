@@ -41,6 +41,7 @@
         $availableYears = $availableYears ?? [];
         $monthOptions = $monthOptions ?? [];
         $districtRestrict = $filters['district_restrict'] ?? null;
+        $proportionalCategoryLookup = $proportionalCategoryLookup ?? [];
 
         $yearSelectOptions = [];
         if (!empty($availableYears)) {
@@ -144,12 +145,22 @@
 
                                         @foreach($paymentCategories as $category => $value)
                                             <td class="border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
-                                                @php $catTotal = $categoryTotals[$category] ?? 0; @endphp
+                                                @php
+                                                    $catTotal = $categoryTotals[$category] ?? 0;
+                                                    $isSyntheticTotalCell = !empty($districtRestrict) && !empty($proportionalCategoryLookup[$category]);
+                                                @endphp
                                                 @if($catTotal > 0)
-                                                    <a href="{{ route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $category])) }}" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
-                                                        <span class="font-semibold">{{ $fmt($catTotal) }}</span><br>
-                                                        <span class="text-slate-400">{{ $categoryCounts[$category] ?? 0 }} та</span>
-                                                    </a>
+                                                    @if($isSyntheticTotalCell)
+                                                        <span class="block text-right text-slate-700" title="Пропорция бўйича ҳисобланган">
+                                                            <span class="font-semibold">{{ $fmt($catTotal) }}</span><br>
+                                                            <span class="text-slate-400">{{ $categoryCounts[$category] ?? 0 }} та</span>
+                                                        </span>
+                                                    @else
+                                                        <a href="{{ route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $category])) }}" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
+                                                            <span class="font-semibold">{{ $fmt($catTotal) }}</span><br>
+                                                            <span class="text-slate-400">{{ $categoryCounts[$category] ?? 0 }} та</span>
+                                                        </a>
+                                                    @endif
                                                 @else
                                                     <span class="text-slate-300">—</span>
                                                 @endif
@@ -197,12 +208,22 @@
 
                                             @foreach($paymentCategories as $category => $value)
                                                 <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
-                                                    @php $cellAmount = $values[$category] ?? 0; @endphp
+                                                    @php
+                                                        $cellAmount = $values[$category] ?? 0;
+                                                        $isSyntheticDistrictCell = !empty($proportionalCategoryLookup[$category]);
+                                                    @endphp
                                                     @if($cellAmount > 0)
-                                                        <a href="{{ route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district, 'category' => $category])) }}" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
-                                                            <span class="font-semibold">{{ $fmt($cellAmount) }}</span><br>
-                                                            <span class="text-slate-400">{{ $districtCategoryCounts[$district][$category] ?? 0 }} та</span>
-                                                        </a>
+                                                        @if($isSyntheticDistrictCell)
+                                                            <span class="block text-right text-slate-700" title="Пропорция бўйича ҳисобланган">
+                                                                <span class="font-semibold">{{ $fmt($cellAmount) }}</span><br>
+                                                                <span class="text-slate-400">{{ $districtCategoryCounts[$district][$category] ?? 0 }} та</span>
+                                                            </span>
+                                                        @else
+                                                            <a href="{{ route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district, 'category' => $category])) }}" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
+                                                                <span class="font-semibold">{{ $fmt($cellAmount) }}</span><br>
+                                                                <span class="text-slate-400">{{ $districtCategoryCounts[$district][$category] ?? 0 }} та</span>
+                                                            </a>
+                                                        @endif
                                                     @else
                                                         <span class="text-slate-300">—</span>
                                                     @endif

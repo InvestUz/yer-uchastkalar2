@@ -39,6 +39,7 @@
         $availableYears = $availableYears ?? [];
         $monthOptions = $monthOptions ?? [];
         $districtRestrict = $filters['district_restrict'] ?? null;
+        $proportionalCategoryLookup = $proportionalCategoryLookup ?? [];
 
         $yearSelectOptions = [];
         if (!empty($availableYears)) {
@@ -147,12 +148,22 @@
 
                                         <?php $__currentLoopData = $paymentCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <td class="border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
-                                                <?php $catTotal = $categoryTotals[$category] ?? 0; ?>
+                                                <?php
+                                                    $catTotal = $categoryTotals[$category] ?? 0;
+                                                    $isSyntheticTotalCell = !empty($districtRestrict) && !empty($proportionalCategoryLookup[$category]);
+                                                ?>
                                                 <?php if($catTotal > 0): ?>
-                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $category]))); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
-                                                        <span class="font-semibold"><?php echo e($fmt($catTotal)); ?></span><br>
-                                                        <span class="text-slate-400"><?php echo e($categoryCounts[$category] ?? 0); ?> та</span>
-                                                    </a>
+                                                    <?php if($isSyntheticTotalCell): ?>
+                                                        <span class="block text-right text-slate-700" title="Пропорция бўйича ҳисобланган">
+                                                            <span class="font-semibold"><?php echo e($fmt($catTotal)); ?></span><br>
+                                                            <span class="text-slate-400"><?php echo e($categoryCounts[$category] ?? 0); ?> та</span>
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $category]))); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
+                                                            <span class="font-semibold"><?php echo e($fmt($catTotal)); ?></span><br>
+                                                            <span class="text-slate-400"><?php echo e($categoryCounts[$category] ?? 0); ?> та</span>
+                                                        </a>
+                                                    <?php endif; ?>
                                                 <?php else: ?>
                                                     <span class="text-slate-300">—</span>
                                                 <?php endif; ?>
@@ -202,12 +213,22 @@
 
                                             <?php $__currentLoopData = $paymentCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
-                                                    <?php $cellAmount = $values[$category] ?? 0; ?>
+                                                    <?php
+                                                        $cellAmount = $values[$category] ?? 0;
+                                                        $isSyntheticDistrictCell = !empty($proportionalCategoryLookup[$category]);
+                                                    ?>
                                                     <?php if($cellAmount > 0): ?>
-                                                        <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district, 'category' => $category]))); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
-                                                            <span class="font-semibold"><?php echo e($fmt($cellAmount)); ?></span><br>
-                                                            <span class="text-slate-400"><?php echo e($districtCategoryCounts[$district][$category] ?? 0); ?> та</span>
-                                                        </a>
+                                                        <?php if($isSyntheticDistrictCell): ?>
+                                                            <span class="block text-right text-slate-700" title="Пропорция бўйича ҳисобланган">
+                                                                <span class="font-semibold"><?php echo e($fmt($cellAmount)); ?></span><br>
+                                                                <span class="text-slate-400"><?php echo e($districtCategoryCounts[$district][$category] ?? 0); ?> та</span>
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district, 'category' => $category]))); ?>" class="block text-blue-700 hover:text-blue-900 hover:underline text-right">
+                                                                <span class="font-semibold"><?php echo e($fmt($cellAmount)); ?></span><br>
+                                                                <span class="text-slate-400"><?php echo e($districtCategoryCounts[$district][$category] ?? 0); ?> та</span>
+                                                            </a>
+                                                        <?php endif; ?>
                                                     <?php else: ?>
                                                         <span class="text-slate-300">—</span>
                                                     <?php endif; ?>

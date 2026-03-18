@@ -1788,9 +1788,14 @@ public function monitoring(Request $request)
      */
     private function buildFinXisobotSummary(array $filters = []): array
     {
+        $summaryFilters = $filters;
+        $districtRestrict = trim((string)($summaryFilters['district_restrict'] ?? ''));
+        unset($summaryFilters['district_restrict']);
+
         $records = DavaktivRasxod::all();
 
         $paymentCategories = $this->getFinXisobotPaymentCategories();
+        $proportionalCategoryLookup = $this->getFinXisobotProportionalCategoryLookup();
 
         if ($records->isEmpty()) {
             return [
@@ -1803,6 +1808,7 @@ public function monitoring(Request $request)
                 'districtCounts' => [],
                 'districtCategoryCounts' => [],
                 'paymentCategories' => $paymentCategories,
+                'proportionalCategoryLookup' => $proportionalCategoryLookup,
                 'totalAmount' => 0,
                 'transactionCount' => 0,
             ];
@@ -1822,7 +1828,7 @@ public function monitoring(Request $request)
         $financialData = [];
 
         foreach ($records as $record) {
-            if (!$this->passesFinXisobotFilters($record, $filters)) {
+            if (!$this->passesFinXisobotFilters($record, $summaryFilters)) {
                 continue;
             }
 
@@ -1891,25 +1897,30 @@ public function monitoring(Request $request)
             'districtCounts' => $districtCounts,
             'districtCategoryCounts' => $districtCategoryCounts,
             'paymentCategories' => $paymentCategories,
+            'proportionalCategoryLookup' => $proportionalCategoryLookup,
             'totalAmount' => $totalAmount,
             'transactionCount' => count($financialData),
         ];
 
-        if (!empty($filters['district_restrict'])) {
+        $summary = $this->applyFinXisobotUmumiyTotals(
+            $summary,
+            $summaryFilters,
+            $districtPatterns,
+            $paymentCategories
+        );
+
+        $summary = $this->applyFinXisobotProportionalCategoryDistribution($summary, $paymentCategories);
+
+        if ($districtRestrict !== '') {
             $summary = $this->filterFinXisobotSummaryByDistrict(
                 $summary,
-                (string)$filters['district_restrict'],
+                $districtRestrict,
                 $districtPatterns,
                 $paymentCategories
             );
         }
 
-        return $this->applyFinXisobotUmumiyTotals(
-            $summary,
-            $filters,
-            $districtPatterns,
-            $paymentCategories
-        );
+        return $summary;
     }
 
     private function normalizeFinXisobotFilters(Request $request): array
@@ -2122,69 +2133,65 @@ public function monitoring(Request $request)
             }
         ));
 
-        $districtData = [];
         $recipientTotals = [];
-        $categoryTotals = $paymentCategories;
-        $categoryCounts = array_fill_keys(array_keys($paymentCategories), 0);
-        $districtCounts = [];
-        $districtCategoryCounts = [];
-        $totalAmount = 0.0;
 
         foreach ($filteredRows as $row) {
             $recipient = (string)($row['recipient'] ?? 'Белгисиз');
-            $district = (string)($row['district'] ?? 'Номалум');
-            $category = (string)($row['category'] ?? 'Тошкент шахар махаллий бюджетига');
             $amount = (float)($row['amount'] ?? 0);
-
-            if ($amount <= 0) {
-                continue;
-            }
-
-            $totalAmount += $amount;
             $recipientTotals[$recipient] = ($recipientTotals[$recipient] ?? 0) + $amount;
-
-            if (!array_key_exists($category, $categoryTotals)) {
-                $categoryTotals[$category] = 0;
-                $categoryCounts[$category] = 0;
-            }
-
-            $categoryTotals[$category] += $amount;
-            $categoryCounts[$category] = ($categoryCounts[$category] ?? 0) + 1;
-
-            $this->appendFinXisobotDistrictTotals(
-                $district,
-                $category,
-                $amount,
-                $districtData,
-                $districtCounts,
-                $districtCategoryCounts,
-                $paymentCategories
-            );
         }
 
-        $activeDistrictData = [];
-        foreach ($districtData as $district => $data) {
-            if (($data['Жами'] ?? 0) > 0) {
-                $activeDistrictData[$district] = $data;
+        $matchedDistrict = null;
+        foreach (array_keys($summary['districtData'] ?? []) as $districtName) {
+            if ($canonicalRestrict !== null && $districtName === $canonicalRestrict) {
+                $matchedDistrict = $districtName;
+                break;
+            }
+
+            if ($normalizedRestrict !== '' && $this->normalizeFinXisobotDistrictKey($districtName) === $normalizedRestrict) {
+                $matchedDistrict = $districtName;
+                break;
             }
         }
 
-        uasort($activeDistrictData, static function ($left, $right) {
-            return ($right['Жами'] ?? 0) <=> ($left['Жами'] ?? 0);
-        });
+        $categoryTotals = $paymentCategories;
+        $categoryCounts = array_fill_keys(array_keys($paymentCategories), 0);
+        $districtData = [];
+        $districtCounts = [];
+        $districtCategoryCounts = [];
+        $totalAmount = 0.0;
+        $transactionCount = 0;
+
+        if ($matchedDistrict !== null) {
+            $districtRow = $summary['districtData'][$matchedDistrict] ?? array_merge(['Жами' => 0], $paymentCategories);
+            $districtCount = (int)($summary['districtCounts'][$matchedDistrict] ?? count($filteredRows));
+            $districtCategoryRow = $summary['districtCategoryCounts'][$matchedDistrict] ?? array_fill_keys(array_keys($paymentCategories), 0);
+
+            foreach ($paymentCategories as $category => $value) {
+                $categoryTotals[$category] = (float)($districtRow[$category] ?? 0);
+                $categoryCounts[$category] = (int)($districtCategoryRow[$category] ?? 0);
+            }
+
+            $districtData[$matchedDistrict] = $districtRow;
+            $districtCounts[$matchedDistrict] = $districtCount;
+            $districtCategoryCounts[$matchedDistrict] = $districtCategoryRow;
+            $totalAmount = (float)($districtRow['Жами'] ?? 0);
+            $transactionCount = $districtCount;
+        }
 
         return [
             'financialData' => $filteredRows,
             'recipients' => $recipientTotals,
-            'districts' => array_keys($activeDistrictData),
-            'districtData' => $activeDistrictData,
+            'districts' => array_keys($districtData),
+            'districtData' => $districtData,
             'categoryTotals' => $categoryTotals,
             'categoryCounts' => $categoryCounts,
             'districtCounts' => $districtCounts,
             'districtCategoryCounts' => $districtCategoryCounts,
             'paymentCategories' => $paymentCategories,
+            'proportionalCategoryLookup' => $summary['proportionalCategoryLookup'] ?? $this->getFinXisobotProportionalCategoryLookup(),
             'totalAmount' => $totalAmount,
-            'transactionCount' => count($filteredRows),
+            'transactionCount' => $transactionCount,
         ];
     }
 
@@ -2231,6 +2238,45 @@ public function monitoring(Request $request)
 
         $summary['districtData'] = $activeDistrictData;
         $summary['districts'] = array_keys($activeDistrictData);
+
+        return $summary;
+    }
+
+    private function applyFinXisobotProportionalCategoryDistribution(array $summary, array $paymentCategories): array
+    {
+        $proportionalCategoryLookup = $summary['proportionalCategoryLookup'] ?? $this->getFinXisobotProportionalCategoryLookup();
+        $proportionalCategories = array_values(array_intersect(array_keys($paymentCategories), array_keys($proportionalCategoryLookup)));
+
+        if (empty($proportionalCategories) || empty($summary['districtData'])) {
+            return $summary;
+        }
+
+        $overallAmount = max(0.0, (float)($summary['totalAmount'] ?? 0));
+        $overallCount = max(0, (int)($summary['transactionCount'] ?? 0));
+
+        foreach (array_keys($summary['districtData']) as $district) {
+            if (!isset($summary['districtCategoryCounts'][$district])) {
+                $summary['districtCategoryCounts'][$district] = array_fill_keys(array_keys($paymentCategories), 0);
+            }
+        }
+
+        foreach ($proportionalCategories as $category) {
+            $categoryTotal = (float)($summary['categoryTotals'][$category] ?? 0);
+            $categoryCount = (int)($summary['categoryCounts'][$category] ?? 0);
+
+            foreach (array_keys($summary['districtData']) as $district) {
+                $districtTotal = max(0.0, (float)($summary['districtData'][$district]['Жами'] ?? 0));
+                $districtCount = max(0, (int)($summary['districtCounts'][$district] ?? 0));
+
+                $summary['districtData'][$district][$category] = $overallAmount > 0
+                    ? ($categoryTotal * ($districtTotal / $overallAmount))
+                    : 0.0;
+
+                $summary['districtCategoryCounts'][$district][$category] = $overallCount > 0
+                    ? (int)round($categoryCount * ($districtCount / $overallCount))
+                    : 0;
+            }
+        }
 
         return $summary;
     }
@@ -2610,6 +2656,25 @@ public function monitoring(Request $request)
             'Шайҳонтохур туманига' => 0,
             'Тошкент сити дирекциясига' => 0,
         ];
+    }
+
+    private function getFinXisobotProportionalCategories(): array
+    {
+        return [
+            'Чегирма',
+            'Харидорларга қайтарилган маблағлар',
+            'Тошкент ш. қурилиш бошкармасига (1%)',
+            'Давлат кадастрлар палатасига',
+            'Геоахборот шахарсозлик кадастрига',
+            'Солиқ қўмитаси хузуридаги Кадастр агентлигига',
+            'Тошкент шахар махаллий бюджетига',
+            'Жамғармага',
+        ];
+    }
+
+    private function getFinXisobotProportionalCategoryLookup(): array
+    {
+        return array_fill_keys($this->getFinXisobotProportionalCategories(), true);
     }
 
     private function getFinXisobotDistrictPatterns(): array
