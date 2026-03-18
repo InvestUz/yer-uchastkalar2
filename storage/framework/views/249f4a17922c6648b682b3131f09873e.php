@@ -96,8 +96,7 @@
                                             class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
                                             style="min-width: 100px; font-size:11px;"
                                             title="<?php echo e($category); ?>"
-                                        >
-                                            <?php echo e(\Illuminate\Support\Str::limit($category, 15, '...')); ?>
+                                        ><?php echo e($category); ?>
 
                                         </th>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
