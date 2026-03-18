@@ -71,7 +71,7 @@
                         <p class="text-xs text-blue-700 mt-1">Амалдаги фильтр: <?php echo e($activeFilterText); ?></p>
                         <?php if($districtRestrict): ?>
                             <p class="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-300 rounded px-3 py-1 mt-2 inline-block">
-                                Сиз фақат <strong><?php echo e($districtRestrict); ?></strong> тумани маълумотларини кўряпсиз
+                                Сиз фақат <strong><?php echo e($districtRestrict); ?></strong> бўйича маълумотларни кўряпсиз
                             </p>
                         <?php endif; ?>
                     </div>

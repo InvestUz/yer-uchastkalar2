@@ -1839,19 +1839,6 @@ public function monitoring(Request $request)
             $category = $this->resolveFinXisobotCategory($articleName, $paymentCategories);
             $district = $this->resolveFinXisobotDistrict($record, $category, $districtPatterns, $categoryDistrictFallbacks);
 
-            // Enforce district restriction for district-role users
-            if (!empty($filters['district_restrict'])) {
-                $normalizedRestrict = mb_strtolower(trim($filters['district_restrict']));
-                // Resolve the user's tuman to canonical district name via patterns
-                $canonicalRestrict = $districtPatterns[$normalizedRestrict] ?? null;
-                $districtMatches = $canonicalRestrict !== null
-                    ? $district === $canonicalRestrict
-                    : mb_strtolower($district) === $normalizedRestrict;
-                if (!$districtMatches) {
-                    continue;
-                }
-            }
-
             $totalAmount += $amount;
             $recipientTotals[$recipient] = ($recipientTotals[$recipient] ?? 0) + $amount;
             $categoryTotals[$category] = ($categoryTotals[$category] ?? 0) + $amount;
@@ -1914,7 +1901,7 @@ public function monitoring(Request $request)
             return $b['Жами'] <=> $a['Жами'];
         });
 
-        return [
+        $summary = [
             'financialData' => $financialData,
             'recipients' => $recipientTotals,
             'districts' => array_keys($activeDistrictData),
@@ -1927,6 +1914,17 @@ public function monitoring(Request $request)
             'totalAmount' => $totalAmount,
             'transactionCount' => count($financialData),
         ];
+
+        if (!empty($filters['district_restrict'])) {
+            return $this->filterFinXisobotSummaryByDistrict(
+                $summary,
+                (string)$filters['district_restrict'],
+                $districtPatterns,
+                $paymentCategories
+            );
+        }
+
+        return $summary;
     }
 
     private function normalizeFinXisobotFilters(Request $request): array
@@ -2114,6 +2112,95 @@ public function monitoring(Request $request)
             $districtCategoryCounts[$district] = array_fill_keys(array_keys($paymentCategories), 0);
         }
         $districtCategoryCounts[$district][$category] = ($districtCategoryCounts[$district][$category] ?? 0) + 1;
+    }
+
+    private function filterFinXisobotSummaryByDistrict(
+        array $summary,
+        string $districtRestrict,
+        array $districtPatterns,
+        array $paymentCategories
+    ): array {
+        $canonicalRestrict = $this->resolveFinXisobotDistrictRestrictCanonical($districtRestrict, $districtPatterns);
+        $normalizedRestrict = $this->normalizeFinXisobotDistrictKey($districtRestrict);
+
+        $filteredRows = array_values(array_filter(
+            $summary['financialData'] ?? [],
+            function ($row) use ($canonicalRestrict, $normalizedRestrict) {
+                $rowDistrict = (string)($row['district'] ?? '');
+
+                if ($canonicalRestrict !== null) {
+                    return $rowDistrict === $canonicalRestrict;
+                }
+
+                return $normalizedRestrict !== ''
+                    && $this->normalizeFinXisobotDistrictKey($rowDistrict) === $normalizedRestrict;
+            }
+        ));
+
+        $districtData = [];
+        $recipientTotals = [];
+        $categoryTotals = $paymentCategories;
+        $categoryCounts = array_fill_keys(array_keys($paymentCategories), 0);
+        $districtCounts = [];
+        $districtCategoryCounts = [];
+        $totalAmount = 0.0;
+
+        foreach ($filteredRows as $row) {
+            $recipient = (string)($row['recipient'] ?? 'Белгисиз');
+            $district = (string)($row['district'] ?? 'Бошқа');
+            $category = (string)($row['category'] ?? 'Тошкент шахар махаллий бюджетига');
+            $amount = (float)($row['amount'] ?? 0);
+
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $totalAmount += $amount;
+            $recipientTotals[$recipient] = ($recipientTotals[$recipient] ?? 0) + $amount;
+
+            if (!array_key_exists($category, $categoryTotals)) {
+                $categoryTotals[$category] = 0;
+                $categoryCounts[$category] = 0;
+            }
+
+            $categoryTotals[$category] += $amount;
+            $categoryCounts[$category] = ($categoryCounts[$category] ?? 0) + 1;
+
+            $this->appendFinXisobotDistrictTotals(
+                $district,
+                $category,
+                $amount,
+                $districtData,
+                $districtCounts,
+                $districtCategoryCounts,
+                $paymentCategories
+            );
+        }
+
+        $activeDistrictData = [];
+        foreach ($districtData as $district => $data) {
+            if (($data['Жами'] ?? 0) > 0) {
+                $activeDistrictData[$district] = $data;
+            }
+        }
+
+        uasort($activeDistrictData, static function ($left, $right) {
+            return ($right['Жами'] ?? 0) <=> ($left['Жами'] ?? 0);
+        });
+
+        return [
+            'financialData' => $filteredRows,
+            'recipients' => $recipientTotals,
+            'districts' => array_keys($activeDistrictData),
+            'districtData' => $activeDistrictData,
+            'categoryTotals' => $categoryTotals,
+            'categoryCounts' => $categoryCounts,
+            'districtCounts' => $districtCounts,
+            'districtCategoryCounts' => $districtCategoryCounts,
+            'paymentCategories' => $paymentCategories,
+            'totalAmount' => $totalAmount,
+            'transactionCount' => count($filteredRows),
+        ];
     }
 
     private function distributeUnresolvedFinXisobotRows(
@@ -2485,6 +2572,56 @@ public function monitoring(Request $request)
         }
 
         return 'Бошқа';
+    }
+
+    private function resolveFinXisobotDistrictRestrictCanonical(string $districtRestrict, array $districtPatterns): ?string
+    {
+        $normalizedRestrict = $this->normalizeFinXisobotDistrictKey($districtRestrict);
+        if ($normalizedRestrict === '') {
+            return null;
+        }
+
+        foreach ($districtPatterns as $pattern => $districtName) {
+            $normalizedPattern = $this->normalizeFinXisobotDistrictKey((string)$pattern);
+            if ($normalizedPattern === '') {
+                continue;
+            }
+
+            if (
+                str_contains($normalizedRestrict, $normalizedPattern) ||
+                str_contains($normalizedPattern, $normalizedRestrict)
+            ) {
+                return $districtName;
+            }
+        }
+
+        $canonicalDistricts = array_values(array_unique(array_values($districtPatterns)));
+        foreach ($canonicalDistricts as $canonicalDistrict) {
+            if ($this->normalizeFinXisobotDistrictKey((string)$canonicalDistrict) === $normalizedRestrict) {
+                return (string)$canonicalDistrict;
+            }
+        }
+
+        return null;
+    }
+
+    private function normalizeFinXisobotDistrictKey(?string $text): string
+    {
+        if ($text === null || $text === '') {
+            return '';
+        }
+
+        $lower = mb_strtolower($text, 'UTF-8');
+        // Normalize common district suffixes.
+        $lower = preg_replace('/\bтумани\b/u', '', $lower) ?? $lower;
+        $lower = preg_replace('/\bтуман\b/u', '', $lower) ?? $lower;
+
+        // Normalize common orthographic variants used in user and source data.
+        $lower = str_replace(['ҳ', 'ғ', 'қ', 'ў'], ['х', 'г', 'к', 'у'], $lower);
+
+        $clean = preg_replace('/[^\p{L}\p{N}]+/u', '', $lower);
+
+        return trim((string)($clean ?? $lower));
     }
 
     private function normalizeFinXisobotText(?string $text): string
