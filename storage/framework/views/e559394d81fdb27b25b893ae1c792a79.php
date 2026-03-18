@@ -6,6 +6,29 @@
             return number_format(((float)$amount) / 1_000_000_000, 1, '.', ',') . ' млрд';
         };
 
+        $headerLabel = function ($label) {
+            $map = [
+                'Т/р' => 'Т/<br>р',
+                'Ҳудудлар' => 'Ҳудуд-<br>лар',
+                'Жами (млрд сўм)' => 'Жами<br>(млрд сўм)',
+                'Чегирма' => 'Чегир-<br>ма',
+                'Харидорларга қайтарилган маблағлар' => 'Харидорларга<br>қайтарилган<br>маблағлар',
+                'Тошкент ш. қурилиш бошкармасига (1%)' => 'Тошкент ш.<br>қурилиш<br>бошкармасига<br>(1%)',
+                'Давлат кадастрлар палатасига' => 'Давлат<br>кадастрлар<br>палатасига',
+                'Геоахборот шахарсозлик кадастрига' => 'Геоахборот<br>шахарсозлик<br>кадастрига',
+                'Солиқ қўмитаси хузуридаги Кадастр агентлигига' => 'Солиқ қўмитаси<br>хузуридаги<br>Кадастр<br>агентлигига',
+                'Тошкент шахар махаллий бюджетига' => 'Тошкент шахар<br>махаллий<br>бюджетига',
+                'Жамғармага' => 'Жамғар-<br>мага',
+                'Туманга' => 'Туман-<br>га',
+                'ЯнгиХаёт индустриал технопарки дирекциясига' => 'ЯнгиХаёт<br>индустриал<br>технопарки<br>дирекциясига',
+                'Шайҳонтохур туманига' => 'Шайҳонтохур<br>туманига',
+                'Тошкент сити дирекциясига' => 'Тошкент сити<br>дирекциясига',
+                'Қолдиқ (млрд сўм)' => 'Қолдиқ<br>(млрд сўм)',
+            ];
+
+            return $map[$label] ?? e($label);
+        };
+
         $filters = $filters ?? [
             'year' => null,
             'month' => null,
@@ -75,26 +98,30 @@
                             <thead>
                                 <tr style="background:#eff6ff !important;">
                                     <th rowspan="2" class="sticky-col border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="width: 40px; min-width: 40px; max-width: 40px; font-size:11px;">
-                                        Т/р
+                                        <?php echo $headerLabel('Т/р'); ?>
+
                                     </th>
                                     <th rowspan="2" class="sticky-col-2 border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="width: 150px; min-width: 150px; max-width: 150px; font-size:11px;">
-                                        Ҳудудлар
+                                        <?php echo $headerLabel('Ҳудудлар'); ?>
+
                                     </th>
                                     <th rowspan="2" class="total-amount-col border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="font-size:11px;">
-                                        Жами (млрд сўм)
+                                        <?php echo $headerLabel('Жами (млрд сўм)'); ?>
+
                                     </th>
                                     <?php $__currentLoopData = $paymentCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <th
                                             class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
                                             style="min-width: 100px; font-size:11px;"
                                             title="<?php echo e($category); ?>"
-                                        ><?php echo e($category); ?>
+                                        ><?php echo $headerLabel($category); ?>
 
                                         </th>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     <th class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
                                         style="min-width: 120px; font-size:11px;">
-                                        Қолдиқ (млрд сўм)
+                                        <?php echo $headerLabel('Қолдиқ (млрд сўм)'); ?>
+
                                     </th>
                                 </tr>
                             </thead>
@@ -334,6 +361,12 @@
         .statistics-table td {
             box-sizing: border-box;
             font-size: 11px;
+        }
+
+        .statistics-table th {
+            white-space: normal;
+            line-height: 1.25;
+            word-break: break-word;
         }
 
         .sticky-col {
