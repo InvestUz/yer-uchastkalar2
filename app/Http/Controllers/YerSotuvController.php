@@ -1731,11 +1731,79 @@ public function monitoring(Request $request)
             if (auth()->check() && auth()->user()->isDistrict() && auth()->user()->tuman) {
                 $filters['district_restrict'] = auth()->user()->tuman;
             }
-            $summary = $this->buildFinXisobotSummary($filters);
-
             $district = trim((string)$request->query('district', ''));
             $category = trim((string)$request->query('category', ''));
 
+            // Jami (no category selected) should open monitoring-style details from YerSotuv list source.
+            if ($category === '') {
+                $listFilters = $this->buildFinXisobotDetailsListFilters($filters, $district);
+
+                $query = YerSotuv::query();
+                $this->filterService->applyFilters($query, $listFilters);
+
+                $yerlar = $query
+                    ->select('yer_sotuvlar.*')
+                    ->with([
+                        'faktTolovlar:id,lot_raqami,tolov_summa',
+                    ])
+                    ->orderByDesc('auksion_sana')
+                    ->orderBy('lot_raqami')
+                    ->get();
+
+                $rows = [];
+                $detailTotal = 0.0;
+
+                foreach ($yerlar as $yer) {
+                    $expected = (float)(
+                        ((float)($yer->golib_tolagan ?? 0))
+                        + ((float)($yer->shartnoma_summasi ?? 0))
+                        - ((float)($yer->auksion_harajati ?? 0))
+                    );
+                    $received = (float)$yer->faktTolovlar->sum('tolov_summa');
+                    $qoldiq = $expected - $received;
+
+                    $detailTotal += $received;
+
+                    $rows[] = [
+                        'lot_raqami' => (string)($yer->lot_raqami ?? ''),
+                        'district' => (string)($yer->tuman ?? 'Номалум'),
+                        'address' => (string)($yer->manzil ?? ''),
+                        'auction_date' => $yer->auksion_sana ? $yer->auksion_sana->format('d.m.Y') : '',
+                        'payment_type' => (string)($yer->tolov_turi ?? ''),
+                        'status' => (string)($yer->holat ?? ''),
+                        'expected' => $expected,
+                        'received' => $received,
+                        'qoldiq' => $qoldiq,
+                    ];
+                }
+
+                $listRouteParams = array_filter([
+                    'include_auksonda' => 'true',
+                    'auksion_sana_from' => $listFilters['auksion_sana_from'] ?? null,
+                    'auksion_sana_to' => $listFilters['auksion_sana_to'] ?? null,
+                    'tuman' => $listFilters['tuman'] ?? null,
+                ], static function ($value) {
+                    return $value !== null && $value !== '';
+                });
+
+                return view('yer-sotuvlar.fin-xisobot-details', [
+                    'detailsMode' => 'monitoring',
+                    'rows' => $rows,
+                    'rawDistrict' => $district,
+                    'rawCategory' => $category,
+                    'selectedDistrict' => $district !== '' ? $district : 'Барча ҳудудлар',
+                    'selectedCategory' => 'Барча тоифалар',
+                    'recordCount' => count($rows),
+                    'totalAmount' => $detailTotal,
+                    'listRouteParams' => $listRouteParams,
+                    'filters' => $filters,
+                    'activeFilterParams' => $this->getFinXisobotActiveFilterParams($filters),
+                    'monthOptions' => $this->getFinXisobotMonthOptions(),
+                ]);
+            }
+
+            // Category details should stay on old Fin-Xisobot (DavaktivRasxod-based) logic.
+            $summary = $this->buildFinXisobotSummary($filters);
             $rows = $summary['financialData'];
 
             if ($district !== '') {
@@ -1748,29 +1816,29 @@ public function monitoring(Request $request)
                 }));
             }
 
-            if ($category !== '') {
-                $rows = array_values(array_filter($rows, static function ($row) use ($category) {
-                    return $row['category'] === $category;
-                }));
-            }
+            $rows = array_values(array_filter($rows, static function ($row) use ($category) {
+                return $row['category'] === $category;
+            }));
 
             usort($rows, static function ($a, $b) {
                 return $b['amount'] <=> $a['amount'];
             });
 
-            $detailTotal = 0;
+            $detailTotal = 0.0;
             foreach ($rows as $row) {
-                $detailTotal += (float)$row['amount'];
+                $detailTotal += (float)($row['amount'] ?? 0);
             }
 
             return view('yer-sotuvlar.fin-xisobot-details', [
+                'detailsMode' => 'financial',
                 'rows' => $rows,
                 'rawDistrict' => $district,
                 'rawCategory' => $category,
                 'selectedDistrict' => $district !== '' ? $district : 'Барча ҳудудлар',
-                'selectedCategory' => $category !== '' ? $category : 'Барча тоифалар',
+                'selectedCategory' => $category,
                 'recordCount' => count($rows),
                 'totalAmount' => $detailTotal,
+                'listRouteParams' => [],
                 'filters' => $filters,
                 'activeFilterParams' => $this->getFinXisobotActiveFilterParams($filters),
                 'monthOptions' => $this->getFinXisobotMonthOptions(),
@@ -2358,7 +2426,56 @@ public function monitoring(Request $request)
         return [
             'auksion_sana_from' => $from,
             'auksion_sana_to' => $to,
+            'include_auksonda' => 'true',
         ];
+    }
+
+    private function buildFinXisobotDetailsListFilters(array $filters, string $district): array
+    {
+        $dateFilters = $this->buildFinXisobotUmumiyDateFilters($filters);
+
+        $listFilters = [
+            'include_auksonda' => 'true',
+            'auksion_sana_from' => $dateFilters['auksion_sana_from'] ?? '2024-01-01',
+            'auksion_sana_to' => $dateFilters['auksion_sana_to'] ?? now()->toDateString(),
+        ];
+
+        $districtFilter = trim($district);
+        if ($districtFilter === '') {
+            $districtFilter = trim((string)($filters['district_restrict'] ?? ''));
+        }
+
+        if ($districtFilter !== '') {
+            $listFilters['tuman'] = $districtFilter;
+        }
+
+        return $listFilters;
+    }
+
+    private function applyFinXisobotDetailsCategoryFilter($query, string $category): void
+    {
+        if ($category === '') {
+            return;
+        }
+
+        $categoryColumnMap = [
+            'Чегирма' => 'chegirma',
+            'Харидорларга қайтарилган маблағлар' => 'buyurtmachiga_otkazilgan',
+            'Тошкент ш. қурилиш бошкармасига (1%)' => 'yer_auksion_harajat',
+            'Тошкент шахар махаллий бюджетига' => 'mahalliy_byudjet_taqsimlangan',
+            'Жамғармага' => 'jamgarma_taqsimlangan',
+            'Туманга' => 'tuman_byudjeti_taqsimlangan',
+            'ЯнгиХаёт индустриал технопарки дирекциясига' => 'yangi_hayot_industrial_park_taqsimlangan',
+            'Шайҳонтохур туманига' => 'shayxontohur_taqsimlangan',
+            'Тошкент сити дирекциясига' => 'toshkent_city_direksiya_taqsimlangan',
+        ];
+
+        $column = $categoryColumnMap[$category] ?? null;
+        if ($column === null) {
+            return;
+        }
+
+        $query->where($column, '>', 0);
     }
 
     private function distributeUnresolvedFinXisobotRows(
@@ -2661,8 +2778,6 @@ public function monitoring(Request $request)
     private function getFinXisobotProportionalCategories(): array
     {
         return [
-            'Чегирма',
-            'Харидорларга қайтарилган маблағлар',
             'Тошкент ш. қурилиш бошкармасига (1%)',
             'Давлат кадастрлар палатасига',
             'Геоахборот шахарсозлик кадастрига',

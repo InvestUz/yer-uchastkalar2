@@ -1,9 +1,7 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Бўлиб тўлаш маълумоти'); ?>
 
-@section('title', 'Бўлиб тўлаш маълумоти')
-
-@section('content')
-    @php
+<?php $__env->startSection('content'); ?>
+    <?php
         $fmt = function ($amount) {
             return number_format(((float) $amount) / 1_000_000_000, 1, '.', ',');
         };
@@ -100,7 +98,7 @@
                 'category' => 'Тошкент сити дирекциясига',
             ],
         ];
-    @endphp
+    ?>
 
     <div class="min-h-screen bg-slate-100 py-6 px-4">
         <div class="mx-auto max-w-[98%]">
@@ -113,11 +111,11 @@
                         </h1>
                         <h2 class="mt-1 text-sm font-semibold tracking-[0.18em] text-slate-600">ЙИҒМА МАЪЛУМОТ</h2>
 
-                        @if($districtRestrict)
+                        <?php if($districtRestrict): ?>
                             <p class="report-notice mt-4 inline-block px-4 py-2 text-left text-xs font-semibold text-amber-800">
-                                Сиз фақат <strong>{{ $districtRestrict }}</strong> бўйича маълумотларни кўряпсиз
+                                Сиз фақат <strong><?php echo e($districtRestrict); ?></strong> бўйича маълумотларни кўряпсиз
                             </p>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -126,10 +124,10 @@
                         <div>
                             <p class="table-meta-title">Ҳисобот жадвали</p>
                             <p class="table-meta-subtitle">Қизил қийматлар тақсимланмаган қолдиқни, кўк қийматлар детал саҳифасини англатади.</p>
-                            <p class="table-meta-status">Амалдаги фильтр: {{ $activeFilterText }}</p>
+                            <p class="table-meta-status">Амалдаги фильтр: <?php echo e($activeFilterText); ?></p>
                         </div>
                         <div class="table-meta-actions">
-                            <div class="table-meta-unit">Маълумот бирлиги: {{ $valueUnitLabel }}</div>
+                            <div class="table-meta-unit">Маълумот бирлиги: <?php echo e($valueUnitLabel); ?></div>
                             <button
                                 type="button"
                                 id="fin-filter-trigger"
@@ -151,69 +149,74 @@
                             <thead>
                                 <tr class="table-head-row">
                                     <th rowspan="2" class="sticky-col border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="width: 40px; min-width: 40px; max-width: 40px; font-size:11px;">
-                                        {!! $headerLabel('Т/р') !!}
+                                        <?php echo $headerLabel('Т/р'); ?>
+
                                     </th>
                                     <th rowspan="2" class="sticky-col-2 border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="width: 150px; min-width: 150px; max-width: 150px; font-size:11px;">
-                                        {!! $headerLabel('Ҳудудлар') !!}
+                                        <?php echo $headerLabel('Ҳудудлар'); ?>
+
                                     </th>
                                     <th rowspan="2" class="total-amount-col border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="font-size:11px;">
-                                        {!! $headerLabel('Жами') !!}
+                                        <?php echo $headerLabel('Жами'); ?>
+
                                     </th>
-                                    @foreach($columnCategories as $category => $value)
+                                    <?php $__currentLoopData = $columnCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <th
                                             class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
                                             style="min-width: 100px; font-size:11px;"
-                                            title="{{ $category }}"
-                                        >{!! $headerLabel($category) !!}
+                                            title="<?php echo e($category); ?>"
+                                        ><?php echo $headerLabel($category); ?>
+
                                         </th>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     <th class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="min-width: 120px; font-size:11px;">
-                                        {!! $headerLabel('Қолдиқ') !!}
+                                        <?php echo $headerLabel('Қолдиқ'); ?>
+
                                     </th>
                                 </tr>
                             </thead>
 
                             <tbody class="bg-white">
-                                @if(empty($districtData) || count($districtData) === 0)
+                                <?php if(empty($districtData) || count($districtData) === 0): ?>
                                     <tr>
-                                        <td colspan="{{ 4 + count($columnCategories) }}" class="border border-slate-300 px-4 py-6 text-center text-slate-700">
+                                        <td colspan="<?php echo e(4 + count($columnCategories)); ?>" class="border border-slate-300 px-4 py-6 text-center text-slate-700">
                                             Маълумотлар топилмади.
                                         </td>
                                     </tr>
-                                @else
+                                <?php else: ?>
                                     <tr class="summary-row">
                                         <td colspan="2" class="sticky-col-total border border-slate-300 px-3 py-2 text-center align-middle text-xs font-bold uppercase text-slate-900 bg-slate-100">
                                             ЖАМИ:
                                         </td>
                                         <td class="total-amount-col border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
-                                            <a href="{{ route('yer-sotuvlar.fin-xisobot.details', $activeFilterParams) }}" class="metric-link text-right">
-                                                <span class="metric-value">{{ $fmt($totalAmount) }}</span>
+                                            <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', $activeFilterParams)); ?>" class="metric-link text-right">
+                                                <span class="metric-value"><?php echo e($fmt($totalAmount)); ?></span>
                                             </a>
                                         </td>
 
-                                        @foreach($columnCategories as $category => $value)
+                                        <?php $__currentLoopData = $columnCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <td class="border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
-                                                @php
+                                                <?php
                                                     $catTotal = $categoryTotals[$category] ?? 0;
                                                     $isSyntheticTotalCell = !empty($districtRestrict) && !empty($proportionalCategoryLookup[$category]);
-                                                @endphp
-                                                @if($catTotal > 0)
-                                                    @if($isSyntheticTotalCell)
+                                                ?>
+                                                <?php if($catTotal > 0): ?>
+                                                    <?php if($isSyntheticTotalCell): ?>
                                                         <span class="metric-static text-right text-slate-700" title="Пропорция бўйича ҳисобланган">
-                                                            <span class="metric-value text-slate-800">{{ $fmt($catTotal) }}</span>
+                                                            <span class="metric-value text-slate-800"><?php echo e($fmt($catTotal)); ?></span>
                                                         </span>
-                                                    @else
-                                                        <a href="{{ route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $category])) }}" class="metric-link text-right">
-                                                            <span class="metric-value">{{ $fmt($catTotal) }}</span>
+                                                    <?php else: ?>
+                                                        <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $category]))); ?>" class="metric-link text-right">
+                                                            <span class="metric-value"><?php echo e($fmt($catTotal)); ?></span>
                                                         </a>
-                                                    @endif
-                                                @else
+                                                    <?php endif; ?>
+                                                <?php else: ?>
                                                     <span class="dash-value">—</span>
-                                                @endif
+                                                <?php endif; ?>
                                             </td>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                                        @php
+                                        <?php
                                             $jamiCategorySum = 0.0;
                                             foreach ($columnCategories as $categoryName => $categoryValue) {
                                                 $jamiCategorySum += (float) ($categoryTotals[$categoryName] ?? 0);
@@ -222,61 +225,63 @@
                                             if (abs($jamiQoldiq) < 0.01) {
                                                 $jamiQoldiq = 0.0;
                                             }
-                                        @endphp
+                                        ?>
                                         <td class="border border-slate-300 px-2 py-1 text-right font-bold text-slate-900">
-                                            @if($jamiQoldiq > 0)
-                                                <span class="residual-value">{{ $fmt($jamiQoldiq) }}</span>
-                                            @else
+                                            <?php if($jamiQoldiq > 0): ?>
+                                                <span class="residual-value"><?php echo e($fmt($jamiQoldiq)); ?></span>
+                                            <?php else: ?>
                                                 <span class="dash-value">—</span>
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
 
-                                    @foreach($districtData as $district => $values)
+                                    <?php $__currentLoopData = $districtData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district => $values): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="bg-white transition-colors duration-150 hover:bg-slate-50">
                                             <td class="sticky-col border border-slate-300 px-2 py-1 text-center align-middle font-medium text-slate-700">
-                                                {{ $loop->iteration }}
+                                                <?php echo e($loop->iteration); ?>
+
                                             </td>
                                             <td class="sticky-col-2 border border-slate-300 px-2 py-1 align-middle font-semibold text-slate-800">
-                                                {{ $district }}
+                                                <?php echo e($district); ?>
+
                                             </td>
                                             <td class="total-amount-col border border-slate-300 px-2 py-1 text-right text-slate-700">
-                                                @php $districtTotal = $values['Жами'] ?? 0; @endphp
-                                                @if($districtTotal > 0)
-                                                    <a href="{{ route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district])) }}" class="metric-link text-right">
-                                                        <span @class([
+                                                <?php $districtTotal = $values['Жами'] ?? 0; ?>
+                                                <?php if($districtTotal > 0): ?>
+                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district]))); ?>" class="metric-link text-right">
+                                                        <span class="<?php echo \Illuminate\Support\Arr::toCssClasses([
                                                             'metric-value',
                                                             'text-rose-700' => in_array($district, ['Номалум', 'ЯнгиХаёт индустриал технопарки дирекциясига', 'Шайҳонтохур туманига', 'Тошкент сити дирекциясига'], true),
-                                                        ])>{{ $fmt($districtTotal) }}</span>
+                                                        ]); ?>"><?php echo e($fmt($districtTotal)); ?></span>
                                                     </a>
-                                                @else
+                                                <?php else: ?>
                                                     <span class="dash-value">—</span>
-                                                @endif
+                                                <?php endif; ?>
                                             </td>
 
-                                            @foreach($columnCategories as $category => $value)
+                                            <?php $__currentLoopData = $columnCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
-                                                    @php
+                                                    <?php
                                                         $cellAmount = $values[$category] ?? 0;
                                                         $isSyntheticDistrictCell = !empty($proportionalCategoryLookup[$category]);
-                                                    @endphp
-                                                    @if($cellAmount > 0)
-                                                        @if($isSyntheticDistrictCell)
+                                                    ?>
+                                                    <?php if($cellAmount > 0): ?>
+                                                        <?php if($isSyntheticDistrictCell): ?>
                                                             <span class="metric-static text-right text-slate-700" title="Пропорция бўйича ҳисобланган">
-                                                                <span class="metric-value text-slate-800">{{ $fmt($cellAmount) }}</span>
+                                                                <span class="metric-value text-slate-800"><?php echo e($fmt($cellAmount)); ?></span>
                                                             </span>
-                                                        @else
-                                                            <a href="{{ route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district, 'category' => $category])) }}" class="metric-link text-right">
-                                                                <span class="metric-value">{{ $fmt($cellAmount) }}</span>
+                                                        <?php else: ?>
+                                                            <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['district' => $district, 'category' => $category]))); ?>" class="metric-link text-right">
+                                                                <span class="metric-value"><?php echo e($fmt($cellAmount)); ?></span>
                                                             </a>
-                                                        @endif
-                                                    @else
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
                                                         <span class="dash-value">—</span>
-                                                    @endif
+                                                    <?php endif; ?>
                                                 </td>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                                            @php
+                                            <?php
                                                 $districtCategorySum = 0.0;
                                                 foreach ($columnCategories as $categoryName => $categoryValue) {
                                                     $districtCategorySum += (float) ($values[$categoryName] ?? 0);
@@ -285,58 +290,60 @@
                                                 if (abs($districtQoldiq) < 0.01) {
                                                     $districtQoldiq = 0.0;
                                                 }
-                                            @endphp
+                                            ?>
                                             <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
-                                                @if($districtQoldiq > 0)
-                                                    <span class="residual-value">{{ $fmt($districtQoldiq) }}</span>
-                                                @else
+                                                <?php if($districtQoldiq > 0): ?>
+                                                    <span class="residual-value"><?php echo e($fmt($districtQoldiq)); ?></span>
+                                                <?php else: ?>
                                                     <span class="dash-value">—</span>
-                                                @endif
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                                    @php
+                                    <?php
                                         $districtRowNumber = count($districtData);
-                                    @endphp
-                                    @foreach($extraDistrictRows as $extraRow)
-                                        @php
+                                    ?>
+                                    <?php $__currentLoopData = $extraDistrictRows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $extraRow): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php
                                             $districtRowNumber++;
                                             $extraCategory = $extraRow['category'];
                                             $extraTotal = (float) ($categoryTotals[$extraCategory] ?? 0);
-                                        @endphp
+                                        ?>
                                         <tr class="supplement-row bg-white transition-colors duration-150 hover:bg-slate-50">
                                             <td class="sticky-col border border-slate-300 px-2 py-1 text-center align-middle font-medium text-slate-700">
-                                                {{ $districtRowNumber }}
+                                                <?php echo e($districtRowNumber); ?>
+
                                             </td>
                                             <td class="sticky-col-2 border border-slate-300 px-2 py-1 align-middle font-semibold text-slate-800">
-                                                {{ $extraRow['label'] }}
+                                                <?php echo e($extraRow['label']); ?>
+
                                             </td>
                                             <td class="total-amount-col border border-slate-300 px-2 py-1 text-right text-slate-700">
-                                                @if($extraTotal > 0)
-                                                    <a href="{{ route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $extraCategory])) }}" class="metric-link text-right">
-                                                        <span @class([
+                                                <?php if($extraTotal > 0): ?>
+                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $extraCategory]))); ?>" class="metric-link text-right">
+                                                        <span class="<?php echo \Illuminate\Support\Arr::toCssClasses([
                                                             'metric-value',
                                                             'text-rose-700' => in_array($extraCategory, ['ЯнгиХаёт индустриал технопарки дирекциясига', 'Шайҳонтохур туманига', 'Тошкент сити дирекциясига'], true),
-                                                        ])>{{ $fmt($extraTotal) }}</span>
+                                                        ]); ?>"><?php echo e($fmt($extraTotal)); ?></span>
                                                     </a>
-                                                @else
+                                                <?php else: ?>
                                                     <span class="dash-value">—</span>
-                                                @endif
+                                                <?php endif; ?>
                                             </td>
 
-                                            @foreach($columnCategories as $category => $value)
+                                            <?php $__currentLoopData = $columnCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
                                                     <span class="dash-value">—</span>
                                                 </td>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                                             <td class="border border-slate-300 px-2 py-1 text-right text-slate-700">
                                                 <span class="dash-value">—</span>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                @endif
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -367,7 +374,7 @@
             </div>
 
             <div class="filter-modal-body">
-                <form method="GET" action="{{ route('yer-sotuvlar.fin-xisobot') }}" id="fin-filter-form" class="space-y-4">
+                <form method="GET" action="<?php echo e(route('yer-sotuvlar.fin-xisobot')); ?>" id="fin-filter-form" class="space-y-4">
                     <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Йил</label>
@@ -376,33 +383,35 @@
                                 class="w-full rounded-md border border-slate-400 px-3 py-2 text-sm transition-all focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
                             >
                                 <option value="">Барча йиллар</option>
-                                @foreach($yearSelectOptions as $yearOption)
-                                    <option value="{{ $yearOption }}" @selected((int)($filters['year'] ?? 0) === (int)$yearOption)>
-                                        {{ $yearOption }}
+                                <?php $__currentLoopData = $yearSelectOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $yearOption): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($yearOption); ?>" <?php if((int)($filters['year'] ?? 0) === (int)$yearOption): echo 'selected'; endif; ?>>
+                                        <?php echo e($yearOption); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 
                         <div>
                             <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Ой</label>
-                            @if(!empty($filters['year']))
+                            <?php if(!empty($filters['year'])): ?>
                                 <select
                                     name="month"
                                     class="w-full rounded-md border border-slate-400 px-3 py-2 text-sm transition-all focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
                                 >
                                     <option value="">Барча ойлар</option>
-                                    @foreach($monthOptions as $monthNumber => $monthLabel)
-                                        <option value="{{ $monthNumber }}" @selected((int)($filters['month'] ?? 0) === (int)$monthNumber)>
-                                            {{ $monthLabel }}
+                                    <?php $__currentLoopData = $monthOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $monthNumber => $monthLabel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($monthNumber); ?>" <?php if((int)($filters['month'] ?? 0) === (int)$monthNumber): echo 'selected'; endif; ?>>
+                                            <?php echo e($monthLabel); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
-                            @else
+                            <?php else: ?>
                                 <div class="w-full rounded-md border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-500">
                                     Ой фильтри йил танлангандан кейин чиқади
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -412,7 +421,7 @@
                             <input
                                 type="date"
                                 name="date_from"
-                                value="{{ $filters['date_from'] ?? '' }}"
+                                value="<?php echo e($filters['date_from'] ?? ''); ?>"
                                 class="w-full rounded-md border border-slate-400 px-3 py-2 text-sm transition-all focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
                             >
                         </div>
@@ -422,7 +431,7 @@
                             <input
                                 type="date"
                                 name="date_to"
-                                value="{{ $filters['date_to'] ?? '' }}"
+                                value="<?php echo e($filters['date_to'] ?? ''); ?>"
                                 class="w-full rounded-md border border-slate-400 px-3 py-2 text-sm transition-all focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
                             >
                         </div>
@@ -430,7 +439,7 @@
 
                     <div class="filter-modal-actions">
                         <a
-                            href="{{ route('yer-sotuvlar.fin-xisobot') }}"
+                            href="<?php echo e(route('yer-sotuvlar.fin-xisobot')); ?>"
                             class="rounded-md border border-slate-400 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
                         >
                             Тозалаш
@@ -910,4 +919,6 @@
             }
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/fin-xisobot.blade.php ENDPATH**/ ?>

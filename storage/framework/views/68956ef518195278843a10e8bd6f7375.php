@@ -1,9 +1,9 @@
-﻿@extends('layouts.app')
+﻿
 
-@section('title', 'Фин-ҳисобот деталлар')
+<?php $__env->startSection('title', 'Фин-ҳисобот деталлар'); ?>
 
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
 $fmtBillion = function($amount) {
     return number_format(((float)$amount) / 1_000_000_000, 1, '.', ',');
 };
@@ -38,7 +38,7 @@ if (!empty($filters['date_to'])) {
     $periodParts[] = 'Санага: ' . $filters['date_to'];
 }
 $activeFilterText = !empty($periodParts) ? implode(' | ', $periodParts) : 'Барча давр';
-@endphp
+?>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
     <div class="max-w-[98%] mx-auto space-y-6">
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-t-4 border-blue-600">
@@ -48,22 +48,22 @@ $activeFilterText = !empty($periodParts) ? implode(' | ', $periodParts) : 'Ба�
                         <h1 class="text-2xl font-bold text-slate-800">ФИН-ҲИСОБОТ ДЕТАЛ РЎЙХАТИ</h1>
                         <p class="text-sm text-slate-600 mt-1">
                             Танланган фильтр:
-                            <span class="font-semibold">{{ $selectedDistrict }}</span>
+                            <span class="font-semibold"><?php echo e($selectedDistrict); ?></span>
                             /
-                            <span class="font-semibold">{{ $selectedCategory }}</span>
+                            <span class="font-semibold"><?php echo e($selectedCategory); ?></span>
                         </p>
                         <p class="text-xs text-blue-700 mt-1">
-                            Давр фильтри: <span class="font-semibold">{{ $activeFilterText }}</span>
+                            Давр фильтри: <span class="font-semibold"><?php echo e($activeFilterText); ?></span>
                         </p>
                         <p class="text-xs text-slate-500 mt-1">Барча сумма кўрсаткичлари млрд сўмда.</p>
                     </div>
                     <div class="flex gap-2">
-                        @if($detailsMode === 'monitoring')
-                            <a href="{{ route('yer-sotuvlar.list', $listRouteParams) }}" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold">
+                        <?php if($detailsMode === 'monitoring'): ?>
+                            <a href="<?php echo e(route('yer-sotuvlar.list', $listRouteParams)); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold">
                                 Мониторинг рўйхат
                             </a>
-                        @endif
-                        <a href="{{ route('yer-sotuvlar.fin-xisobot', $activeFilterParams) }}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                        <?php endif; ?>
+                        <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot', $activeFilterParams)); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                             Орқага
                         </a>
                     </div>
@@ -73,9 +73,10 @@ $activeFilterText = !empty($periodParts) ? implode(' | ', $periodParts) : 'Ба�
             <div class="p-6 grid grid-cols-1 md:grid-cols-1 gap-4 bg-white">
                 <div class="rounded-lg border border-slate-200 p-4 bg-slate-50">
                     <p class="text-xs uppercase tracking-wide text-slate-500">
-                        {{ $detailsMode === 'monitoring' ? 'Жами тушган маблағ' : 'Жами сумма' }}
+                        <?php echo e($detailsMode === 'monitoring' ? 'Жами тушган маблағ' : 'Жами сумма'); ?>
+
                     </p>
-                    <p class="text-2xl font-bold text-slate-800">{{ $fmtBillion($totalAmount ?? 0) }}</p>
+                    <p class="text-2xl font-bold text-slate-800"><?php echo e($fmtBillion($totalAmount ?? 0)); ?></p>
                 </div>
             </div>
         </div>
@@ -84,7 +85,7 @@ $activeFilterText = !empty($periodParts) ? implode(' | ', $periodParts) : 'Ба�
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
                     <thead>
-                        @if($detailsMode === 'monitoring')
+                        <?php if($detailsMode === 'monitoring'): ?>
                             <tr class="bg-blue-50">
                                 <th class="border border-slate-300 px-3 py-3 text-center text-xs font-bold text-slate-700">Т/р</th>
                                 <th class="border border-slate-300 px-3 py-3 text-center text-xs font-bold text-slate-700">Лот</th>
@@ -97,7 +98,7 @@ $activeFilterText = !empty($periodParts) ? implode(' | ', $periodParts) : 'Ба�
                                 <th class="border border-slate-300 px-3 py-3 text-center text-xs font-bold text-slate-700">Тушган</th>
                                 <th class="border border-slate-300 px-3 py-3 text-center text-xs font-bold text-slate-700">Қолдиқ</th>
                             </tr>
-                        @else
+                        <?php else: ?>
                             <tr class="bg-blue-50">
                                 <th class="border border-slate-300 px-3 py-3 text-center text-xs font-bold text-slate-700">Т/р</th>
                                 <th class="border border-slate-300 px-3 py-3 text-center text-xs font-bold text-slate-700">Сана</th>
@@ -110,64 +111,68 @@ $activeFilterText = !empty($periodParts) ? implode(' | ', $periodParts) : 'Ба�
                                 <th class="border border-slate-300 px-3 py-3 text-center text-xs font-bold text-slate-700">Сумма</th>
                                 <th class="border border-slate-300 px-3 py-3 text-center text-xs font-bold text-slate-700">Детали</th>
                             </tr>
-                        @endif
+                        <?php endif; ?>
                     </thead>
                     <tbody>
-                        @forelse($rows as $row)
+                        <?php $__empty_1 = true; $__currentLoopData = $rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                             <tr class="hover:bg-blue-50 transition-colors">
-                                <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700">{{ $loop->iteration }}</td>
-                                @if($detailsMode === 'monitoring')
+                                <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700"><?php echo e($loop->iteration); ?></td>
+                                <?php if($detailsMode === 'monitoring'): ?>
                                     <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700 whitespace-nowrap">
-                                        @if(!empty($row['lot_raqami']))
-                                            <a href="{{ route('yer-sotuvlar.show', ['lot_raqami' => $row['lot_raqami']]) }}" class="text-blue-700 hover:text-blue-900 hover:underline font-semibold">
-                                                {{ $row['lot_raqami'] }}
+                                        <?php if(!empty($row['lot_raqami'])): ?>
+                                            <a href="<?php echo e(route('yer-sotuvlar.show', ['lot_raqami' => $row['lot_raqami']])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline font-semibold">
+                                                <?php echo e($row['lot_raqami']); ?>
+
                                             </a>
-                                        @else
+                                        <?php else: ?>
                                             <span class="text-slate-300">—</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
-                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700">{{ $row['district'] }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700">{{ $row['address'] }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700">{{ $row['auction_date'] }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700">{{ $row['payment_type'] }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700">{{ $row['status'] }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-right text-sm font-semibold text-slate-800">{{ $fmtBillion($row['expected']) }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-right text-sm font-semibold text-slate-800">{{ $fmtBillion($row['received']) }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-right text-sm font-semibold text-slate-800">{{ $fmtBillion($row['qoldiq']) }}</td>
-                                @else
-                                    <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700">{{ $row['date'] ?? '' }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700">{{ $row['doc_num'] ?? '' }}</td>
+                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700"><?php echo e($row['district']); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700"><?php echo e($row['address']); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700"><?php echo e($row['auction_date']); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700"><?php echo e($row['payment_type']); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700"><?php echo e($row['status']); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-right text-sm font-semibold text-slate-800"><?php echo e($fmtBillion($row['expected'])); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-right text-sm font-semibold text-slate-800"><?php echo e($fmtBillion($row['received'])); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-right text-sm font-semibold text-slate-800"><?php echo e($fmtBillion($row['qoldiq'])); ?></td>
+                                <?php else: ?>
+                                    <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700"><?php echo e($row['date'] ?? ''); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700"><?php echo e($row['doc_num'] ?? ''); ?></td>
                                     <td class="border border-slate-200 px-3 py-2 text-center text-sm text-slate-700 whitespace-nowrap">
-                                        @if(!empty($row['lot_raqami']))
-                                            <a href="{{ route('yer-sotuvlar.show', ['lot_raqami' => $row['lot_raqami']]) }}" class="text-blue-700 hover:text-blue-900 hover:underline font-semibold">
-                                                {{ $row['lot_raqami'] }}
+                                        <?php if(!empty($row['lot_raqami'])): ?>
+                                            <a href="<?php echo e(route('yer-sotuvlar.show', ['lot_raqami' => $row['lot_raqami']])); ?>" class="text-blue-700 hover:text-blue-900 hover:underline font-semibold">
+                                                <?php echo e($row['lot_raqami']); ?>
+
                                             </a>
-                                            @if(!empty($row['lot_match_source']))
-                                                <div class="text-[10px] text-slate-400 mt-0.5">{{ $row['lot_match_source'] }}</div>
-                                            @endif
-                                        @else
+                                            <?php if(!empty($row['lot_match_source'])): ?>
+                                                <div class="text-[10px] text-slate-400 mt-0.5"><?php echo e($row['lot_match_source']); ?></div>
+                                            <?php endif; ?>
+                                        <?php else: ?>
                                             <span class="text-slate-300">—</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
-                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700">{{ $row['district'] ?? '' }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700">{{ $row['category'] ?? '' }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700">{{ $row['recipient'] ?? '' }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700">{{ $row['article'] ?? '' }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-right text-sm font-semibold text-slate-800">{{ $fmtRaw($row['amount'] ?? 0) }}</td>
-                                    <td class="border border-slate-200 px-3 py-2 text-xs text-slate-600 break-words min-w-[380px]">{{ $row['details'] ?? '' }}</td>
-                                @endif
+                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700"><?php echo e($row['district'] ?? ''); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700"><?php echo e($row['category'] ?? ''); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700"><?php echo e($row['recipient'] ?? ''); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-sm text-slate-700"><?php echo e($row['article'] ?? ''); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-right text-sm font-semibold text-slate-800"><?php echo e($fmtRaw($row['amount'] ?? 0)); ?></td>
+                                    <td class="border border-slate-200 px-3 py-2 text-xs text-slate-600 break-words min-w-[380px]"><?php echo e($row['details'] ?? ''); ?></td>
+                                <?php endif; ?>
                             </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
                                 <td colspan="10" class="border border-slate-300 px-4 py-6 text-center text-slate-600">
                                     Танланган фильтр бўйича маълумот топилмади.
                                 </td>
                             </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\inves\OneDrive\Ishchi stol\yer-uchastkalar\resources\views/yer-sotuvlar/fin-xisobot-details.blade.php ENDPATH**/ ?>
