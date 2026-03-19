@@ -2446,10 +2446,24 @@ public function monitoring(Request $request)
         }
 
         if ($districtFilter !== '') {
-            $listFilters['tuman'] = $districtFilter;
+            $districtPatterns = $this->getFinXisobotDistrictPatterns();
+            $canonicalDistrict = $this->resolveFinXisobotDistrictRestrictCanonical($districtFilter, $districtPatterns);
+            $effectiveDistrict = $canonicalDistrict ?? $districtFilter;
+
+            $listFilters['tuman'] = $this->mapFinXisobotDistrictToListTuman($effectiveDistrict);
         }
 
         return $listFilters;
+    }
+
+    private function mapFinXisobotDistrictToListTuman(string $district): string
+    {
+        $map = [
+            'Мирзо Улугбек' => 'Мирзо Улуғбек тумани',
+            'Янги Хаёт' => 'Янгиҳаёт тумани',
+        ];
+
+        return $map[$district] ?? $district;
     }
 
     private function applyFinXisobotDetailsCategoryFilter($query, string $category): void
