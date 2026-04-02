@@ -98,6 +98,19 @@
                 'category' => 'Тошкент сити дирекциясига',
             ],
         ];
+
+        $orderedDistrictData = $districtData ?? [];
+        $unknownDistrictKey = 'Номалум';
+        if (is_array($orderedDistrictData) && array_key_exists($unknownDistrictKey, $orderedDistrictData)) {
+            $unknownDistrictValues = $orderedDistrictData[$unknownDistrictKey];
+            unset($orderedDistrictData[$unknownDistrictKey]);
+
+            if (is_array($unknownDistrictValues)) {
+                $unknownDistrictValues['Жами'] = 0;
+            }
+
+            $orderedDistrictData[$unknownDistrictKey] = $unknownDistrictValues;
+        }
     ?>
 
     <div class="min-h-screen bg-slate-100 py-6 px-4">
@@ -123,7 +136,7 @@
                     <div class="table-meta-strip">
                         <div>
                             <p class="table-meta-title">Ҳисобот жадвали</p>
-                            <p class="table-meta-subtitle">Қизил қийматлар тақсимланмаган қолдиқни, кўк қийматлар детал саҳифасини англатади.</p>
+                            <p class="table-meta-subtitle">Қизил рақамлар: тақсимланмаган қолдиқ. Кўк рақамлар: детал саҳифасига ўтиш.</p>
                             <p class="table-meta-status">Амалдаги фильтр: <?php echo e($activeFilterText); ?></p>
                         </div>
                         <div class="table-meta-actions">
@@ -160,6 +173,15 @@
                                         <?php echo $headerLabel('Жами'); ?>
 
                                     </th>
+                                    <th colspan="<?php echo e(count($columnCategories)); ?>" class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="font-size:11px;">
+                                        Жумладан
+                                    </th>
+                                    <th rowspan="2" class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="min-width: 120px; font-size:11px;">
+                                        <?php echo $headerLabel('Қолдиқ'); ?>
+
+                                    </th>
+                                </tr>
+                                <tr class="table-subhead-row">
                                     <?php $__currentLoopData = $columnCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <th
                                             class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800"
@@ -169,15 +191,11 @@
 
                                         </th>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                    <th class="border border-slate-300 px-2 py-2 text-center align-middle font-bold text-slate-800" style="min-width: 120px; font-size:11px;">
-                                        <?php echo $headerLabel('Қолдиқ'); ?>
-
-                                    </th>
                                 </tr>
                             </thead>
 
                             <tbody class="bg-white">
-                                <?php if(empty($districtData) || count($districtData) === 0): ?>
+                                <?php if(empty($orderedDistrictData) || count($orderedDistrictData) === 0): ?>
                                     <tr>
                                         <td colspan="<?php echo e(4 + count($columnCategories)); ?>" class="border border-slate-300 px-4 py-6 text-center text-slate-700">
                                             Маълумотлар топилмади.
@@ -235,7 +253,7 @@
                                         </td>
                                     </tr>
 
-                                    <?php $__currentLoopData = $districtData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district => $values): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php $__currentLoopData = $orderedDistrictData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district => $values): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="bg-white transition-colors duration-150 hover:bg-slate-50">
                                             <td class="sticky-col border border-slate-300 px-2 py-1 text-center align-middle font-medium text-slate-700">
                                                 <?php echo e($loop->iteration); ?>
@@ -302,7 +320,7 @@
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                                     <?php
-                                        $districtRowNumber = count($districtData);
+                                        $districtRowNumber = count($orderedDistrictData);
                                     ?>
                                     <?php $__currentLoopData = $extraDistrictRows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $extraRow): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <?php
@@ -545,28 +563,33 @@
         .statistics-table th,
         .statistics-table td {
             box-sizing: border-box;
-            font-size: 12px;
+            font-size: 12.5px;
             border-color: #cbd5e1;
         }
 
         .statistics-table th {
             white-space: normal;
-            line-height: 1.35;
+            line-height: 1.5;
             word-break: normal;
-            overflow-wrap: anywhere;
+            overflow-wrap: break-word;
             hyphens: none;
         }
 
         .statistics-table thead th {
             background: #e2e8f0;
             color: #0f172a;
-            font-size: 11.5px;
+            font-size: 12.5px;
             font-weight: 700;
             letter-spacing: 0.01em;
         }
 
+        .table-subhead-row th {
+            background: #f1f5f9;
+        }
+
         .statistics-table tbody td {
             font-variant-numeric: tabular-nums;
+            line-height: 1.45;
         }
 
         .statistics-table tbody tr:not(.summary-row):nth-child(even) td {
@@ -664,7 +687,7 @@
         }
 
         .metric-value {
-            font-size: 12.5px;
+            font-size: 13.5px;
             font-weight: 700;
             letter-spacing: -0.01em;
             font-variant-numeric: tabular-nums;
@@ -677,7 +700,7 @@
 
         .residual-value {
             color: #b91c1c;
-            font-size: 12.5px;
+            font-size: 13.5px;
             font-weight: 700;
             letter-spacing: -0.01em;
             font-variant-numeric: tabular-nums;
@@ -702,16 +725,16 @@
         .table-meta-subtitle {
             margin-top: 0.15rem;
             color: #64748b;
-            font-size: 11px;
-            line-height: 1.45;
+            font-size: 12px;
+            line-height: 1.6;
         }
 
         .table-meta-status {
             margin-top: 0.35rem;
             color: #334155;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            line-height: 1.45;
+            line-height: 1.55;
         }
 
         .table-meta-actions {
