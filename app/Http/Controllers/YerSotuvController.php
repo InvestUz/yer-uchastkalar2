@@ -6,6 +6,7 @@ use App\Models\GrafikTolov;
 use App\Models\YerSotuv;
 use App\Models\FaktTolov;
 use App\Models\DavaktivRasxod;
+use App\Models\NotFoundFactpayment;
 use App\Services\YerSotuvService;
 use App\Services\YerSotuvFilterService;
 use App\Services\YerSotuvMonitoringService;
@@ -1691,6 +1692,7 @@ public function monitoring(Request $request)
                 'activeFilterParams' => $this->getFinXisobotActiveFilterParams($filters),
                 'availableYears' => $this->getFinXisobotAvailableYears(),
                 'monthOptions' => $this->getFinXisobotMonthOptions(),
+                'notFoundFactTotal' => $this->getFinXisobotNotFoundFactTotal($filters),
             ]));
         } catch (\Exception $e) {
             \Log::error('Error reading financial data: ' . $e->getMessage());
@@ -1715,6 +1717,7 @@ public function monitoring(Request $request)
                 'activeFilterParams' => [],
                 'availableYears' => $this->getFinXisobotAvailableYears(),
                 'monthOptions' => $this->getFinXisobotMonthOptions(),
+                'notFoundFactTotal' => 0,
                 'error' => 'Маълумотларни ўқишда хато: ' . $e->getMessage()
             ]);
         }
@@ -1733,6 +1736,52 @@ public function monitoring(Request $request)
             }
             $district = trim((string)$request->query('district', ''));
             $category = trim((string)$request->query('category', ''));
+
+            if ($category === $this->getFinXisobotNotFoundCategoryLabel()) {
+                $notFoundDisplayLabel = $this->getFinXisobotNotFoundCategoryDisplayLabel();
+                $query = $this->buildFinXisobotNotFoundFactQuery($filters)
+                    ->orderByDesc('tolov_sana')
+                    ->orderByDesc('id');
+
+                $records = $query->get();
+
+                $rows = [];
+                $detailTotal = 0.0;
+
+                foreach ($records as $record) {
+                    $amount = (float)($record->tolov_summa ?? 0);
+                    $detailTotal += $amount;
+
+                    $rows[] = [
+                        'date' => $record->tolov_sana ? \Carbon\Carbon::parse((string)$record->tolov_sana)->format('d.m.Y') : '',
+                        'doc_num' => (string)($record->hujjat_raqam ?? ''),
+                        'lot_raqami' => (string)($record->lot_raqami ?: $record->raw_lot_value),
+                        'lot_linkable' => false,
+                        'lot_match_source' => (string)($record->source_file ?? ''),
+                        'district' => $notFoundDisplayLabel,
+                        'category' => $notFoundDisplayLabel,
+                        'recipient' => (string)($record->tolash_nom ?? ''),
+                        'article' => (string)($record->reason ?? ''),
+                        'amount' => $amount,
+                        'details' => (string)($record->detali ?? ''),
+                    ];
+                }
+
+                return view('yer-sotuvlar.fin-xisobot-details', [
+                    'detailsMode' => 'financial',
+                    'rows' => $rows,
+                    'rawDistrict' => $district,
+                    'rawCategory' => $category,
+                    'selectedDistrict' => $notFoundDisplayLabel,
+                    'selectedCategory' => $notFoundDisplayLabel,
+                    'recordCount' => count($rows),
+                    'totalAmount' => $detailTotal,
+                    'listRouteParams' => [],
+                    'filters' => $filters,
+                    'activeFilterParams' => $this->getFinXisobotActiveFilterParams($filters),
+                    'monthOptions' => $this->getFinXisobotMonthOptions(),
+                ]);
+            }
 
             // Jami (no category selected) should open monitoring-style details from YerSotuv list source.
             if ($category === '') {
@@ -2454,6 +2503,44 @@ public function monitoring(Request $request)
         }
 
         return $listFilters;
+    }
+
+    private function getFinXisobotNotFoundCategoryLabel(): string
+    {
+        return 'Fakt_tushum_bolmaganlar';
+    }
+
+    private function getFinXisobotNotFoundCategoryDisplayLabel(): string
+    {
+        return 'Факт тушум бўлмаганлар';
+    }
+
+    private function buildFinXisobotNotFoundFactQuery(array $filters)
+    {
+        $query = NotFoundFactpayment::query();
+
+        if (!empty($filters['year'])) {
+            $query->whereYear('tolov_sana', (int)$filters['year']);
+        }
+
+        if (!empty($filters['month'])) {
+            $query->whereMonth('tolov_sana', (int)$filters['month']);
+        }
+
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('tolov_sana', '>=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('tolov_sana', '<=', $filters['date_to']);
+        }
+
+        return $query;
+    }
+
+    private function getFinXisobotNotFoundFactTotal(array $filters): float
+    {
+        return (float)$this->buildFinXisobotNotFoundFactQuery($filters)->sum('tolov_summa');
     }
 
     private function mapFinXisobotDistrictToListTuman(string $district): string

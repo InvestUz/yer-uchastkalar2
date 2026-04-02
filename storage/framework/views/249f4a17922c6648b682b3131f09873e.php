@@ -40,6 +40,7 @@
         $monthOptions = $monthOptions ?? [];
         $districtRestrict = $filters['district_restrict'] ?? null;
         $proportionalCategoryLookup = $proportionalCategoryLookup ?? [];
+        $notFoundFactTotal = (float) ($notFoundFactTotal ?? 0);
 
         $yearSelectOptions = [];
         if (!empty($availableYears)) {
@@ -75,6 +76,7 @@
             'ЯнгиХаёт индустриал технопарки дирекциясига',
             'Шайҳонтохур туманига',
             'Тошкент сити дирекциясига',
+            'Fakt_tushum_bolmaganlar',
         ];
         $columnCategories = array_filter(
             $paymentCategories,
@@ -88,14 +90,22 @@
             [
                 'label' => 'ЯнгиХаёт индустриал технопарки дирекциясига',
                 'category' => 'ЯнгиХаёт индустриал технопарки дирекциясига',
+                'district' => 'Янги Хаёт',
             ],
             [
                 'label' => 'Шайҳонтохур туманига',
                 'category' => 'Шайҳонтохур туманига',
+                'district' => 'Шайҳонтохур',
             ],
             [
                 'label' => 'Тошкент сити дирекциясига',
                 'category' => 'Тошкент сити дирекциясига',
+                'district' => null,
+            ],
+            [
+                'label' => 'Факт тушум бўлмаганлар',
+                'category' => 'Fakt_tushum_bolmaganlar',
+                'district' => null,
             ],
         ];
 
@@ -326,7 +336,16 @@
                                         <?php
                                             $districtRowNumber++;
                                             $extraCategory = $extraRow['category'];
-                                            $extraTotal = (float) ($categoryTotals[$extraCategory] ?? 0);
+                                            $extraTotal = $extraCategory === 'Fakt_tushum_bolmaganlar'
+                                                ? $notFoundFactTotal
+                                                : (float) ($categoryTotals[$extraCategory] ?? 0);
+                                            $extraDetailParams = array_merge(
+                                                $activeFilterParams,
+                                                array_filter([
+                                                    'district' => $extraRow['district'] ?? null,
+                                                    'category' => $extraCategory,
+                                                ], static fn ($value) => $value !== null && $value !== '')
+                                            );
                                         ?>
                                         <tr class="supplement-row bg-white transition-colors duration-150 hover:bg-slate-50">
                                             <td class="sticky-col border border-slate-300 px-2 py-1 text-center align-middle font-medium text-slate-700">
@@ -334,12 +353,13 @@
 
                                             </td>
                                             <td class="sticky-col-2 border border-slate-300 px-2 py-1 align-middle font-semibold text-slate-800">
-                                                <?php echo e($extraRow['label']); ?>
-
+                                                <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', $extraDetailParams)); ?>" class="metric-link text-right">
+                                                    <span class="metric-value text-rose-700"><?php echo e($extraRow['label']); ?></span>
+                                                </a>
                                             </td>
                                             <td class="total-amount-col border border-slate-300 px-2 py-1 text-right text-slate-700">
                                                 <?php if($extraTotal > 0): ?>
-                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', array_merge($activeFilterParams, ['category' => $extraCategory]))); ?>" class="metric-link text-right">
+                                                    <a href="<?php echo e(route('yer-sotuvlar.fin-xisobot.details', $extraDetailParams)); ?>" class="metric-link text-right">
                                                         <span class="<?php echo \Illuminate\Support\Arr::toCssClasses([
                                                             'metric-value',
                                                             'text-rose-700' => in_array($extraCategory, ['ЯнгиХаёт индустриал технопарки дирекциясига', 'Шайҳонтохур туманига', 'Тошкент сити дирекциясига'], true),
